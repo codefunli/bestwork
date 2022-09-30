@@ -68,16 +68,13 @@ public class CompanyController extends BaseController {
 	 * @return
 	 * @throws BestWorkBussinessException
 	 */
-	@DeleteMapping("delete//{tCompanyId}")
-	public ResponseEntity<? extends Object> delete(@PathVariable String tCompanyId) throws BestWorkBussinessException {
+	@DeleteMapping("/delete/{tCompanyId}")
+	public ResponseEntity<? extends Object> delete(@PathVariable long tCompanyId) throws BestWorkBussinessException {
 		 try {
-			 companyService.delete(tCompanyId);
+			 companyService.deleteCompany(tCompanyId);
 	        } catch (BestWorkBussinessException ex) {
 	            return failed(ex.getMsgCode(), ex.getParam());
 	        }
 	        return success(CommonConstants.MessageCode.CPN0001, null, null);
 	}
-	
-	
-
 }

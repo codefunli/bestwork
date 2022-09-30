@@ -1,5 +1,7 @@
 package com.nineplus.bestwork.services;
 
+import java.util.List;
+
 import org.apache.commons.lang3.ObjectUtils;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
@@ -13,9 +15,11 @@ import com.nineplus.bestwork.dto.RCompanyResDTO;
 import com.nineplus.bestwork.dto.RCompanyUserReqDTO;
 import com.nineplus.bestwork.entity.TCompany;
 import com.nineplus.bestwork.entity.TRole;
+import com.nineplus.bestwork.entity.TUser;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.model.UserAuthDetected;
 import com.nineplus.bestwork.repository.TRoleRepository;
+import com.nineplus.bestwork.repository.TUserRepository;
 import com.nineplus.bestwork.repository.TCompanyRepository;
 import com.nineplus.bestwork.utils.CommonConstants;
 import com.nineplus.bestwork.utils.DateUtils;
@@ -45,6 +49,9 @@ public class CompanyService {
 
 	@Autowired
 	UserService userService;
+	
+	@Autowired
+    TUserRepository tUserRepos;
 
 	@Autowired
 	DateUtils dateUtils;
@@ -96,8 +103,10 @@ public class CompanyService {
 			company.setWard(companyReqDto.getCompany().getWard());
 			company.setStreet(companyReqDto.getCompany().getStreet());
 			company.setDetailAddress(companyReqDto.getCompany().getDetailAddress());
-			//String startDt = dateUtils.convertToUTC(companyReqDto.getCompany().getStartDate());
-			//String expiredDt = dateUtils.convertToUTC(companyReqDto.getCompany().getExpiredDate());
+			// String startDt =
+			// dateUtils.convertToUTC(companyReqDto.getCompany().getStartDate());
+			// String expiredDt =
+			// dateUtils.convertToUTC(companyReqDto.getCompany().getExpiredDate());
 			company.setStartDate(companyReqDto.getCompany().getStartDate());
 			company.setExpiredDate(companyReqDto.getCompany().getExpiredDate());
 
@@ -162,12 +171,32 @@ public class CompanyService {
 		}
 	}
 
-	public void delete(String tCompanyId) throws BestWorkBussinessException {
+	@Transactional(rollbackFor = {Exception.class})
+	public long deleteCompany(long tCompanyId) throws BestWorkBussinessException {
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
 		// Only system admin can do this
 		if (!userAuthRoleReq.getIsSysAdmin()) {
 			logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0014, null));
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
 		}
+		try {
+		TCompany currTcompany = null;
+		currTcompany = tCompanyRepository.findById(tCompanyId).orElse(null);
+		if (ObjectUtils.isEmpty(currTcompany)) {
+            throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
+        }
+		
+		// Delete company
+		tCompanyRepository.delete(currTcompany);
+
+		// delete user relate company
+        List<TUser> allTusers = tUserRepos.findAllUserByCompanyId(currTcompany.getId());
+        tUserRepos.deleteAllInBatch(allTusers);
+		
+	} catch (Exception ex) {
+        logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0002, null), ex);
+        throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0002, null);
+    }
+		return tCompanyId;
 	}
 }
