@@ -38,7 +38,7 @@ public class SysUser {
 	@Column(name = "birthday", nullable = false)
 	private Date birthday;
 
-	@Column(name = "email", nullable = false, columnDefinition = "varchar(50)")
+	@Column(name = "email", unique = true, nullable = false, columnDefinition = "varchar(50)")
 	private String email;
 
 	@Column(name = "address", nullable = false, columnDefinition = "varchar(50)")
@@ -58,6 +58,9 @@ public class SysUser {
 
 	@Column(name = "status", nullable = false, columnDefinition = "tinyint(1)")
 	private int status;
+	
+	@Column(name = "reset_password_token", columnDefinition = "varchar(45)")
+	private String resetPasswordToken;
 
 	@ManyToOne
 	@JoinColumn(name = "role_id")
