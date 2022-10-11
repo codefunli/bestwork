@@ -72,15 +72,13 @@ public class UserService implements UserDetailsService {
             dto.setUserNm(user.getUserName());
             dto.setEmail(user.getEmail());
             dto.setRole(user.getRole().getRoleName());
-            dto.setEnabled(user.isEnabled());
-            dto.setCountLoginFailed(user.getCountLoginFailed());
-            dto.setBlocked(this.isBlocked(user.getCountLoginFailed()));
+            dto.setEnabled(user.isEnable());
+            dto.setCountLoginFailed(user.getLoginFailedNum());
+            dto.setBlocked(this.isBlocked(user.getLoginFailedNum()));
             dto.setFirstNm(user.getFirstNm());
             dto.setLastNm(user.getLastNm());
-            dto.setUserId(user.getUserId());
-            dto.setCreateDt(user.getCreatedDt());
-            dto.setUpdatedDt(user.getUpdatedDt());
-            dto.setCurrentCmpnyId(user.getCurrentCpmnyId());
+            dto.setCreateDt(user.getCreateDate());
+            dto.setUpdatedDt(user.getUpdateDate());
         }
         
         return dto;
@@ -91,11 +89,9 @@ public class UserService implements UserDetailsService {
 		TUser newTUser = new TUser();
 		Set<TCompany> tCompanyUser = new HashSet<TCompany>();
 		tCompanyUser.add(tCompany);
-		newTUser.setUserId(newUser.getUserId());
         newTUser.setEmail(newUser.getEmail());
-        newTUser.setCurrentCpmnyId(tCompany.getCompanyId());
         newTUser.setUserName(newUser.getUserName());
-        newTUser.setEnabled(newUser.getEnabled());
+        newTUser.setEnable(newUser.getEnabled());
         newTUser.setFirstNm(newUser.getFirstName());
         newTUser.setLastNm(newUser.getLastName());
         newTUser.setPassword(encoder.encode(newUser.getPassword()));

@@ -4,7 +4,7 @@ public class CommonConstants {
 	public class Authentication {
 		public static final String ACCESS_COOKIE = "access_cookie";
 		public static final String REFRESH_COOKIE = "refresh_cookie";
-		public static final String PREFIX_TOKEN = "prefixToken";
+		public static final String PREFIX_TOKEN = "prefix";
 		public static final String ROLES = "roles";
 		public static final String USERNAME = "username";
 		public static final String PASSWORD = "password";
@@ -30,6 +30,7 @@ public class CommonConstants {
 		public static final String ORG_NAME = "Org Name";
 		public static final String USER_MAIL = "User Mail";
 		public static final String USER_NAME = "User Name";
+		public static final String CMPNY_NAME = "Company Name";
 
 		public static final String COMPANY = "COMPANY";
 		public static final String USERNAME_OR_EMAIL = "USER or EMAIL";
@@ -115,6 +116,15 @@ public class CommonConstants {
 		public static final String SU0003 = "su0003";
 		public static final String SU0004 = "su0004";
 		public static final String SU0005 = "su0005";
+		public static final String sUS0001 = "sUS0001";
+		
+		public static final String CPN0004 = "CPN0004";
+		public static final String CPN0005 = "CPN0005";
+		public static final String EMP0001 = "EMP0001";
+		public static final String US0002 = "EMP0002";
+		public static final String FILE0001 = "FILE0001";
+		public static final String FILE0002 = "FILE0002";
+		public static final String FILE0003 = "FILE0003";
 	}
 
 	

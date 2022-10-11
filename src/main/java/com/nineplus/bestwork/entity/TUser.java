@@ -23,7 +23,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 @Entity(name = "TUser")
-@Table(name = "t_user")
+@Table(name = "T_SYS_APP_USER")
 @Data
 public class TUser {
 
@@ -32,49 +32,46 @@ public class TUser {
     @Column(name = "id", unique = true, nullable = false, precision = 19)
     private long id;
 
-    @Column(name = "user_id", nullable = false)
-    private String userId;
-
-    @Column(name = "cur_company_id", nullable = false)
-    private Long currentCpmnyId;
-
     @Column(name = "user_name", nullable = false)
     private String userName;
     
     @Column(name = "password", nullable = false)
     private String password;
     
-    @Column(name = "first_nm", nullable = false)
+    @Column(name = "first_name", nullable = false)
     private String firstNm;
     
-    @Column(name = "last_nm", nullable = false)
+    @Column(name = "last_name", nullable = false)
     private String lastNm;
     
     @Column(name = "email", nullable = false)
     private String email;
 
-    @Column(name = "enabled", nullable = false, length = 3)
-    private boolean enabled;
+    @Column(name = "enable", nullable = false)
+    private boolean isEnable;
 
     @CreationTimestamp
-    @Column(name = "crt_dt", nullable = false, insertable = false, updatable = false)
-    private LocalDateTime createdDt;
+    @Column(name = "create_date", nullable = false, insertable = false, updatable = false)
+    private LocalDateTime createDate;
     
-    @Column(name = "is_deleted", nullable = false, length = 3)
-    private boolean isDeleted;
+    @Column(name = "delete_flag")
+    private int deleteFlag;
 
-    @Column(name = "count_login_failed", nullable = false)
-    private int countLoginFailed;
-   
     @UpdateTimestamp
-    @Column(name = "update_dt", nullable = false)
-    private LocalDateTime updatedDt;
+    @Column(name = "update_date")
+    private LocalDateTime updateDate;
 
-    @Column(name = "token")
-    private String token;
-    
+    @Column(name = "create_by")
+    private String createBy;
+
+    @Column(name = "update_by")
+    private String updateBy;
+
+    @Column(name = "count_login_failed")
+    private int loginFailedNum;
+
     @ManyToOne
-    @JoinColumn(name = "role_id")
+    @JoinColumn(name = "app_role_id")
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private TRole role;

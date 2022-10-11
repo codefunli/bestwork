@@ -11,5 +11,7 @@ public interface TCompanyRepository extends JpaRepository<TCompany, Long> {
 	
 	//@Query(value = "SELECT * FROM T_COMPANY WHERE companyId = :companyId", nativeQuery = true)
     //TCompany findByCompanyId(Long companyId);
+	@Query(value = "SELECT * FROM T_COMPANY WHERE company_name = :name", nativeQuery = true)
+	TCompany findbyCompanyName(String name);
 
 }
