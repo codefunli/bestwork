@@ -1,15 +1,18 @@
 package com.nineplus.bestwork.entity;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -19,7 +22,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-@Entity(name = "UserEntity")
+@Entity(name = "TUser")
 @Table(name = "t_user")
 @Data
 public class TUser {
@@ -57,9 +60,6 @@ public class TUser {
     @Column(name = "crt_dt", nullable = false, insertable = false, updatable = false)
     private LocalDateTime createdDt;
     
-    @Column(name = "tel_no", nullable = false)
-    private String telNo;
-    
     @Column(name = "is_deleted", nullable = false, length = 3)
     private boolean isDeleted;
 
@@ -70,10 +70,16 @@ public class TUser {
     @Column(name = "update_dt", nullable = false)
     private LocalDateTime updatedDt;
 
-    @Column(name = "token", nullable = false)
+    @Column(name = "token")
     private String token;
     
-    @OneToOne
-    @JoinColumn(name = "t_role",  referencedColumnName = "id")
+    @ManyToOne
+    @JoinColumn(name = "role_id")
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private TRole role;
+    
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "T_COMPANY_USER", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "company_id"))
+    Set<TCompany> companys;
 }
