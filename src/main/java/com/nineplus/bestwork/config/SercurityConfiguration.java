@@ -51,7 +51,7 @@ import lombok.RequiredArgsConstructor;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SercurityConfiguration implements EnvironmentAware {
 
-	public static String PUBLIC_URL[] = {};
+	public static String PUBLIC_URL[] = {"/api/v1/auth/**"};
 	public static String IGNORE_URL[] = {};
 	@Value("${allow.origins}")
 	private String allowOrigins;

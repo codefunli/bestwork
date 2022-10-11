@@ -48,4 +48,13 @@ public abstract class BaseController {
 		return new ResponseEntity<ApiResponseDTO>(apiResponseDto, HttpStatus.OK);
 	}
 
+	public ResponseEntity<? extends Object> failedWithError(String msgCode, Object data, Object[] params) {
+
+		ApiResponseDTO apiResponseDto = ApiResponseDTO.builder().code(msgCode)
+				.message(messageUtils.getMessage(msgCode, params)).data(data)
+				.status(CommonConstants.ApiStatus.STATUS_ERROR).build();
+
+		return new ResponseEntity<ApiResponseDTO>(apiResponseDto, HttpStatus.OK);
+	}
+
 }
