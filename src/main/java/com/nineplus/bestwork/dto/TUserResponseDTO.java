@@ -20,12 +20,6 @@ public class TUserResponseDTO extends BaseDTO  {
     @JsonProperty("id")
     private long id;
 
-    @JsonProperty("user_id")
-    private String userId;
-
-    @JsonProperty("current_cmpny_id")
-    private long currentCmpnyId;
-
     @JsonProperty("enabled")
     private Boolean enabled;
 

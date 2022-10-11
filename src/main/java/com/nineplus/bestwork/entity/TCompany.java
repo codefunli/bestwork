@@ -26,21 +26,18 @@ public class TCompany implements Serializable {
 	
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ID", unique = true, nullable = false, precision = 19)
+    @Column(name = "id", unique = true, nullable = false, precision = 19)
     private Long id;
-
-    @Column(name = "company_id", nullable = false)
-    private Long companyId;
 
     @Column(name = "company_name", nullable = false)
     private String companyName;
 
     @CreationTimestamp
-    @Column(name = "create_dt", nullable = false, insertable = false, updatable = false)
+    @Column(name = "create_date", nullable = false, insertable = false, updatable = false)
     private LocalDateTime createDt;
 
     @UpdateTimestamp
-    @Column(name = "update_dt", nullable = false)
+    @Column(name = "update_date", nullable = false)
     private LocalDateTime updateDt;
 
     @Column(name = "email")
@@ -64,18 +61,23 @@ public class TCompany implements Serializable {
     @Column(name = "street")
     private String street;
 
-    @Column(name = "detail_adress")
-    private String detailAddress;
-    
-    // update registration
-    @Column(name = "start_dt")
+    @Column(name = "start_date")
     private String startDate;
 
-    @Column(name = "expired_dt")
+    @Column(name = "expired_date")
     private String expiredDate;
     
     @Column(name = "is_expired")
-    private boolean isExpired;
+    private int isExpired;
+    
+    @Column(name = "create_by")
+    private String createBy;
+    
+    @Column(name = "update_by")
+    private String updateBy;
+    
+    @Column(name = "delete_flag")
+    private int deleteFlag;
     
 	/*
 	 * @Override public boolean equals(Object o) { if (o == this) { return true; }

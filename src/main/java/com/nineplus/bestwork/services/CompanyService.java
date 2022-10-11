@@ -49,9 +49,9 @@ public class CompanyService {
 
 	@Autowired
 	UserService userService;
-	
+
 	@Autowired
-    TUserRepository tUserRepos;
+	TUserRepository tUserRepos;
 
 	@Autowired
 	DateUtils dateUtils;
@@ -67,7 +67,7 @@ public class CompanyService {
 		}
 
 		// validation
-		this.validateInformation(companyReqDto);
+		this.validateCpmnyInfor(companyReqDto);
 
 		try {
 			// Register company information in DB
@@ -84,8 +84,49 @@ public class CompanyService {
 		}
 	}
 
-	public void validateInformation(RCompanyUserReqDTO companyReqDto) throws BestWorkBussinessException {
+	/**
+	 */
+	public void validateCpmnyInfor(RCompanyUserReqDTO companyReqDto) throws BestWorkBussinessException {
 		// Validation register information
+		String companyName = companyReqDto.getCompany().getCompanyName();
+		String userEmail = companyReqDto.getUser().getEmail();
+		String userName = companyReqDto.getUser().getUserName();
+		String password = companyReqDto.getUser().getPassword();
+
+		// Company name can not be empty
+		if (ObjectUtils.isEmpty(companyName)) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.EMP0001,
+					new Object[] { CommonConstants.Character.CMPNY_NAME });
+		}
+		// User email can not be empty
+		if (ObjectUtils.isEmpty(userEmail)) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.EMP0001,
+					new Object[] { CommonConstants.Character.USER_MAIL });
+		}
+
+		// User name can not be empty
+		if (ObjectUtils.isEmpty(userName)) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.EMP0001,
+					new Object[] { CommonConstants.Character.USER_NAME });
+		}
+
+		// Password can not be empty empty
+		if (ObjectUtils.isEmpty(password) || password.length() < 6) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.EMP0001,
+					new Object[] { CommonConstants.Character.PASSWORD });
+		}
+
+		// Check exists company name in database
+		TCompany company = tCompanyRepository.findbyCompanyName(companyName);
+		if (!ObjectUtils.isEmpty(company)) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.CPN0005, new Object[] { company });
+		}
+		
+		// Check exists user email in DB
+		TUser user  =  tUserRepos.findByEmail(userEmail);
+		if (!ObjectUtils.isEmpty(user)) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.US0002, new Object[] { user });
+		}
 
 	}
 
@@ -93,7 +134,6 @@ public class CompanyService {
 		TCompany company = null;
 		try {
 			company = new TCompany();
-			company.setCompanyId(companyReqDto.getCompany().getCompanyId());
 			company.setCompanyName(companyReqDto.getCompany().getCompanyName());
 			company.setEmail(companyReqDto.getCompany().getEmail());
 			company.setTelNo(companyReqDto.getCompany().getTelNo());
@@ -102,7 +142,6 @@ public class CompanyService {
 			company.setDistrict(companyReqDto.getCompany().getDistrict());
 			company.setWard(companyReqDto.getCompany().getWard());
 			company.setStreet(companyReqDto.getCompany().getStreet());
-			company.setDetailAddress(companyReqDto.getCompany().getDetailAddress());
 			// String startDt =
 			// dateUtils.convertToUTC(companyReqDto.getCompany().getStartDate());
 			// String expiredDt =
@@ -146,7 +185,6 @@ public class CompanyService {
 		}
 
 		try {
-			currentCompany.setCompanyId(rcompanyReqDto.getCompanyId());
 			currentCompany.setCompanyName(rcompanyReqDto.getCompanyName());
 			currentCompany.setEmail(rcompanyReqDto.getEmail());
 			currentCompany.setTelNo(rcompanyReqDto.getTelNo());
@@ -155,7 +193,6 @@ public class CompanyService {
 			currentCompany.setDistrict(rcompanyReqDto.getDistrict());
 			currentCompany.setWard(rcompanyReqDto.getWard());
 			currentCompany.setStreet(rcompanyReqDto.getStreet());
-			currentCompany.setDetailAddress(rcompanyReqDto.getDetailAddress());
 			currentCompany.setStartDate(rcompanyReqDto.getStartDate());
 			currentCompany.setExpiredDate(rcompanyReqDto.getExpiredDate());
 			tCompanyRepository.save(currentCompany);
@@ -171,7 +208,7 @@ public class CompanyService {
 		}
 	}
 
-	@Transactional(rollbackFor = {Exception.class})
+	@Transactional(rollbackFor = { Exception.class })
 	public long deleteCompany(long tCompanyId) throws BestWorkBussinessException {
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
 		// Only system admin can do this
@@ -180,23 +217,23 @@ public class CompanyService {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
 		}
 		try {
-		TCompany currTcompany = null;
-		currTcompany = tCompanyRepository.findById(tCompanyId).orElse(null);
-		if (ObjectUtils.isEmpty(currTcompany)) {
-            throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
-        }
-		
-		// Delete company
-		tCompanyRepository.delete(currTcompany);
+			TCompany currTcompany = null;
+			currTcompany = tCompanyRepository.findById(tCompanyId).orElse(null);
+			if (ObjectUtils.isEmpty(currTcompany)) {
+				throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
+			}
 
-		// delete user relate company
-        List<TUser> allTusers = tUserRepos.findAllUserByCompanyId(currTcompany.getId());
-        tUserRepos.deleteAllInBatch(allTusers);
-		
-	} catch (Exception ex) {
-        logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0002, null), ex);
-        throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0002, null);
-    }
+			// Delete company
+			tCompanyRepository.delete(currTcompany);
+
+			// delete user relate company
+			List<TUser> allTusers = tUserRepos.findAllUserByCompanyId(currTcompany.getId());
+			tUserRepos.deleteAllInBatch(allTusers);
+
+		} catch (Exception ex) {
+			logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0002, null), ex);
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0002, null);
+		}
 		return tCompanyId;
 	}
 }
