@@ -8,12 +8,11 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class RProjectReqDTO {
-	
-	@JsonProperty("pageConditon")
-    private PageSearchDTO pageConditon;
 
-    @JsonProperty("projectCondition")
-    private PrjConditionSearchDTO projectCondition;
-    
+	@JsonProperty("pageConditon")
+	private PageSearchDTO pageConditon;
+
+	@JsonProperty("projectCondition")
+	private PrjConditionSearchDTO projectCondition;
 
 }

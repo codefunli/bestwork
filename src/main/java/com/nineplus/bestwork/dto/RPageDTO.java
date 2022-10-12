@@ -1,8 +1,5 @@
 package com.nineplus.bestwork.dto;
 
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
@@ -13,39 +10,39 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 public class RPageDTO extends BaseDTO {
-	
+
 	/**
-     * serialVersionUID
-     */
-    private static final long serialVersionUID = 7969015153524943561L;
+	 * serialVersionUID
+	 */
+	private static final long serialVersionUID = 7969015153524943561L;
 
-    @JsonProperty("pageable")
-    private Pageable pageable;
+	@JsonProperty("totalPages")
+	private int totalPages;
 
-    @JsonProperty("last")
-    private boolean last;
+	@JsonProperty("totalElements")
+	private long totalElements;
 
-    @JsonProperty("totalPages")
-    private int totalPages;
+	@JsonProperty("size")
+	private int size;
 
-    @JsonProperty("totalElements")
-    private long totalElements;
+	@JsonProperty("number")
+	private int number;
 
-    @JsonProperty("size")
-    private int size;
+//  @JsonProperty("pageable")
+//  private Pageable pageable;
+//
+//  @JsonProperty("last")
+//  private boolean last;
 
-    @JsonProperty("number")
-    private int number;
+//    @JsonProperty("sort")
+//    private Sort sort;
+//
+//    @JsonProperty("first")
+//    private boolean first;
 
-    @JsonProperty("sort")
-    private Sort sort;
-
-    @JsonProperty("first")
-    private boolean first;
-
-    @JsonProperty("numberOfElements")
-    private int numberOfElements;
-
-    @JsonProperty("empty")
-    private boolean empty;
+//    @JsonProperty("numberOfElements")
+//    private int numberOfElements;
+//
+//    @JsonProperty("empty")
+//    private boolean empty;
 }

@@ -1,0 +1,2 @@
+INDEX VERSION 1.131+E:\NinePlus 09.2022\projects\bestwork_be\.metadata\.plugins\org.eclipse.jdt.core
+1865797976.index
