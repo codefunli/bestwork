@@ -19,9 +19,6 @@ public class RCompanyReqDTO extends BaseDTO {
 	@JsonProperty("id")
     private String id;
 
-	@JsonProperty("companyId")
-	private Long companyId;
-
 	@JsonProperty("companyName")
 	private String companyName;
 
@@ -46,12 +43,13 @@ public class RCompanyReqDTO extends BaseDTO {
 	@JsonProperty("street")
 	private String street;
 
-	@JsonProperty("detailAddress")
-	private String detailAddress;
-
 	@JsonProperty("startDate")
 	private String startDate;
 
 	@JsonProperty("expiredDate")
 	private String expiredDate;
+	
+	private String createBy;
+	
+	private String updateBy;
 }

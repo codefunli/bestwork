@@ -103,19 +103,19 @@ public class SercurityConfiguration implements EnvironmentAware {
 	}
 
 	@Bean
-	CorsConfigurationSource corsConfigurationSource() {
+    CorsConfigurationSource corsConfigurationSource() {
 
-		CorsConfiguration configuration = new CorsConfiguration();
-		String[] allowOriginsArr = allowOrigins.split(",");
-		List<String> allowOrigins = Arrays.asList(allowOriginsArr);
-		configuration.setAllowedOriginPatterns(allowOrigins);
-		configuration.setAllowedMethods(Collections.singletonList("*"));
-		configuration.setAllowedHeaders(Collections.singletonList("*"));
-		configuration.setAllowCredentials(true);
-		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-		source.registerCorsConfiguration("/**", configuration);
-		return source;
-	}
+        CorsConfiguration configuration = new CorsConfiguration();
+        String[] allowOriginsArr = allowOrigins.split(",");
+        List<String> allowOrigins = Arrays.asList(allowOriginsArr);
+        configuration.setAllowedOriginPatterns(allowOrigins);
+        configuration.setAllowedMethods(Collections.singletonList("*"));
+        configuration.setAllowedHeaders(Collections.singletonList("*"));
+        configuration.setAllowCredentials(true);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
 
 	@Bean
 	public WebSecurityCustomizer webSecurityCustomizer() {

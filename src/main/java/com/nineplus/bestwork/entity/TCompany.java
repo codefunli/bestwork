@@ -29,15 +29,15 @@ public class TCompany implements Serializable {
     @Column(name = "id", unique = true, nullable = false, precision = 19)
     private Long id;
 
-    @Column(name = "company_name", nullable = false)
+    @Column(name = "company_name")
     private String companyName;
 
     @CreationTimestamp
-    @Column(name = "create_date", nullable = false, insertable = false, updatable = false)
+    @Column(name = "create_date")
     private LocalDateTime createDt;
 
     @UpdateTimestamp
-    @Column(name = "update_date", nullable = false)
+    @Column(name = "update_date")
     private LocalDateTime updateDt;
 
     @Column(name = "email")
