@@ -126,7 +126,14 @@ public class CommonConstants {
 		public static final String FILE0001 = "FILE0001";
 		public static final String FILE0002 = "FILE0002";
 		public static final String FILE0003 = "FILE0003";
-	}
+		
+		public static final String RLS0001 = "RLS0001";
+		public static final String RLS0002 = "RLS0002";
+        public static final String RLF0001 = "RLF0001";
+		public static final String RLF0002 = "RLF0001";
+		public static final String RLS0003 = "RLS0003";
+        public static final String RLS0004 = "RLS0004";
+    }
 
 	
 	public class Url {
