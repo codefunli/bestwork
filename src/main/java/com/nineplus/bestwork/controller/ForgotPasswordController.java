@@ -21,7 +21,7 @@ import com.nineplus.bestwork.dto.ForgotPasswordResDto;
 import com.nineplus.bestwork.dto.ResetPasswordReqDto;
 import com.nineplus.bestwork.entity.SysUser;
 import com.nineplus.bestwork.exception.SysUserNotFoundException;
-import com.nineplus.bestwork.services.MailService;
+import com.nineplus.bestwork.services.MailSenderService;
 import com.nineplus.bestwork.services.SysUserService;
 import com.nineplus.bestwork.utils.CommonConstants;
 import com.nineplus.bestwork.utils.MessageUtils;
@@ -40,13 +40,13 @@ public class ForgotPasswordController extends BaseController {
 	private MessageUtils messageUtils;
 
 	@Autowired
-	private MailService mailService;
+	private MailSenderService mailService;
 
 	@PostMapping("/forgot_password")
 	public ResponseEntity<? extends Object> processForgotPassword(
 			@Valid @RequestBody ForgotPasswordReqDto forgotPasswordReqDto, BindingResult bindingResult)
 			throws Exception {
-	
+
 		if (bindingResult.hasErrors()) {
 			return failedWithError(CommonConstants.MessageCode.SU0003, bindingResult.getFieldErrors().toArray(), null);
 		}
@@ -64,7 +64,7 @@ public class ForgotPasswordController extends BaseController {
 			String resetPasswordLink = messageUtils.getMessage(CommonConstants.Url.URL0001, null)
 					+ "/api/v1/auth/reset_password/" + token;
 			String username = sysUserReq.getUsername();
-			mailService.sendMail(emailReq, username, resetPasswordLink);
+			mailService.sendMailResetPassword(emailReq, username, resetPasswordLink);
 
 		} catch (SysUserNotFoundException e) {
 			e.printStackTrace();

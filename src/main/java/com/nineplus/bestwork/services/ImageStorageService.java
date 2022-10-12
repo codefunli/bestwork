@@ -18,7 +18,8 @@ import org.springframework.util.StreamUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
-public class ImageStorageService implements IStorageService {
+//public class ImageStorageService implements IStorageService {
+	public class ImageStorageService {
 	
 	private final Path storageFolder = Paths.get("uploads");
 	
@@ -28,7 +29,7 @@ public class ImageStorageService implements IStorageService {
         return Arrays.asList(new String[] {"png","jpg","jpeg", "bmp"}).contains(fileExtensions.trim().toLowerCase());
     }
 
-	@Override
+//	@Override
 	public String storeFile(MultipartFile file) {
 		try {
             if(file.isEmpty()) {
@@ -65,7 +66,7 @@ public class ImageStorageService implements IStorageService {
         }
 	}
 
-	@Override
+//	@Override
 	public Stream<Path> loadAll() {
 		try {
             return Files.walk(this.storageFolder,1)
@@ -76,7 +77,7 @@ public class ImageStorageService implements IStorageService {
         }
 	}
 
-	@Override
+//	@Override
 	public byte[] readFileContent(String filename) {
 		try {
             Path file = storageFolder.resolve(filename);
@@ -93,7 +94,7 @@ public class ImageStorageService implements IStorageService {
         }
 	}
 
-	@Override
+//	@Override
 	public void deleteFile(String fileName) {
 		
 	}

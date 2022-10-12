@@ -1,4 +1,4 @@
-package com.nineplus.bestwork.services;
+package com.nineplus.bestwork.services.impl;
 
 import java.util.Collection;
 import java.util.List;
