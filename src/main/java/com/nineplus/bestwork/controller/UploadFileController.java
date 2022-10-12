@@ -22,7 +22,6 @@ public class UploadFileController {
 	public ResponseEntity<Void> uploadFile(@RequestParam("file") MultipartFile file) {
 		try {
 
-			System.out.println("file name: " + file.getOriginalFilename());
 			storageService.storeFile(file);
 
 			return new ResponseEntity<Void>(HttpStatus.OK);
