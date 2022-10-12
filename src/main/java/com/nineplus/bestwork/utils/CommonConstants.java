@@ -120,6 +120,7 @@ public class CommonConstants {
 		
 		public static final String CPN0004 = "CPN0004";
 		public static final String CPN0005 = "CPN0005";
+		public static final String CPN0006 = "CPN0006";
 		public static final String EMP0001 = "EMP0001";
 		public static final String US0002 = "EMP0002";
 		public static final String FILE0001 = "FILE0001";

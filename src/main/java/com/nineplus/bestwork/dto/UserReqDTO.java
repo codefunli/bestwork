@@ -13,11 +13,6 @@ public class UserReqDTO extends BaseDTO {
 	 */
 	private static final long serialVersionUID = 8012401348414743244L;
 
-	@JsonProperty("id")
-	private String id;
-	
-	@JsonProperty("userId")
-	private String userId;
 
 	@JsonProperty("userName")
 	private String userName;
@@ -36,5 +31,9 @@ public class UserReqDTO extends BaseDTO {
 
 	@JsonProperty("email")
 	private String email;
+	
+	private String createBy;
+	
+	private String updateBy;
 
 }

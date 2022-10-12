@@ -1,6 +1,8 @@
 package com.nineplus.bestwork.services;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.modelmapper.ModelMapper;
@@ -9,11 +11,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import com.nineplus.bestwork.dto.RCompanyReqDTO;
 import com.nineplus.bestwork.dto.RCompanyResDTO;
 import com.nineplus.bestwork.dto.RCompanyUserReqDTO;
 import com.nineplus.bestwork.entity.TCompany;
+import com.nineplus.bestwork.entity.TProject;
 import com.nineplus.bestwork.entity.TRole;
 import com.nineplus.bestwork.entity.TUser;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
@@ -61,8 +65,8 @@ public class CompanyService {
 
 		// Check role of user
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
+		String createUser = userAuthRoleReq.getUsername();
 		if (!userAuthRoleReq.getIsSysAdmin()) {
-			logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0014, null));
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
 		}
 
@@ -71,6 +75,8 @@ public class CompanyService {
 
 		try {
 			// Register company information in DB
+			companyReqDto.getCompany().setCreateBy(createUser);
+			;
 			TCompany newCompanySaved = regist(companyReqDto);
 			TRole role = roleRepository.findRole(CommonConstants.RoleName.ORG_ADMIN);
 
@@ -121,9 +127,9 @@ public class CompanyService {
 		if (!ObjectUtils.isEmpty(company)) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.CPN0005, new Object[] { company });
 		}
-		
+
 		// Check exists user email in DB
-		TUser user  =  tUserRepos.findByEmail(userEmail);
+		TUser user = tUserRepos.findByEmail(userEmail);
 		if (!ObjectUtils.isEmpty(user)) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.US0002, new Object[] { user });
 		}
@@ -142,12 +148,12 @@ public class CompanyService {
 			company.setDistrict(companyReqDto.getCompany().getDistrict());
 			company.setWard(companyReqDto.getCompany().getWard());
 			company.setStreet(companyReqDto.getCompany().getStreet());
-			// String startDt =
-			// dateUtils.convertToUTC(companyReqDto.getCompany().getStartDate());
-			// String expiredDt =
-			// dateUtils.convertToUTC(companyReqDto.getCompany().getExpiredDate());
-			company.setStartDate(companyReqDto.getCompany().getStartDate());
-			company.setExpiredDate(companyReqDto.getCompany().getExpiredDate());
+			String startDt = dateUtils.convertToUTC(companyReqDto.getCompany().getStartDate());
+			String expiredDt = dateUtils.convertToUTC(companyReqDto.getCompany().getExpiredDate());
+			company.setStartDate(startDt);
+			company.setExpiredDate(expiredDt);
+			company.setCreateDt(LocalDateTime.now());
+			company.setCreateBy(companyReqDto.getCompany().getCreateBy());
 
 			tCompanyRepository.save(company);
 
@@ -235,5 +241,15 @@ public class CompanyService {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0002, null);
 		}
 		return tCompanyId;
+	}
+
+	public Optional<TCompany> getDetailCompany(long companyId) {
+		Optional<TCompany> company = tCompanyRepository.findById(companyId);
+		return company;
+	}
+
+	@GetMapping
+	public List<TCompany> getAllCompany() throws BestWorkBussinessException {
+		return tCompanyRepository.findAll();
 	}
 }
