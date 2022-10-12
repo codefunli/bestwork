@@ -23,16 +23,16 @@ public class PageUtils {
 	public <D, E> PageResponseDTO<D> convertPageEntityToDTO(Page<E> page, Class<D> dtoClass) {
 		PageResponseDTO<D> pageResDTO = new PageResponseDTO<>();
 		RPageDTO rPageDTO = new RPageDTO();
-		rPageDTO.setPageable(page.getPageable());
-		rPageDTO.setLast(page.isLast());
+//		rPageDTO.setPageable(page.getPageable());
+//		rPageDTO.setLast(page.isLast());
 		rPageDTO.setTotalPages(page.getTotalPages());
 		rPageDTO.setTotalElements(page.getTotalElements());
 		rPageDTO.setSize(page.getSize());
 		rPageDTO.setNumber(page.getNumber());
-		rPageDTO.setSort(page.getSort());
-		rPageDTO.setFirst(page.isFirst());
-		rPageDTO.setNumberOfElements(page.getNumberOfElements());
-		rPageDTO.setEmpty(page.isEmpty());
+//		rPageDTO.setSort(page.getSort());
+//		rPageDTO.setFirst(page.isFirst());
+//		rPageDTO.setNumberOfElements(page.getNumberOfElements());
+//		rPageDTO.setEmpty(page.isEmpty());
 
 		pageResDTO.setMetaData(rPageDTO);
 		pageResDTO.setContent(bestWorkBeanUtils.copyListToList(page.getContent(), dtoClass));

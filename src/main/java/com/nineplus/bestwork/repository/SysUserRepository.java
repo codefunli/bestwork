@@ -12,7 +12,7 @@ public interface SysUserRepository extends JpaRepository<SysUser,Integer>{
 
 	public SysUser findByResetPasswordToken(String token);
 
-	@Query(value = " select u.* from sys_user u where u.email = :email ",
+	@Query(value = " select * from sys_user where email = :email ",
 			nativeQuery = true)
 	public SysUser findByEmail(@Param(value = "email") String email);
 }

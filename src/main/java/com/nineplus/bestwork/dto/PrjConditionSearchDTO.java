@@ -9,10 +9,11 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = false)
 public class PrjConditionSearchDTO {
 	
-	@JsonProperty("prjId")
-	private long prjId;
-	
-	@JsonProperty("prjName")
-	private String prjName;
+
+	@JsonProperty("projectName")
+	private String projectName;
+
+	@JsonProperty("description")
+	private String description;
 	
 }

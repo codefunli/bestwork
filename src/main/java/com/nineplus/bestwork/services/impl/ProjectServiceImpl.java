@@ -1,6 +1,4 @@
-package com.nineplus.bestwork.services;
-
-import java.util.List;
+package com.nineplus.bestwork.services.impl;
 
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
@@ -11,27 +9,24 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.nineplus.bestwork.dto.PageResponseDTO;
-import com.nineplus.bestwork.dto.PageSearchDTO;
 import com.nineplus.bestwork.dto.PrjConditionSearchDTO;
 import com.nineplus.bestwork.dto.RProjectReqDTO;
 import com.nineplus.bestwork.dto.TProjectResponseDto;
 import com.nineplus.bestwork.entity.TProject;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.repository.ProjectRepository;
-import com.nineplus.bestwork.utils.BestWorkBeanUtils;
+import com.nineplus.bestwork.services.IProjectService;
 import com.nineplus.bestwork.utils.CommonConstants;
 import com.nineplus.bestwork.utils.MessageUtils;
 import com.nineplus.bestwork.utils.PageUtils;
 
 @Service
-public class ProjectService {
+public class ProjectServiceImpl implements IProjectService {
 
-	private final Logger logger = LoggerFactory.getLogger(ProjectService.class);
+	private final Logger logger = LoggerFactory.getLogger(ProjectServiceImpl.class);
 
 	@Autowired
 	private ProjectRepository projectRepository;
@@ -41,12 +36,6 @@ public class ProjectService {
 
 	@Autowired
 	private MessageUtils messageUtils;
-
-	@GetMapping
-	public List<TProject> getAllProjects() throws BestWorkBussinessException {
-		return projectRepository.findAll();
-
-	}
 
 	@PostMapping
 	public PageResponseDTO<TProjectResponseDto> getProjectPage(RProjectReqDTO pageSearchDto)
@@ -60,10 +49,9 @@ public class ProjectService {
 					Sort.by(pageSearchDto.getPageConditon().getSortDirection(),
 							pageSearchDto.getPageConditon().getSortBy()));
 			Page<TProject> pageTProject;
-			//long prjId = pageSearchDto.getProjectCondition().getPrjId();
-			String prjName = pageSearchDto.getProjectCondition().getPrjName();
 
-			pageTProject = projectRepository.findProjectWithCondition(prjName, pageable);
+			PrjConditionSearchDTO prjConditionSearchDTO = pageSearchDto.getProjectCondition();
+			pageTProject = projectRepository.findProjectWithCondition(prjConditionSearchDTO, pageable);
 
 			return responseUtils.convertPageEntityToDTO(pageTProject, TProjectResponseDto.class);
 		} catch (Exception ex) {
@@ -71,6 +59,18 @@ public class ProjectService {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
 		}
 
+	}
+
+	public PageResponseDTO<TProjectResponseDto> getAllProjectPages(Pageable pageable)
+			throws BestWorkBussinessException {
+		try {
+			Page<TProject> pageTProject = projectRepository.findAll(pageable);
+			return responseUtils.convertPageEntityToDTO(pageTProject, TProjectResponseDto.class);
+
+		} catch (Exception ex) {
+			logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0003, null), ex);
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
+		}
 	}
 
 }
