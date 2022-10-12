@@ -1,15 +1,18 @@
 package com.nineplus.bestwork.entity;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -19,8 +22,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-@Entity(name = "UserEntity")
-@Table(name = "t_user")
+@Entity(name = "TUser")
+@Table(name = "T_SYS_APP_USER")
 @Data
 public class TUser {
 
@@ -29,51 +32,51 @@ public class TUser {
     @Column(name = "id", unique = true, nullable = false, precision = 19)
     private long id;
 
-    @Column(name = "user_id", nullable = false)
-    private String userId;
-
-    @Column(name = "cur_company_id", nullable = false)
-    private Long currentCpmnyId;
-
     @Column(name = "user_name", nullable = false)
     private String userName;
     
     @Column(name = "password", nullable = false)
     private String password;
     
-    @Column(name = "first_nm", nullable = false)
+    @Column(name = "first_name", nullable = false)
     private String firstNm;
     
-    @Column(name = "last_nm", nullable = false)
+    @Column(name = "last_name", nullable = false)
     private String lastNm;
     
     @Column(name = "email", nullable = false)
     private String email;
 
-    @Column(name = "enabled", nullable = false, length = 3)
-    private boolean enabled;
+    @Column(name = "enable", nullable = false)
+    private boolean isEnable;
 
     @CreationTimestamp
-    @Column(name = "crt_dt", nullable = false, insertable = false, updatable = false)
-    private LocalDateTime createdDt;
+    @Column(name = "create_date", nullable = false, insertable = false, updatable = false)
+    private LocalDateTime createDate;
     
-    @Column(name = "tel_no", nullable = false)
-    private String telNo;
-    
-    @Column(name = "is_deleted", nullable = false, length = 3)
-    private boolean isDeleted;
+    @Column(name = "delete_flag")
+    private int deleteFlag;
 
-    @Column(name = "count_login_failed", nullable = false)
-    private int countLoginFailed;
-   
     @UpdateTimestamp
-    @Column(name = "update_dt", nullable = false)
-    private LocalDateTime updatedDt;
+    @Column(name = "update_date")
+    private LocalDateTime updateDate;
 
-    @Column(name = "token", nullable = false)
-    private String token;
-    
-    @OneToOne
-    @JoinColumn(name = "t_role",  referencedColumnName = "id")
+    @Column(name = "create_by")
+    private String createBy;
+
+    @Column(name = "update_by")
+    private String updateBy;
+
+    @Column(name = "count_login_failed")
+    private int loginFailedNum;
+
+    @ManyToOne
+    @JoinColumn(name = "app_role_id")
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private TRole role;
+    
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "T_COMPANY_USER", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "company_id"))
+    Set<TCompany> companys;
 }

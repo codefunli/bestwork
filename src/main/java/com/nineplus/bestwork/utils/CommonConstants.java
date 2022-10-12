@@ -4,16 +4,16 @@ public class CommonConstants {
 	public class Authentication {
 		public static final String ACCESS_COOKIE = "access_cookie";
 		public static final String REFRESH_COOKIE = "refresh_cookie";
-		public static final String PREFIX_TOKEN = "prefixToken";
+		public static final String PREFIX_TOKEN = "prefix";
 		public static final String ROLES = "roles";
 		public static final String USERNAME = "username";
 		public static final String PASSWORD = "password";
 	}
 
 	public class RoleName {
-		public static final String SYS_ADMIN = "sys admin";
-		public static final String ORG_ADMIN = "org admin";
-		public static final String CPMY_USER = "org user";
+		public static final String SYS_ADMIN = "sysadmin";
+		public static final String ORG_ADMIN = "companyadmin";
+		public static final String CPMY_USER = "companyuser";
 	}
 
 	public class ApiStatus {
@@ -30,7 +30,9 @@ public class CommonConstants {
 		public static final String ORG_NAME = "Org Name";
 		public static final String USER_MAIL = "User Mail";
 		public static final String USER_NAME = "User Name";
-		public static final String ORG = "ORG";
+		public static final String CMPNY_NAME = "Company Name";
+
+		public static final String COMPANY = "COMPANY";
 		public static final String USERNAME_OR_EMAIL = "USER or EMAIL";
 		public static final String PASSWORD = "Password";
 		public static final String Device = "Device";
@@ -105,7 +107,39 @@ public class CommonConstants {
 
 		public static final String I1X0001 = "i1X0001";
 		public static final String I1X0002 = "i1X0002";
-		public static final String I1X0003 = "i1X0003";
+		public static final String I1X0003 = "i1X0003";		
+		public static final String CPN0001 = "CPN0001";
+		public static final String CPN0002 = "CPN0002";
+		public static final String CPN0003 = "CPN0003";		
+		public static final String SU0001 = "su0001";
+		public static final String SU0002 = "su0002";
+		public static final String SU0003 = "su0003";
+		public static final String SU0004 = "su0004";
+		public static final String SU0005 = "su0005";
+		public static final String sUS0001 = "sUS0001";
+		
+		public static final String CPN0004 = "CPN0004";
+		public static final String CPN0005 = "CPN0005";
+		public static final String EMP0001 = "EMP0001";
+		public static final String US0002 = "EMP0002";
+		public static final String FILE0001 = "FILE0001";
+		public static final String FILE0002 = "FILE0002";
+		public static final String FILE0003 = "FILE0003";
+	}
+
+	
+	public class Url {
+		public static final String URL0001 = "url0001";
+		public static final String URL0002 = "url0002";
+	}
+	
+	public class SpringMail {
+	
+		public static final String M1X0003 = "m1x0003";
+		public static final String M1H0004 = "m1h0004";
+		public static final String M1P0005 = "m1p0005";
+		public static final String M1U0006 = "m1u0006";
+		public static final String M1W0007 = "m1w0007";
 	}
 
 }

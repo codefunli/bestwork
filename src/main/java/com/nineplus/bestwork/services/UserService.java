@@ -6,16 +6,22 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.nineplus.bestwork.dto.TUserResponseDTO;
+import com.nineplus.bestwork.dto.UserReqDTO;
+import com.nineplus.bestwork.entity.TCompany;
+import com.nineplus.bestwork.entity.TRole;
 import com.nineplus.bestwork.entity.TUser;
 import com.nineplus.bestwork.repository.TUserRepository;
 import com.nineplus.bestwork.utils.CommonConstants;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.Logger;
@@ -44,6 +50,9 @@ public class UserService implements UserDetailsService {
         return countLoginFailed >= countUserLoginFailedBlocked;
     }
 	
+	@Autowired
+    BCryptPasswordEncoder encoder;
+	
 	@Override
     public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
         TUser user = tUserRepo.findByUserName(userName);
@@ -63,19 +72,34 @@ public class UserService implements UserDetailsService {
             dto.setUserNm(user.getUserName());
             dto.setEmail(user.getEmail());
             dto.setRole(user.getRole().getRoleName());
-            dto.setEnabled(user.isEnabled());
-            dto.setCountLoginFailed(user.getCountLoginFailed());
-            dto.setBlocked(this.isBlocked(user.getCountLoginFailed()));
+            dto.setEnabled(user.isEnable());
+            dto.setCountLoginFailed(user.getLoginFailedNum());
+            dto.setBlocked(this.isBlocked(user.getLoginFailedNum()));
             dto.setFirstNm(user.getFirstNm());
             dto.setLastNm(user.getLastNm());
-            dto.setUserId(user.getUserId());
-            dto.setCreateDt(user.getCreatedDt());
-            dto.setUpdatedDt(user.getUpdatedDt());
-            dto.setCurrentCmpnyId(user.getCurrentCpmnyId());
+            dto.setCreateDt(user.getCreateDate());
+            dto.setUpdatedDt(user.getUpdateDate());
         }
         
         return dto;
     }
+	
+	@Transactional(rollbackFor = {Exception.class})
+	public void registNewUser(UserReqDTO newUser, TCompany tCompany, TRole tRole ) {
+		TUser newTUser = new TUser();
+		Set<TCompany> tCompanyUser = new HashSet<TCompany>();
+		tCompanyUser.add(tCompany);
+        newTUser.setEmail(newUser.getEmail());
+        newTUser.setUserName(newUser.getUserName());
+        newTUser.setEnable(newUser.getEnabled());
+        newTUser.setFirstNm(newUser.getFirstName());
+        newTUser.setLastNm(newUser.getLastName());
+        newTUser.setPassword(encoder.encode(newUser.getPassword()));
+        newTUser.setRole(tRole);
+        newTUser.setCompanys(tCompanyUser);
+        
+        tUserRepo.save(newTUser);
+	}
 	
 	
 

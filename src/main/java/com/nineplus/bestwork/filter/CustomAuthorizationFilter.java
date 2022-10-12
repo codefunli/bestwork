@@ -90,7 +90,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 					DecodedJWT decodedJWT = verifier.verify(token);
 					String username = decodedJWT.getSubject();
 					TUser user = userService.getUserByUsername(username);
-					if (ObjectUtils.isEmpty(user) || userService.isBlocked(user.getCountLoginFailed())) {
+					if (ObjectUtils.isEmpty(user) || userService.isBlocked(user.getLoginFailedNum())) {
 						throw new Exception();
 					}
 					String[] roles = decodedJWT.getClaim(CommonConstants.Authentication.ROLES).asArray(String.class);
@@ -115,7 +115,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 					DecodedJWT decodedJWT = verifier.verify(token);
 					String username = decodedJWT.getSubject();
 					TUser user = userService.getUserByUsername(username);
-					if (ObjectUtils.isEmpty(user) || userService.isBlocked(user.getCountLoginFailed())) {
+					if (ObjectUtils.isEmpty(user) || userService.isBlocked(user.getLoginFailedNum())) {
 						throw new Exception();
 					}
 					String accessToken = JWT.create().withSubject(user.getUserName())

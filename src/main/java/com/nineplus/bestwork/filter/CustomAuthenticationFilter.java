@@ -89,11 +89,11 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
             loginFailedDTO.setCountLoginFailed(0);
             loginFailedDTO.setLocked(false);
         } else {
-            int countLoginFailed = tUserAuth.getCountLoginFailed();
+            int countLoginFailed = tUserAuth.getLoginFailedNum();
             boolean isLocked = userService.isBlocked(countLoginFailed);
             if (isLocked == false) {
                 countLoginFailed += 1;
-                tUserAuth.setCountLoginFailed(countLoginFailed);
+                tUserAuth.setLoginFailedNum(countLoginFailed);
                 userService.saveUser(tUserAuth);
             }
             loginFailedDTO.setUsername(tUserAuth.getUserName());
