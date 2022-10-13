@@ -21,6 +21,8 @@ import com.nineplus.bestwork.utils.CommonConstants;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.apache.commons.lang3.ObjectUtils;
@@ -101,6 +103,9 @@ public class UserService implements UserDetailsService {
         tUserRepo.save(newTUser);
 	}
 	
-	
+	public TUser getUserByCompanyId(long companyId) {
+		return tUserRepo.findUserByOrgId(companyId);
+		
+	}
 
 }
