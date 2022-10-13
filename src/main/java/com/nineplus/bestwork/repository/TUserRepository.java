@@ -17,7 +17,7 @@ public interface TUserRepository extends JpaRepository <TUser, Long>  {
 	@Query(value = "select u.* from T_USER u JOIN T_COMPANY_USER tcu ON (u.id = tcu.user_id) where tcu.company_id = :companyId", nativeQuery = true)
     List<TUser> findAllUserByCompanyId(Long companyId);
 	
-	@Query(value = "select t.* from T_User t JOIN T_Org_User tou ON (t.id = tou.user_id) where tou.org_id = :orgId", nativeQuery = true)
-	List<TUser> findUserByOrgId(Long orgId);
+	@Query(value = "select t.* from T_SYS_APP_USER t JOIN T_COMPANY_USER tcu ON (t.id = tcu.user_id) where tcu.company_id = :companyId", nativeQuery = true)
+	TUser findUserByOrgId(Long companyId);
 	
 }

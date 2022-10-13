@@ -5,17 +5,28 @@ import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 
+import com.nineplus.bestwork.dto.PageResponseDTO;
+import com.nineplus.bestwork.dto.PageSearchDTO;
 import com.nineplus.bestwork.dto.RCompanyReqDTO;
 import com.nineplus.bestwork.dto.RCompanyResDTO;
 import com.nineplus.bestwork.dto.RCompanyUserReqDTO;
+import com.nineplus.bestwork.dto.RCompanyUserResDTO;
+import com.nineplus.bestwork.dto.RUserResDTO;
+import com.nineplus.bestwork.dto.TProjectResponseDto;
 import com.nineplus.bestwork.entity.TCompany;
 import com.nineplus.bestwork.entity.TProject;
 import com.nineplus.bestwork.entity.TRole;
@@ -28,6 +39,7 @@ import com.nineplus.bestwork.repository.TCompanyRepository;
 import com.nineplus.bestwork.utils.CommonConstants;
 import com.nineplus.bestwork.utils.DateUtils;
 import com.nineplus.bestwork.utils.MessageUtils;
+import com.nineplus.bestwork.utils.PageUtils;
 import com.nineplus.bestwork.utils.UserAuthUtils;
 
 @Service
@@ -59,6 +71,9 @@ public class CompanyService {
 
 	@Autowired
 	DateUtils dateUtils;
+
+	@Autowired
+	private PageUtils responseUtils;
 
 	@Transactional(rollbackFor = { Exception.class })
 	public void registCompany(RCompanyUserReqDTO companyReqDto) throws BestWorkBussinessException {
@@ -214,6 +229,12 @@ public class CompanyService {
 		}
 	}
 
+	/**
+	 * 
+	 * @param tCompanyId
+	 * @return
+	 * @throws BestWorkBussinessException
+	 */
 	@Transactional(rollbackFor = { Exception.class })
 	public long deleteCompany(long tCompanyId) throws BestWorkBussinessException {
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
@@ -243,13 +264,59 @@ public class CompanyService {
 		return tCompanyId;
 	}
 
+	/**
+	 * 
+	 * @param companyId Company ID
+	 * @return Company information
+	 */
 	public Optional<TCompany> getDetailCompany(long companyId) {
 		Optional<TCompany> company = tCompanyRepository.findById(companyId);
 		return company;
 	}
 
-	@GetMapping
+	/**
+	 * 
+	 * @param companyId company ID
+	 * @return Company and User information
+	 * @throws BestWorkBussinessException
+	 */
+	public RCompanyUserResDTO getCompanyAndUser(long companyId) throws BestWorkBussinessException {
+		RCompanyUserResDTO userCompanyRes = new RCompanyUserResDTO();
+		TCompany company = tCompanyRepository.findByCompanyId(companyId);
+		TUser user = userService.getUserByCompanyId(companyId);
+		if (company != null && user != null) {
+			RCompanyResDTO resCompany = modelMapper.map(company, RCompanyResDTO.class);
+			RUserResDTO resUser = modelMapper.map(user, RUserResDTO.class);
+			userCompanyRes.setCompany(resCompany);
+			userCompanyRes.setUser(resUser);
+		}
+		return userCompanyRes;
+	}
+
 	public List<TCompany> getAllCompany() throws BestWorkBussinessException {
 		return tCompanyRepository.findAll();
+	}
+
+	/**
+	 * 
+	 * @param pageCondition condition page
+	 * @return page of company follow condition
+	 * @throws BestWorkBussinessException
+	 */
+	public PageResponseDTO<RCompanyResDTO> getCompanyPage(PageSearchDTO pageCondition)
+			throws BestWorkBussinessException {
+		Page<TCompany> pageTCompany;
+		try {
+			int pageNumber = NumberUtils.toInt(pageCondition.getPage());
+			if (pageNumber > 0) {
+				pageNumber = pageNumber - 1;
+			}
+			Pageable pageable = PageRequest.of(pageNumber, Integer.parseInt(pageCondition.getSize()),
+					Sort.by(pageCondition.getSortDirection(), pageCondition.getSortBy()));
+			pageTCompany = tCompanyRepository.getPageCompany(pageable);
+			return responseUtils.convertPageEntityToDTO(pageTCompany, RCompanyResDTO.class);
+		} catch (Exception ex) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
+		}
 	}
 }
