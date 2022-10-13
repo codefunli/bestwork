@@ -15,14 +15,21 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.nineplus.bestwork.model.ProjectStatus;
 import com.vladmihalcea.hibernate.type.json.JsonStringType;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity(name = "ProjectEntity")
-@Data
 @Table(name = "T_PROJECT")
 @TypeDef(name = "json", typeClass = JsonStringType.class)
 @EqualsAndHashCode
+@Setter
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class TProject {
 	@Id
 	@Column(name = "id", unique = true, nullable = false, columnDefinition = "varchar(20)")
