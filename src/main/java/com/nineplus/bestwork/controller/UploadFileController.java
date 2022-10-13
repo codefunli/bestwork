@@ -21,9 +21,7 @@ public class UploadFileController {
 	@PostMapping("/upload")
 	public ResponseEntity<Void> uploadFile(@RequestParam("file") MultipartFile file) {
 		try {
-
 			storageService.storeFile(file);
-
 			return new ResponseEntity<Void>(HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);

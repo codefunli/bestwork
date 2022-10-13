@@ -1,5 +1,7 @@
 package com.nineplus.bestwork.services.impl;
 
+import java.util.Optional;
+
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,7 +11,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PostMapping;
 
 import com.nineplus.bestwork.dto.PageResponseDTO;
 import com.nineplus.bestwork.dto.PrjConditionSearchDTO;
@@ -37,7 +38,7 @@ public class ProjectServiceImpl implements IProjectService {
 	@Autowired
 	private MessageUtils messageUtils;
 
-	@PostMapping
+	@Override
 	public PageResponseDTO<TProjectResponseDto> getProjectPage(RProjectReqDTO pageSearchDto)
 			throws BestWorkBussinessException {
 		try {
@@ -61,6 +62,7 @@ public class ProjectServiceImpl implements IProjectService {
 
 	}
 
+	@Override
 	public PageResponseDTO<TProjectResponseDto> getAllProjectPages(Pageable pageable)
 			throws BestWorkBussinessException {
 		try {
@@ -71,6 +73,39 @@ public class ProjectServiceImpl implements IProjectService {
 			logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0003, null), ex);
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
 		}
+	}
+
+	@Override
+	public TProjectResponseDto getProjectById(String id) throws BestWorkBussinessException {
+		TProjectResponseDto projectResponseDto = new TProjectResponseDto();
+		try {
+			Optional<TProject> project = projectRepository.findById(id);
+
+			if (project.isPresent()) {
+				return null;
+			}
+			projectResponseDto.setId(project.get().getId());
+			projectResponseDto.setProjectName(project.get().getProjectName());
+			projectResponseDto.setDescription(project.get().getDescription());
+			projectResponseDto.setProjectType(project.get().getProjectType());
+			projectResponseDto.setNotificationFlag(project.get().getNotificationFlag());
+			projectResponseDto.setIsPaid(project.get().getIsPaid());
+			projectResponseDto.setStatus(project.get().getStatus());
+			projectResponseDto.setCreateDate(project.get().getCreateDate());
+			projectResponseDto.setUpdateDate(project.get().getUpdateDate());
+			projectResponseDto.setComment(project.get().getComment());
+			projectResponseDto.setFileStorages(project.get().getFileStorages());
+
+			return projectResponseDto;
+		} catch (Exception ex) {
+			logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0003, null), ex);
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
+		}
+	}
+
+	@Override
+	public TProject saveProject(TProject project) {
+		return this.projectRepository.save(project);
 	}
 
 }

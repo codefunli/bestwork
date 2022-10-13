@@ -29,9 +29,9 @@ public class TProjectResponseDto {
 
 	@JsonProperty("description")
 	private String description;
-	
+
 	@JsonProperty("projectType")
-	private String projectType;
+	private Integer projectType;
 
 	@JsonProperty("notificationFlag")
 	private Integer notificationFlag;
@@ -41,13 +41,13 @@ public class TProjectResponseDto {
 
 	@JsonProperty("status")
 	private ProjectStatus status;
-	
+
 	@JsonProperty("createDate")
 	private Timestamp createDate;
-	
+
 	@JsonProperty("updateDate")
 	private Timestamp updateDate;
-	
+
 	@JsonProperty("comment")
 	private String comment;
 
