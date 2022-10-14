@@ -61,6 +61,13 @@ public class TFileStorage {
 		this.type = type;
 	}
 
+	public TFileStorage(String name, byte[] data, String type, Timestamp createDate) {
+		super();
+		this.name = name;
+		this.data = data;
+		this.type = type;
+		this.createDate = createDate;;
+	}
 	public TFileStorage() {
 		super();
 	}
