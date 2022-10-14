@@ -18,4 +18,7 @@ public interface ProjectRepository extends JpaRepository<TProject, String> {
 	Page<TProject> findProjectWithCondition(@Param("project") PrjConditionSearchDTO prjConditionSearchDTO,
 			Pageable pageable);
 
+	@Query(value = " select id from T_PROJECT order by id desc limit 1 ", nativeQuery = true)
+	String getLastProjectIdString();
+
 }
