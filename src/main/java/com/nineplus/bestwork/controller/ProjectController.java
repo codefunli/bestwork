@@ -25,9 +25,11 @@ import com.nineplus.bestwork.dto.ProjectRequestDto;
 import com.nineplus.bestwork.dto.RProjectReqDTO;
 import com.nineplus.bestwork.dto.TProjectResponseDto;
 import com.nineplus.bestwork.entity.TProject;
+import com.nineplus.bestwork.entity.TProjectType;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.model.ProjectStatus;
 import com.nineplus.bestwork.services.IProjectService;
+import com.nineplus.bestwork.services.IProjectTypeService;
 import com.nineplus.bestwork.utils.CommonConstants;
 
 /**
@@ -37,11 +39,14 @@ import com.nineplus.bestwork.utils.CommonConstants;
  *
  */
 @RestController
-@RequestMapping("/api/v1/projects")
+@RequestMapping("/api/v1/auth/projects")
 public class ProjectController extends BaseController {
 
 	@Autowired
 	private IProjectService projectService;
+
+	@Autowired
+	private IProjectTypeService projectTypeService;
 
 	/**
 	 * 
@@ -135,10 +140,26 @@ public class ProjectController extends BaseController {
 		try {
 			projectOptional.get().setStatus(ProjectStatus.values()[projectRequestDto.getStatus()]);
 			projectOptional.get().setUpdateDate(Timestamp.valueOf(LocalDateTime.now()));
+			projectOptional.get().setProjectType(getProjectTypeById(projectRequestDto.getProjectType()));
+
 			updatedProject = this.projectService.updateProject(projectOptional.get());
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}
 		return success(CommonConstants.MessageCode.S1X0008, updatedProject, null);
+	}
+
+	private TProjectType getProjectTypeById(Integer projectTypeId) {
+		Optional<TProjectType> projectTypeOptional = null;
+		try {
+			projectTypeOptional = this.projectTypeService.getProjectTypeById(projectTypeId);
+
+			if (!projectTypeOptional.isPresent()) {
+				return null;
+			}
+		} catch (BestWorkBussinessException ex) {
+			ex.getMessage();
+		}
+		return projectTypeOptional.get();
 	}
 }

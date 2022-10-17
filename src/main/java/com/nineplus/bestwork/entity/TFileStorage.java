@@ -1,6 +1,7 @@
 package com.nineplus.bestwork.entity;
 
 import java.sql.Timestamp;
+import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -12,6 +13,7 @@ import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.TypeDef;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -21,17 +23,16 @@ import lombok.Data;
 
 @Entity(name = "FileStorageEntity")
 @Data
-//@Setter
-//@Getter
-//@RequiredArgsConstructor
 @Table(name = "T_FILE_STORAGE")
 @TypeDef(name = "json", typeClass = JsonStringType.class)
 public class TFileStorage {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id", unique = true, nullable = false)
-	private Integer id;
+//	@GeneratedValue(strategy = GenerationType.IDENTITY)
+//	@Column(name = "id", unique = true, nullable = false)
+	@GeneratedValue(generator = "uuid2")
+	@GenericGenerator(name = "uuid2", strategy = "uuid2")
+	private UUID id;
 
 	@Column(name = "name", nullable = false)
 	private String name;
@@ -50,9 +51,9 @@ public class TFileStorage {
 	private Timestamp updateDate;
 
 	@ManyToOne
-	@JoinColumn(name = "project_id")
+	@JoinColumn(name = "post_id")
 	@JsonIgnore
-	private TProject project;
+	private TPost post;
 
 	public TFileStorage(String name, byte[] data, String type) {
 		super();
