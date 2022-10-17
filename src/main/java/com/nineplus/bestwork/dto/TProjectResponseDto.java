@@ -5,6 +5,8 @@ import java.util.Collection;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.nineplus.bestwork.entity.TFileStorage;
+import com.nineplus.bestwork.entity.TPost;
+import com.nineplus.bestwork.entity.TProjectType;
 import com.nineplus.bestwork.model.ProjectStatus;
 
 import lombok.Data;
@@ -31,7 +33,7 @@ public class TProjectResponseDto {
 	private String description;
 
 	@JsonProperty("projectType")
-	private Integer projectType;
+	private TProjectType projectType;
 
 	@JsonProperty("notificationFlag")
 	private Integer notificationFlag;
@@ -48,10 +50,7 @@ public class TProjectResponseDto {
 	@JsonProperty("updateDate")
 	private Timestamp updateDate;
 
-	@JsonProperty("comment")
-	private String comment;
-
-	@JsonProperty("fileStorages")
-	private Collection<TFileStorage> fileStorages;
+	@JsonProperty("posts")
+	private Collection<TPost> posts;
 
 }
