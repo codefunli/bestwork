@@ -29,8 +29,11 @@ public class UserReqDTO extends BaseDTO {
 	@JsonProperty("lastName")
 	private String lastName;
 
-	@JsonProperty("email")
+	@JsonProperty("uEmail")
 	private String email;
+	
+	@JsonProperty("uTelNo")
+	private String telNo;
 	
 	private String createBy;
 	

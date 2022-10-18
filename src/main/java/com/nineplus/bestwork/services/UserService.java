@@ -97,6 +97,7 @@ public class UserService implements UserDetailsService {
         newTUser.setFirstNm(newUser.getFirstName());
         newTUser.setLastNm(newUser.getLastName());
         newTUser.setPassword(encoder.encode(newUser.getPassword()));
+        newTUser.setTelNo(newUser.getTelNo());
         newTUser.setRole(tRole);
         newTUser.setCompanys(tCompanyUser);
         

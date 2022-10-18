@@ -46,4 +46,7 @@ public class RCompanyResDTO extends BaseDTO {
 	@JsonProperty("expiredDate")
 	private String expiredDate;
 
+	@JsonProperty("status")
+	private int isExpired;
+
 }

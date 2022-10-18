@@ -15,17 +15,15 @@ public class RCompanyReqDTO extends BaseDTO {
 	 * serialVersionUID
 	 */
 	private static final long serialVersionUID = 7969015153524943561L;
-	
-	@JsonProperty("id")
-    private String id;
+
 
 	@JsonProperty("companyName")
 	private String companyName;
 
-	@JsonProperty("email")
+	@JsonProperty("cpEmail")
 	private String email;
 
-	@JsonProperty("telNo")
+	@JsonProperty("cpTelNo")
 	private String telNo;
 
 	@JsonProperty("taxNo")

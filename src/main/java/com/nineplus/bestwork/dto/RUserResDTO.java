@@ -21,6 +21,9 @@ public class RUserResDTO {
 
 	@JsonProperty("isEnable")
     private boolean isEnable;
+	
+	@JsonProperty("uTelNo")
+    private String telNo;
 
 	@JsonProperty("role")
     private String role;
