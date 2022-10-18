@@ -7,6 +7,12 @@ import org.hibernate.validator.constraints.Range;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+/**
+ * 
+ * @author DiepTT
+ *
+ */
+
 @Data
 @EqualsAndHashCode
 public class ProjectRequestDto {

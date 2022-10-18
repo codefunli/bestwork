@@ -23,16 +23,13 @@ import lombok.Data;
 
 @Entity(name = "FileStorageEntity")
 @Data
-@Table(name = "T_FILE_STORAGE")
+@Table(name = "FILE_STORAGE")
 @TypeDef(name = "json", typeClass = JsonStringType.class)
-public class TFileStorage {
+public class FileStorageEntity {
 
 	@Id
-//	@GeneratedValue(strategy = GenerationType.IDENTITY)
-//	@Column(name = "id", unique = true, nullable = false)
-	@GeneratedValue(generator = "uuid2")
-	@GenericGenerator(name = "uuid2", strategy = "uuid2")
-	private UUID id;
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private String id;
 
 	@Column(name = "name", nullable = false)
 	private String name;
@@ -47,29 +44,30 @@ public class TFileStorage {
 	@Column(name = "create_date", nullable = true)
 	private Timestamp createDate;
 
-	@Column(name = "update_date", nullable = true)
-	private Timestamp updateDate;
+//	@Column(name = "update_date", nullable = true)
+//	private Timestamp updateDate;
 
 	@ManyToOne
 	@JoinColumn(name = "post_id")
 	@JsonIgnore
-	private TPost post;
+	private PostEntity post;
 
-	public TFileStorage(String name, byte[] data, String type) {
+	public FileStorageEntity(String name, byte[] data, String type) {
 		super();
 		this.name = name;
 		this.data = data;
 		this.type = type;
 	}
 
-	public TFileStorage(String name, byte[] data, String type, Timestamp createDate) {
+	public FileStorageEntity(String name, byte[] data, String type, Timestamp createDate, PostEntity post) {
 		super();
 		this.name = name;
 		this.data = data;
 		this.type = type;
-		this.createDate = createDate;;
+		this.createDate = createDate;
+		this.post = post;
 	}
-	public TFileStorage() {
+	public FileStorageEntity() {
 		super();
 	}
 }

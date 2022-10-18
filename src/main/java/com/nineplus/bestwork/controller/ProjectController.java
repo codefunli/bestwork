@@ -20,12 +20,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.nineplus.bestwork.dto.PageResponseDTO;
+import com.nineplus.bestwork.dto.PageResponseDto;
 import com.nineplus.bestwork.dto.ProjectRequestDto;
-import com.nineplus.bestwork.dto.RProjectReqDTO;
-import com.nineplus.bestwork.dto.TProjectResponseDto;
-import com.nineplus.bestwork.entity.TProject;
-import com.nineplus.bestwork.entity.TProjectType;
+import com.nineplus.bestwork.dto.ProjectResponseDto;
+import com.nineplus.bestwork.dto.RProjectReqDto;
+import com.nineplus.bestwork.entity.ProjectEntity;
+import com.nineplus.bestwork.entity.ProjectTypeEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.model.ProjectStatus;
 import com.nineplus.bestwork.services.IProjectService;
@@ -35,11 +35,11 @@ import com.nineplus.bestwork.utils.CommonConstants;
 /**
  * This controller use for processing with project
  * 
- * @author tuanna
+ * @author DiepTT
  *
  */
 @RestController
-@RequestMapping("/api/v1/auth/projects")
+@RequestMapping("/api/v1/projects")
 public class ProjectController extends BaseController {
 
 	@Autowired
@@ -56,10 +56,10 @@ public class ProjectController extends BaseController {
 	 * @throws BestWorkBussinessException
 	 */
 	@PostMapping("/search")
-	public ResponseEntity<? extends Object> getProjectPages(@RequestBody RProjectReqDTO prjConDto)
+	public ResponseEntity<? extends Object> getProjectPages(@RequestBody RProjectReqDto prjConDto)
 			throws BestWorkBussinessException {
 
-		PageResponseDTO<TProjectResponseDto> pageProject = null;
+		PageResponseDto<ProjectResponseDto> pageProject = null;
 		try {
 			pageProject = projectService.getProjectPage(prjConDto);
 		} catch (BestWorkBussinessException ex) {
@@ -76,7 +76,7 @@ public class ProjectController extends BaseController {
 	@GetMapping("/page")
 	public ResponseEntity<? extends Object> getAllProjectsPage(@PageableDefault Pageable pageable) {
 
-		PageResponseDTO<TProjectResponseDto> pageProjects = null;
+		PageResponseDto<ProjectResponseDto> pageProjects = null;
 		try {
 			pageProjects = projectService.getAllProjectPages(pageable);
 		} catch (BestWorkBussinessException ex) {
@@ -95,7 +95,7 @@ public class ProjectController extends BaseController {
 		if (bindingResult.hasErrors()) {
 			return failedWithError(CommonConstants.MessageCode.S1X0005, bindingResult.getFieldErrors().toArray(), null);
 		}
-		TProject createdProject = null;
+		ProjectEntity createdProject = null;
 		try {
 			createdProject = this.projectService.saveProject(projectRequestDto);
 		} catch (BestWorkBussinessException ex) {
@@ -106,7 +106,7 @@ public class ProjectController extends BaseController {
 
 	@GetMapping("/{id}")
 	public ResponseEntity<? extends Object> getProjectById(@PathVariable("id") String id) {
-		Optional<TProject> projectOptional = null;
+		Optional<ProjectEntity> projectOptional = null;
 		try {
 			projectOptional = this.projectService.getProjectById(id);
 			if (!projectOptional.isPresent()) {
@@ -122,7 +122,7 @@ public class ProjectController extends BaseController {
 	public ResponseEntity<? extends Object> createProject(@PathVariable String id,
 			@Valid @RequestBody ProjectRequestDto projectRequestDto, BindingResult bindingResult)
 			throws BestWorkBussinessException {
-		Optional<TProject> projectOptional = null;
+		Optional<ProjectEntity> projectOptional = null;
 		try {
 			projectOptional = this.projectService.getProjectById(id);
 			if (!projectOptional.isPresent()) {
@@ -135,7 +135,7 @@ public class ProjectController extends BaseController {
 			return failedWithError(CommonConstants.MessageCode.S1X0009, bindingResult.getFieldErrors().toArray(), null);
 		}
 		BeanUtils.copyProperties(projectRequestDto, projectOptional.get());
-		TProject updatedProject = null;
+		ProjectEntity updatedProject = null;
 
 		try {
 			projectOptional.get().setStatus(ProjectStatus.values()[projectRequestDto.getStatus()]);
@@ -149,8 +149,8 @@ public class ProjectController extends BaseController {
 		return success(CommonConstants.MessageCode.S1X0008, updatedProject, null);
 	}
 
-	private TProjectType getProjectTypeById(Integer projectTypeId) {
-		Optional<TProjectType> projectTypeOptional = null;
+	private ProjectTypeEntity getProjectTypeById(Integer projectTypeId) {
+		Optional<ProjectTypeEntity> projectTypeOptional = null;
 		try {
 			projectTypeOptional = this.projectTypeService.getProjectTypeById(projectTypeId);
 

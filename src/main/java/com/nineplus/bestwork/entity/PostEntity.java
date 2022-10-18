@@ -1,33 +1,43 @@
 package com.nineplus.bestwork.entity;
 
 import java.sql.Timestamp;
+import java.util.Collection;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.TypeDef;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.vladmihalcea.hibernate.type.json.JsonStringType;
 
 import lombok.Data;
 
+/**
+ * 
+ * @author DiepTT
+ *
+ */
+
 @Entity(name = "PostEntity")
 @Data
-@Table(name = "T_POST")
+@Table(name = "POST")
 @TypeDef(name = "json", typeClass = JsonStringType.class)
-public class TPost {
+public class PostEntity {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id", unique = true, nullable = false)
-	private Integer id;
+	@GeneratedValue(generator = "uuid")
+	@GenericGenerator(name = "uuid", strategy = "uuid2")
+	@Column(name = "id", columnDefinition = "VARCHAR(16)")
+	private String id;
 
 	@Column(name = "description", nullable = true)
 	private String description;
@@ -38,6 +48,10 @@ public class TPost {
 	@ManyToOne
 	@JoinColumn(name = "project_id")
 	@JsonIgnore
-	private TProject project;
+	private ProjectEntity project;
+
+	@OneToMany(mappedBy = "post")
+	@JsonBackReference
+	private Collection<FileStorageEntity> fileStorages;
 
 }

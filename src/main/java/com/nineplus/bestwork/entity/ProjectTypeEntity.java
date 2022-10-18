@@ -19,9 +19,9 @@ import lombok.Data;
 
 @Entity(name = "ProjectTypeEntity")
 @Data
-@Table(name = "T_PROJECT_TYPE")
+@Table(name = "PROJECT_TYPE")
 @TypeDef(name = "json", typeClass = JsonStringType.class)
-public class TProjectType {
+public class ProjectTypeEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id", unique = true, nullable = false, columnDefinition = "smallint")
@@ -35,5 +35,5 @@ public class TProjectType {
 
 	@OneToMany(mappedBy = "projectType")
 	@JsonBackReference
-	private Collection<TProject> projects;
+	private Collection<ProjectEntity> projects;
 }

@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
-import com.nineplus.bestwork.dto.PageResponseDTO;
+import com.nineplus.bestwork.dto.PageResponseDto;
 import com.nineplus.bestwork.dto.RPageDTO;
 
 @Component
@@ -20,8 +20,8 @@ public class PageUtils {
 	 * 
 	 * @return PageResponseDTO<DTO>
 	 */
-	public <D, E> PageResponseDTO<D> convertPageEntityToDTO(Page<E> page, Class<D> dtoClass) {
-		PageResponseDTO<D> pageResDTO = new PageResponseDTO<>();
+	public <D, E> PageResponseDto<D> convertPageEntityToDTO(Page<E> page, Class<D> dtoClass) {
+		PageResponseDto<D> pageResDTO = new PageResponseDto<>();
 		RPageDTO rPageDTO = new RPageDTO();
 //		rPageDTO.setPageable(page.getPageable());
 //		rPageDTO.setLast(page.isLast());

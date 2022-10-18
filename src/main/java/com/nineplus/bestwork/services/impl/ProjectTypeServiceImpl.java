@@ -5,7 +5,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.nineplus.bestwork.entity.TProjectType;
+import com.nineplus.bestwork.entity.ProjectTypeEntity;
 import com.nineplus.bestwork.repository.ProjectTypeRepository;
 import com.nineplus.bestwork.services.IProjectTypeService;
 
@@ -16,7 +16,7 @@ public class ProjectTypeServiceImpl implements IProjectTypeService {
 	private ProjectTypeRepository projectTypeRepository;
 
 	@Override
-	public Optional<TProjectType> getProjectTypeById(Integer projectTypeId) {
+	public Optional<ProjectTypeEntity> getProjectTypeById(Integer projectTypeId) {
 		return this.projectTypeRepository.findById(projectTypeId);
 	}
 

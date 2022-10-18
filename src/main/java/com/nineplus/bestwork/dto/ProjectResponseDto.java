@@ -4,19 +4,24 @@ import java.sql.Timestamp;
 import java.util.Collection;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.nineplus.bestwork.entity.TFileStorage;
-import com.nineplus.bestwork.entity.TPost;
-import com.nineplus.bestwork.entity.TProjectType;
+import com.nineplus.bestwork.entity.PostEntity;
+import com.nineplus.bestwork.entity.ProjectTypeEntity;
 import com.nineplus.bestwork.model.ProjectStatus;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+/**
+ * 
+ * @author DiepTT
+ *
+ */
+
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class TProjectResponseDto {
+public class ProjectResponseDto {
 
 	/**
 	 * serialVersionUID
@@ -33,7 +38,7 @@ public class TProjectResponseDto {
 	private String description;
 
 	@JsonProperty("projectType")
-	private TProjectType projectType;
+	private ProjectTypeEntity projectType;
 
 	@JsonProperty("notificationFlag")
 	private Integer notificationFlag;
@@ -51,6 +56,6 @@ public class TProjectResponseDto {
 	private Timestamp updateDate;
 
 	@JsonProperty("posts")
-	private Collection<TPost> posts;
+	private Collection<PostEntity> posts;
 
 }

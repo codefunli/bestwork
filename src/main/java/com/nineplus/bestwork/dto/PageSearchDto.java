@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class PageSearchDTO {
+public class PageSearchDto {
 	@JsonProperty("page")
 	private String page;
 	
