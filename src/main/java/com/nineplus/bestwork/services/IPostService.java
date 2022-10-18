@@ -1,8 +1,8 @@
 package com.nineplus.bestwork.services;
 
 import java.util.List;
-import java.util.Optional;
 
+import com.nineplus.bestwork.dto.PostResponseDto;
 import com.nineplus.bestwork.entity.PostEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 
@@ -13,10 +13,10 @@ import com.nineplus.bestwork.exception.BestWorkBussinessException;
  */
 public interface IPostService {
 
-	Optional<PostEntity> getPostById(String postId) throws BestWorkBussinessException;
-
 	PostEntity savePost(PostEntity post) throws BestWorkBussinessException;
 
-	List<PostEntity> getAllPosts();
+	List<PostResponseDto> getAllPosts();
+
+	List<PostResponseDto> getPostsByProjectId(String projectId);
 
 }

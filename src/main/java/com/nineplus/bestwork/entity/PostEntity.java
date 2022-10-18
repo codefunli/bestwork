@@ -1,7 +1,7 @@
 package com.nineplus.bestwork.entity;
 
 import java.sql.Timestamp;
-import java.util.Collection;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -15,7 +15,6 @@ import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.TypeDef;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.vladmihalcea.hibernate.type.json.JsonStringType;
 
@@ -39,7 +38,7 @@ public class PostEntity {
 	@Column(name = "id", columnDefinition = "VARCHAR(16)")
 	private String id;
 
-	@Column(name = "description", nullable = true)
+	@Column(name = "description", nullable = true, columnDefinition = "VARCHAR(255)")
 	private String description;
 
 	@Column(name = "create_date", nullable = true)
@@ -51,7 +50,6 @@ public class PostEntity {
 	private ProjectEntity project;
 
 	@OneToMany(mappedBy = "post")
-	@JsonBackReference
-	private Collection<FileStorageEntity> fileStorages;
+	private List<FileStorageEntity> fileStorages;
 
 }

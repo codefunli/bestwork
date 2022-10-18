@@ -5,7 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import com.nineplus.bestwork.dto.PageResponseDto;
-import com.nineplus.bestwork.dto.RPageDTO;
+import com.nineplus.bestwork.dto.RPageDto;
 
 @Component
 public class PageUtils {
@@ -22,7 +22,7 @@ public class PageUtils {
 	 */
 	public <D, E> PageResponseDto<D> convertPageEntityToDTO(Page<E> page, Class<D> dtoClass) {
 		PageResponseDto<D> pageResDTO = new PageResponseDto<>();
-		RPageDTO rPageDTO = new RPageDTO();
+		RPageDto rPageDTO = new RPageDto();
 //		rPageDTO.setPageable(page.getPageable());
 //		rPageDTO.setLast(page.isLast());
 		rPageDTO.setTotalPages(page.getTotalPages());

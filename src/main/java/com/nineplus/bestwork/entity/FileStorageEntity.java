@@ -1,7 +1,6 @@
 package com.nineplus.bestwork.entity;
 
 import java.sql.Timestamp;
-import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,7 +12,6 @@ import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.TypeDef;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -44,30 +42,9 @@ public class FileStorageEntity {
 	@Column(name = "create_date", nullable = true)
 	private Timestamp createDate;
 
-//	@Column(name = "update_date", nullable = true)
-//	private Timestamp updateDate;
-
 	@ManyToOne
 	@JoinColumn(name = "post_id")
 	@JsonIgnore
 	private PostEntity post;
 
-	public FileStorageEntity(String name, byte[] data, String type) {
-		super();
-		this.name = name;
-		this.data = data;
-		this.type = type;
-	}
-
-	public FileStorageEntity(String name, byte[] data, String type, Timestamp createDate, PostEntity post) {
-		super();
-		this.name = name;
-		this.data = data;
-		this.type = type;
-		this.createDate = createDate;
-		this.post = post;
-	}
-	public FileStorageEntity() {
-		super();
-	}
 }
