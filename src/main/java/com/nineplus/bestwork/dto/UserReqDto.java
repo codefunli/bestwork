@@ -7,7 +7,7 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class UserReqDTO extends BaseDto {
+public class UserReqDto extends BaseDto {
 	/**
 	 * serialVersionUID
 	 */
@@ -21,7 +21,7 @@ public class UserReqDTO extends BaseDto {
 	private String password;
 
 	@JsonProperty("enabled")
-	private Boolean enabled;
+	private int enabled;
 
 	@JsonProperty("firstName")
 	private String firstName;

@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 public class ConvertResponseUtils {
 
 	public String convertResponseCompany(String item) {
-
 		HashMap<String, String> itemCompany = new HashMap<>();
 		String columnMapped = "";
 		itemCompany.put("companyName", "company_name");
@@ -22,6 +21,22 @@ public class ConvertResponseUtils {
 		itemCompany.put("status", "is_expired");
 		if (itemCompany.containsKey(item)) {
 			columnMapped = itemCompany.get(item);
+		}
+		return columnMapped;
+	}
+	
+	public String convertResponseUser(String item) {
+		HashMap<String, String> itemUser = new HashMap<>();
+		String columnMapped = "";
+		itemUser.put("createBy", "create_by");
+		itemUser.put("updateBy", "update_by");
+		itemUser.put("firstName", "first_name");
+		itemUser.put("lastName", "last_name");
+		itemUser.put("userName", "user_name");
+		itemUser.put("countLoginFailed", "count_login_failed");
+		itemUser.put("telNo", "tel_no");
+		if (itemUser.containsKey(item)) {
+			columnMapped = itemUser.get(item);
 		}
 		return columnMapped;
 	}

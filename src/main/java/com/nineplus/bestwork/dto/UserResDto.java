@@ -5,7 +5,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-public class RUserResDTO {
+public class UserResDto {
+	
+	@JsonProperty("id")
+    private long id;
 	
 	@JsonProperty("userName")
     private String userName;
@@ -20,7 +23,7 @@ public class RUserResDTO {
     private String email;
 
 	@JsonProperty("isEnable")
-    private boolean isEnable;
+    private int isEnable;
 	
 	@JsonProperty("uTelNo")
     private String telNo;

@@ -5,11 +5,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-public class CompanyUserResDTO {
+public class CompanyUserResDto {
 	
 	@JsonProperty("company")
     private CompanyResDto company;
 
     @JsonProperty("user")
-    private RUserResDTO user;
+    private UserResDto user;
 }
