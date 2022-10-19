@@ -343,7 +343,7 @@ public class CompanyService {
 	 * @return
 	 * @throws BestWorkBussinessException
 	 */
-	public PageResponseDto<CompanyResDto> searchCompanyPage(String keyword, PageSearchDto pageCondition)
+	public PageResponseDto<CompanyResDto> searchCompanyPage(String keyword, int status, PageSearchDto pageCondition)
 			throws BestWorkBussinessException {
 		Page<TCompany> pageTCompany;
 		try {
@@ -352,7 +352,7 @@ public class CompanyService {
 			String mappedColumn = convertResponseUtils.convertResponseCompany(pageCondition.getSortBy());
 			Pageable pageable = PageRequest.of(pageNumber, Integer.parseInt(pageCondition.getSize()),
 					Sort.by(pageCondition.getSortDirection(), mappedColumn));
-			pageTCompany = tCompanyRepository.searchCompanyPage(keyword, pageable);
+			pageTCompany = tCompanyRepository.searchCompanyPage(keyword,status, pageable);
 			return responseUtils.convertPageEntityToDTO(pageTCompany, CompanyResDto.class);
 		} catch (Exception ex) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);

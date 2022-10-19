@@ -24,4 +24,7 @@ public class PageSearchDto {
 
 	@JsonProperty("keyword")
 	private String keyword;
+
+	@JsonProperty("status")
+	private int status;
 }
