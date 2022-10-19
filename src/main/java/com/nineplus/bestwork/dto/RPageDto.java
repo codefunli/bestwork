@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class RPageDTO extends BaseDTO {
+public class RPageDto extends BaseDto {
 
 	/**
 	 * serialVersionUID
@@ -28,21 +28,4 @@ public class RPageDTO extends BaseDTO {
 	@JsonProperty("number")
 	private int number;
 
-//  @JsonProperty("pageable")
-//  private Pageable pageable;
-//
-//  @JsonProperty("last")
-//  private boolean last;
-
-//    @JsonProperty("sort")
-//    private Sort sort;
-//
-//    @JsonProperty("first")
-//    private boolean first;
-
-//    @JsonProperty("numberOfElements")
-//    private int numberOfElements;
-//
-//    @JsonProperty("empty")
-//    private boolean empty;
 }

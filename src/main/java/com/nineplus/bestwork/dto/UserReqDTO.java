@@ -7,7 +7,7 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class UserReqDTO extends BaseDTO {
+public class UserReqDTO extends BaseDto {
 	/**
 	 * serialVersionUID
 	 */

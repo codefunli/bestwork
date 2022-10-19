@@ -1,6 +1,5 @@
 package com.nineplus.bestwork.controller;
 
-import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,14 +13,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.nineplus.bestwork.dto.PageResponseDTO;
-import com.nineplus.bestwork.dto.PageSearchDTO;
-import com.nineplus.bestwork.dto.RCompanyReqDTO;
-import com.nineplus.bestwork.dto.RCompanyResDTO;
+import com.nineplus.bestwork.dto.PageResponseDto;
+import com.nineplus.bestwork.dto.PageSearchDto;
+import com.nineplus.bestwork.dto.CompanyReqDto;
+import com.nineplus.bestwork.dto.CompanyResDto;
 import com.nineplus.bestwork.dto.RCompanyUserReqDTO;
 import com.nineplus.bestwork.dto.RCompanyUserResDTO;
-import com.nineplus.bestwork.dto.SearchRequestDTO;
-import com.nineplus.bestwork.entity.TCompany;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.services.CompanyService;
 import com.nineplus.bestwork.services.UserService;
@@ -65,8 +62,8 @@ public class CompanyController extends BaseController {
 	 */
 	@PutMapping("/update/{companyId}")
 	public ResponseEntity<? extends Object> update(@PathVariable long companyId,
-			@RequestBody RCompanyReqDTO rCompanyReqDTO) throws BestWorkBussinessException {
-		RCompanyResDTO rCompanyResDTO = null;
+			@RequestBody CompanyReqDto rCompanyReqDTO) throws BestWorkBussinessException {
+		CompanyResDto rCompanyResDTO = null;
 		try {
 			rCompanyResDTO = companyService.updateCompany(companyId, rCompanyReqDTO);
 		} catch (BestWorkBussinessException ex) {
@@ -110,10 +107,26 @@ public class CompanyController extends BaseController {
 	 * @return list company
 	 */
 	@PostMapping("/list")
-	public ResponseEntity<? extends Object> getAllCompany(@RequestBody PageSearchDTO pageCondition) {
-		PageResponseDTO<RCompanyResDTO> pageCompany = null;
+	public ResponseEntity<? extends Object> getAllCompany(@RequestBody PageSearchDto pageCondition) {
+		PageResponseDto<CompanyResDto> pageCompany = null;
 		try {
 			pageCompany = companyService.getCompanyPage(pageCondition);
+		} catch (BestWorkBussinessException ex) {
+			return failed(ex.getMsgCode(), ex.getParam());
+		}
+		return success(CommonConstants.MessageCode.CPN0006, pageCompany, null);
+	}
+	
+	/**
+	 *  Search company with keyword
+	 * @param pageCondition
+	 * @return
+	 */
+	@PostMapping("/search")
+	public ResponseEntity<? extends Object> searchCompany(@RequestBody PageSearchDto pageCondition) {
+		PageResponseDto<CompanyResDto> pageCompany = null;
+		try {
+			pageCompany = companyService.searchCompanyPage(pageCondition.getKeyword(),pageCondition);
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}

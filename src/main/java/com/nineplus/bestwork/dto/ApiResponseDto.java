@@ -7,7 +7,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Builder
-public class ApiResponseDTO {
+public class ApiResponseDto {
 	private String code;
 
 	private String message;

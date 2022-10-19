@@ -11,17 +11,13 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.hibernate.search.mapper.pojo.mapping.definition.annotation.FullTextField;
-import org.hibernate.search.mapper.pojo.mapping.definition.annotation.Indexed;
 
 import lombok.Data;
 
 @Entity(name = "TCompany")
 @Table(name = "T_COMPANY")
 @Data
-@Indexed
 public class TCompany implements Serializable {
 	/**
 	 * serialVersionUID
@@ -33,7 +29,6 @@ public class TCompany implements Serializable {
 	@Column(name = "id", unique = true, nullable = false, precision = 19)
 	private Long id;
 
-	@FullTextField()
 	@Column(name = "company_name")
 	private String companyName;
 
@@ -45,7 +40,6 @@ public class TCompany implements Serializable {
 	@Column(name = "update_date")
 	private LocalDateTime updateDt;
 
-	@FullTextField()
 	@Column(name = "email")
 	private String email;
 
@@ -55,19 +49,15 @@ public class TCompany implements Serializable {
 	@Column(name = "tax_no")
 	private String taxNo;
 
-	@FullTextField()
 	@Column(name = "province_city")
 	private String city;
 
-	@FullTextField()
 	@Column(name = "district")
 	private String district;
 
-	@FullTextField()
 	@Column(name = "ward")
 	private String ward;
 
-	@FullTextField()
 	@Column(name = "street")
 	private String street;
 
