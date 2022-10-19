@@ -20,7 +20,7 @@ public interface TCompanyRepository extends JpaRepository<TCompany, Long> {
 	@Query(value = "select * from T_COMPANY", nativeQuery = true)
 	Page<TCompany> getPageCompany(Pageable pageable);
 
-	@Query(value = "select * from T_COMPANY WHERE MATCH(company_name,email,province_city,district,ward,street) AGAINST(:keyword)", nativeQuery = true)
-	Page<TCompany> searchCompanyPage(String keyword, Pageable pageable);
+	@Query(value = "select * from T_COMPANY WHERE is_expired = :status AND MATCH(company_name,email,province_city,district,ward,street) AGAINST(:keyword)", nativeQuery = true)
+	Page<TCompany> searchCompanyPage(String keyword, int status, Pageable pageable);
 	
 }

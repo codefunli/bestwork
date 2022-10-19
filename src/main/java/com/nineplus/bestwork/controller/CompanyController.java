@@ -126,7 +126,7 @@ public class CompanyController extends BaseController {
 	public ResponseEntity<? extends Object> searchCompany(@RequestBody PageSearchDto pageCondition) {
 		PageResponseDto<CompanyResDto> pageCompany = null;
 		try {
-			pageCompany = companyService.searchCompanyPage(pageCondition.getKeyword(),pageCondition);
+			pageCompany = companyService.searchCompanyPage(pageCondition.getKeyword(), pageCondition.getStatus(),pageCondition);
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}
