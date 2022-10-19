@@ -48,7 +48,7 @@ public class TUser {
     private String email;
 
     @Column(name = "enable", nullable = false)
-    private boolean isEnable;
+    private int isEnable;
 
     @CreationTimestamp
     @Column(name = "create_date", nullable = false, insertable = false, updatable = false)

@@ -17,8 +17,8 @@ import com.nineplus.bestwork.dto.PageResponseDto;
 import com.nineplus.bestwork.dto.PageSearchDto;
 import com.nineplus.bestwork.dto.CompanyReqDto;
 import com.nineplus.bestwork.dto.CompanyResDto;
-import com.nineplus.bestwork.dto.CompanyUserReqDTO;
-import com.nineplus.bestwork.dto.CompanyUserResDTO;
+import com.nineplus.bestwork.dto.CompanyUserReqDto;
+import com.nineplus.bestwork.dto.CompanyUserResDto;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.services.CompanyService;
 import com.nineplus.bestwork.services.UserService;
@@ -43,7 +43,7 @@ public class CompanyController extends BaseController {
 	 * @throws BestWorkBussinessException
 	 */
 	@PostMapping("/create")
-	public ResponseEntity<? extends Object> register(@RequestBody CompanyUserReqDTO rCompanyUserReqDTO)
+	public ResponseEntity<? extends Object> register(@RequestBody CompanyUserReqDto rCompanyUserReqDTO)
 			throws BestWorkBussinessException {
 		try {
 			companyService.registCompany(rCompanyUserReqDTO);
@@ -92,7 +92,7 @@ public class CompanyController extends BaseController {
 	@GetMapping("/{companyId}")
 	public ResponseEntity<? extends Object> getCompanyAndUser(@PathVariable long companyId)
 			throws BestWorkBussinessException {
-		CompanyUserResDTO companyUserRes = companyService.getCompanyAndUser(companyId);
+		CompanyUserResDto companyUserRes = companyService.getCompanyAndUser(companyId);
 		if (companyUserRes.getCompany() != null || companyUserRes.getUser() != null) {
 			return success(CommonConstants.MessageCode.CPN0005, companyUserRes, null);
 		} else {

@@ -127,6 +127,7 @@ public class CommonConstants {
 		public static final String FILE0001 = "FILE0001";
 		public static final String FILE0002 = "FILE0002";
 		public static final String FILE0003 = "FILE0003";
+		public static final String sU0006 = "sU0006";
 	}
 
 	

@@ -9,10 +9,15 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.nineplus.bestwork.dto.TUserResponseDTO;
+import com.nineplus.bestwork.dto.PageResponseDto;
+import com.nineplus.bestwork.dto.PageSearchDto;
+import com.nineplus.bestwork.dto.UserResDto;
+import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.services.UserService;
 import com.nineplus.bestwork.utils.CommonConstants;
 import com.nineplus.bestwork.utils.TokenUtils;
@@ -31,25 +36,26 @@ public class UserController extends BaseController {
 	@Value("${app.login.jwtPrefix}")
 	private String PRE_STRING;
 
-	@GetMapping("/info")
-	public ResponseEntity<? extends Object> getUserInfo(HttpServletRequest request, HttpServletResponse response) {
-		Cookie accessCookie = tokenUtils.getCookieFromRequest(request, CommonConstants.Authentication.ACCESS_COOKIE);
-		if (accessCookie != null) {
-			try {
-				String username = tokenUtils.getUserNameFromCookie(accessCookie);
-				TUserResponseDTO user = userService.convertUserToUserDto(userService.getUserByUsername(username));
-				return user != null ? success(CommonConstants.MessageCode.sUS0001, user, null)
-						: failed(CommonConstants.MessageCode.E1X0003, null);
-			} catch (Exception ex) {
-				return failed(CommonConstants.MessageCode.E1X0003, null);
-			}
-		}
-		return success(CommonConstants.MessageCode.S1X0003, null, null);
-	}
 
 	@GetMapping("/isCheckLogin")
 	public ResponseEntity<? extends Object> isCheckLogin(HttpServletRequest request, HttpServletResponse response) {
 		return success(CommonConstants.MessageCode.S1X0010, null, null);
+	}
+	
+	/**
+	 * Get list company
+	 * 
+	 * @return list company
+	 */
+	@PostMapping("/list")
+	public ResponseEntity<? extends Object> getAllUser(@RequestBody PageSearchDto pageCondition) {
+		PageResponseDto<UserResDto> pageUser = null;
+		try {
+			pageUser = userService.getUserPage(pageCondition);
+		} catch (BestWorkBussinessException ex) {
+			return failed(ex.getMsgCode(), ex.getParam());
+		}
+		return success(CommonConstants.MessageCode.sU0006, pageUser, null);
 	}
 
 }

@@ -22,10 +22,10 @@ import com.nineplus.bestwork.dto.CompanyReqDto;
 import com.nineplus.bestwork.dto.CompanyResDto;
 import com.nineplus.bestwork.dto.PageResponseDto;
 import com.nineplus.bestwork.dto.PageSearchDto;
-import com.nineplus.bestwork.dto.CompanyUserReqDTO;
-import com.nineplus.bestwork.dto.CompanyUserResDTO;
-import com.nineplus.bestwork.dto.RUserResDTO;
-import com.nineplus.bestwork.dto.UserReqDTO;
+import com.nineplus.bestwork.dto.CompanyUserReqDto;
+import com.nineplus.bestwork.dto.CompanyUserResDto;
+import com.nineplus.bestwork.dto.UserResDto;
+import com.nineplus.bestwork.dto.UserReqDto;
 import com.nineplus.bestwork.entity.TCompany;
 import com.nineplus.bestwork.entity.TRole;
 import com.nineplus.bestwork.entity.TUser;
@@ -80,7 +80,7 @@ public class CompanyService {
 	private static final List<String> SEARCHABLE_FIELDS = Arrays.asList("companyName");
 
 	@Transactional(rollbackFor = { Exception.class })
-	public void registCompany(CompanyUserReqDTO companyReqDto) throws BestWorkBussinessException {
+	public void registCompany(CompanyUserReqDto companyReqDto) throws BestWorkBussinessException {
 
 		// Check role of user
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
@@ -134,7 +134,7 @@ public class CompanyService {
 
 	}
 
-	public void validateUserInfor(UserReqDTO userReq) throws BestWorkBussinessException {
+	public void validateUserInfor(UserReqDto userReq) throws BestWorkBussinessException {
 		String userEmail = userReq.getEmail();
 		String userName = userReq.getUserName();
 		String password = userReq.getPassword();
@@ -163,7 +163,7 @@ public class CompanyService {
 		}
 	}
 
-	public TCompany regist(CompanyUserReqDTO companyReqDto) throws BestWorkBussinessException {
+	public TCompany regist(CompanyUserReqDto companyReqDto) throws BestWorkBussinessException {
 		TCompany company = null;
 		try {
 			company = new TCompany();
@@ -297,13 +297,13 @@ public class CompanyService {
 	 * @return Company and User information
 	 * @throws BestWorkBussinessException
 	 */
-	public CompanyUserResDTO getCompanyAndUser(long companyId) throws BestWorkBussinessException {
-		CompanyUserResDTO userCompanyRes = new CompanyUserResDTO();
+	public CompanyUserResDto getCompanyAndUser(long companyId) throws BestWorkBussinessException {
+		CompanyUserResDto userCompanyRes = new CompanyUserResDto();
 		TCompany company = tCompanyRepository.findByCompanyId(companyId);
 		TUser user = userService.getUserByCompanyId(companyId);
 		if (company != null && user != null) {
 			CompanyResDto resCompany = modelMapper.map(company, CompanyResDto.class);
-			RUserResDTO resUser = modelMapper.map(user, RUserResDTO.class);
+			UserResDto resUser = modelMapper.map(user, UserResDto.class);
 			userCompanyRes.setCompany(resCompany);
 			userCompanyRes.setUser(resUser);
 		}
