@@ -13,7 +13,7 @@ import com.nineplus.bestwork.entity.FileStorageEntity;
 @Repository
 public interface StorageRepository extends JpaRepository<FileStorageEntity, String>{
 
-	@Query(value = "select * from t_file_storage where post_id = :postId", nativeQuery = true)
+	@Query(value = "select * from FILE_STORAGE where post_id = :postId", nativeQuery = true)
 	List<FileStorageEntity> findAllByPostId(String postId);
 
 

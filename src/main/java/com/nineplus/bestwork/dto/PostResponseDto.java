@@ -1,13 +1,12 @@
 package com.nineplus.bestwork.dto;
 
-import java.sql.Timestamp;
 import java.util.List;
 
 import com.nineplus.bestwork.entity.ProjectEntity;
 
 import lombok.Data;
 
-/** 
+/**
  * 
  * @author DiepTT
  *
@@ -19,7 +18,7 @@ public class PostResponseDto {
 
 	private String description;
 
-	private Timestamp createDate;
+	private String createDate;
 
 	private ProjectEntity project;
 

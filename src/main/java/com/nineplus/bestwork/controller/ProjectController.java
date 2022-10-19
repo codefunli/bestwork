@@ -140,7 +140,9 @@ public class ProjectController extends BaseController {
 		try {
 			projectOptional.get().setStatus(ProjectStatus.values()[projectRequestDto.getStatus()]);
 			projectOptional.get().setUpdateDate(Timestamp.valueOf(LocalDateTime.now()));
-			projectOptional.get().setProjectType(getProjectTypeById(projectRequestDto.getProjectType()));
+			ProjectTypeEntity projectType = this.projectTypeService
+					.getProjectTypeById(projectRequestDto.getProjectType());
+			projectOptional.get().setProjectType(projectType);
 
 			updatedProject = this.projectService.updateProject(projectOptional.get());
 		} catch (BestWorkBussinessException ex) {
@@ -149,17 +151,4 @@ public class ProjectController extends BaseController {
 		return success(CommonConstants.MessageCode.S1X0008, updatedProject, null);
 	}
 
-	private ProjectTypeEntity getProjectTypeById(Integer projectTypeId) {
-		Optional<ProjectTypeEntity> projectTypeOptional = null;
-		try {
-			projectTypeOptional = this.projectTypeService.getProjectTypeById(projectTypeId);
-
-			if (!projectTypeOptional.isPresent()) {
-				return null;
-			}
-		} catch (BestWorkBussinessException ex) {
-			ex.getMessage();
-		}
-		return projectTypeOptional.get();
-	}
 }

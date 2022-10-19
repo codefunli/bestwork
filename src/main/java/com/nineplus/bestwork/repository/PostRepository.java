@@ -12,7 +12,7 @@ import com.nineplus.bestwork.entity.PostEntity;
 @Repository
 public interface PostRepository extends JpaRepository<PostEntity, String> {
 
-	@Query(value = " select * from post where project_id = :projectId ", nativeQuery = true)
+	@Query(value = " select * from POST where project_id = :projectId ", nativeQuery = true)
 	List<PostEntity> findPostsByProjectId(@Param(value = "projectId") String projectId);
 
 }

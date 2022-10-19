@@ -2,6 +2,7 @@ package com.nineplus.bestwork.controller;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
@@ -61,13 +62,13 @@ public class PostController extends BaseController {
 		PostEntity post = new PostEntity();
 		post.setDescription(postRequestDto.getDescription());
 		post.setProject(projectService.getProjectById(postRequestDto.getProjectId()).get());
-		post.setCreateDate(Timestamp.valueOf(LocalDateTime.now()));
+		post.setCreateDate(Timestamp.valueOf(LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"))));
 
 		PostEntity createdPost = null;
 		try {
 			createdPost = this.postService.savePost(post);
-			for (String image : postRequestDto.getImages()) {
-				this.storageService.storeFile(image, createdPost);
+			for (String imageData : postRequestDto.getImages()) {
+				this.storageService.storeFile(imageData, createdPost);
 			}
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
@@ -82,6 +83,14 @@ public class PostController extends BaseController {
 		return new ResponseEntity<>(posts, HttpStatus.OK);
 	}
 
+	@GetMapping("/{projectId}")
+	public ResponseEntity<? extends Object> getPostsByProjectId(@PathVariable String projectId)
+			throws BestWorkBussinessException {
+		List<PostResponseDto> posts = null;
+		posts = postService.getPostsByProjectId(projectId);
+		return new ResponseEntity<>(posts, HttpStatus.OK);
+	}
+
 	private boolean isExistedProjectId(String projectId) {
 		Optional<ProjectEntity> project = null;
 		try {
@@ -93,14 +102,6 @@ public class PostController extends BaseController {
 			return true;
 		}
 		return false;
-	}
-
-	@GetMapping("/{projectId}")
-	public ResponseEntity<? extends Object> getPostsByProjectId(@PathVariable String projectId)
-			throws BestWorkBussinessException {
-		List<PostResponseDto> posts = null;
-		posts = postService.getPostsByProjectId(projectId);
-		return new ResponseEntity<>(posts, HttpStatus.OK);
 	}
 
 }
