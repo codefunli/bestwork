@@ -22,8 +22,8 @@ import com.nineplus.bestwork.dto.CompanyReqDto;
 import com.nineplus.bestwork.dto.CompanyResDto;
 import com.nineplus.bestwork.dto.PageResponseDto;
 import com.nineplus.bestwork.dto.PageSearchDto;
-import com.nineplus.bestwork.dto.RCompanyUserReqDTO;
-import com.nineplus.bestwork.dto.RCompanyUserResDTO;
+import com.nineplus.bestwork.dto.CompanyUserReqDTO;
+import com.nineplus.bestwork.dto.CompanyUserResDTO;
 import com.nineplus.bestwork.dto.RUserResDTO;
 import com.nineplus.bestwork.dto.UserReqDTO;
 import com.nineplus.bestwork.entity.TCompany;
@@ -80,7 +80,7 @@ public class CompanyService {
 	private static final List<String> SEARCHABLE_FIELDS = Arrays.asList("companyName");
 
 	@Transactional(rollbackFor = { Exception.class })
-	public void registCompany(RCompanyUserReqDTO companyReqDto) throws BestWorkBussinessException {
+	public void registCompany(CompanyUserReqDTO companyReqDto) throws BestWorkBussinessException {
 
 		// Check role of user
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
@@ -163,7 +163,7 @@ public class CompanyService {
 		}
 	}
 
-	public TCompany regist(RCompanyUserReqDTO companyReqDto) throws BestWorkBussinessException {
+	public TCompany regist(CompanyUserReqDTO companyReqDto) throws BestWorkBussinessException {
 		TCompany company = null;
 		try {
 			company = new TCompany();
@@ -297,8 +297,8 @@ public class CompanyService {
 	 * @return Company and User information
 	 * @throws BestWorkBussinessException
 	 */
-	public RCompanyUserResDTO getCompanyAndUser(long companyId) throws BestWorkBussinessException {
-		RCompanyUserResDTO userCompanyRes = new RCompanyUserResDTO();
+	public CompanyUserResDTO getCompanyAndUser(long companyId) throws BestWorkBussinessException {
+		CompanyUserResDTO userCompanyRes = new CompanyUserResDTO();
 		TCompany company = tCompanyRepository.findByCompanyId(companyId);
 		TUser user = userService.getUserByCompanyId(companyId);
 		if (company != null && user != null) {
