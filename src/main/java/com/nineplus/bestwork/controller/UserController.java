@@ -47,4 +47,9 @@ public class UserController extends BaseController {
 		return success(CommonConstants.MessageCode.S1X0003, null, null);
 	}
 
+	@GetMapping("/isCheckLogin")
+	public ResponseEntity<? extends Object> isCheckLogin(HttpServletRequest request, HttpServletResponse response) {
+		return success(CommonConstants.MessageCode.S1X0010, null, null);
+	}
+
 }
