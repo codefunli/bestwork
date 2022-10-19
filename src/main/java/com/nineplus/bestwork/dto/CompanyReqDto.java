@@ -4,25 +4,26 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class RCompanyResDTO extends BaseDTO {
+public class CompanyReqDto extends BaseDto {
+
 	/**
 	 * serialVersionUID
 	 */
 	private static final long serialVersionUID = 7969015153524943561L;
 
-	@JsonProperty("id")
-	private Long id;
 
 	@JsonProperty("companyName")
 	private String companyName;
 
-	@JsonProperty("email")
+	@JsonProperty("cpEmail")
 	private String email;
 
-	@JsonProperty("telNo")
+	@JsonProperty("cpTelNo")
 	private String telNo;
 
 	@JsonProperty("taxNo")
@@ -45,8 +46,8 @@ public class RCompanyResDTO extends BaseDTO {
 
 	@JsonProperty("expiredDate")
 	private String expiredDate;
-
-	@JsonProperty("status")
-	private int isExpired;
-
+	
+	private String createBy;
+	
+	private String updateBy;
 }

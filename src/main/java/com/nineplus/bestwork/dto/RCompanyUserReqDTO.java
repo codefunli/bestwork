@@ -10,7 +10,7 @@ import lombok.EqualsAndHashCode;
 public class RCompanyUserReqDTO {
 	
 	 @JsonProperty("company")
-	    private RCompanyReqDTO company;
+	    private CompanyReqDto company;
 
 	 @JsonProperty("user")
 	    private UserReqDTO user;

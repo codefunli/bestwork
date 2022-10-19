@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import com.nineplus.bestwork.entity.TCompany;
 
 @Repository
-public interface TCompanyRepository extends SearchRepository<TCompany, Long> ,JpaRepository<TCompany, Long> {
+public interface TCompanyRepository extends JpaRepository<TCompany, Long> {
 
 	@Query(value = "SELECT * FROM T_COMPANY WHERE id = :companyId", nativeQuery = true)
 	TCompany findByCompanyId(Long companyId);
@@ -19,5 +19,8 @@ public interface TCompanyRepository extends SearchRepository<TCompany, Long> ,Jp
 
 	@Query(value = "select * from T_COMPANY", nativeQuery = true)
 	Page<TCompany> getPageCompany(Pageable pageable);
+
+	@Query(value = "select * from T_COMPANY WHERE MATCH(company_name,email,province_city,district,ward,street) AGAINST(:keyword)", nativeQuery = true)
+	Page<TCompany> searchCompanyPage(String keyword, Pageable pageable);
 	
 }

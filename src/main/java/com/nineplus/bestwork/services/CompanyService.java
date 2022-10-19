@@ -18,10 +18,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.nineplus.bestwork.dto.PageResponseDTO;
-import com.nineplus.bestwork.dto.PageSearchDTO;
-import com.nineplus.bestwork.dto.RCompanyReqDTO;
-import com.nineplus.bestwork.dto.RCompanyResDTO;
+import com.nineplus.bestwork.dto.CompanyReqDto;
+import com.nineplus.bestwork.dto.CompanyResDto;
+import com.nineplus.bestwork.dto.PageResponseDto;
+import com.nineplus.bestwork.dto.PageSearchDto;
 import com.nineplus.bestwork.dto.RCompanyUserReqDTO;
 import com.nineplus.bestwork.dto.RCompanyUserResDTO;
 import com.nineplus.bestwork.dto.RUserResDTO;
@@ -31,9 +31,9 @@ import com.nineplus.bestwork.entity.TRole;
 import com.nineplus.bestwork.entity.TUser;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.model.UserAuthDetected;
+import com.nineplus.bestwork.repository.TCompanyRepository;
 import com.nineplus.bestwork.repository.TRoleRepository;
 import com.nineplus.bestwork.repository.TUserRepository;
-import com.nineplus.bestwork.repository.TCompanyRepository;
 import com.nineplus.bestwork.utils.CommonConstants;
 import com.nineplus.bestwork.utils.ConvertResponseUtils;
 import com.nineplus.bestwork.utils.DateUtils;
@@ -114,7 +114,7 @@ public class CompanyService {
 
 	/**
 	 */
-	public void validateCpmnyInfor(RCompanyReqDTO companyReqDto, boolean isEdit) throws BestWorkBussinessException {
+	public void validateCpmnyInfor(CompanyReqDto companyReqDto, boolean isEdit) throws BestWorkBussinessException {
 		// Validation register information
 		String companyName = companyReqDto.getCompanyName();
 
@@ -193,7 +193,7 @@ public class CompanyService {
 	}
 
 	@Transactional(rollbackFor = { Exception.class })
-	public RCompanyResDTO updateCompany(long companyId, RCompanyReqDTO companyReqDto)
+	public CompanyResDto updateCompany(long companyId, CompanyReqDto companyReqDto)
 			throws BestWorkBussinessException {
 
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
@@ -235,7 +235,7 @@ public class CompanyService {
 			currentCompany.setExpiredDate(companyReqDto.getExpiredDate());
 			tCompanyRepository.save(currentCompany);
 
-			RCompanyResDTO resDTO = modelMapper.map(currentCompany, RCompanyResDTO.class);
+			CompanyResDto resDTO = modelMapper.map(currentCompany, CompanyResDto.class);
 			return resDTO;
 
 		} catch (Exception ex) {
@@ -302,7 +302,7 @@ public class CompanyService {
 		TCompany company = tCompanyRepository.findByCompanyId(companyId);
 		TUser user = userService.getUserByCompanyId(companyId);
 		if (company != null && user != null) {
-			RCompanyResDTO resCompany = modelMapper.map(company, RCompanyResDTO.class);
+			CompanyResDto resCompany = modelMapper.map(company, CompanyResDto.class);
 			RUserResDTO resUser = modelMapper.map(user, RUserResDTO.class);
 			userCompanyRes.setCompany(resCompany);
 			userCompanyRes.setUser(resUser);
@@ -320,7 +320,7 @@ public class CompanyService {
 	 * @return page of company follow condition
 	 * @throws BestWorkBussinessException
 	 */
-	public PageResponseDTO<RCompanyResDTO> getCompanyPage(PageSearchDTO pageCondition)
+	public PageResponseDto<CompanyResDto> getCompanyPage(PageSearchDto pageCondition)
 			throws BestWorkBussinessException {
 		Page<TCompany> pageTCompany;
 		try {
@@ -330,23 +330,33 @@ public class CompanyService {
 			Pageable pageable = PageRequest.of(pageNumber, Integer.parseInt(pageCondition.getSize()),
 					Sort.by(pageCondition.getSortDirection(), mappedColumn));
 			pageTCompany = tCompanyRepository.getPageCompany(pageable);
-			return responseUtils.convertPageEntityToDTO(pageTCompany, RCompanyResDTO.class);
+			return responseUtils.convertPageEntityToDTO(pageTCompany, CompanyResDto.class);
 		} catch (Exception ex) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
 		}
 	}
+	
+	/**
+	 *  Search company with keyword
+	 * @param keyword
+	 * @param pageCondition
+	 * @return
+	 * @throws BestWorkBussinessException
+	 */
+	public PageResponseDto<CompanyResDto> searchCompanyPage(String keyword, PageSearchDto pageCondition)
+			throws BestWorkBussinessException {
+		Page<TCompany> pageTCompany;
+		try {
+			int pageNumber = NumberUtils.toInt(pageCondition.getPage());
 
-	public List<TCompany> searchCompany(String text, List<String> fields, int limit) {
-
-		List<String> fieldsToSearchBy = fields.isEmpty() ? SEARCHABLE_FIELDS : fields;
-
-		boolean containsInvalidField = fieldsToSearchBy.stream().anyMatch(f -> !SEARCHABLE_FIELDS.contains(f));
-
-		if (containsInvalidField) {
-			throw new IllegalArgumentException();
+			String mappedColumn = convertResponseUtils.convertResponseCompany(pageCondition.getSortBy());
+			Pageable pageable = PageRequest.of(pageNumber, Integer.parseInt(pageCondition.getSize()),
+					Sort.by(pageCondition.getSortDirection(), mappedColumn));
+			pageTCompany = tCompanyRepository.searchCompanyPage(keyword, pageable);
+			return responseUtils.convertPageEntityToDTO(pageTCompany, CompanyResDto.class);
+		} catch (Exception ex) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
 		}
-
-		return tCompanyRepository.searchBy(text, limit, fieldsToSearchBy.toArray(new String[0]));
 	}
 
 }

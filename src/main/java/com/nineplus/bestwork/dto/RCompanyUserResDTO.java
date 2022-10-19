@@ -8,7 +8,7 @@ import lombok.Data;
 public class RCompanyUserResDTO {
 	
 	@JsonProperty("company")
-    private RCompanyResDTO company;
+    private CompanyResDto company;
 
     @JsonProperty("user")
     private RUserResDTO user;
