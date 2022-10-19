@@ -25,15 +25,21 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * 
+ * @author DiepTT
+ *
+ */
+
 @Entity(name = "ProjectEntity")
-@Table(name = "T_PROJECT")
+@Table(name = "PROJECT")
 @TypeDef(name = "json", typeClass = JsonStringType.class)
 @EqualsAndHashCode
 @Setter
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class TProject {
+public class ProjectEntity {
 	@Id
 	@Column(name = "id", unique = true, nullable = false, columnDefinition = "varchar(20)")
 	private String id;
@@ -61,10 +67,10 @@ public class TProject {
 
 	@ManyToOne
 	@JoinColumn(name = "project_type")
-	private TProjectType projectType;
+	private ProjectTypeEntity projectType;
 	
 	@OneToMany(mappedBy = "project")
 	@JsonBackReference
-	private Collection<TPost> posts;
+	private Collection<PostEntity> posts;
 
 }

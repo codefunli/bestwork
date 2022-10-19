@@ -8,6 +8,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
@@ -18,26 +19,32 @@ import com.vladmihalcea.hibernate.type.json.JsonStringType;
 
 import lombok.Data;
 
-@Entity(name = "PostEntity")
+@Entity(name = "FileStorageEntity")
 @Data
-@Table(name = "T_POST")
+@Table(name = "FILE_STORAGE")
 @TypeDef(name = "json", typeClass = JsonStringType.class)
-public class TPost {
+public class FileStorageEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id", unique = true, nullable = false)
-	private Integer id;
+	private String id;
 
-	@Column(name = "description", nullable = true)
-	private String description;
+	@Column(name = "name", nullable = false)
+	private String name;
+
+	@Lob
+	@Column(name = "data", nullable = false)
+	private byte[] data;
+
+	@Column(name = "type", nullable = true, columnDefinition = "varchar(50)")
+	private String type;
 
 	@Column(name = "create_date", nullable = true)
 	private Timestamp createDate;
 
 	@ManyToOne
-	@JoinColumn(name = "project_id")
+	@JoinColumn(name = "post_id")
 	@JsonIgnore
-	private TProject project;
+	private PostEntity post;
 
 }

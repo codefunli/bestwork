@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import com.nineplus.bestwork.dto.ApiResponseDTO;
+import com.nineplus.bestwork.dto.ApiResponseDto;
 import com.nineplus.bestwork.utils.CommonConstants;
 import com.nineplus.bestwork.utils.MessageUtils;
 /**
@@ -26,11 +26,11 @@ public abstract class BaseController {
 	 */
 	public ResponseEntity<? extends Object> success(String msgCode, Object data, Object[] params) {
 
-		ApiResponseDTO apiResponseDto = ApiResponseDTO.builder().code(msgCode)
+		ApiResponseDto apiResponseDto = ApiResponseDto.builder().code(msgCode)
 				.message(messageUtils.getMessage(msgCode, params)).data(data)
 				.status(CommonConstants.ApiStatus.STATUS_OK).build();
 
-		return new ResponseEntity<ApiResponseDTO>(apiResponseDto, HttpStatus.OK);
+		return new ResponseEntity<ApiResponseDto>(apiResponseDto, HttpStatus.OK);
 	}
 
 	/**
@@ -41,20 +41,20 @@ public abstract class BaseController {
 	 */
 	public ResponseEntity<? extends Object> failed(String msgCode, Object[] params) {
 
-		ApiResponseDTO apiResponseDto = ApiResponseDTO.builder().code(msgCode)
+		ApiResponseDto apiResponseDto = ApiResponseDto.builder().code(msgCode)
 				.message(messageUtils.getMessage(msgCode, params)).data(null)
 				.status(CommonConstants.ApiStatus.STATUS_ERROR).build();
 
-		return new ResponseEntity<ApiResponseDTO>(apiResponseDto, HttpStatus.OK);
+		return new ResponseEntity<ApiResponseDto>(apiResponseDto, HttpStatus.OK);
 	}
 
 	public ResponseEntity<? extends Object> failedWithError(String msgCode, Object data, Object[] params) {
 
-		ApiResponseDTO apiResponseDto = ApiResponseDTO.builder().code(msgCode)
+		ApiResponseDto apiResponseDto = ApiResponseDto.builder().code(msgCode)
 				.message(messageUtils.getMessage(msgCode, params)).data(data)
 				.status(CommonConstants.ApiStatus.STATUS_ERROR).build();
 
-		return new ResponseEntity<ApiResponseDTO>(apiResponseDto, HttpStatus.OK);
+		return new ResponseEntity<ApiResponseDto>(apiResponseDto, HttpStatus.OK);
 	}
 
 }

@@ -15,12 +15,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import com.nineplus.bestwork.dto.PageResponseDTO;
-import com.nineplus.bestwork.dto.PrjConditionSearchDTO;
+import com.nineplus.bestwork.dto.PageResponseDto;
+import com.nineplus.bestwork.dto.PrjConditionSearchDto;
 import com.nineplus.bestwork.dto.ProjectRequestDto;
-import com.nineplus.bestwork.dto.RProjectReqDTO;
-import com.nineplus.bestwork.dto.TProjectResponseDto;
-import com.nineplus.bestwork.entity.TProject;
+import com.nineplus.bestwork.dto.RProjectReqDto;
+import com.nineplus.bestwork.dto.ProjectResponseDto;
+import com.nineplus.bestwork.entity.ProjectEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.model.ProjectStatus;
 import com.nineplus.bestwork.repository.ProjectRepository;
@@ -44,7 +44,7 @@ public class ProjectServiceImpl implements IProjectService {
 	private MessageUtils messageUtils;
 
 	@Override
-	public PageResponseDTO<TProjectResponseDto> getProjectPage(RProjectReqDTO pageSearchDto)
+	public PageResponseDto<ProjectResponseDto> getProjectPage(RProjectReqDto pageSearchDto)
 			throws BestWorkBussinessException {
 		try {
 			int pageNumber = NumberUtils.toInt(pageSearchDto.getPageConditon().getPage());
@@ -54,12 +54,12 @@ public class ProjectServiceImpl implements IProjectService {
 			Pageable pageable = PageRequest.of(pageNumber, Integer.parseInt(pageSearchDto.getPageConditon().getSize()),
 					Sort.by(pageSearchDto.getPageConditon().getSortDirection(),
 							pageSearchDto.getPageConditon().getSortBy()));
-			Page<TProject> pageTProject;
+			Page<ProjectEntity> pageTProject;
 
-			PrjConditionSearchDTO prjConditionSearchDTO = pageSearchDto.getProjectCondition();
+			PrjConditionSearchDto prjConditionSearchDTO = pageSearchDto.getProjectCondition();
 			pageTProject = projectRepository.findProjectWithCondition(prjConditionSearchDTO, pageable);
 
-			return responseUtils.convertPageEntityToDTO(pageTProject, TProjectResponseDto.class);
+			return responseUtils.convertPageEntityToDTO(pageTProject, ProjectResponseDto.class);
 		} catch (Exception ex) {
 			logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0003, null), ex);
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
@@ -68,11 +68,11 @@ public class ProjectServiceImpl implements IProjectService {
 	}
 
 	@Override
-	public PageResponseDTO<TProjectResponseDto> getAllProjectPages(Pageable pageable)
+	public PageResponseDto<ProjectResponseDto> getAllProjectPages(Pageable pageable)
 			throws BestWorkBussinessException {
 		try {
-			Page<TProject> pageTProject = projectRepository.findAll(pageable);
-			return responseUtils.convertPageEntityToDTO(pageTProject, TProjectResponseDto.class);
+			Page<ProjectEntity> pageTProject = projectRepository.findAll(pageable);
+			return responseUtils.convertPageEntityToDTO(pageTProject, ProjectResponseDto.class);
 
 		} catch (Exception ex) {
 			logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0003, null), ex);
@@ -81,7 +81,7 @@ public class ProjectServiceImpl implements IProjectService {
 	}
 
 	@Override
-	public Optional<TProject> getProjectById(String id) throws BestWorkBussinessException {
+	public Optional<ProjectEntity> getProjectById(String id) throws BestWorkBussinessException {
 		if (id == null || id.equalsIgnoreCase("")) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
 		}
@@ -90,8 +90,8 @@ public class ProjectServiceImpl implements IProjectService {
 	}
 
 	@Override
-	public TProject saveProject(ProjectRequestDto projectRequestDto) {
-		TProject project = new TProject();
+	public ProjectEntity saveProject(ProjectRequestDto projectRequestDto) {
+		ProjectEntity project = new ProjectEntity();
 		BeanUtils.copyProperties(projectRequestDto, project);
 
 		project.setId(this.setProjectId());
@@ -124,7 +124,7 @@ public class ProjectServiceImpl implements IProjectService {
 	}
 
 	@Override
-	public TProject updateProject(TProject project) throws BestWorkBussinessException {
+	public ProjectEntity updateProject(ProjectEntity project) throws BestWorkBussinessException {
 		return this.projectRepository.save(project);
 
 	}

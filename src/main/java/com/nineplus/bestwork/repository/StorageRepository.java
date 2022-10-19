@@ -1,18 +1,20 @@
 package com.nineplus.bestwork.repository;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.nineplus.bestwork.entity.TFileStorage;
+import com.nineplus.bestwork.entity.FileStorageEntity;
 
 @Repository
-public interface StorageRepository extends JpaRepository<TFileStorage, Integer>{
+public interface StorageRepository extends JpaRepository<FileStorageEntity, String>{
 
-	@Query(value = " select * from t_file_storage where project_id = :projectId", nativeQuery = true)
-	List<TFileStorage> findAllByProjectId(@Param("projectId") String projectId);
+	@Query(value = "select * from t_file_storage where post_id = :postId", nativeQuery = true)
+	List<FileStorageEntity> findAllByPostId(String postId);
+
 
 }

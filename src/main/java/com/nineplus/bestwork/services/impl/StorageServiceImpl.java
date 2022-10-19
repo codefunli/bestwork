@@ -1,20 +1,23 @@
 package com.nineplus.bestwork.services.impl;
 
-import java.nio.file.Path;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.stream.Stream;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
-import org.springframework.web.multipart.MultipartFile;
 
-import com.nineplus.bestwork.entity.TFileStorage;
+import com.nineplus.bestwork.entity.FileStorageEntity;
+import com.nineplus.bestwork.entity.PostEntity;
 import com.nineplus.bestwork.repository.StorageRepository;
 import com.nineplus.bestwork.services.IStorageService;
+
+/**
+ * 
+ * @author DiepTT
+ *
+ */
 
 @Service
 public class StorageServiceImpl implements IStorageService {
@@ -23,47 +26,35 @@ public class StorageServiceImpl implements IStorageService {
 	private StorageRepository storageRepository;
 
 	@Override
-	public TFileStorage storeFile(MultipartFile file) {
+	public FileStorageEntity storeFile(String file, PostEntity reqPost) {
 
 		try {
+			FileStorageEntity image = new FileStorageEntity();
+			image.setData(file.getBytes());
+			String description = reqPost.getDescription();
+			if (description.length() < 50) {
+				image.setName(reqPost.getProject().getProjectName() + ": " + reqPost.getDescription());
+			} else {
+				image.setName(reqPost.getProject().getProjectName() + ": " + reqPost.getDescription().substring(0, 50)
+						+ "...");
+			}
+			image.setPost(reqPost);
+			String type = "";
+			Pattern pattern = Pattern.compile("data:image/(.*?);base64");
+			Matcher matcher = pattern.matcher(file);
+			if (matcher.find()) {
+				System.out.println(matcher.group(1));
+				type = matcher.group(1);
+			}
 
-			LocalDateTime currentLocalDateTime = LocalDateTime.now();
-			DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("ddMMyyyy-HHmmss");
-			String formattedDateTime = currentLocalDateTime.format(dateTimeFormatter);
-			String newFileName = formattedDateTime + "-" + StringUtils.cleanPath(file.getOriginalFilename());
-			
-			Timestamp createDate = new Timestamp(System.currentTimeMillis());
+			image.setType(type);
+			image.setCreateDate(Timestamp.valueOf(LocalDateTime.now()));
 
-			return this.storageRepository.save(new TFileStorage(newFileName, file.getBytes(), file.getContentType(),
-					createDate));
-
+			return storageRepository.save(image);
 		} catch (Exception e) {
 			e.getMessage();
 			return null;
 		}
-	}
-
-	@Override
-	public Stream<Path> loadAll() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public byte[] readFileContent(String filename) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void deleteFile(String fileName) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public List<TFileStorage> getFilesByProjectId(String projectId) {
-		return this.storageRepository.findAllByProjectId(projectId);
 	}
 
 }

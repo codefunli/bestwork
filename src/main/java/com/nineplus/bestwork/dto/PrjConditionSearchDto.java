@@ -7,7 +7,7 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class PrjConditionSearchDTO {
+public class PrjConditionSearchDto {
 	
 
 	@JsonProperty("keyword")
