@@ -3,6 +3,7 @@ package com.nineplus.bestwork.entity;
 import java.sql.Timestamp;
 import java.util.Collection;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -69,7 +70,7 @@ public class ProjectEntity {
 	@JoinColumn(name = "project_type")
 	private ProjectTypeEntity projectType;
 	
-	@OneToMany(mappedBy = "project")
+	@OneToMany(mappedBy = "project", cascade = CascadeType.REMOVE)
 	@JsonBackReference
 	private Collection<PostEntity> posts;
 
