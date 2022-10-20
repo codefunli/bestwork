@@ -8,6 +8,7 @@ import javax.validation.Valid;
 import org.springframework.data.domain.Pageable;
 
 import com.nineplus.bestwork.dto.PageResponseDto;
+import com.nineplus.bestwork.dto.PageSearchDto;
 import com.nineplus.bestwork.dto.ProjectRequestDto;
 import com.nineplus.bestwork.dto.ProjectResponseDto;
 import com.nineplus.bestwork.dto.RProjectReqDto;
@@ -16,7 +17,7 @@ import com.nineplus.bestwork.exception.BestWorkBussinessException;
 
 public interface IProjectService {
 
-	public PageResponseDto<ProjectResponseDto> getProjectPage(RProjectReqDto pageSearchDto)
+	public PageResponseDto<ProjectResponseDto> getProjectPage(PageSearchDto pageSearchDto)
 			throws BestWorkBussinessException;
 
 	public PageResponseDto<ProjectResponseDto> getAllProjectPages(Pageable pageable) throws BestWorkBussinessException;

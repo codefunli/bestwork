@@ -17,10 +17,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.nineplus.bestwork.dto.PageResponseDto;
+import com.nineplus.bestwork.dto.PageSearchDto;
 import com.nineplus.bestwork.dto.PrjConditionSearchDto;
 import com.nineplus.bestwork.dto.ProjectRequestDto;
 import com.nineplus.bestwork.dto.ProjectResponseDto;
-import com.nineplus.bestwork.dto.RProjectReqDto;
 import com.nineplus.bestwork.entity.ProjectEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.model.ProjectStatus;
@@ -45,20 +45,20 @@ public class ProjectServiceImpl implements IProjectService {
 	private MessageUtils messageUtils;
 
 	@Override
-	public PageResponseDto<ProjectResponseDto> getProjectPage(RProjectReqDto pageSearchDto)
+	public PageResponseDto<ProjectResponseDto> getProjectPage(PageSearchDto pageSearchDto)
 			throws BestWorkBussinessException {
 		try {
-			int pageNumber = NumberUtils.toInt(pageSearchDto.getPageConditon().getPage());
+			int pageNumber = NumberUtils.toInt(pageSearchDto.getPage());
 			if (pageNumber > 0) {
 				pageNumber = pageNumber - 1;
 			}
-			Pageable pageable = PageRequest.of(pageNumber, Integer.parseInt(pageSearchDto.getPageConditon().getSize()),
-					Sort.by(pageSearchDto.getPageConditon().getSortDirection(),
-							pageSearchDto.getPageConditon().getSortBy()));
+			Pageable pageable = PageRequest.of(pageNumber, Integer.parseInt(pageSearchDto.getSize()),
+					Sort.by(pageSearchDto.getSortDirection(),
+							pageSearchDto.getSortBy()));
 			Page<ProjectEntity> pageTProject;
 
-			PrjConditionSearchDto prjConditionSearchDTO = pageSearchDto.getProjectCondition();
-			pageTProject = projectRepository.findProjectWithCondition(prjConditionSearchDTO, pageable);
+//			PrjConditionSearchDto prjConditionSearchDTO = pageSearchDto.getProjectCondition();
+			pageTProject = projectRepository.findProjectWithCondition(pageSearchDto, pageable);
 
 			return responseUtils.convertPageEntityToDTO(pageTProject, ProjectResponseDto.class);
 		} catch (Exception ex) {

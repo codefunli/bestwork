@@ -23,10 +23,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nineplus.bestwork.dto.PageResponseDto;
+import com.nineplus.bestwork.dto.PageSearchDto;
 import com.nineplus.bestwork.dto.ProjectRequestDto;
 import com.nineplus.bestwork.dto.ProjectResponseDto;
 import com.nineplus.bestwork.dto.ProjectTypeResponseDto;
-import com.nineplus.bestwork.dto.RProjectReqDto;
 import com.nineplus.bestwork.entity.ProjectEntity;
 import com.nineplus.bestwork.entity.ProjectTypeEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
@@ -58,8 +58,8 @@ public class ProjectController extends BaseController {
 	 * @return
 	 * @throws BestWorkBussinessException
 	 */
-	@PostMapping("/search")
-	public ResponseEntity<? extends Object> getProjectPages(@RequestBody RProjectReqDto prjConDto)
+	@PostMapping("/list")
+	public ResponseEntity<? extends Object> getProjectPages(@RequestBody PageSearchDto prjConDto)
 			throws BestWorkBussinessException {
 
 		PageResponseDto<ProjectResponseDto> pageProject = null;
