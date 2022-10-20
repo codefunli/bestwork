@@ -19,7 +19,7 @@ public class UserResDto {
 	@JsonProperty("lastNm")
     private String lastNm;
 
-	@JsonProperty("email")
+	@JsonProperty("uEmail")
     private String email;
 
 	@JsonProperty("isEnable")

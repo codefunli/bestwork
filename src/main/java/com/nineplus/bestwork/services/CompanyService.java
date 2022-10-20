@@ -347,16 +347,20 @@ public class CompanyService {
 			Pageable pageable = PageRequest.of(pageNumber, Integer.parseInt(pageCondition.getSize()),
 					Sort.by(pageCondition.getSortDirection(), mappedColumn));
 			if (!keyword.isBlank() && status != 2) {
-				pageTCompany = tCompanyRepository.searchCompanyPage(keyword, status, pageable);
+				pageTCompany = tCompanyRepository.searchCompanyPage(convertWildCard(keyword), status, pageable);
 			} else if (keyword.isBlank()) {
 				pageTCompany = tCompanyRepository.searchCompanyPageWithOutKeyWord(status, pageable);
 			} else if (status == 2 && !keyword.isBlank()) {
-				pageTCompany = tCompanyRepository.searchCompanyPageWithOutStatus(keyword, pageable);
+				pageTCompany = tCompanyRepository.searchCompanyPageWithOutStatus(convertWildCard(keyword), pageable);
 			}
 			return responseUtils.convertPageEntityToDTO(pageTCompany, CompanyResDto.class);
 		} catch (Exception ex) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
 		}
+	}
+	
+	private String convertWildCard(String text) {
+		return "*" + text + "*";
 	}
 
 }
