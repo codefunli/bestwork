@@ -2,6 +2,7 @@ package com.nineplus.bestwork.services.impl;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,29 +27,17 @@ public class StorageServiceImpl implements IStorageService {
 	private StorageRepository storageRepository;
 
 	@Override
-	public FileStorageEntity storeFile(String file, PostEntity reqPost) {
+	public FileStorageEntity storeFile(String imageData, PostEntity reqPost) {
 
 		try {
 			FileStorageEntity image = new FileStorageEntity();
-			image.setData(file.getBytes());
-			String description = reqPost.getDescription();
-			if (description.length() < 50) {
-				image.setName(reqPost.getProject().getProjectName() + ": " + reqPost.getDescription());
-			} else {
-				image.setName(reqPost.getProject().getProjectName() + ": " + reqPost.getDescription().substring(0, 50)
-						+ "...");
-			}
+			image.setData(imageData.getBytes());
 			image.setPost(reqPost);
-			String type = "";
-			Pattern pattern = Pattern.compile("data:image/(.*?);base64");
-			Matcher matcher = pattern.matcher(file);
-			if (matcher.find()) {
-				System.out.println(matcher.group(1));
-				type = matcher.group(1);
-			}
-
+			String imageName = getImageName(reqPost);
+			image.setName(imageName);
+			String type = getImageType(imageData);
 			image.setType(type);
-			image.setCreateDate(Timestamp.valueOf(LocalDateTime.now()));
+			image.setCreateDate(Timestamp.valueOf(LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"))));
 
 			return storageRepository.save(image);
 		} catch (Exception e) {
@@ -57,4 +46,26 @@ public class StorageServiceImpl implements IStorageService {
 		}
 	}
 
+	private String getImageType(String imageData) {
+		String prefixRegex = "data:image/";
+		String suffixRegex = ";base64";
+		Pattern pattern = Pattern.compile(prefixRegex + "(.*?)" + suffixRegex);
+		Matcher matcher = pattern.matcher(imageData);
+		if (matcher.find()) {
+			return matcher.group(1);
+		}
+		return null;
+	}
+
+	private String getImageName(PostEntity reqPost) {
+		String projectName = reqPost.getProject().getProjectName();
+		String description = reqPost.getDescription();
+		String imageName = projectName + ": " + description;
+		if (imageName.length() <= 40) {
+			return imageName;
+		} else {
+			return imageName.substring(0, 30) + "...";
+		}
+
+	}
 }

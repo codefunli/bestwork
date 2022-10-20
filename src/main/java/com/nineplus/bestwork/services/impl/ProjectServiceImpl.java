@@ -2,6 +2,7 @@ package com.nineplus.bestwork.services.impl;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.lang3.math.NumberUtils;
@@ -18,8 +19,8 @@ import org.springframework.stereotype.Service;
 import com.nineplus.bestwork.dto.PageResponseDto;
 import com.nineplus.bestwork.dto.PrjConditionSearchDto;
 import com.nineplus.bestwork.dto.ProjectRequestDto;
-import com.nineplus.bestwork.dto.RProjectReqDto;
 import com.nineplus.bestwork.dto.ProjectResponseDto;
+import com.nineplus.bestwork.dto.RProjectReqDto;
 import com.nineplus.bestwork.entity.ProjectEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.model.ProjectStatus;
@@ -68,8 +69,7 @@ public class ProjectServiceImpl implements IProjectService {
 	}
 
 	@Override
-	public PageResponseDto<ProjectResponseDto> getAllProjectPages(Pageable pageable)
-			throws BestWorkBussinessException {
+	public PageResponseDto<ProjectResponseDto> getAllProjectPages(Pageable pageable) throws BestWorkBussinessException {
 		try {
 			Page<ProjectEntity> pageTProject = projectRepository.findAll(pageable);
 			return responseUtils.convertPageEntityToDTO(pageTProject, ProjectResponseDto.class);
@@ -126,6 +126,12 @@ public class ProjectServiceImpl implements IProjectService {
 	@Override
 	public ProjectEntity updateProject(ProjectEntity project) throws BestWorkBussinessException {
 		return this.projectRepository.save(project);
+
+	}
+
+	@Override
+	public void deleteProjectById(List<String> ids) throws BestWorkBussinessException {
+		this.projectRepository.deleteByManyIds(ids);
 
 	}
 

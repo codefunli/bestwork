@@ -7,13 +7,17 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class RProjectReqDto {
-	
-	@JsonProperty("pageConditon")
-    private PageSearchDto pageConditon;
+public class RProjectReqDto extends BaseDto {
 
-    @JsonProperty("projectCondition")
-    private PrjConditionSearchDto projectCondition;
-    
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3900695676476137796L;
+
+	@JsonProperty("pageConditon")
+	private PageSearchDto pageConditon;
+
+	@JsonProperty("projectCondition")
+	private PrjConditionSearchDto projectCondition;
 
 }

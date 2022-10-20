@@ -1,5 +1,6 @@
 package com.nineplus.bestwork.services.impl;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -37,12 +38,12 @@ public class PostServiceImpl implements IPostService {
 	public List<PostResponseDto> getAllPosts() {
 		List<PostEntity> postEntities = this.postRepository.findAll();
 		List<PostResponseDto> postResponseDtos = new ArrayList<>();
-		if (postEntities != null) {
+		if (!postEntities.isEmpty()) {
 			for (PostEntity postEntity : postEntities) {
 				PostResponseDto dto = new PostResponseDto();
 				dto.setId(postEntity.getId());
 				dto.setDescription(postEntity.getDescription());
-				dto.setCreateDate(postEntity.getCreateDate());
+				dto.setCreateDate(postEntity.getCreateDate().toString());
 				dto.setProject(postEntity.getProject());
 				List<FileStorageResponseDto> fileStorageResponseDtos = new ArrayList<>();
 				for (FileStorageEntity file : postEntity.getFileStorages()) {
@@ -57,10 +58,10 @@ public class PostServiceImpl implements IPostService {
 				dto.setFileStorages(fileStorageResponseDtos);
 				postResponseDtos.add(dto);
 				Collections.sort(postResponseDtos, new Comparator<PostResponseDto>() {
-
 					@Override
 					public int compare(PostResponseDto o1, PostResponseDto o2) {
-						return (int) (o2.getCreateDate().getTime() - o1.getCreateDate().getTime());
+						return (int) (Timestamp.valueOf(o2.getCreateDate()).getTime()
+								- Timestamp.valueOf(o1.getCreateDate()).getTime());
 					}
 				});
 			}
@@ -76,7 +77,7 @@ public class PostServiceImpl implements IPostService {
 			PostResponseDto dto = new PostResponseDto();
 			dto.setId(postEntity.getId());
 			dto.setDescription(postEntity.getDescription());
-			dto.setCreateDate(postEntity.getCreateDate());
+			dto.setCreateDate(postEntity.getCreateDate().toString());
 			dto.setProject(postEntity.getProject());
 			List<FileStorageResponseDto> fileStorageResponseDtos = new ArrayList<>();
 			for (FileStorageEntity file : postEntity.getFileStorages()) {
@@ -93,7 +94,8 @@ public class PostServiceImpl implements IPostService {
 			Collections.sort(postResponseDtos, new Comparator<PostResponseDto>() {
 				@Override
 				public int compare(PostResponseDto o1, PostResponseDto o2) {
-					return (int) (o2.getCreateDate().getTime() - o1.getCreateDate().getTime());
+					return (int) (Timestamp.valueOf(o2.getCreateDate()).getTime()
+							- Timestamp.valueOf(o1.getCreateDate()).getTime());
 				}
 			});
 		}

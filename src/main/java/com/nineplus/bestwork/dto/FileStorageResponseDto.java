@@ -11,7 +11,12 @@ import lombok.Data;
  */
 
 @Data
-public class FileStorageResponseDto {
+public class FileStorageResponseDto extends BaseDto {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6658098507436726037L;
+
 	private String id;
 
 	private String name;

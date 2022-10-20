@@ -2,6 +2,7 @@ package com.nineplus.bestwork.controller;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import javax.validation.Valid;
@@ -10,6 +11,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.nineplus.bestwork.dto.PageResponseDto;
 import com.nineplus.bestwork.dto.ProjectRequestDto;
 import com.nineplus.bestwork.dto.ProjectResponseDto;
+import com.nineplus.bestwork.dto.ProjectTypeResponseDto;
 import com.nineplus.bestwork.dto.RProjectReqDto;
 import com.nineplus.bestwork.entity.ProjectEntity;
 import com.nineplus.bestwork.entity.ProjectTypeEntity;
@@ -140,7 +143,9 @@ public class ProjectController extends BaseController {
 		try {
 			projectOptional.get().setStatus(ProjectStatus.values()[projectRequestDto.getStatus()]);
 			projectOptional.get().setUpdateDate(Timestamp.valueOf(LocalDateTime.now()));
-			projectOptional.get().setProjectType(getProjectTypeById(projectRequestDto.getProjectType()));
+			ProjectTypeEntity projectType = this.projectTypeService
+					.getProjectTypeById(projectRequestDto.getProjectType());
+			projectOptional.get().setProjectType(projectType);
 
 			updatedProject = this.projectService.updateProject(projectOptional.get());
 		} catch (BestWorkBussinessException ex) {
@@ -149,17 +154,28 @@ public class ProjectController extends BaseController {
 		return success(CommonConstants.MessageCode.S1X0008, updatedProject, null);
 	}
 
-	private ProjectTypeEntity getProjectTypeById(Integer projectTypeId) {
-		Optional<ProjectTypeEntity> projectTypeOptional = null;
+	@PostMapping("/delete/{ids}")
+	public ResponseEntity<? extends Object> deleteMassiveProject(@PathVariable List<String> ids) {
 		try {
-			projectTypeOptional = this.projectTypeService.getProjectTypeById(projectTypeId);
-
-			if (!projectTypeOptional.isPresent()) {
-				return null;
-			}
+			this.projectService.deleteProjectById(ids);
 		} catch (BestWorkBussinessException ex) {
-			ex.getMessage();
+			return failed(CommonConstants.MessageCode.S1X0011, ex.getParam());
 		}
-		return projectTypeOptional.get();
+		return success(CommonConstants.MessageCode.S1X0010, null, null);
 	}
+
+	@GetMapping("/types")
+	public ResponseEntity<List<ProjectTypeResponseDto>> getAllProjectTypes() {
+		List<ProjectTypeResponseDto> projectTypeResponseDtos = projectTypeService.getAllProjectTypes();
+		if (projectTypeResponseDtos.isEmpty()) {
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		}
+		return new ResponseEntity<>(projectTypeResponseDtos, HttpStatus.OK);
+	}
+
+	@GetMapping("/types/{projectTypeId}")
+	public ProjectTypeEntity getProjectTypeById(@PathVariable Integer projectTypeId) throws BestWorkBussinessException {
+		return this.projectTypeService.getProjectTypeById(projectTypeId);
+	}
+
 }
