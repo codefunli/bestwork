@@ -22,7 +22,7 @@ public class SysRole {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id", unique = true, nullable = false, columnDefinition = "bigint")
-	private Integer id;
+	private Long id;
 
 	@Column(name = "name", nullable = false, columnDefinition = "varchar(20)")
 	private String name;
