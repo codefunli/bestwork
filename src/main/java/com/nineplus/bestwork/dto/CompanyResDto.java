@@ -19,10 +19,10 @@ public class CompanyResDto extends BaseDto {
 	@JsonProperty("companyName")
 	private String companyName;
 
-	@JsonProperty("email")
+	@JsonProperty("cpEmail")
 	private String email;
 
-	@JsonProperty("telNo")
+	@JsonProperty("cpTelNo")
 	private String telNo;
 
 	@JsonProperty("taxNo")

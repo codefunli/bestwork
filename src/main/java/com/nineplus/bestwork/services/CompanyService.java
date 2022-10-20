@@ -18,6 +18,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.nineplus.bestwork.dto.CompanyListIdDto;
 import com.nineplus.bestwork.dto.CompanyReqDto;
 import com.nineplus.bestwork.dto.CompanyResDto;
 import com.nineplus.bestwork.dto.PageResponseDto;
@@ -77,8 +78,6 @@ public class CompanyService {
 	@Autowired
 	ConvertResponseUtils convertResponseUtils;
 
-	private static final List<String> SEARCHABLE_FIELDS = Arrays.asList("companyName");
-
 	@Transactional(rollbackFor = { Exception.class })
 	public void registCompany(CompanyUserReqDto companyReqDto) throws BestWorkBussinessException {
 
@@ -108,7 +107,8 @@ public class CompanyService {
 			logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0001,
 					new Object[] { CommonConstants.Character.COMPANY, companyReqDto.getCompany().getCompanyName() }),
 					ex);
-			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0001, null);
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0001,
+					new Object[] { CommonConstants.Character.COMPANY, companyReqDto.getCompany().getCompanyName() });
 		}
 	}
 
@@ -193,8 +193,7 @@ public class CompanyService {
 	}
 
 	@Transactional(rollbackFor = { Exception.class })
-	public CompanyResDto updateCompany(long companyId, CompanyReqDto companyReqDto)
-			throws BestWorkBussinessException {
+	public CompanyResDto updateCompany(long companyId, CompanyReqDto companyReqDto) throws BestWorkBussinessException {
 
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
 		// Only system admin can do this
@@ -253,7 +252,7 @@ public class CompanyService {
 	 * @throws BestWorkBussinessException
 	 */
 	@Transactional(rollbackFor = { Exception.class })
-	public long deleteCompany(long tCompanyId) throws BestWorkBussinessException {
+	public Long[] deleteCompany(CompanyListIdDto listId) throws BestWorkBussinessException {
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
 		// Only system admin can do this
 		if (!userAuthRoleReq.getIsSysAdmin()) {
@@ -261,24 +260,18 @@ public class CompanyService {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
 		}
 		try {
-			TCompany currTcompany = null;
-			currTcompany = tCompanyRepository.findById(tCompanyId).orElse(null);
-			if (ObjectUtils.isEmpty(currTcompany)) {
-				throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
-			}
-
 			// Delete company
-			tCompanyRepository.delete(currTcompany);
+			tCompanyRepository.deleteCompaniesWithIds(Arrays.asList(listId.getLstCompanyId()));
 
 			// delete user relate company
-			List<TUser> allTusers = tUserRepos.findAllUserByCompanyId(currTcompany.getId());
+			List<TUser> allTusers = tUserRepos.findAllUserByCompanyId(Arrays.asList(listId.getLstCompanyId()));
 			tUserRepos.deleteAllInBatch(allTusers);
 
 		} catch (Exception ex) {
 			logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0002, null), ex);
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0002, null);
 		}
-		return tCompanyId;
+		return listId.getLstCompanyId();
 	}
 
 	/**
@@ -335,9 +328,10 @@ public class CompanyService {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
 		}
 	}
-	
+
 	/**
-	 *  Search company with keyword
+	 * Search company with keyword
+	 * 
 	 * @param keyword
 	 * @param pageCondition
 	 * @return
@@ -345,14 +339,20 @@ public class CompanyService {
 	 */
 	public PageResponseDto<CompanyResDto> searchCompanyPage(String keyword, int status, PageSearchDto pageCondition)
 			throws BestWorkBussinessException {
-		Page<TCompany> pageTCompany;
+		Page<TCompany> pageTCompany = null;
 		try {
 			int pageNumber = NumberUtils.toInt(pageCondition.getPage());
 
 			String mappedColumn = convertResponseUtils.convertResponseCompany(pageCondition.getSortBy());
 			Pageable pageable = PageRequest.of(pageNumber, Integer.parseInt(pageCondition.getSize()),
 					Sort.by(pageCondition.getSortDirection(), mappedColumn));
-			pageTCompany = tCompanyRepository.searchCompanyPage(keyword,status, pageable);
+			if (!keyword.isBlank() && status != 2) {
+				pageTCompany = tCompanyRepository.searchCompanyPage(keyword, status, pageable);
+			} else if (keyword.isBlank()) {
+				pageTCompany = tCompanyRepository.searchCompanyPageWithOutKeyWord(status, pageable);
+			} else if (status == 2 && !keyword.isBlank()) {
+				pageTCompany = tCompanyRepository.searchCompanyPageWithOutStatus(keyword, pageable);
+			}
 			return responseUtils.convertPageEntityToDTO(pageTCompany, CompanyResDto.class);
 		} catch (Exception ex) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
