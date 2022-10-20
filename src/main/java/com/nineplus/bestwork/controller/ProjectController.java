@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nineplus.bestwork.dto.PageResponseDto;
+import com.nineplus.bestwork.dto.ProjectDeleteByIdDto;
 import com.nineplus.bestwork.dto.ProjectRequestDto;
 import com.nineplus.bestwork.dto.ProjectResponseDto;
 import com.nineplus.bestwork.dto.ProjectTypeResponseDto;
@@ -100,7 +101,10 @@ public class ProjectController extends BaseController {
 		}
 		ProjectEntity createdProject = null;
 		try {
-			createdProject = this.projectService.saveProject(projectRequestDto);
+			ProjectTypeEntity projectType = this.getProjectTypeById(projectRequestDto.getProjectType());
+			if (projectType != null) {
+				createdProject = this.projectService.saveProject(projectRequestDto, projectType);
+			}
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}
@@ -143,9 +147,7 @@ public class ProjectController extends BaseController {
 		try {
 			projectOptional.get().setStatus(ProjectStatus.values()[projectRequestDto.getStatus()]);
 			projectOptional.get().setUpdateDate(Timestamp.valueOf(LocalDateTime.now()));
-			ProjectTypeEntity projectType = this.projectTypeService
-					.getProjectTypeById(projectRequestDto.getProjectType());
-			projectOptional.get().setProjectType(projectType);
+			projectOptional.get().setProjectType(this.getProjectTypeById(projectRequestDto.getProjectType()));
 
 			updatedProject = this.projectService.updateProject(projectOptional.get());
 		} catch (BestWorkBussinessException ex) {
@@ -154,14 +156,15 @@ public class ProjectController extends BaseController {
 		return success(CommonConstants.MessageCode.S1X0008, updatedProject, null);
 	}
 
-	@PostMapping("/delete/{ids}")
-	public ResponseEntity<? extends Object> deleteMassiveProject(@PathVariable List<String> ids) {
+	@PostMapping("/delete")
+	public ResponseEntity<? extends Object> deleteMassiveProject(
+			@RequestBody ProjectDeleteByIdDto projectDeleteByIdDto) {
 		try {
-			this.projectService.deleteProjectById(ids);
+			this.projectService.deleteProjectById(projectDeleteByIdDto.getId());
 		} catch (BestWorkBussinessException ex) {
-			return failed(CommonConstants.MessageCode.S1X0011, ex.getParam());
+			return failed(CommonConstants.MessageCode.S1X0012, ex.getParam());
 		}
-		return success(CommonConstants.MessageCode.S1X0010, null, null);
+		return success(CommonConstants.MessageCode.S1X0011, null, null);
 	}
 
 	@GetMapping("/types")

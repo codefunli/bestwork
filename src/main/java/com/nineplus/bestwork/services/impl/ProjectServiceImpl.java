@@ -22,6 +22,7 @@ import com.nineplus.bestwork.dto.ProjectRequestDto;
 import com.nineplus.bestwork.dto.ProjectResponseDto;
 import com.nineplus.bestwork.dto.RProjectReqDto;
 import com.nineplus.bestwork.entity.ProjectEntity;
+import com.nineplus.bestwork.entity.ProjectTypeEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.model.ProjectStatus;
 import com.nineplus.bestwork.repository.ProjectRepository;
@@ -90,13 +91,14 @@ public class ProjectServiceImpl implements IProjectService {
 	}
 
 	@Override
-	public ProjectEntity saveProject(ProjectRequestDto projectRequestDto) {
+	public ProjectEntity saveProject(ProjectRequestDto projectRequestDto, ProjectTypeEntity projectType) {
 		ProjectEntity project = new ProjectEntity();
 		BeanUtils.copyProperties(projectRequestDto, project);
 
 		project.setId(this.setProjectId());
 		project.setStatus(ProjectStatus.values()[projectRequestDto.getStatus()]);
 		project.setCreateDate(Timestamp.valueOf(LocalDateTime.now()));
+		project.setProjectType(projectType);
 		return this.projectRepository.save(project);
 	}
 
@@ -130,8 +132,8 @@ public class ProjectServiceImpl implements IProjectService {
 	}
 
 	@Override
-	public void deleteProjectById(List<String> ids) throws BestWorkBussinessException {
-		this.projectRepository.deleteByManyIds(ids);
+	public void deleteProjectById(List<String> id) throws BestWorkBussinessException {
+		this.projectRepository.deleteProjectById(id);
 
 	}
 
