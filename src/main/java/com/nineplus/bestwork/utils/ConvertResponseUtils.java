@@ -20,7 +20,7 @@ public class ConvertResponseUtils {
 		itemCompany.put("startDate", "start_date");
 		itemCompany.put("expireDate", "expired_date");
 		itemCompany.put("status", "is_expired");
-		itemCompany.put("email", "email");
+		itemCompany.put("cpEmail", "email");
 		if (itemCompany.containsKey(item)) {
 			columnMapped = itemCompany.get(item);
 		}
