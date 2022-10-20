@@ -23,11 +23,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nineplus.bestwork.dto.PageResponseDto;
-<<<<<<< HEAD
 import com.nineplus.bestwork.dto.PageSearchDto;
-=======
 import com.nineplus.bestwork.dto.ProjectDeleteByIdDto;
->>>>>>> fb31b66ad562854a3ef6644daa6196c999927b9e
 import com.nineplus.bestwork.dto.ProjectRequestDto;
 import com.nineplus.bestwork.dto.ProjectResponseDto;
 import com.nineplus.bestwork.dto.ProjectTypeResponseDto;
