@@ -26,7 +26,7 @@ public class ConvertResponseUtils {
 		}
 		return columnMapped;
 	}
-	
+
 	public String convertResponseUser(String item) {
 		HashMap<String, String> itemUser = new HashMap<>();
 		String columnMapped = "";
@@ -43,4 +43,19 @@ public class ConvertResponseUtils {
 		return columnMapped;
 	}
 
+	public String convertResponseProject(String item) {
+		HashMap<String, String> itemCompany = new HashMap<>();
+		String columnMapped = "";
+		itemCompany.put("id", "id");
+		itemCompany.put("projectName", "project_name");
+		itemCompany.put("notificationFlag", "notification_flag");
+		itemCompany.put("isPaid", "is_paid");
+		itemCompany.put("createDate", "create_date");
+		itemCompany.put("updateDate", "update_date");
+		itemCompany.put("projectType", "project_type");
+		if (itemCompany.containsKey(item)) {
+			columnMapped = itemCompany.get(item);
+		}
+		return columnMapped;
+	}
 }
