@@ -1,5 +1,7 @@
 package com.nineplus.bestwork.repository;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -20,5 +22,8 @@ public interface ProjectRepository extends JpaRepository<ProjectEntity, String> 
 
 	@Query(value = " select id from PROJECT order by id desc limit 1 ", nativeQuery = true)
 	String getLastProjectIdString();
+
+	@Query(value = " delete from PROJECT where id in :ids", nativeQuery = true)
+	void deleteByManyIds(@Param("ids") List<String> ids);
 
 }

@@ -13,7 +13,12 @@ import lombok.Data;
  */
 
 @Data
-public class PostResponseDto {
+public class PostResponseDto extends BaseDto{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2854403837236797129L;
+
 	private String id;
 
 	private String description;

@@ -11,7 +11,12 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode
-public class PostRequestDto {
+public class PostRequestDto extends BaseDto {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8482355323085970702L;
 
 	private String projectId;
 

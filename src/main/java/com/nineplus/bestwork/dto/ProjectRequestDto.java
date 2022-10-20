@@ -15,7 +15,12 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode
-public class ProjectRequestDto {
+public class ProjectRequestDto extends BaseDto {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3716543566647577097L;
 
 	@NotBlank(message = "Enter project name")
 	private String projectName;
