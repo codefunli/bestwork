@@ -10,7 +10,7 @@ import lombok.EqualsAndHashCode;
 public class SearchDto {
 
     @JsonProperty("pageConditon")
-    private PageSearchDTO pageConditon;
+    private PageSearchDto pageConditon;
 
     @JsonProperty("conditionSearch")
     private ConditionSearchDto conditionSearchDto;

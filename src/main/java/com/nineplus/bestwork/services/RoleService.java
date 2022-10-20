@@ -1,6 +1,6 @@
 package com.nineplus.bestwork.services;
 
-import com.nineplus.bestwork.dto.PageResponseDTO;
+import com.nineplus.bestwork.dto.PageResponseDto;
 import com.nineplus.bestwork.dto.ResRoleDto;
 import com.nineplus.bestwork.dto.SearchDto;
 import com.nineplus.bestwork.entity.SysRole;
@@ -111,7 +111,7 @@ public class RoleService {
         }
     }
 
-    public PageResponseDTO<ResRoleDto> getRoles(SearchDto pageSearchDto) throws BestWorkBussinessException {
+    public PageResponseDto<ResRoleDto> getRoles(SearchDto pageSearchDto) throws BestWorkBussinessException {
         try {
             int pageNumber = NumberUtils.toInt(pageSearchDto.getPageConditon().getPage());
             if (pageNumber > 0) {

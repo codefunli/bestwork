@@ -1,18 +1,8 @@
 package com.nineplus.bestwork.services;
 
-import com.nineplus.bestwork.dto.PageResponseDTO;
-import com.nineplus.bestwork.dto.ResMonitorDto;
-import com.nineplus.bestwork.dto.ResRoleDto;
-import com.nineplus.bestwork.dto.SearchDto;
-import com.nineplus.bestwork.entity.SysMonitor;
-import com.nineplus.bestwork.entity.SysRole;
-import com.nineplus.bestwork.exception.BestWorkBussinessException;
-import com.nineplus.bestwork.model.UserAuthDetected;
-import com.nineplus.bestwork.repository.SysMonitorRepository;
-import com.nineplus.bestwork.utils.CommonConstants;
-import com.nineplus.bestwork.utils.MessageUtils;
-import com.nineplus.bestwork.utils.PageUtils;
-import com.nineplus.bestwork.utils.UserAuthUtils;
+import java.sql.Timestamp;
+import java.util.Optional;
+
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.modelmapper.ModelMapper;
@@ -26,8 +16,17 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Timestamp;
-import java.util.Optional;
+import com.nineplus.bestwork.dto.PageResponseDto;
+import com.nineplus.bestwork.dto.ResMonitorDto;
+import com.nineplus.bestwork.dto.SearchDto;
+import com.nineplus.bestwork.entity.SysMonitor;
+import com.nineplus.bestwork.exception.BestWorkBussinessException;
+import com.nineplus.bestwork.model.UserAuthDetected;
+import com.nineplus.bestwork.repository.SysMonitorRepository;
+import com.nineplus.bestwork.utils.CommonConstants;
+import com.nineplus.bestwork.utils.MessageUtils;
+import com.nineplus.bestwork.utils.PageUtils;
+import com.nineplus.bestwork.utils.UserAuthUtils;
 
 @Service
 @Transactional
@@ -130,7 +129,7 @@ public class MonitorService {
         }
     }
 
-    public PageResponseDTO<ResMonitorDto> getMonitors(SearchDto dto) throws BestWorkBussinessException {
+    public PageResponseDto<ResMonitorDto> getMonitors(SearchDto dto) throws BestWorkBussinessException {
         try {
             int pageNumber = NumberUtils.toInt(dto.getPageConditon().getPage());
             if (pageNumber > 0) {

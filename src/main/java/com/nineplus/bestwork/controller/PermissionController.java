@@ -1,5 +1,5 @@
 package com.nineplus.bestwork.controller;
-import com.nineplus.bestwork.dto.PageResponseDTO;
+import com.nineplus.bestwork.dto.PageResponseDto;
 import com.nineplus.bestwork.dto.ResPermissionDto;
 import com.nineplus.bestwork.dto.SearchDto;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
@@ -53,7 +53,7 @@ public class PermissionController extends BaseController {
 
     @PostMapping("/search")
     public ResponseEntity<? extends Object> getPermissions(@RequestBody SearchDto dto) {
-        PageResponseDTO<ResPermissionDto> pageSearchDto = null;
+        PageResponseDto<ResPermissionDto> pageSearchDto = null;
         try {
             pageSearchDto = permissionService.getPermissions(dto);
         } catch (BestWorkBussinessException ex) {

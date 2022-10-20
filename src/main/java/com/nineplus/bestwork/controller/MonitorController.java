@@ -1,5 +1,5 @@
 package com.nineplus.bestwork.controller;
-import com.nineplus.bestwork.dto.PageResponseDTO;
+import com.nineplus.bestwork.dto.PageResponseDto;
 import com.nineplus.bestwork.dto.ResMonitorDto;
 import com.nineplus.bestwork.dto.SearchDto;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
@@ -53,7 +53,7 @@ public class MonitorController extends BaseController {
 
     @PostMapping("/search")
     public ResponseEntity<? extends Object> getMonitors(@RequestBody SearchDto dto) {
-        PageResponseDTO<ResMonitorDto> pageSearchDto = null;
+        PageResponseDto<ResMonitorDto> pageSearchDto = null;
         try {
             pageSearchDto = monitorService.getMonitors(dto);
         } catch (BestWorkBussinessException ex) {
