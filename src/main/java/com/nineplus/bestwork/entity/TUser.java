@@ -48,7 +48,7 @@ public class TUser {
     private String email;
 
     @Column(name = "enable", nullable = false)
-    private boolean isEnable;
+    private int isEnable;
 
     @CreationTimestamp
     @Column(name = "create_date", nullable = false, insertable = false, updatable = false)
@@ -69,6 +69,9 @@ public class TUser {
 
     @Column(name = "count_login_failed")
     private int loginFailedNum;
+    
+    @Column(name = "tel_no")
+    private String telNo;
 
     @ManyToOne
     @JoinColumn(name = "app_role_id")

@@ -7,17 +7,14 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class RCompanyResDTO extends BaseDTO {
+public class CompanyResDto extends BaseDto {
 	/**
 	 * serialVersionUID
 	 */
 	private static final long serialVersionUID = 7969015153524943561L;
 
 	@JsonProperty("id")
-	private String id;
-
-	@JsonProperty("companyId")
-	private Long companyId;
+	private Long id;
 
 	@JsonProperty("companyName")
 	private String companyName;
@@ -43,13 +40,13 @@ public class RCompanyResDTO extends BaseDTO {
 	@JsonProperty("street")
 	private String street;
 
-	@JsonProperty("detail_address")
-	private String detailAddress;
-
 	@JsonProperty("startDate")
 	private String startDate;
 
 	@JsonProperty("expiredDate")
 	private String expiredDate;
+
+	@JsonProperty("status")
+	private int isExpired;
 
 }

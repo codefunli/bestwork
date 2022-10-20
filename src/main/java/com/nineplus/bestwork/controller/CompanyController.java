@@ -1,8 +1,5 @@
 package com.nineplus.bestwork.controller;
 
-import java.util.Collection;
-import java.util.Optional;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,13 +13,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.nineplus.bestwork.dto.RCompanyReqDTO;
-import com.nineplus.bestwork.dto.RCompanyResDTO;
-import com.nineplus.bestwork.dto.RCompanyUserReqDTO;
-import com.nineplus.bestwork.entity.TCompany;
-import com.nineplus.bestwork.entity.TProject;
+import com.nineplus.bestwork.dto.PageResponseDto;
+import com.nineplus.bestwork.dto.PageSearchDto;
+import com.nineplus.bestwork.dto.CompanyReqDto;
+import com.nineplus.bestwork.dto.CompanyResDto;
+import com.nineplus.bestwork.dto.CompanyUserReqDto;
+import com.nineplus.bestwork.dto.CompanyUserResDto;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.services.CompanyService;
+import com.nineplus.bestwork.services.UserService;
 import com.nineplus.bestwork.utils.CommonConstants;
 
 @RequestMapping(value = "/api/v1/companies")
@@ -33,6 +32,9 @@ public class CompanyController extends BaseController {
 	@Autowired
 	CompanyService companyService;
 
+	@Autowired
+	UserService userService;
+
 	/**
 	 * Create a company admin
 	 * 
@@ -41,7 +43,7 @@ public class CompanyController extends BaseController {
 	 * @throws BestWorkBussinessException
 	 */
 	@PostMapping("/create")
-	public ResponseEntity<? extends Object> register(@RequestBody RCompanyUserReqDTO rCompanyUserReqDTO)
+	public ResponseEntity<? extends Object> register(@RequestBody CompanyUserReqDto rCompanyUserReqDTO)
 			throws BestWorkBussinessException {
 		try {
 			companyService.registCompany(rCompanyUserReqDTO);
@@ -58,12 +60,12 @@ public class CompanyController extends BaseController {
 	 * @return
 	 * @throws BestWorkBussinessException
 	 */
-	@PutMapping("/update")
-	public ResponseEntity<? extends Object> update(@RequestBody RCompanyReqDTO rCompanyReqDTO)
-			throws BestWorkBussinessException {
-		RCompanyResDTO rCompanyResDTO = null;
+	@PutMapping("/update/{companyId}")
+	public ResponseEntity<? extends Object> update(@PathVariable long companyId,
+			@RequestBody CompanyReqDto rCompanyReqDTO) throws BestWorkBussinessException {
+		CompanyResDto rCompanyResDTO = null;
 		try {
-			rCompanyResDTO = companyService.updateCompany(rCompanyReqDTO);
+			rCompanyResDTO = companyService.updateCompany(companyId, rCompanyReqDTO);
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}
@@ -88,10 +90,11 @@ public class CompanyController extends BaseController {
 	}
 
 	@GetMapping("/{companyId}")
-	public ResponseEntity<? extends Object> getCompanyAndUser(@PathVariable long companyId) {
-		Optional<TCompany> company = companyService.getDetailCompany(companyId);
-		if (company.isPresent()) {
-			return success(CommonConstants.MessageCode.CPN0005, company, null);
+	public ResponseEntity<? extends Object> getCompanyAndUser(@PathVariable long companyId)
+			throws BestWorkBussinessException {
+		CompanyUserResDto companyUserRes = companyService.getCompanyAndUser(companyId);
+		if (companyUserRes.getCompany() != null || companyUserRes.getUser() != null) {
+			return success(CommonConstants.MessageCode.CPN0005, companyUserRes, null);
 		} else {
 			return success(CommonConstants.MessageCode.E1X0003, null, null);
 		}
@@ -100,16 +103,34 @@ public class CompanyController extends BaseController {
 
 	/**
 	 * Get list company
+	 * 
 	 * @return list company
 	 */
-	@GetMapping("/list")
-	public ResponseEntity<? extends Object> getAllProject() {
-		Collection<TCompany> companys = null;
+	@PostMapping("/list")
+	public ResponseEntity<? extends Object> getAllCompany(@RequestBody PageSearchDto pageCondition) {
+		PageResponseDto<CompanyResDto> pageCompany = null;
 		try {
-			companys = companyService.getAllCompany();
+			pageCompany = companyService.getCompanyPage(pageCondition);
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}
-		return success(CommonConstants.MessageCode.CPN0006, companys, null);
+		return success(CommonConstants.MessageCode.CPN0006, pageCompany, null);
 	}
+	
+	/**
+	 *  Search company with keyword
+	 * @param pageCondition
+	 * @return
+	 */
+	@PostMapping("/search")
+	public ResponseEntity<? extends Object> searchCompany(@RequestBody PageSearchDto pageCondition) {
+		PageResponseDto<CompanyResDto> pageCompany = null;
+		try {
+			pageCompany = companyService.searchCompanyPage(pageCondition.getKeyword(), pageCondition.getStatus(),pageCondition);
+		} catch (BestWorkBussinessException ex) {
+			return failed(ex.getMsgCode(), ex.getParam());
+		}
+		return success(CommonConstants.MessageCode.CPN0006, pageCompany, null);
+	}
+
 }

@@ -1,20 +1,25 @@
 package com.nineplus.bestwork.dto;
 
 import java.sql.Timestamp;
-import java.util.Collection;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.nineplus.bestwork.entity.TFileStorage;
+import com.nineplus.bestwork.entity.ProjectTypeEntity;
 import com.nineplus.bestwork.model.ProjectStatus;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+/**
+ * 
+ * @author DiepTT
+ *
+ */
+
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class TProjectResponseDto {
+public class ProjectResponseDto extends BaseDto {
 
 	/**
 	 * serialVersionUID
@@ -29,9 +34,9 @@ public class TProjectResponseDto {
 
 	@JsonProperty("description")
 	private String description;
-	
+
 	@JsonProperty("projectType")
-	private String projectType;
+	private ProjectTypeEntity projectType;
 
 	@JsonProperty("notificationFlag")
 	private Integer notificationFlag;
@@ -41,17 +46,14 @@ public class TProjectResponseDto {
 
 	@JsonProperty("status")
 	private ProjectStatus status;
-	
+
 	@JsonProperty("createDate")
 	private Timestamp createDate;
-	
+
 	@JsonProperty("updateDate")
 	private Timestamp updateDate;
-	
-	@JsonProperty("comment")
-	private String comment;
 
-	@JsonProperty("fileStorages")
-	private Collection<TFileStorage> fileStorages;
+//	@JsonProperty("posts")
+//	private Collection<PostEntity> posts;
 
 }

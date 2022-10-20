@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class PageResponseDTO<T> extends BaseDTO {
+public class PageResponseDto<T> extends BaseDto {
 	
 	/**
      * serialVersionUID
@@ -22,6 +22,6 @@ public class PageResponseDTO<T> extends BaseDTO {
     private List<T> content;
 
     @JsonProperty("metaData")
-    private RPageDTO metaData;
+    private RPageDto metaData;
 
 }

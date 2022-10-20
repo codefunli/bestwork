@@ -121,19 +121,23 @@ public class CommonConstants {
 		public static final String CPN0004 = "CPN0004";
 		public static final String CPN0005 = "CPN0005";
 		public static final String CPN0006 = "CPN0006";
+		public static final String CPN0007 = "CPN0007";
 		public static final String EMP0001 = "EMP0001";
 		public static final String US0002 = "EMP0002";
 		public static final String FILE0001 = "FILE0001";
 		public static final String FILE0002 = "FILE0002";
 		public static final String FILE0003 = "FILE0003";
+
 		
 		public static final String RLS0001 = "RLS0001";
 		public static final String RLS0002 = "RLS0002";
-        public static final String RLF0001 = "RLF0001";
+    public static final String RLF0001 = "RLF0001";
 		public static final String RLF0002 = "RLF0001";
 		public static final String RLS0003 = "RLS0003";
-        public static final String RLS0004 = "RLS0004";
-    }
+    public static final String RLS0004 = "RLS0004";    
+		public static final String sU0006 = "sU0006";
+	}
+
 
 	
 	public class Url {

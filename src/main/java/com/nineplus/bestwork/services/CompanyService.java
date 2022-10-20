@@ -1,33 +1,44 @@
 package com.nineplus.bestwork.services;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
 
-import com.nineplus.bestwork.dto.RCompanyReqDTO;
-import com.nineplus.bestwork.dto.RCompanyResDTO;
-import com.nineplus.bestwork.dto.RCompanyUserReqDTO;
+import com.nineplus.bestwork.dto.CompanyReqDto;
+import com.nineplus.bestwork.dto.CompanyResDto;
+import com.nineplus.bestwork.dto.PageResponseDto;
+import com.nineplus.bestwork.dto.PageSearchDto;
+import com.nineplus.bestwork.dto.CompanyUserReqDto;
+import com.nineplus.bestwork.dto.CompanyUserResDto;
+import com.nineplus.bestwork.dto.UserResDto;
+import com.nineplus.bestwork.dto.UserReqDto;
 import com.nineplus.bestwork.entity.TCompany;
-import com.nineplus.bestwork.entity.TProject;
 import com.nineplus.bestwork.entity.TRole;
 import com.nineplus.bestwork.entity.TUser;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.model.UserAuthDetected;
+import com.nineplus.bestwork.repository.TCompanyRepository;
 import com.nineplus.bestwork.repository.TRoleRepository;
 import com.nineplus.bestwork.repository.TUserRepository;
-import com.nineplus.bestwork.repository.TCompanyRepository;
 import com.nineplus.bestwork.utils.CommonConstants;
+import com.nineplus.bestwork.utils.ConvertResponseUtils;
 import com.nineplus.bestwork.utils.DateUtils;
 import com.nineplus.bestwork.utils.MessageUtils;
+import com.nineplus.bestwork.utils.PageUtils;
 import com.nineplus.bestwork.utils.UserAuthUtils;
 
 @Service
@@ -60,8 +71,16 @@ public class CompanyService {
 	@Autowired
 	DateUtils dateUtils;
 
+	@Autowired
+	PageUtils responseUtils;
+
+	@Autowired
+	ConvertResponseUtils convertResponseUtils;
+
+	private static final List<String> SEARCHABLE_FIELDS = Arrays.asList("companyName");
+
 	@Transactional(rollbackFor = { Exception.class })
-	public void registCompany(RCompanyUserReqDTO companyReqDto) throws BestWorkBussinessException {
+	public void registCompany(CompanyUserReqDto companyReqDto) throws BestWorkBussinessException {
 
 		// Check role of user
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
@@ -70,8 +89,11 @@ public class CompanyService {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
 		}
 
-		// validation
-		this.validateCpmnyInfor(companyReqDto);
+		// validate company information
+		this.validateCpmnyInfor(companyReqDto.getCompany(), false);
+
+		// validate user information
+		this.validateUserInfor(companyReqDto.getUser());
 
 		try {
 			// Register company information in DB
@@ -92,18 +114,30 @@ public class CompanyService {
 
 	/**
 	 */
-	public void validateCpmnyInfor(RCompanyUserReqDTO companyReqDto) throws BestWorkBussinessException {
+	public void validateCpmnyInfor(CompanyReqDto companyReqDto, boolean isEdit) throws BestWorkBussinessException {
 		// Validation register information
-		String companyName = companyReqDto.getCompany().getCompanyName();
-		String userEmail = companyReqDto.getUser().getEmail();
-		String userName = companyReqDto.getUser().getUserName();
-		String password = companyReqDto.getUser().getPassword();
+		String companyName = companyReqDto.getCompanyName();
 
 		// Company name can not be empty
 		if (ObjectUtils.isEmpty(companyName)) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.EMP0001,
 					new Object[] { CommonConstants.Character.CMPNY_NAME });
 		}
+
+		// Check exists company name in database
+		if (!isEdit) {
+			TCompany company = tCompanyRepository.findbyCompanyName(companyName);
+			if (!ObjectUtils.isEmpty(company)) {
+				throw new BestWorkBussinessException(CommonConstants.MessageCode.CPN0005, new Object[] { company });
+			}
+		}
+
+	}
+
+	public void validateUserInfor(UserReqDto userReq) throws BestWorkBussinessException {
+		String userEmail = userReq.getEmail();
+		String userName = userReq.getUserName();
+		String password = userReq.getPassword();
 		// User email can not be empty
 		if (ObjectUtils.isEmpty(userEmail)) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.EMP0001,
@@ -122,21 +156,14 @@ public class CompanyService {
 					new Object[] { CommonConstants.Character.PASSWORD });
 		}
 
-		// Check exists company name in database
-		TCompany company = tCompanyRepository.findbyCompanyName(companyName);
-		if (!ObjectUtils.isEmpty(company)) {
-			throw new BestWorkBussinessException(CommonConstants.MessageCode.CPN0005, new Object[] { company });
-		}
-
 		// Check exists user email in DB
 		TUser user = tUserRepos.findByEmail(userEmail);
 		if (!ObjectUtils.isEmpty(user)) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.US0002, new Object[] { user });
 		}
-
 	}
 
-	public TCompany regist(RCompanyUserReqDTO companyReqDto) throws BestWorkBussinessException {
+	public TCompany regist(CompanyUserReqDto companyReqDto) throws BestWorkBussinessException {
 		TCompany company = null;
 		try {
 			company = new TCompany();
@@ -166,7 +193,8 @@ public class CompanyService {
 	}
 
 	@Transactional(rollbackFor = { Exception.class })
-	public RCompanyResDTO updateCompany(RCompanyReqDTO rcompanyReqDto) throws BestWorkBussinessException {
+	public CompanyResDto updateCompany(long companyId, CompanyReqDto companyReqDto)
+			throws BestWorkBussinessException {
 
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
 		// Only system admin can do this
@@ -175,45 +203,55 @@ public class CompanyService {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
 		}
 
+		// validate company information
+		this.validateCpmnyInfor(companyReqDto, true);
+
 		TCompany currentCompany = null;
 
 		try {
-			currentCompany = tCompanyRepository.findById(Long.valueOf(rcompanyReqDto.getId())).orElse(null);
+			currentCompany = tCompanyRepository.findByCompanyId(companyId);
+
 			if (ObjectUtils.isEmpty(currentCompany)) {
 				logger.error(messageUtils.getMessage(CommonConstants.MessageCode.CPN0003, null));
 				throw new BestWorkBussinessException(CommonConstants.MessageCode.CPN0003, null);
 			}
 		} catch (Exception ex) {
 			logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0003,
-					new Object[] { rcompanyReqDto.getCompanyName() }), ex);
+					new Object[] { companyReqDto.getCompanyName() }), ex);
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003,
-					new Object[] { rcompanyReqDto.getCompanyName() });
+					new Object[] { companyReqDto.getCompanyName() });
 		}
 
 		try {
-			currentCompany.setCompanyName(rcompanyReqDto.getCompanyName());
-			currentCompany.setEmail(rcompanyReqDto.getEmail());
-			currentCompany.setTelNo(rcompanyReqDto.getTelNo());
-			currentCompany.setTaxNo(rcompanyReqDto.getTaxNo());
-			currentCompany.setCity(rcompanyReqDto.getCity());
-			currentCompany.setDistrict(rcompanyReqDto.getDistrict());
-			currentCompany.setWard(rcompanyReqDto.getWard());
-			currentCompany.setStreet(rcompanyReqDto.getStreet());
-			currentCompany.setStartDate(rcompanyReqDto.getStartDate());
-			currentCompany.setExpiredDate(rcompanyReqDto.getExpiredDate());
+			currentCompany.setCompanyName(companyReqDto.getCompanyName());
+			currentCompany.setEmail(companyReqDto.getEmail());
+			currentCompany.setTelNo(companyReqDto.getTelNo());
+			currentCompany.setTaxNo(companyReqDto.getTaxNo());
+			currentCompany.setCity(companyReqDto.getCity());
+			currentCompany.setDistrict(companyReqDto.getDistrict());
+			currentCompany.setWard(companyReqDto.getWard());
+			currentCompany.setStreet(companyReqDto.getStreet());
+			currentCompany.setStartDate(companyReqDto.getStartDate());
+			currentCompany.setExpiredDate(companyReqDto.getExpiredDate());
 			tCompanyRepository.save(currentCompany);
 
-			RCompanyResDTO resDTO = modelMapper.map(currentCompany, RCompanyResDTO.class);
+			CompanyResDto resDTO = modelMapper.map(currentCompany, CompanyResDto.class);
 			return resDTO;
 
 		} catch (Exception ex) {
 			logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0004,
-					new Object[] { CommonConstants.Character.COMPANY, rcompanyReqDto.getCompanyName() }), ex);
+					new Object[] { CommonConstants.Character.COMPANY, companyReqDto.getCompanyName() }), ex);
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0004,
-					new Object[] { CommonConstants.Character.COMPANY, rcompanyReqDto.getCompanyName() });
+					new Object[] { CommonConstants.Character.COMPANY, companyReqDto.getCompanyName() });
 		}
 	}
 
+	/**
+	 * 
+	 * @param tCompanyId
+	 * @return
+	 * @throws BestWorkBussinessException
+	 */
 	@Transactional(rollbackFor = { Exception.class })
 	public long deleteCompany(long tCompanyId) throws BestWorkBussinessException {
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
@@ -243,13 +281,82 @@ public class CompanyService {
 		return tCompanyId;
 	}
 
+	/**
+	 * 
+	 * @param companyId Company ID
+	 * @return Company information
+	 */
 	public Optional<TCompany> getDetailCompany(long companyId) {
 		Optional<TCompany> company = tCompanyRepository.findById(companyId);
 		return company;
 	}
 
-	@GetMapping
+	/**
+	 * 
+	 * @param companyId company ID
+	 * @return Company and User information
+	 * @throws BestWorkBussinessException
+	 */
+	public CompanyUserResDto getCompanyAndUser(long companyId) throws BestWorkBussinessException {
+		CompanyUserResDto userCompanyRes = new CompanyUserResDto();
+		TCompany company = tCompanyRepository.findByCompanyId(companyId);
+		TUser user = userService.getUserByCompanyId(companyId);
+		if (company != null && user != null) {
+			CompanyResDto resCompany = modelMapper.map(company, CompanyResDto.class);
+			UserResDto resUser = modelMapper.map(user, UserResDto.class);
+			userCompanyRes.setCompany(resCompany);
+			userCompanyRes.setUser(resUser);
+		}
+		return userCompanyRes;
+	}
+
 	public List<TCompany> getAllCompany() throws BestWorkBussinessException {
 		return tCompanyRepository.findAll();
 	}
+
+	/**
+	 * 
+	 * @param pageCondition condition page
+	 * @return page of company follow condition
+	 * @throws BestWorkBussinessException
+	 */
+	public PageResponseDto<CompanyResDto> getCompanyPage(PageSearchDto pageCondition)
+			throws BestWorkBussinessException {
+		Page<TCompany> pageTCompany;
+		try {
+			int pageNumber = NumberUtils.toInt(pageCondition.getPage());
+
+			String mappedColumn = convertResponseUtils.convertResponseCompany(pageCondition.getSortBy());
+			Pageable pageable = PageRequest.of(pageNumber, Integer.parseInt(pageCondition.getSize()),
+					Sort.by(pageCondition.getSortDirection(), mappedColumn));
+			pageTCompany = tCompanyRepository.getPageCompany(pageable);
+			return responseUtils.convertPageEntityToDTO(pageTCompany, CompanyResDto.class);
+		} catch (Exception ex) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
+		}
+	}
+	
+	/**
+	 *  Search company with keyword
+	 * @param keyword
+	 * @param pageCondition
+	 * @return
+	 * @throws BestWorkBussinessException
+	 */
+	public PageResponseDto<CompanyResDto> searchCompanyPage(String keyword, int status, PageSearchDto pageCondition)
+			throws BestWorkBussinessException {
+		Page<TCompany> pageTCompany;
+		try {
+			int pageNumber = NumberUtils.toInt(pageCondition.getPage());
+
+			String mappedColumn = convertResponseUtils.convertResponseCompany(pageCondition.getSortBy());
+			Pageable pageable = PageRequest.of(pageNumber, Integer.parseInt(pageCondition.getSize()),
+					Sort.by(pageCondition.getSortDirection(), mappedColumn));
+			pageTCompany = tCompanyRepository.searchCompanyPage(keyword,status, pageable);
+			return responseUtils.convertPageEntityToDTO(pageTCompany, CompanyResDto.class);
+		} catch (Exception ex) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
+		}
+	}
+
 }

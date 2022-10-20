@@ -7,12 +7,12 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class RCompanyUserReqDTO {
+public class CompanyUserReqDto {
 	
 	 @JsonProperty("company")
-	    private RCompanyReqDTO company;
+	    private CompanyReqDto company;
 
 	 @JsonProperty("user")
-	    private UserReqDTO user;
+	    private UserReqDto user;
 
 }

@@ -1,21 +1,24 @@
 package com.nineplus.bestwork.services.impl;
 
-import java.nio.file.Path;
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.Random;
-import java.util.stream.Stream;
+import java.time.ZoneId;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import com.nineplus.bestwork.entity.TFileStorage;
+import com.nineplus.bestwork.entity.FileStorageEntity;
+import com.nineplus.bestwork.entity.PostEntity;
 import com.nineplus.bestwork.repository.StorageRepository;
 import com.nineplus.bestwork.services.IStorageService;
-import org.springframework.util.StringUtils;
+
+/**
+ * 
+ * @author DiepTT
+ *
+ */
 
 @Service
 public class StorageServiceImpl implements IStorageService {
@@ -24,43 +27,45 @@ public class StorageServiceImpl implements IStorageService {
 	private StorageRepository storageRepository;
 
 	@Override
-	public TFileStorage storeFile(MultipartFile file) {
+	public FileStorageEntity storeFile(String imageData, PostEntity reqPost) {
 
 		try {
-//			SimpleDateFormat simpleDateFormat = new SimpleDateFormat("ddMMyyyy-HHmmss");
-//			String id = "F";
-			String newFileName = StringUtils.cleanPath(file.getOriginalFilename());
+			FileStorageEntity image = new FileStorageEntity();
+			image.setData(imageData.getBytes());
+			image.setPost(reqPost);
+			String imageName = getImageName(reqPost);
+			image.setName(imageName);
+			String type = getImageType(imageData);
+			image.setType(type);
+			image.setCreateDate(Timestamp.valueOf(LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"))));
 
-//			String newFileName = simpleDateFormat.format(new Date()) + file.getOriginalFilename();
-//			byte[] bytes = file.getBytes();
-//			String type = file.getContentType();
-//			Timestamp createDate = new Timestamp(System.currentTimeMillis());
-//			TFileStorage fileStorage = new TFileStorage(newFileName, bytes, type, createDate);
-			TFileStorage fileStorage = new TFileStorage(newFileName, file.getBytes(), file.getContentType());
-			return this.storageRepository.save(fileStorage);
-//			 "Upload file successfully!";
-
+			return storageRepository.save(image);
 		} catch (Exception e) {
+			e.getMessage();
 			return null;
 		}
 	}
 
-	@Override
-	public Stream<Path> loadAll() {
-		// TODO Auto-generated method stub
+	private String getImageType(String imageData) {
+		String prefixRegex = "data:image/";
+		String suffixRegex = ";base64";
+		Pattern pattern = Pattern.compile(prefixRegex + "(.*?)" + suffixRegex);
+		Matcher matcher = pattern.matcher(imageData);
+		if (matcher.find()) {
+			return matcher.group(1);
+		}
 		return null;
 	}
 
-	@Override
-	public byte[] readFileContent(String filename) {
-		// TODO Auto-generated method stub
-		return null;
+	private String getImageName(PostEntity reqPost) {
+		String projectName = reqPost.getProject().getProjectName();
+		String description = reqPost.getDescription();
+		String imageName = projectName + ": " + description;
+		if (imageName.length() <= 40) {
+			return imageName;
+		} else {
+			return imageName.substring(0, 30) + "...";
+		}
+
 	}
-
-	@Override
-	public void deleteFile(String fileName) {
-		// TODO Auto-generated method stub
-
-	}
-
 }

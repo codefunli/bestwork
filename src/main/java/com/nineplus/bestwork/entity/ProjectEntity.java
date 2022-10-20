@@ -6,24 +6,40 @@ import java.util.Collection;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.ManyToAny;
 import org.hibernate.annotations.TypeDef;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.nineplus.bestwork.model.ProjectStatus;
 import com.vladmihalcea.hibernate.type.json.JsonStringType;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+/**
+ * 
+ * @author DiepTT
+ *
+ */
 
 @Entity(name = "ProjectEntity")
-@Data
-@Table(name = "T_PROJECT")
+@Table(name = "PROJECT")
 @TypeDef(name = "json", typeClass = JsonStringType.class)
 @EqualsAndHashCode
-public class TProject {
+@Setter
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+public class ProjectEntity {
 	@Id
 	@Column(name = "id", unique = true, nullable = false, columnDefinition = "varchar(20)")
 	private String id;
@@ -33,9 +49,6 @@ public class TProject {
 
 	@Column(name = "description", nullable = false, columnDefinition = "text")
 	private String description;
-
-	@Column(name = "project_type", nullable = true, columnDefinition = "smallint")
-	private Integer projectType;
 
 	@Column(name = "notification_flag", nullable = true, columnDefinition = "tinyint(1)")
 	private Integer notificationFlag;
@@ -52,11 +65,12 @@ public class TProject {
 	@Column(name = "update_date", nullable = true, columnDefinition = "timestamp")
 	private Timestamp updateDate;
 
-	@Column(name = "comment", nullable = true, columnDefinition = "text")
-	private String comment;
-
+	@ManyToOne
+	@JoinColumn(name = "project_type")
+	private ProjectTypeEntity projectType;
+	
 	@OneToMany(mappedBy = "project")
 	@JsonBackReference
-	private Collection<TFileStorage> fileStorages;
+	private Collection<PostEntity> posts;
 
 }

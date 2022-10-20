@@ -14,21 +14,20 @@ import javax.persistence.Table;
 
 import org.hibernate.annotations.TypeDef;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.vladmihalcea.hibernate.type.json.JsonStringType;
 
 import lombok.Data;
 
 @Entity(name = "FileStorageEntity")
 @Data
-@Table(name = "T_FILE_STORAGE")
+@Table(name = "FILE_STORAGE")
 @TypeDef(name = "json", typeClass = JsonStringType.class)
-public class TFileStorage {
-
+public class FileStorageEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id", unique = true, nullable = false)
-	private Integer id;
+	private String id;
 
 	@Column(name = "name", nullable = false)
 	private String name;
@@ -43,21 +42,9 @@ public class TFileStorage {
 	@Column(name = "create_date", nullable = true)
 	private Timestamp createDate;
 
-	@Column(name = "update_date", nullable = true)
-	private Timestamp updateDate;
-
 	@ManyToOne
-	@JoinColumn(name = "project_id")
-	private TProject project;
-	
-	public TFileStorage( String name, byte[] data, String type) {
-		super();
-		this.name = name;
-		this.data = data;
-		this.type = type;
-	}
+	@JoinColumn(name = "post_id")
+	@JsonIgnore
+	private PostEntity post;
 
-	public TFileStorage() {
-		super();
-	}
 }

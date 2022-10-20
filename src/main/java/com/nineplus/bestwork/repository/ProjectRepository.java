@@ -1,5 +1,7 @@
 package com.nineplus.bestwork.repository;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -7,15 +9,21 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.nineplus.bestwork.dto.PrjConditionSearchDTO;
-import com.nineplus.bestwork.entity.TProject;
+import com.nineplus.bestwork.dto.PrjConditionSearchDto;
+import com.nineplus.bestwork.entity.ProjectEntity;
 
 @Repository
-public interface ProjectRepository extends JpaRepository<TProject, Long> {
+public interface ProjectRepository extends JpaRepository<ProjectEntity, String> {
 
-	@Query(value = " select * from T_PROJECT where " + " project_name like %:#{#project.projectName}% and "
-			+ " description like %:#{#project.description}% ", nativeQuery = true)
-	Page<TProject> findProjectWithCondition(@Param("project") PrjConditionSearchDTO prjConditionSearchDTO,
+	@Query(value = " select * from PROJECT where " + " (project_name like %:#{#project.keyword}% or "
+			+ " description like %:#{#project.keyword}%) and status = :#{#project.status} ", nativeQuery = true)
+	Page<ProjectEntity> findProjectWithCondition(@Param("project") PrjConditionSearchDto prjConditionSearchDTO,
 			Pageable pageable);
+
+	@Query(value = " select id from PROJECT order by id desc limit 1 ", nativeQuery = true)
+	String getLastProjectIdString();
+
+	@Query(value = " delete from PROJECT where id in :ids", nativeQuery = true)
+	void deleteByManyIds(@Param("ids") List<String> ids);
 
 }

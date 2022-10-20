@@ -6,11 +6,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class PageSearchDTO {
+public class PageSearchDto {
 	@JsonProperty("page")
 	private String page;
 	
@@ -22,4 +21,10 @@ public class PageSearchDTO {
 	
 	@JsonProperty("sortBy")
 	private String sortBy;
+
+	@JsonProperty("keyword")
+	private String keyword;
+
+	@JsonProperty("status")
+	private int status;
 }
