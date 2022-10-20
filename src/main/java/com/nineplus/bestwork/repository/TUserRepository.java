@@ -16,8 +16,8 @@ public interface TUserRepository extends JpaRepository<TUser, Long> {
 
 	TUser findByEmail(String email);
 
-	@Query(value = "select u.* from T_USER u JOIN T_COMPANY_USER tcu ON (u.id = tcu.user_id) where tcu.company_id = :companyId", nativeQuery = true)
-	List<TUser> findAllUserByCompanyId(Long companyId);
+	@Query(value = "select u.* from T_SYS_APP_USER u JOIN T_COMPANY_USER tcu ON (u.id = tcu.user_id) where tcu.company_id in ?1", nativeQuery = true)
+	List<TUser> findAllUserByCompanyId(List<Long> ids);
 
 	@Query(value = "select t.* from T_SYS_APP_USER t JOIN T_COMPANY_USER tcu ON (t.id = tcu.user_id) where tcu.company_id = :companyId", nativeQuery = true)
 	TUser findUserByOrgId(Long companyId);

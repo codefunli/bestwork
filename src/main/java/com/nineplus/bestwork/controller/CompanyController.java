@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.nineplus.bestwork.dto.PageResponseDto;
 import com.nineplus.bestwork.dto.PageSearchDto;
+import com.nineplus.bestwork.dto.CompanyListIdDto;
 import com.nineplus.bestwork.dto.CompanyReqDto;
 import com.nineplus.bestwork.dto.CompanyResDto;
 import com.nineplus.bestwork.dto.CompanyUserReqDto;
@@ -34,6 +35,8 @@ public class CompanyController extends BaseController {
 
 	@Autowired
 	UserService userService;
+
+	private final int DEFAULT_STATUS = 2;
 
 	/**
 	 * Create a company admin
@@ -79,14 +82,15 @@ public class CompanyController extends BaseController {
 	 * @return
 	 * @throws BestWorkBussinessException
 	 */
-	@DeleteMapping("/delete/{tCompanyId}")
-	public ResponseEntity<? extends Object> delete(@PathVariable long tCompanyId) throws BestWorkBussinessException {
+	@PostMapping("/delete")
+	public ResponseEntity<? extends Object> delete(@RequestBody CompanyListIdDto listId)
+			throws BestWorkBussinessException {
 		try {
-			companyService.deleteCompany(tCompanyId);
+			companyService.deleteCompany(listId);
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}
-		return success(CommonConstants.MessageCode.CPN0001, null, null);
+		return success(CommonConstants.MessageCode.CPN0004, null, null);
 	}
 
 	@GetMapping("/{companyId}")
@@ -110,23 +114,12 @@ public class CompanyController extends BaseController {
 	public ResponseEntity<? extends Object> getAllCompany(@RequestBody PageSearchDto pageCondition) {
 		PageResponseDto<CompanyResDto> pageCompany = null;
 		try {
-			pageCompany = companyService.getCompanyPage(pageCondition);
-		} catch (BestWorkBussinessException ex) {
-			return failed(ex.getMsgCode(), ex.getParam());
-		}
-		return success(CommonConstants.MessageCode.CPN0006, pageCompany, null);
-	}
-	
-	/**
-	 *  Search company with keyword
-	 * @param pageCondition
-	 * @return
-	 */
-	@PostMapping("/search")
-	public ResponseEntity<? extends Object> searchCompany(@RequestBody PageSearchDto pageCondition) {
-		PageResponseDto<CompanyResDto> pageCompany = null;
-		try {
-			pageCompany = companyService.searchCompanyPage(pageCondition.getKeyword(), pageCondition.getStatus(),pageCondition);
+			if (pageCondition.getKeyword().isEmpty() && pageCondition.getStatus() == DEFAULT_STATUS) {
+				pageCompany = companyService.getCompanyPage(pageCondition);
+			} else {
+				pageCompany = companyService.searchCompanyPage(pageCondition.getKeyword(), pageCondition.getStatus(),
+						pageCondition);
+			}
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}

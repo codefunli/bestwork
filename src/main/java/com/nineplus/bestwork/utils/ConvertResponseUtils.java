@@ -10,6 +10,7 @@ public class ConvertResponseUtils {
 	public String convertResponseCompany(String item) {
 		HashMap<String, String> itemCompany = new HashMap<>();
 		String columnMapped = "";
+		itemCompany.put("id", "id");
 		itemCompany.put("companyName", "company_name");
 		itemCompany.put("city", "province_city");
 		itemCompany.put("district", "district");
@@ -19,6 +20,7 @@ public class ConvertResponseUtils {
 		itemCompany.put("startDate", "start_date");
 		itemCompany.put("expireDate", "expired_date");
 		itemCompany.put("status", "is_expired");
+		itemCompany.put("email", "email");
 		if (itemCompany.containsKey(item)) {
 			columnMapped = itemCompany.get(item);
 		}
