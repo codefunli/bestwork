@@ -16,4 +16,20 @@ public class Enums {
 		}
 
 	}
+	
+	public enum RoleProject {
+		ALL("all"), VIEW("view"), EDIT("edit");
+
+		private String value;
+
+		private RoleProject(String value) {
+			this.value = value;
+		}
+
+		// getter & setter
+		public String getValue() {
+			return this.value;
+		}
+
+	}
 }
