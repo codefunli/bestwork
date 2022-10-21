@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 
 import com.nineplus.bestwork.dto.PageResponseDto;
 import com.nineplus.bestwork.dto.PageSearchDto;
-import com.nineplus.bestwork.dto.PrjConditionSearchDto;
 import com.nineplus.bestwork.dto.ProjectRequestDto;
 import com.nineplus.bestwork.dto.ProjectResponseDto;
 import com.nineplus.bestwork.entity.ProjectEntity;
@@ -28,6 +27,7 @@ import com.nineplus.bestwork.model.ProjectStatus;
 import com.nineplus.bestwork.repository.ProjectRepository;
 import com.nineplus.bestwork.services.IProjectService;
 import com.nineplus.bestwork.utils.CommonConstants;
+import com.nineplus.bestwork.utils.ConvertResponseUtils;
 import com.nineplus.bestwork.utils.MessageUtils;
 import com.nineplus.bestwork.utils.PageUtils;
 
@@ -45,22 +45,24 @@ public class ProjectServiceImpl implements IProjectService {
 	@Autowired
 	private MessageUtils messageUtils;
 
+	@Autowired
+	private ConvertResponseUtils convertResponseUtils;
+
 	@Override
 	public PageResponseDto<ProjectResponseDto> getProjectPage(PageSearchDto pageSearchDto)
 			throws BestWorkBussinessException {
 		try {
 			int pageNumber = NumberUtils.toInt(pageSearchDto.getPage());
-			if (pageNumber > 0) {
-				pageNumber = pageNumber - 1;
-			}
+			String mappedColumn = convertResponseUtils.convertResponseProject(pageSearchDto.getSortBy());
 			Pageable pageable = PageRequest.of(pageNumber, Integer.parseInt(pageSearchDto.getSize()),
-					Sort.by(pageSearchDto.getSortDirection(),
-							pageSearchDto.getSortBy()));
+					Sort.by(pageSearchDto.getSortDirection(), mappedColumn));
 			Page<ProjectEntity> pageTProject;
-
-//			PrjConditionSearchDto prjConditionSearchDTO = pageSearchDto.getProjectCondition();
-			pageTProject = projectRepository.findProjectWithCondition(pageSearchDto, pageable);
-
+			int status = pageSearchDto.getStatus();
+			if (status >= 0 && status < ProjectStatus.values().length) {
+				pageTProject = projectRepository.findProjectWithStatus(pageSearchDto, pageable);
+			} else {
+				pageTProject = projectRepository.findProjectWithoutStatus(pageSearchDto, pageable);
+			}
 			return responseUtils.convertPageEntityToDTO(pageTProject, ProjectResponseDto.class);
 		} catch (Exception ex) {
 			logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0003, null), ex);

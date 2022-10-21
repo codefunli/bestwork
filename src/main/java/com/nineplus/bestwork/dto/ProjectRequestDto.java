@@ -2,8 +2,6 @@ package com.nineplus.bestwork.dto;
 
 import javax.validation.constraints.NotBlank;
 
-import org.hibernate.validator.constraints.Range;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -34,7 +32,6 @@ public class ProjectRequestDto extends BaseDto {
 
 	private Integer status;
 
-	@Range(min = 1, max = 4, message = "Enter type in range 1 to 4")
 	private Integer projectType;
 
 }

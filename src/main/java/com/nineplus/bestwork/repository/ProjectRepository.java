@@ -21,8 +21,11 @@ public interface ProjectRepository extends JpaRepository<ProjectEntity, String> 
 
 	@Query(value = " select * from PROJECT where " + " (project_name like %:#{#project.keyword}% or "
 			+ " description like %:#{#project.keyword}%) and status = :#{#project.status} ", nativeQuery = true)
-	Page<ProjectEntity> findProjectWithCondition(@Param("project") PageSearchDto pageSearchDto,
-			Pageable pageable);
+	Page<ProjectEntity> findProjectWithStatus(@Param("project") PageSearchDto pageSearchDto, Pageable pageable);
+
+	@Query(value = " select * from PROJECT where " + " (project_name like %:#{#project.keyword}% or "
+			+ " description like %:#{#project.keyword}%) ", nativeQuery = true)
+	Page<ProjectEntity> findProjectWithoutStatus(@Param("project") PageSearchDto pageSearchDto, Pageable pageable);
 
 	@Query(value = " select id from PROJECT order by id desc limit 1 ", nativeQuery = true)
 	String getLastProjectIdString();

@@ -2,6 +2,7 @@ package com.nineplus.bestwork.controller;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -181,4 +182,15 @@ public class ProjectController extends BaseController {
 		return this.projectTypeService.getProjectTypeById(projectTypeId);
 	}
 
+	@GetMapping("/status")
+	public ResponseEntity<List<ProjectStatus>> getAllProjectStatus() {
+		List<ProjectStatus> statusList = new ArrayList<>();
+		for (ProjectStatus status : ProjectStatus.values()) {
+			statusList.add(status);
+		}
+		if (statusList.isEmpty()) {
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		}
+		return new ResponseEntity<>(statusList, HttpStatus.OK);
+	}
 }
