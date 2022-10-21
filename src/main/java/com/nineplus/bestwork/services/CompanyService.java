@@ -21,12 +21,12 @@ import org.springframework.transaction.annotation.Transactional;
 import com.nineplus.bestwork.dto.CompanyListIdDto;
 import com.nineplus.bestwork.dto.CompanyReqDto;
 import com.nineplus.bestwork.dto.CompanyResDto;
-import com.nineplus.bestwork.dto.PageResponseDto;
-import com.nineplus.bestwork.dto.PageSearchDto;
 import com.nineplus.bestwork.dto.CompanyUserReqDto;
 import com.nineplus.bestwork.dto.CompanyUserResDto;
-import com.nineplus.bestwork.dto.UserResDto;
+import com.nineplus.bestwork.dto.PageResponseDto;
+import com.nineplus.bestwork.dto.PageSearchDto;
 import com.nineplus.bestwork.dto.UserReqDto;
+import com.nineplus.bestwork.dto.UserResDto;
 import com.nineplus.bestwork.entity.TCompany;
 import com.nineplus.bestwork.entity.TRole;
 import com.nineplus.bestwork.entity.TUser;
@@ -358,7 +358,7 @@ public class CompanyService {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
 		}
 	}
-	
+
 	private String convertWildCard(String text) {
 		return "*" + text + "*";
 	}
