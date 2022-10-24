@@ -20,6 +20,7 @@ import com.nineplus.bestwork.dto.ForgotPasswordReqDto;
 import com.nineplus.bestwork.dto.ForgotPasswordResDto;
 import com.nineplus.bestwork.dto.ResetPasswordReqDto;
 import com.nineplus.bestwork.entity.SysUser;
+import com.nineplus.bestwork.entity.TUser;
 import com.nineplus.bestwork.exception.SysUserNotFoundException;
 import com.nineplus.bestwork.services.MailSenderService;
 import com.nineplus.bestwork.services.SysUserService;
@@ -42,7 +43,7 @@ public class ForgotPasswordController extends BaseController {
 	@Autowired
 	private MailSenderService mailService;
 
-	@PostMapping("/forgot_password")
+	@PostMapping("/forgot-password")
 	public ResponseEntity<? extends Object> processForgotPassword(
 			@Valid @RequestBody ForgotPasswordReqDto forgotPasswordReqDto, BindingResult bindingResult)
 			throws Exception {
@@ -52,7 +53,7 @@ public class ForgotPasswordController extends BaseController {
 		}
 
 		String emailReq = forgotPasswordReqDto.getEmail();
-		SysUser sysUserReq = this.sysUserService.getUserByEmail(emailReq);
+		TUser sysUserReq = this.sysUserService.getUserByEmail(emailReq);
 		if (sysUserReq == null) {
 			return failedWithError(CommonConstants.MessageCode.SU0002, forgotPasswordReqDto, null);
 		}
@@ -62,8 +63,8 @@ public class ForgotPasswordController extends BaseController {
 		try {
 			sysUserService.updateResetPasswordToken(token, emailReq);
 			String resetPasswordLink = messageUtils.getMessage(CommonConstants.Url.URL0001, null)
-					+ "/api/v1/auth/reset_password/" + token;
-			String username = sysUserReq.getUsername();
+					+ "/api/v1/auth/reset-password/" + token;
+			String username = sysUserReq.getUserName();
 			mailService.sendMailResetPassword(emailReq, username, resetPasswordLink);
 
 		} catch (SysUserNotFoundException e) {
@@ -71,13 +72,14 @@ public class ForgotPasswordController extends BaseController {
 		}
 
 		ForgotPasswordResDto forgotPasswordResDto = new ForgotPasswordResDto();
-		forgotPasswordResDto.setUsername(sysUserReq.getUsername());
+		forgotPasswordResDto.setUsername(sysUserReq.getUserName());
 		forgotPasswordResDto.setEmail(sysUserReq.getEmail());
-		forgotPasswordResDto.setFullname(sysUserReq.getFullname());
+		forgotPasswordResDto.setFirstname(sysUserReq.getFirstNm());
+		forgotPasswordResDto.setLastname(sysUserReq.getLastNm());
 		return success(CommonConstants.MessageCode.SU0001, forgotPasswordResDto, null);
 	}
 
-	@PostMapping("/reset_password/{token}")
+	@PostMapping("/reset-password/{token}")
 	public ResponseEntity<?> changePassword(@PathVariable String token,
 			@Valid @RequestBody ResetPasswordReqDto resetPasswordReqDto, BindingResult bindingResult)
 			throws IOException {
@@ -86,7 +88,7 @@ public class ForgotPasswordController extends BaseController {
 			return failedWithError(CommonConstants.MessageCode.SU0003, bindingResult.getFieldErrors().toArray(), null);
 		}
 
-		SysUser sysUser = this.sysUserService.get(token);
+		TUser sysUser = this.sysUserService.get(token);
 		if (sysUser == null) {
 			return failedWithError(CommonConstants.MessageCode.SU0002, sysUser, null);
 		}
@@ -94,9 +96,8 @@ public class ForgotPasswordController extends BaseController {
 		if (resetPasswordReqDto.getPassword().equals(resetPasswordReqDto.getConfirmPassword())) {
 
 			String newPassword = resetPasswordReqDto.getPassword();
-			Timestamp updatedDate = Timestamp.valueOf(LocalDateTime.now());
-			sysUser.setUpdatedDate(updatedDate);
-			sysUser.setUpdatedUser(sysUser.getUsername());
+			sysUser.setUpdateDate(LocalDateTime.now());
+			sysUser.setUpdateBy(sysUser.getUserName());
 
 			this.sysUserService.updatePassword(sysUser, newPassword);
 
