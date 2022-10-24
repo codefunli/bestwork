@@ -73,6 +73,9 @@ public class TUser {
     @Column(name = "tel_no")
     private String telNo;
 
+	@Column(name = "reset_password_token", columnDefinition = "varchar(45)")
+	private String resetPasswordToken;
+
     @ManyToOne
     @JoinColumn(name = "app_role_id")
     @EqualsAndHashCode.Exclude
