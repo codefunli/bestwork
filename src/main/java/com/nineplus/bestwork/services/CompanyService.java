@@ -264,7 +264,7 @@ public class CompanyService {
 			tCompanyRepository.deleteCompaniesWithIds(Arrays.asList(listId.getLstCompanyId()));
 
 			// delete user relate company
-			List<TUser> allTusers = tUserRepos.findAllUserByCompanyId(Arrays.asList(listId.getLstCompanyId()));
+			List<TUser> allTusers = tUserRepos.findAllUserByCompanyIdList(Arrays.asList(listId.getLstCompanyId()));
 			tUserRepos.deleteAllInBatch(allTusers);
 
 		} catch (Exception ex) {

@@ -1,9 +1,11 @@
 package com.nineplus.bestwork.services;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -36,9 +38,11 @@ import com.nineplus.bestwork.entity.TUser;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.model.UserAuthDetected;
 import com.nineplus.bestwork.repository.TCompanyRepository;
+import com.nineplus.bestwork.repository.TRoleRepository;
 import com.nineplus.bestwork.repository.TUserRepository;
 import com.nineplus.bestwork.utils.CommonConstants;
 import com.nineplus.bestwork.utils.ConvertResponseUtils;
+import com.nineplus.bestwork.utils.MessageUtils;
 import com.nineplus.bestwork.utils.PageUtils;
 import com.nineplus.bestwork.utils.UserAuthUtils;
 
@@ -78,6 +82,15 @@ public class UserService implements UserDetailsService {
 
 	@Autowired
 	TCompanyRepository companyRepository;
+
+	@Autowired
+	TRoleRepository roleRepository;
+
+	@Autowired
+	MessageUtils messageUtils;
+
+	@Autowired
+	TCompanyRepository tCompanyRepository;
 
 	@Override
 	public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
@@ -154,7 +167,7 @@ public class UserService implements UserDetailsService {
 			} else if (userAuthRoleReq.getIsOrgAdmin()) {
 				String companyAdminUsername = userAuthRoleReq.getUsername();
 				int companyId = tUserRepo.findCompanyIdByAdminUsername(companyAdminUsername);
-				pageUser = tUserRepo.findAllUsersByCompanyAdminAndCompanyId(companyId, pageable);
+				pageUser = tUserRepo.findAllUsersByCompanyId(companyId, pageable);
 			}
 			return responseUtils.convertPageEntityToDTO(pageUser.map(this::convertUserToUserDto), UserResDto.class);
 		} catch (Exception ex) {
@@ -215,25 +228,23 @@ public class UserService implements UserDetailsService {
 				}
 
 			} else if (userAuthRoleReq.getIsOrgAdmin()) {
-				String companyAdminUserName = userAuthRoleReq.getUsername();
-
-				long companyId = tUserRepo.findCompanyIdByAdminUsername(companyAdminUserName);
+				long companyId = findCompanyIdByAdminUsername(userAuthRoleReq);
 
 				if (roleId > 0 & status >= 0) {
-					userList = tUserRepo.findAllUSersByCompanyId(companyId).stream()
+					userList = tUserRepo.findAllUsersByCompanyId(companyId).stream()
 							.filter(user -> getUsersByKeyword(keyword).contains(user))
 							.filter(user -> user.getRole().getId() == roleId)
 							.filter(user -> user.getIsEnable() == status).collect(Collectors.toList());
 				} else if (roleId <= 0 & status >= 0) {
-					userList = tUserRepo.findAllUSersByCompanyId(companyId).stream()
+					userList = tUserRepo.findAllUsersByCompanyId(companyId).stream()
 							.filter(user -> getUsersByKeyword(keyword).contains(user))
 							.filter(user -> user.getIsEnable() == status).collect(Collectors.toList());
 				} else if (roleId > 0 & status < 0) {
-					userList = tUserRepo.findAllUSersByCompanyId(companyId).stream()
+					userList = tUserRepo.findAllUsersByCompanyId(companyId).stream()
 							.filter(user -> getUsersByKeyword(keyword).contains(user))
 							.filter(user -> user.getRole().getId() == roleId).collect(Collectors.toList());
 				} else {
-					userList = tUserRepo.findAllUSersByCompanyId(companyId).stream()
+					userList = tUserRepo.findAllUsersByCompanyId(companyId).stream()
 							.filter(user -> getUsersByKeyword(keyword).contains(user)).collect(Collectors.toList());
 				}
 			}
@@ -244,9 +255,64 @@ public class UserService implements UserDetailsService {
 		}
 	}
 
+	public long findCompanyIdByAdminUsername(UserAuthDetected userAuthRoleReq) {
+		String companyAdminUserName = userAuthRoleReq.getUsername();
+		long companyId = tUserRepo.findCompanyIdByAdminUsername(companyAdminUserName);
+		return companyId;
+	}
+
 	private List<TUser> getUsersByKeyword(String keyword) {
 		return this.tUserRepo.getUsersByKeyword(keyword);
 	}
 
+	public TUser createUser(UserReqDto userReqDto) throws BestWorkBussinessException {
+
+		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
+		String createUser = userAuthRoleReq.getUsername();
+		TRole role = new TRole();
+		Optional<TRole> roleOptional = roleRepository.findById(userReqDto.getRole());
+		if (roleOptional.isPresent()) {
+			role = roleOptional.get();
+		}
+		TCompany company = tCompanyRepository.findById(findCompanyIdByAdminUsername(userAuthRoleReq)).get();
+		Set<TCompany> companies = new HashSet<>();
+		companies.add(company);
+		TUser user = new TUser();
+		user.setUserName(userReqDto.getUserName());
+		user.setPassword(encoder.encode(userReqDto.getPassword()));
+		user.setFirstNm(userReqDto.getFirstName());
+		user.setLastNm(userReqDto.getLastName());
+		user.setEmail(userReqDto.getEmail());
+		user.setTelNo(userReqDto.getTelNo());
+		user.setIsEnable(userReqDto.getEnabled());
+		user.setRole(role);
+		user.setCreateBy(createUser);
+		user.setCreateDate(LocalDateTime.now());
+		user.setDeleteFlag(0);
+		user.setCompanys(companies);
+
+		return this.tUserRepo.save(user);
+	}
+
+	public List<TUser> findAllUsersByCompanyId(long companyId) {
+		return this.tUserRepo.findAllUsersByCompanyId(companyId);
+	}
+
+	public UserResDto getUserById(long userId) {
+		Optional<TUser> userOptional = this.tUserRepo.findById(userId);
+		if (!userOptional.isPresent()) {
+			return null;
+		}
+		UserResDto userResDto = new UserResDto();
+		userResDto.setId(userId);
+		userResDto.setUserName(userOptional.get().getUserName());
+		userResDto.setFirstNm(userOptional.get().getFirstNm());
+		userResDto.setLastNm(userOptional.get().getLastNm());
+		userResDto.setEmail(userOptional.get().getEmail());
+		userResDto.setTelNo(userOptional.get().getTelNo());
+		userResDto.setIsEnable(userOptional.get().getIsEnable());
+		userResDto.setRole(userOptional.get().getRole().getRoleName());
+		return userResDto;
+	}
 
 }
