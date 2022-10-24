@@ -8,7 +8,6 @@ import org.springframework.stereotype.Repository;
 
 import com.nineplus.bestwork.entity.TRole;
 import com.nineplus.bestwork.model.ERole;
-import com.nineplus.bestwork.model.Role;
 
 @Repository
 public interface TRoleRepository extends JpaRepository<TRole, Long> {
