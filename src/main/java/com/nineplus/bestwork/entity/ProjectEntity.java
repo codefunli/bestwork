@@ -58,8 +58,8 @@ public class ProjectEntity {
 	@Column(name = "status", nullable = false, columnDefinition = "tinyint(1)")
 	private ProjectStatus status;
 
-	@Column(name = "create_date", nullable = true, columnDefinition = "timestamp")
-	private Timestamp createDate;
+	@Column(name = "create_date", nullable = true)
+	private String createDate;
 
 	@Column(name = "update_date", nullable = true, columnDefinition = "timestamp")
 	private Timestamp updateDate;

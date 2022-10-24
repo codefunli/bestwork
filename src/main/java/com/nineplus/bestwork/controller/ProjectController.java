@@ -28,6 +28,7 @@ import com.nineplus.bestwork.dto.PageSearchDto;
 import com.nineplus.bestwork.dto.ProjectDeleteByIdDto;
 import com.nineplus.bestwork.dto.ProjectRequestDto;
 import com.nineplus.bestwork.dto.ProjectResponseDto;
+import com.nineplus.bestwork.dto.ProjectTaskDto;
 import com.nineplus.bestwork.dto.ProjectTypeResponseDto;
 import com.nineplus.bestwork.entity.ProjectEntity;
 import com.nineplus.bestwork.entity.ProjectTypeEntity;
@@ -73,44 +74,10 @@ public class ProjectController extends BaseController {
 		if (pageProject.getContent().isEmpty()) {
 			return success(CommonConstants.MessageCode.E1X0003, pageProject, null);
 		}
-		System.out.println(pageProject.getContent());
 		return success(CommonConstants.MessageCode.S1X0006, pageProject, null);
 
 	}
 
-	@GetMapping("/page")
-	public ResponseEntity<? extends Object> getAllProjectsPage(@PageableDefault Pageable pageable) {
-
-		PageResponseDto<ProjectResponseDto> pageProjects = null;
-		try {
-			pageProjects = projectService.getAllProjectPages(pageable);
-		} catch (BestWorkBussinessException ex) {
-			return failed(ex.getMsgCode(), ex.getParam());
-		}
-		if (pageProjects.getContent().isEmpty()) {
-			return success(CommonConstants.MessageCode.E1X0003, pageProjects, null);
-		}
-		return success(CommonConstants.MessageCode.S1X0006, pageProjects, null);
-	}
-
-	@PostMapping("/create")
-	public ResponseEntity<? extends Object> createProject(@Valid @RequestBody ProjectRequestDto projectRequestDto,
-			BindingResult bindingResult) {
-
-		if (bindingResult.hasErrors()) {
-			return failedWithError(CommonConstants.MessageCode.S1X0005, bindingResult.getFieldErrors().toArray(), null);
-		}
-		ProjectEntity createdProject = null;
-		try {
-			ProjectTypeEntity projectType = this.getProjectTypeById(projectRequestDto.getProjectType());
-			if (projectType != null) {
-				createdProject = this.projectService.saveProject(projectRequestDto, projectType);
-			}
-		} catch (BestWorkBussinessException ex) {
-			return failed(ex.getMsgCode(), ex.getParam());
-		}
-		return success(CommonConstants.MessageCode.S1X0004, createdProject, null);
-	}
 
 	@GetMapping("/{id}")
 	public ResponseEntity<? extends Object> getProjectById(@PathVariable("id") String id) {
@@ -192,5 +159,18 @@ public class ProjectController extends BaseController {
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		}
 		return new ResponseEntity<>(statusList, HttpStatus.OK);
+	}
+
+	@PostMapping("/regist")
+	public ResponseEntity<? extends Object> registProject(@RequestBody ProjectTaskDto projectTask) {
+		try {
+			ProjectTypeEntity projectType = this.getProjectTypeById(projectTask.getProject().getProjectType());
+			if (projectType != null) {
+				projectService.registProject(projectTask, projectType);
+			}
+		} catch (BestWorkBussinessException ex) {
+			return failed(ex.getMsgCode(), ex.getParam());
+		}
+		return success(CommonConstants.MessageCode.S1X0004, null, null);
 	}
 }

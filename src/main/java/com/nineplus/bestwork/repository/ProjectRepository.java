@@ -14,6 +14,7 @@ import org.springframework.stereotype.Repository;
 
 import com.nineplus.bestwork.dto.PageSearchDto;
 import com.nineplus.bestwork.entity.ProjectEntity;
+import com.nineplus.bestwork.entity.TCompany;
 
 @Repository
 @Transactional
@@ -33,5 +34,8 @@ public interface ProjectRepository extends JpaRepository<ProjectEntity, String> 
 	@Query(value = " delete from PROJECT where id in :id ", nativeQuery = true)
 	@Modifying
 	void deleteProjectById(@Param("id") List<String> id);
+	
+	@Query(value = "SELECT * FROM PROJECT WHERE project_name = :name", nativeQuery = true)
+	ProjectEntity findbyProjectName(String name);
 
 }
