@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nineplus.bestwork.dto.PageResponseDto;
-import com.nineplus.bestwork.dto.PageSearchDto;
+import com.nineplus.bestwork.dto.PageSearchUserDto;
 import com.nineplus.bestwork.dto.UserResDto;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.services.UserService;
@@ -35,22 +35,28 @@ public class UserController extends BaseController {
 	@Value("${app.login.jwtPrefix}")
 	private String PRE_STRING;
 
-
 	@GetMapping("/isCheckLogin")
 	public ResponseEntity<? extends Object> isCheckLogin(HttpServletRequest request, HttpServletResponse response) {
 		return success(CommonConstants.MessageCode.S1X0010, null, null);
 	}
-	
+
 	/**
 	 * Get list company
 	 * 
 	 * @return list company
 	 */
+
 	@PostMapping("/list")
-	public ResponseEntity<? extends Object> getAllUser(@RequestBody PageSearchDto pageCondition) {
+	public ResponseEntity<? extends Object> getAllUser(@RequestBody PageSearchUserDto pageCondition) {
 		PageResponseDto<UserResDto> pageUser = null;
 		try {
-			pageUser = userService.getUserPage(pageCondition);
+			if (pageCondition.getKeyword().isEmpty() && pageCondition.getCompany() <= 0 && pageCondition.getRole() <= 0
+					&& pageCondition.getStatus() < 0) {
+				pageUser = userService.getUserPageWithoutCondition(pageCondition);
+			} else {
+				pageUser = userService.getUserPageWithCondition(pageCondition);
+			}
+
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}
