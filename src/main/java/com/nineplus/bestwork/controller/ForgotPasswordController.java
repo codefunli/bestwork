@@ -1,7 +1,6 @@
 package com.nineplus.bestwork.controller;
 
 import java.io.IOException;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 import javax.validation.Valid;
@@ -19,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.nineplus.bestwork.dto.ForgotPasswordReqDto;
 import com.nineplus.bestwork.dto.ForgotPasswordResDto;
 import com.nineplus.bestwork.dto.ResetPasswordReqDto;
-import com.nineplus.bestwork.entity.SysUser;
 import com.nineplus.bestwork.entity.TUser;
 import com.nineplus.bestwork.exception.SysUserNotFoundException;
 import com.nineplus.bestwork.services.MailSenderService;

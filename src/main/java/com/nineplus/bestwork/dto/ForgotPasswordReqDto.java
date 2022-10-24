@@ -10,9 +10,6 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode
 public class ForgotPasswordReqDto {
 
-//	@NotBlank(message = "Enter your username.")
-//	private String username;
-
 	@NotBlank(message = "Enter your email.")
 	@Email(message = "Invalid email.")
 	private String email;
