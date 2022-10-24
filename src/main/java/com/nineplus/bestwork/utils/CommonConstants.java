@@ -31,6 +31,7 @@ public class CommonConstants {
 		public static final String USER_MAIL = "User Mail";
 		public static final String USER_NAME = "User Name";
 		public static final String CMPNY_NAME = "Company Name";
+		public static final String PROJECT = "Project";
 
 		public static final String COMPANY = "COMPANY";
 		public static final String USERNAME_OR_EMAIL = "USER or EMAIL";

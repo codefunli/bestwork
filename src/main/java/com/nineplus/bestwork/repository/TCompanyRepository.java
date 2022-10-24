@@ -23,17 +23,17 @@ public interface TCompanyRepository extends JpaRepository<TCompany, Long> {
 	@Query(value = "select * from T_COMPANY", nativeQuery = true)
 	Page<TCompany> getPageCompany(Pageable pageable);
 
-	@Query(value = "select * from T_COMPANY WHERE is_expired = :status AND MATCH(company_name,email,province_city,district,ward,street) AGAINST(:keyword)", nativeQuery = true)
+	@Query(value = "select * from T_COMPANY WHERE is_expired = :status AND MATCH(company_name,email,province_city,district,ward,street) AGAINST(:keyword IN BOOLEAN MODE)", nativeQuery = true)
 	Page<TCompany> searchCompanyPage(String keyword, int status, Pageable pageable);
-	
+
 	@Query(value = "select * from T_COMPANY WHERE is_expired = :status", nativeQuery = true)
 	Page<TCompany> searchCompanyPageWithOutKeyWord(int status, Pageable pageable);
 
-	@Query(value = "select * from T_COMPANY WHERE MATCH(company_name,email,province_city,district,ward,street) AGAINST(:keyword)", nativeQuery = true)
+	@Query(value = "select * from T_COMPANY WHERE MATCH(company_name,email,province_city,district,ward,street) AGAINST(:keyword IN BOOLEAN MODE)", nativeQuery = true)
 	Page<TCompany> searchCompanyPageWithOutStatus(String keyword, Pageable pageable);
 
 	@Modifying
 	@Query(value = "DELETE from T_COMPANY c where c.id in ?1", nativeQuery = true)
 	void deleteCompaniesWithIds(List<Long> ids);
-	
+
 }

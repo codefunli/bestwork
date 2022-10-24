@@ -48,7 +48,7 @@ public class ProjectResponseDto extends BaseDto {
 	private ProjectStatus status;
 
 	@JsonProperty("createDate")
-	private Timestamp createDate;
+	private String createDate;
 
 	@JsonProperty("updateDate")
 	private Timestamp updateDate;
