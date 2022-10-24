@@ -41,16 +41,6 @@ public interface TUserRepository extends JpaRepository<TUser, Long> {
 			, nativeQuery = true)
 	Page<TUser> findAllUsersByCompanyAdminAndCompanyId(@Param("companyId") int companyId, Pageable pageable);
 
-	
-//	@Query(value = " select u.* from T_SYS_APP_USER u JOIN T_COMPANY_USER tcu ON (u.id = tcu.user_id) where tcu.company_id = ?1", nativeQuery = true)
-//	List<TUser> getUsersByCompanyId(long companyId);
-//
-//	@Query(value = " select u.* from T_SYS_APP_USER u where u.app_role_id = ?1", nativeQuery = true)
-//	List<TUser> getUsersByRoleId(long roleId);
-//
-//	@Query(value = " select u.* from T_SYS_APP_USER u where enable = ?1", nativeQuery = true)
-//	List<TUser> getUsersByStatus(int status);
-
 	@Query(value = " select u.* from T_SYS_APP_USER u "
 			+ " where user_name like %?1% "
 			+ " or first_name like %?1% "
