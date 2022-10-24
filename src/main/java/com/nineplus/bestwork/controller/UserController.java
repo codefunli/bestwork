@@ -1,7 +1,6 @@
 package com.nineplus.bestwork.controller;
 
 import java.util.List;
-import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -19,13 +18,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.nineplus.bestwork.dto.CompanyUserResDto;
 import com.nineplus.bestwork.dto.PageResponseDto;
 import com.nineplus.bestwork.dto.PageSearchUserDto;
 import com.nineplus.bestwork.dto.UserReqDto;
 import com.nineplus.bestwork.dto.UserResDto;
-import com.nineplus.bestwork.entity.TCompany;
-import com.nineplus.bestwork.entity.TRole;
 import com.nineplus.bestwork.entity.TUser;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.model.UserAuthDetected;
@@ -84,7 +80,7 @@ public class UserController extends BaseController {
 			BindingResult bindingResult) throws BestWorkBussinessException {
 
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
-		
+
 		if (userAuthRoleReq.getIsSysAdmin()) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
 		}
@@ -107,10 +103,9 @@ public class UserController extends BaseController {
 		}
 		return success(CommonConstants.MessageCode.SCU0001, createdUser, null);
 	}
-	
+
 	@GetMapping("/{userId}")
-	public ResponseEntity<? extends Object> getUserById(@PathVariable long userId)
-			throws BestWorkBussinessException {
+	public ResponseEntity<? extends Object> getUserById(@PathVariable long userId) throws BestWorkBussinessException {
 		UserResDto userRes = userService.getUserById(userId);
 		if (userRes == null) {
 			return failed(CommonConstants.MessageCode.ECU0002, null);
@@ -118,6 +113,5 @@ public class UserController extends BaseController {
 			return success(CommonConstants.MessageCode.SCU0002, userRes, null);
 		}
 	}
-	
-	
+
 }
