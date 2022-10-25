@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import com.nineplus.bestwork.dto.ProjectAssignResDto;
 import com.nineplus.bestwork.entity.TCompany;
 
 @Repository
@@ -19,6 +20,9 @@ public interface TCompanyRepository extends JpaRepository<TCompany, Long> {
 
 	@Query(value = "SELECT * FROM T_COMPANY WHERE company_name = :name", nativeQuery = true)
 	TCompany findbyCompanyName(String name);
+	
+	@Query(value = "SELECT id as Id, company_name as companyName FROM T_COMPANY",nativeQuery = true)
+	List<CompanyProjection> getAllCompany();
 
 	@Query(value = "select * from T_COMPANY", nativeQuery = true)
 	Page<TCompany> getPageCompany(Pageable pageable);
@@ -35,5 +39,6 @@ public interface TCompanyRepository extends JpaRepository<TCompany, Long> {
 	@Modifying
 	@Query(value = "DELETE from T_COMPANY c where c.id in ?1", nativeQuery = true)
 	void deleteCompaniesWithIds(List<Long> ids);
+
 
 }

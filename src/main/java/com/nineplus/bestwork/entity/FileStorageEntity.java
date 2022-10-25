@@ -46,5 +46,10 @@ public class FileStorageEntity {
 	@JoinColumn(name = "post_id")
 	@JsonIgnore
 	private PostEntity post;
+	
+	@ManyToOne
+	@JoinColumn(name = "progress_id")
+	@JsonIgnore
+	private Progress progress;
 
 }

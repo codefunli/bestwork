@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.data.domain.Pageable;
 
+import com.nineplus.bestwork.dto.AssignTaskReqDto;
 import com.nineplus.bestwork.dto.PageResponseDto;
 import com.nineplus.bestwork.dto.PageSearchDto;
 import com.nineplus.bestwork.dto.ProjectResponseDto;
@@ -12,6 +13,7 @@ import com.nineplus.bestwork.dto.ProjectTaskDto;
 import com.nineplus.bestwork.entity.ProjectEntity;
 import com.nineplus.bestwork.entity.ProjectTypeEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
+import com.nineplus.bestwork.repository.ProjectAssignProjection;
 
 public interface IProjectService {
 
@@ -26,6 +28,10 @@ public interface IProjectService {
 
 	public void deleteProjectById(List<String> list) throws BestWorkBussinessException;
 
-	public void registProject(ProjectTaskDto projectTaskDto, ProjectTypeEntity type) throws BestWorkBussinessException;
+	public void saveProject(ProjectTaskDto projectTaskDto, ProjectTypeEntity type) throws BestWorkBussinessException;
+
+	public void updateProject(ProjectTaskDto projectTaskDto,ProjectTypeEntity projectType, String projectId) throws BestWorkBussinessException;
+
+	public List<ProjectAssignProjection> getCompanyUserForAssign(AssignTaskReqDto assignTaskReqDto) throws BestWorkBussinessException;
 
 }

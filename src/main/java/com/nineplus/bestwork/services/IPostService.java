@@ -15,8 +15,8 @@ public interface IPostService {
 
 	PostEntity savePost(PostEntity post) throws BestWorkBussinessException;
 
-	List<PostResponseDto> getAllPosts();
+	List<PostResponseDto> getAllPosts() throws BestWorkBussinessException;
 
-	List<PostResponseDto> getPostsByProjectId(String projectId);
+	List<PostResponseDto> getPostsByProjectId(String projectId) throws BestWorkBussinessException;
 
 }
