@@ -61,7 +61,7 @@ public class ForgotPasswordController extends BaseController {
 		try {
 			sysUserService.updateResetPasswordToken(token, emailReq);
 			String resetPasswordLink = messageUtils.getMessage(CommonConstants.Url.URL0001, null)
-					+ "/api/v1/auth/reset-password/" + token;
+					+ "/auth/reset-password/" + token;
 			String username = sysUserReq.getUserName();
 			mailService.sendMailResetPassword(emailReq, username, resetPasswordLink);
 

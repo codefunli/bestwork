@@ -26,7 +26,7 @@ public class UserReqDto extends BaseDto {
 	private String userName;
 
 	@NotBlank(message = "Enter password.")
-	@Pattern(regexp = "[0-9]{6,10}", message = "Enter from 6 to 10 digits.")
+//	@Pattern(regexp = "[0-9]{6,10}", message = "Enter from 6 to 10 digits.")
 	@JsonProperty("password")
 	private String password;
 

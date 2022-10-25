@@ -1,17 +1,22 @@
 package com.nineplus.bestwork.controller;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,8 +27,10 @@ import com.nineplus.bestwork.dto.PageResponseDto;
 import com.nineplus.bestwork.dto.PageSearchUserDto;
 import com.nineplus.bestwork.dto.UserReqDto;
 import com.nineplus.bestwork.dto.UserResDto;
+import com.nineplus.bestwork.entity.ProjectEntity;
 import com.nineplus.bestwork.entity.TUser;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
+import com.nineplus.bestwork.model.ProjectStatus;
 import com.nineplus.bestwork.model.UserAuthDetected;
 import com.nineplus.bestwork.services.UserService;
 import com.nineplus.bestwork.utils.CommonConstants;
@@ -82,7 +89,7 @@ public class UserController extends BaseController {
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
 
 		if (userAuthRoleReq.getIsSysAdmin()) {
-			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
+			return failed(CommonConstants.MessageCode.E1X0014, null);
 		}
 		long companyId = this.userService.findCompanyIdByAdminUsername(userAuthRoleReq);
 		List<TUser> existsUsers = this.userService.findAllUsersByCompanyId(companyId);
@@ -106,12 +113,51 @@ public class UserController extends BaseController {
 
 	@GetMapping("/{userId}")
 	public ResponseEntity<? extends Object> getUserById(@PathVariable long userId) throws BestWorkBussinessException {
-		UserResDto userRes = userService.getUserById(userId);
-		if (userRes == null) {
+		TUser user = userService.getUserById(userId);
+		if (user == null) {
 			return failed(CommonConstants.MessageCode.ECU0002, null);
-		} else {
-			return success(CommonConstants.MessageCode.SCU0002, userRes, null);
 		}
+		UserResDto userResDto = new UserResDto();
+		userResDto.setId(userId);
+		userResDto.setUserName(user.getUserName());
+		userResDto.setFirstNm(user.getFirstNm());
+		userResDto.setLastNm(user.getLastNm());
+		userResDto.setEmail(user.getEmail());
+		userResDto.setTelNo(user.getTelNo());
+		userResDto.setIsEnable(user.getIsEnable());
+		userResDto.setRole(user.getRole().getRoleName());
+
+		return success(CommonConstants.MessageCode.SCU0002, userResDto, null);
+	}
+
+	@PatchMapping("/update/{id}")
+	public ResponseEntity<? extends Object> updateUser(@PathVariable long id, @Valid @RequestBody UserReqDto userReqDto,
+			BindingResult bindingResult) throws BestWorkBussinessException {
+		TUser user = new TUser();
+//		try {
+//			user = this.userService.getUserById(id);
+//			if (user == null) {
+//				return failed(CommonConstants.MessageCode.ECU0002, null);
+//			}
+//		} catch (BestWorkBussinessException ex) {
+//			return failed(ex.getMsgCode(), ex.getParam());
+//		}
+//		if (bindingResult.hasErrors()) {
+//			return failedWithError(CommonConstants.MessageCode.ECU0003, bindingResult.getFieldErrors().toArray(), null);
+//		}
+//		BeanUtils.copyProperties(userReqDto, user);
+//		TUser updatedUser = null;
+return null;
+//		try {
+//			user.setStatus(ProjectStatus.values()[projectRequestDto.getStatus()]);
+//			user.setUpdateDate(LocalDateTime.now());
+//			user.setProjectType(this.getProjectTypeById(projectRequestDto.getProjectType()));
+//
+//			updatedProject = this.projectService.updateProject(projectOptional.get());
+//		} catch (BestWorkBussinessException ex) {
+//			return failed(ex.getMsgCode(), ex.getParam());
+//		}
+//		return success(CommonConstants.MessageCode.S1X0008, updatedProject, null);
 	}
 
 }

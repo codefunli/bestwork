@@ -10,8 +10,6 @@ import javax.validation.Valid;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -78,7 +76,6 @@ public class ProjectController extends BaseController {
 
 	}
 
-
 	@GetMapping("/{id}")
 	public ResponseEntity<? extends Object> getProjectById(@PathVariable("id") String id) {
 		Optional<ProjectEntity> projectOptional = null;
@@ -94,7 +91,7 @@ public class ProjectController extends BaseController {
 	}
 
 	@PatchMapping("/update/{id}")
-	public ResponseEntity<? extends Object> createProject(@PathVariable String id,
+	public ResponseEntity<? extends Object> updateProject(@PathVariable String id,
 			@Valid @RequestBody ProjectRequestDto projectRequestDto, BindingResult bindingResult)
 			throws BestWorkBussinessException {
 		Optional<ProjectEntity> projectOptional = null;
