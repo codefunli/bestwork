@@ -1,7 +1,7 @@
 package com.nineplus.bestwork.model;
 
 public enum ERole {
-  ROLE_USER,
-  ROLE_MODERATOR,
-  ROLE_ADMIN
+	SYS_ADMIN,
+	ORG_ADMIN,
+	CPMNY_USER
 }
