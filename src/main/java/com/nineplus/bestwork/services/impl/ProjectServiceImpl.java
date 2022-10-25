@@ -1,10 +1,12 @@
 package com.nineplus.bestwork.services.impl;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +18,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.nineplus.bestwork.dto.CompanyReqDto;
+import com.nineplus.bestwork.dto.AssignTaskReqDto;
 import com.nineplus.bestwork.dto.PageResponseDto;
 import com.nineplus.bestwork.dto.PageSearchDto;
 import com.nineplus.bestwork.dto.ProjectAssignReqDto;
@@ -27,10 +29,10 @@ import com.nineplus.bestwork.dto.ProjectTaskDto;
 import com.nineplus.bestwork.entity.AssignTask;
 import com.nineplus.bestwork.entity.ProjectEntity;
 import com.nineplus.bestwork.entity.ProjectTypeEntity;
-import com.nineplus.bestwork.entity.TCompany;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.model.ProjectStatus;
 import com.nineplus.bestwork.repository.AssignTaskRepository;
+import com.nineplus.bestwork.repository.ProjectAssignProjection;
 import com.nineplus.bestwork.repository.ProjectRepository;
 import com.nineplus.bestwork.services.IProjectService;
 import com.nineplus.bestwork.utils.CommonConstants;
@@ -141,7 +143,7 @@ public class ProjectServiceImpl implements IProjectService {
 	}
 
 	@Override
-	public void registProject(ProjectTaskDto projectTaskDto, ProjectTypeEntity projectType)
+	public void saveProject(ProjectTaskDto projectTaskDto, ProjectTypeEntity projectType)
 			throws BestWorkBussinessException {
 		// Generate project ID
 		String generateProjectId = "";
@@ -157,7 +159,6 @@ public class ProjectServiceImpl implements IProjectService {
 			registNewProject(projectTaskDto.getProject(), projectType, generateProjectId);
 			registAssign(projectTaskDto.getRoleData(), projectType, generateProjectId);
 		}
-
 	}
 
 	@Transactional(rollbackFor = { Exception.class })
@@ -172,6 +173,7 @@ public class ProjectServiceImpl implements IProjectService {
 			projectRegist.setNotificationFlag(projectReqDto.getNotificationFlag());
 			projectRegist.setIsPaid(projectReqDto.getIsPaid());
 			projectRegist.setStatus(ProjectStatus.values()[projectReqDto.getStatus()]);
+
 			// Convert date UTC to String
 			String registerDate = dateUtils.convertToUTC(projectReqDto.getCreateDate());
 			projectRegist.setCreateDate(registerDate);
@@ -220,5 +222,67 @@ public class ProjectServiceImpl implements IProjectService {
 			}
 		}
 
+	}
+
+	@Override
+	public void updateProject(ProjectTaskDto projectTaskDto, ProjectTypeEntity projectType, String projectId)
+			throws BestWorkBussinessException {
+		ProjectEntity currentProject = null;
+		Long companyId = projectTaskDto.getRoleData().getCompanyId();
+		currentProject = projectRepository.findbyProjectId(projectId);
+		List<ProjectRoleUserReqDto> userList = projectTaskDto.getRoleData().getUserList();
+		AssignTask assignTask = null;
+		try {
+			// Save for project
+			currentProject.setProjectName(projectTaskDto.getProject().getProjectName());
+			currentProject.setDescription(projectTaskDto.getProject().getDescription());
+			currentProject.setNotificationFlag(projectTaskDto.getProject().getNotificationFlag());
+			currentProject.setIsPaid(projectTaskDto.getProject().getIsPaid());
+			currentProject.setStatus(ProjectStatus.values()[projectTaskDto.getProject().getStatus()]);
+			currentProject.setUpdateDate(LocalDateTime.now());
+			currentProject.setProjectType(projectType);
+			projectRepository.save(currentProject);
+
+			for (int i = 0; i < userList.size(); i++) {
+				assignTask = assignTaskRepository.findbyCondition(userList.get(i).getUserId(), companyId, projectId);
+				if (assignTask != null) {
+					assignTask.setCanView(userList.get(i).isCanView());
+					assignTask.setCanEdit(userList.get(i).isCanEdit());
+					assignTaskRepository.save(assignTask);
+				} else {
+					AssignTask assignTaskNew = new AssignTask();
+					assignTaskNew.setCompanyId(companyId);
+					assignTaskNew.setProjectId(projectId);
+					assignTaskNew.setUserId(userList.get(i).getUserId());
+					assignTaskNew.setCanView(userList.get(i).isCanView());
+					assignTaskNew.setCanEdit(userList.get(i).isCanEdit());
+					assignTaskRepository.save(assignTaskNew);
+				}
+
+			}
+
+			// Save for assign task
+
+		} catch (Exception ex) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0004,
+					new Object[] { CommonConstants.Character.PROJECT, (projectTaskDto.getProject().getProjectName()) });
+		}
+
+	}
+
+	@Override
+	public List<ProjectAssignProjection> getCompanyUserForAssign(AssignTaskReqDto assignTaskReqDto)
+			throws BestWorkBussinessException {
+		List<ProjectAssignProjection> lstResult = null;
+		if (StringUtils.isNotBlank(assignTaskReqDto.getProjectId())
+				&& StringUtils.isNotBlank(assignTaskReqDto.getCompanyId())) {
+			long companyId = Long.parseLong(assignTaskReqDto.getCompanyId());
+			lstResult = projectRepository.GetCompanyAndRoleUserByCompanyAndProject(companyId,
+					assignTaskReqDto.getProjectId());
+		} else if (StringUtils.isNotBlank(assignTaskReqDto.getCompanyId())) {
+			long companyId = Long.parseLong(assignTaskReqDto.getCompanyId());
+			lstResult = projectRepository.GetCompanyAndRoleUserByCompanyId(companyId);
+		}
+		return lstResult;
 	}
 }

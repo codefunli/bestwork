@@ -10,7 +10,7 @@ import lombok.EqualsAndHashCode;
  */
 
 @Data
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = false)
 public class PostRequestDto extends BaseDto {
 
 	/**

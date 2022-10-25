@@ -1,6 +1,6 @@
 package com.nineplus.bestwork.entity;
 
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Collection;
 
 import javax.persistence.CascadeType;
@@ -62,7 +62,7 @@ public class ProjectEntity {
 	private String createDate;
 
 	@Column(name = "update_date", nullable = true, columnDefinition = "timestamp")
-	private Timestamp updateDate;
+	private LocalDateTime updateDate;
 
 	@ManyToOne
 	@JoinColumn(name = "project_type")

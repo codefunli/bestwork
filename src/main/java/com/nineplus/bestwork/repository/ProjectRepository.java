@@ -14,7 +14,6 @@ import org.springframework.stereotype.Repository;
 
 import com.nineplus.bestwork.dto.PageSearchDto;
 import com.nineplus.bestwork.entity.ProjectEntity;
-import com.nineplus.bestwork.entity.TCompany;
 
 @Repository
 @Transactional
@@ -37,5 +36,14 @@ public interface ProjectRepository extends JpaRepository<ProjectEntity, String> 
 	
 	@Query(value = "SELECT * FROM PROJECT WHERE project_name = :name", nativeQuery = true)
 	ProjectEntity findbyProjectName(String name);
+	
+	@Query(value = "SELECT * FROM PROJECT WHERE id = :id", nativeQuery = true)
+	ProjectEntity findbyProjectId(String id);
+
+	@Query(value = "select tus.user_name as name, ast.user_id as userId, 0 as canView ,0 as canEdit from ASSIGN_TASK ast JOIN T_SYS_APP_USER tus ON tus.id = ast.user_id  WHERE ast.company_id = ?1 group by user_name, user_id", nativeQuery = true)
+	List<ProjectAssignProjection> GetCompanyAndRoleUserByCompanyId(Long companyId);
+	
+	@Query(value = "select tus.user_name as name, ast.user_id as userId, 0 as canView ,0 as canEdit from ASSIGN_TASK ast JOIN T_SYS_APP_USER tus ON tus.id = ast.user_id  WHERE ast.company_id = ?1 AND ast.project_id = ?2", nativeQuery = true)
+	List<ProjectAssignProjection> GetCompanyAndRoleUserByCompanyAndProject(Long companyId, String projectId);
 
 }
