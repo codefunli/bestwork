@@ -9,6 +9,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import java.util.*;
+import java.util.stream.Collectors;
+
+import com.nineplus.bestwork.dto.*;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
@@ -27,7 +31,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import com.nineplus.bestwork.dto.PageResponseDto;
 import com.nineplus.bestwork.dto.PageSearchUserDto;
 import com.nineplus.bestwork.dto.UserReqDto;
@@ -306,4 +309,21 @@ public class UserService implements UserDetailsService {
 		return userOptional.get();
 	}
 
+	@Transactional(rollbackFor = { Exception.class })
+    public void deleteUser(UserListIdDto listId) throws BestWorkBussinessException {
+		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
+		if (!userAuthRoleReq.getIsSysAdmin()) {
+			logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0014, null));
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
+		}
+		try {
+			List<TUser> tUserList = tUserRepo.findAllById(Arrays.asList(listId.getUserIdList()));
+			if (tUserList.isEmpty() || tUserList.size() < listId.getUserIdList().length) {
+				throw new BestWorkBussinessException(CommonConstants.MessageCode.ECU0005, listId.getUserIdList());
+			}
+			tUserRepo.deleteAllByIdInBatch(Arrays.asList(listId.getUserIdList()));
+		} catch (Exception ex) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.ECU0005, listId.getUserIdList());
+		}
+    }
 }

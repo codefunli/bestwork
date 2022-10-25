@@ -1,41 +1,24 @@
 package com.nineplus.bestwork.controller;
 
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
-
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.nineplus.bestwork.dto.PageResponseDto;
-import com.nineplus.bestwork.dto.PageSearchUserDto;
-import com.nineplus.bestwork.dto.UserReqDto;
-import com.nineplus.bestwork.dto.UserResDto;
-import com.nineplus.bestwork.entity.ProjectEntity;
+import com.nineplus.bestwork.dto.*;
 import com.nineplus.bestwork.entity.TUser;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
-import com.nineplus.bestwork.model.ProjectStatus;
 import com.nineplus.bestwork.model.UserAuthDetected;
 import com.nineplus.bestwork.services.UserService;
 import com.nineplus.bestwork.utils.CommonConstants;
 import com.nineplus.bestwork.utils.TokenUtils;
 import com.nineplus.bestwork.utils.UserAuthUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+import java.util.List;
 
 @PropertySource("classpath:application.properties")
 @RequestMapping(value = "api/v1/users")
@@ -158,6 +141,19 @@ return null;
 //			return failed(ex.getMsgCode(), ex.getParam());
 //		}
 //		return success(CommonConstants.MessageCode.S1X0008, updatedProject, null);
+	}
+
+	@PostMapping("/delete")
+	public ResponseEntity<? extends Object> deleteUser(@RequestBody(required = false) UserListIdDto listId) {
+		try {
+			userService.deleteUser(listId);
+		} catch (NullPointerException ex) {
+			return failed(CommonConstants.MessageCode.SU0003, null);
+		}
+		catch (BestWorkBussinessException ex) {
+			return failed(ex.getMsgCode(), ex.getParam());
+		}
+		return success(CommonConstants.MessageCode.SCU0004, null, null);
 	}
 
 }
