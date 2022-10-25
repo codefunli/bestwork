@@ -21,8 +21,8 @@ public class UserAuthUtils {
 		List<String> roles = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority)
 				.collect(Collectors.toList());
 		Boolean isSysAdmin = roles.contains(Enums.TRole.SYS_ADMIN.getValue());
-		Boolean isOrgAdmin = roles.contains(Enums.TRole.ORG_ADMIN.getValue());
-		Boolean isOrgUser = roles.contains(Enums.TRole.ORG_USER.getValue());
+		Boolean isOrgAdmin = roles.contains(Enums.TRole.COMPANY_ADMIN.getValue());
+		Boolean isOrgUser = roles.contains(Enums.TRole.COMPANY_USER.getValue());
 
 		UserAuthDetected userAuthDetected = new UserAuthDetected();
 		userAuthDetected.setUsername(userName);

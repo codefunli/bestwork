@@ -108,17 +108,17 @@ public class CommonConstants {
 
 		public static final String I1X0001 = "i1X0001";
 		public static final String I1X0002 = "i1X0002";
-		public static final String I1X0003 = "i1X0003";		
+		public static final String I1X0003 = "i1X0003";
 		public static final String CPN0001 = "CPN0001";
 		public static final String CPN0002 = "CPN0002";
-		public static final String CPN0003 = "CPN0003";		
+		public static final String CPN0003 = "CPN0003";
 		public static final String SU0001 = "su0001";
 		public static final String SU0002 = "su0002";
 		public static final String SU0003 = "su0003";
 		public static final String SU0004 = "su0004";
 		public static final String SU0005 = "su0005";
 		public static final String sUS0001 = "sUS0001";
-		
+
 		public static final String CPN0004 = "CPN0004";
 		public static final String CPN0005 = "CPN0005";
 		public static final String CPN0006 = "CPN0006";
@@ -129,25 +129,33 @@ public class CommonConstants {
 		public static final String FILE0002 = "FILE0002";
 		public static final String FILE0003 = "FILE0003";
 
-		
 		public static final String RLS0001 = "RLS0001";
 		public static final String RLS0002 = "RLS0002";
-    public static final String RLF0001 = "RLF0001";
+		public static final String RLF0001 = "RLF0001";
 		public static final String RLF0002 = "RLF0001";
 		public static final String RLS0003 = "RLS0003";
-    public static final String RLS0004 = "RLS0004";    
+		public static final String RLS0004 = "RLS0004";
 		public static final String sU0006 = "sU0006";
+
+		public static final String SCU0001 = "scu0001";
+		public static final String ECU0001 = "ecu0001";
+		public static final String SCU0002 = "scu0002";
+		public static final String ECU0002 = "ecu0002";
+		public static final String SCU0003 = "scu0003";
+		public static final String ECU0003 = "ecu0003";
+		public static final String SCU0004 = "scu0004";
+		public static final String ECU0004 = "ecu0004";
+		public static final String ECU0005 = "ecu0005";
+
 	}
 
-
-	
 	public class Url {
 		public static final String URL0001 = "url0001";
 		public static final String URL0002 = "url0002";
 	}
-	
+
 	public class SpringMail {
-	
+
 		public static final String M1X0003 = "m1x0003";
 		public static final String M1H0004 = "m1h0004";
 		public static final String M1P0005 = "m1p0005";

@@ -70,7 +70,6 @@ public class ProjectController extends BaseController {
 
 	}
 
-
 	@GetMapping("/{id}")
 	public ResponseEntity<? extends Object> getProjectById(@PathVariable("id") String id) {
 		Optional<ProjectEntity> projectOptional = null;
@@ -84,7 +83,6 @@ public class ProjectController extends BaseController {
 		}
 		return success(CommonConstants.MessageCode.S1X0001, projectOptional.get(), null);
 	}
-
 
 	@PostMapping("/delete")
 	public ResponseEntity<? extends Object> deleteMassiveProject(
