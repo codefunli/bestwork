@@ -277,9 +277,11 @@ public class UserService implements UserDetailsService {
 		if (roleOptional.isPresent()) {
 			role = roleOptional.get();
 		}
-		TCompany company = tCompanyRepository.findById(findCompanyIdByAdminUsername(userAuthRoleReq)).get();
+		TCompany company = tCompanyRepository.findById(findCompanyIdByAdminUsername(userAuthRoleReq)).orElse(new TCompany());
 		Set<TCompany> companies = new HashSet<>();
-		companies.add(company);
+		if (!ObjectUtils.isEmpty(company)) {
+			companies.add(company);
+		}
 		TUser user = new TUser();
 		user.setUserName(userReqDto.getUserName());
 		user.setPassword(encoder.encode(userReqDto.getPassword()));
@@ -293,6 +295,9 @@ public class UserService implements UserDetailsService {
 		user.setCreateDate(LocalDateTime.now());
 		user.setDeleteFlag(0);
 		user.setCompanys(companies);
+		if (null != userReqDto.getAvatar()) {
+			user.setUserAvatar(userReqDto.getAvatar().getBytes());
+		}
 
 		return this.tUserRepo.save(user);
 	}
