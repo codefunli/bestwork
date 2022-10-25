@@ -31,6 +31,7 @@ public class ConvertResponseUtils {
 		HashMap<String, String> itemUser = new HashMap<>();
 		String columnMapped = "";
 		itemUser.put("id", "id");
+		itemUser.put("password", "password");
 		itemUser.put("createBy", "create_by");
 		itemUser.put("updateBy", "update_by");
 		itemUser.put("firstName", "first_name");
@@ -38,12 +39,15 @@ public class ConvertResponseUtils {
 		itemUser.put("userName", "user_name");
 		itemUser.put("countLoginFailed", "count_login_failed");
 		itemUser.put("telNo", "tel_no");
+		itemUser.put("createDate", "create_date");
+		itemUser.put("updateDate", "update_date");
+		itemUser.put("role", "app_role_id");
 		if (itemUser.containsKey(item)) {
 			columnMapped = itemUser.get(item);
 		}
 		return columnMapped;
 	}
-
+	
 	public String convertResponseProject(String item) {
 		HashMap<String, String> itemProject = new HashMap<>();
 		String columnMapped = "";

@@ -298,21 +298,12 @@ public class UserService implements UserDetailsService {
 		return this.tUserRepo.findAllUsersByCompanyId(companyId);
 	}
 
-	public UserResDto getUserById(long userId) {
+	public TUser getUserById(long userId) {
 		Optional<TUser> userOptional = this.tUserRepo.findById(userId);
 		if (!userOptional.isPresent()) {
 			return null;
 		}
-		UserResDto userResDto = new UserResDto();
-		userResDto.setId(userId);
-		userResDto.setUserName(userOptional.get().getUserName());
-		userResDto.setFirstNm(userOptional.get().getFirstNm());
-		userResDto.setLastNm(userOptional.get().getLastNm());
-		userResDto.setEmail(userOptional.get().getEmail());
-		userResDto.setTelNo(userOptional.get().getTelNo());
-		userResDto.setIsEnable(userOptional.get().getIsEnable());
-		userResDto.setRole(userOptional.get().getRole().getRoleName());
-		return userResDto;
+		return userOptional.get();
 	}
 
 }
