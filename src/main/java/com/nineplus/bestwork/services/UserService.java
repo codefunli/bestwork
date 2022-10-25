@@ -48,6 +48,9 @@ import com.nineplus.bestwork.utils.ConvertResponseUtils;
 import com.nineplus.bestwork.utils.MessageUtils;
 import com.nineplus.bestwork.utils.PageUtils;
 import com.nineplus.bestwork.utils.UserAuthUtils;
+import org.springframework.validation.BindingResult;
+
+import javax.validation.Valid;
 
 @Service
 @Transactional
@@ -146,118 +149,6 @@ public class UserService implements UserDetailsService {
 
 	}
 
-	/**
-	 * 
-	 * @param pageCondition condition page
-	 * @return page of company follow condition
-	 * @throws BestWorkBussinessException
-	 */
-
-	public PageResponseDto<UserResDto> getUserPageWithoutCondition(PageSearchUserDto pageCondition)
-			throws BestWorkBussinessException {
-		Page<TUser> pageUser = null;
-		try {
-			int pageNumber = NumberUtils.toInt(pageCondition.getPage());
-
-			String mappedColumn = convertResponseUtils.convertResponseUser(pageCondition.getSortBy());
-			Pageable pageable = PageRequest.of(pageNumber, Integer.parseInt(pageCondition.getSize()),
-					Sort.by(pageCondition.getSortDirection(), mappedColumn));
-
-			UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
-
-			if (userAuthRoleReq.getIsSysAdmin()) {
-				pageUser = tUserRepo.findAll(pageable);
-			} else if (userAuthRoleReq.getIsOrgAdmin()) {
-				String companyAdminUsername = userAuthRoleReq.getUsername();
-				int companyId = tUserRepo.findCompanyIdByAdminUsername(companyAdminUsername);
-				pageUser = tUserRepo.findAllUsersByCompanyId(companyId, pageable);
-			}
-			return responseUtils.convertPageEntityToDTO(pageUser.map(this::convertUserToUserDto), UserResDto.class);
-		} catch (Exception ex) {
-			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
-		}
-	}
-
-	public PageResponseDto<UserResDto> getUserPageWithCondition(PageSearchUserDto pageCondition)
-			throws BestWorkBussinessException {
-		Page<TUser> pageUser = null;
-		try {
-			int pageNumber = NumberUtils.toInt(pageCondition.getPage());
-			String mappedColumn = convertResponseUtils.convertResponseUser(pageCondition.getSortBy());
-			Pageable pageable = PageRequest.of(pageNumber, Integer.parseInt(pageCondition.getSize()),
-					Sort.by(pageCondition.getSortDirection(), mappedColumn));
-
-			UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
-			String keyword = pageCondition.getKeyword();
-			long roleId = pageCondition.getRole();
-			int status = pageCondition.getStatus();
-			List<TUser> userList = new ArrayList<>();
-			if (userAuthRoleReq.getIsSysAdmin()) {
-				long companyId = pageCondition.getCompany();
-
-				if (companyId > 0 & roleId > 0 & status >= 0) {
-					userList = tUserRepo.findAll().stream().filter(user -> getUsersByKeyword(keyword).contains(user))
-							.filter(user -> user.getCompanys().contains(companyRepository.findById(companyId).get()))
-							.filter(user -> user.getRole().getId() == roleId)
-							.filter(user -> user.getIsEnable() == status).collect(Collectors.toList());
-
-				} else if (companyId <= 0 && roleId > 0 && status >= 0) {
-					userList = tUserRepo.findAll().stream().filter(user -> getUsersByKeyword(keyword).contains(user))
-							.filter(user -> user.getRole().getId() == roleId)
-							.filter(user -> user.getIsEnable() == status).collect(Collectors.toList());
-				} else if (companyId > 0 && roleId <= 0 && status >= 0) {
-					userList = tUserRepo.findAll().stream().filter(user -> getUsersByKeyword(keyword).contains(user))
-							.filter(user -> user.getCompanys().contains(companyRepository.findById(companyId).get()))
-							.filter(user -> user.getIsEnable() == status).collect(Collectors.toList());
-				} else if (companyId > 0 && roleId > 0 && status < 0) {
-					userList = tUserRepo.findAll().stream().filter(user -> getUsersByKeyword(keyword).contains(user))
-							.filter(user -> user.getCompanys().contains(companyRepository.findById(companyId).get()))
-							.filter(user -> user.getRole().getId() == roleId).collect(Collectors.toList());
-
-				} else if (companyId <= 0 && roleId <= 0 && status >= 0) {
-					userList = tUserRepo.findAll().stream().filter(user -> getUsersByKeyword(keyword).contains(user))
-							.filter(user -> user.getIsEnable() == status).collect(Collectors.toList());
-				} else if (companyId <= 0 && roleId > 0 && status < 0) {
-					userList = tUserRepo.findAll().stream().filter(user -> getUsersByKeyword(keyword).contains(user))
-							.filter(user -> user.getRole().getId() == roleId).collect(Collectors.toList());
-
-				} else if (companyId > 0 && roleId <= 0 && status < 0) {
-					userList = tUserRepo.findAll().stream().filter(user -> getUsersByKeyword(keyword).contains(user))
-							.filter(user -> user.getCompanys().contains(companyRepository.findById(companyId).get()))
-							.collect(Collectors.toList());
-				} else {
-					userList = tUserRepo.findAll().stream().filter(user -> getUsersByKeyword(keyword).contains(user))
-							.collect(Collectors.toList());
-				}
-
-			} else if (userAuthRoleReq.getIsOrgAdmin()) {
-				long companyId = findCompanyIdByAdminUsername(userAuthRoleReq);
-
-				if (roleId > 0 & status >= 0) {
-					userList = tUserRepo.findAllUsersByCompanyId(companyId).stream()
-							.filter(user -> getUsersByKeyword(keyword).contains(user))
-							.filter(user -> user.getRole().getId() == roleId)
-							.filter(user -> user.getIsEnable() == status).collect(Collectors.toList());
-				} else if (roleId <= 0 & status >= 0) {
-					userList = tUserRepo.findAllUsersByCompanyId(companyId).stream()
-							.filter(user -> getUsersByKeyword(keyword).contains(user))
-							.filter(user -> user.getIsEnable() == status).collect(Collectors.toList());
-				} else if (roleId > 0 & status < 0) {
-					userList = tUserRepo.findAllUsersByCompanyId(companyId).stream()
-							.filter(user -> getUsersByKeyword(keyword).contains(user))
-							.filter(user -> user.getRole().getId() == roleId).collect(Collectors.toList());
-				} else {
-					userList = tUserRepo.findAllUsersByCompanyId(companyId).stream()
-							.filter(user -> getUsersByKeyword(keyword).contains(user)).collect(Collectors.toList());
-				}
-			}
-			pageUser = new PageImpl<>(userList, pageable, userList.size());
-			return responseUtils.convertPageEntityToDTO(pageUser.map(this::convertUserToUserDto), UserResDto.class);
-		} catch (Exception ex) {
-			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
-		}
-	}
-
 	public long findCompanyIdByAdminUsername(UserAuthDetected userAuthRoleReq) {
 		String companyAdminUserName = userAuthRoleReq.getUsername();
 		long companyId = tUserRepo.findCompanyIdByAdminUsername(companyAdminUserName);
@@ -331,4 +222,87 @@ public class UserService implements UserDetailsService {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.ECU0005, listId.getUserIdList());
 		}
     }
+	public long findCompanyIdByUsername(UserAuthDetected userAuthRoleReq) {
+		String companyAdminUserName = userAuthRoleReq.getUsername();
+		long companyId;
+		try {
+			companyId = tUserRepo.findCompanyIdByAdminUsername(companyAdminUserName);
+		} catch (Exception e) {
+			return -1;
+		}
+		return companyId;
+	}
+
+	public PageResponseDto<UserResDto> getAllUsers(PageSearchUserDto pageCondition) throws BestWorkBussinessException {
+		PageResponseDto<UserResDto> pageResponseDto = new PageResponseDto<>();
+		Pageable pageable = convertSearch(pageCondition);
+		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
+		TCompany company = tCompanyRepository.findById(findCompanyIdByUsername(userAuthRoleReq)).orElse(new TCompany());
+		Page<TUser> tUserPage;
+		if (null != company.getId()) {
+			 tUserPage = tUserRepo.getAllUsers(pageable, String.valueOf(company.getId()), pageCondition);
+		} else {
+			tUserPage = tUserRepo.getAllUsers(pageable, "%%", pageCondition);
+		}
+		RPageDto rPageDto = createRPageDto(tUserPage);
+		List<UserResDto> userResDtoList = convertTUser(tUserPage);
+		pageResponseDto.setContent(userResDtoList);
+		pageResponseDto.setMetaData(rPageDto);
+		return pageResponseDto;
+	}
+
+	private List<UserResDto> convertTUser(Page<TUser> tUserPage) throws BestWorkBussinessException {
+		List<UserResDto> userResDtoList = new ArrayList<>();
+		try {
+			for (TUser tUser: tUserPage.getContent()) {
+				UserResDto userResDto = new UserResDto();
+				userResDto.setUserName(tUser.getUserName());
+				userResDto.setEmail(tUser.getEmail());
+				userResDto.setFirstNm(tUser.getFirstNm());
+				userResDto.setLastNm(tUser.getLastNm());
+				userResDto.setTelNo(tUser.getTelNo());
+				userResDto.setRole(tUser.getRole().getRoleName());
+				userResDto.setId(tUser.getId());
+				userResDto.setIsEnable(tUser.getIsEnable());
+				userResDto.setAvatar(Arrays.toString(tUser.getUserAvatar()));
+				userResDtoList.add(userResDto);
+			}
+		} catch (Exception e) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.ECU0002, null);
+		}
+
+		return userResDtoList;
+	}
+
+	private RPageDto createRPageDto(Page<TUser> tUserPage) throws BestWorkBussinessException {
+		RPageDto rPageDto = new RPageDto();
+		try {
+			if (!tUserPage.isEmpty()) {
+				rPageDto.setNumber(tUserPage.getNumber());
+				rPageDto.setSize(tUserPage.getSize());
+				rPageDto.setTotalPages(tUserPage.getTotalPages());
+				rPageDto.setTotalElements(tUserPage.getTotalElements());
+			}
+		} catch (Exception e) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.ECU0002, null);
+		}
+		return rPageDto;
+	}
+
+	private Pageable convertSearch(PageSearchUserDto pageCondition) {
+		if (pageCondition.getKeyword().equals("")) {
+			pageCondition.setKeyword("%%");
+		} else {
+			pageCondition.setKeyword("%" + pageCondition.getKeyword() + "%");
+		}
+		if (pageCondition.getRole().equals("")) {
+			pageCondition.setRole("%%");
+		}
+		if (pageCondition.getStatus().equals("")) {
+			pageCondition.setStatus("%%");
+		}
+
+		return PageRequest.of(Integer.parseInt(pageCondition.getPage()), Integer.parseInt(pageCondition.getSize()),
+				Sort.by(pageCondition.getSortDirection(), convertResponseUtils.convertResponseUser(pageCondition.getSortBy())));
+	}
 }

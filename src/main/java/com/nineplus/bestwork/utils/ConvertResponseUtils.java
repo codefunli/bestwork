@@ -42,6 +42,7 @@ public class ConvertResponseUtils {
 		itemUser.put("createDate", "create_date");
 		itemUser.put("updateDate", "update_date");
 		itemUser.put("role", "app_role_id");
+		itemUser.put("email", "email");
 		if (itemUser.containsKey(item)) {
 			columnMapped = itemUser.get(item);
 		}

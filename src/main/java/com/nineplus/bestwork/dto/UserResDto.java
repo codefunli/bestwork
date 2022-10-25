@@ -31,4 +31,7 @@ public class UserResDto {
 	@JsonProperty("role")
     private String role;
 
+    @JsonProperty("avatar")
+    private String avatar;
+
 }
