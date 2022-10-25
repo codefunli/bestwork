@@ -1,5 +1,7 @@
 package com.nineplus.bestwork.controller;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,7 @@ import com.nineplus.bestwork.dto.CompanyUserResDto;
 import com.nineplus.bestwork.dto.PageResponseDto;
 import com.nineplus.bestwork.dto.PageSearchDto;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
+import com.nineplus.bestwork.repository.CompanyProjection;
 import com.nineplus.bestwork.services.CompanyService;
 import com.nineplus.bestwork.services.UserService;
 import com.nineplus.bestwork.utils.CommonConstants;
@@ -123,6 +126,17 @@ public class CompanyController extends BaseController {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}
 		return success(CommonConstants.MessageCode.CPN0006, pageCompany, null);
+	}
+	
+	@GetMapping("/all")
+	public ResponseEntity<? extends Object> getAll() throws BestWorkBussinessException {
+		List<CompanyProjection> listCompany = null;
+		try {
+			listCompany = companyService.getAllCompany();
+		} catch (BestWorkBussinessException ex) {
+			return failed(ex.getMsgCode(), ex.getParam());
+		}
+		return success(CommonConstants.MessageCode.CPN0001, listCompany, null);
 	}
 
 }

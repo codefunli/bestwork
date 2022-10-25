@@ -32,6 +32,7 @@ import com.nineplus.bestwork.entity.TRole;
 import com.nineplus.bestwork.entity.TUser;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.model.UserAuthDetected;
+import com.nineplus.bestwork.repository.CompanyProjection;
 import com.nineplus.bestwork.repository.TCompanyRepository;
 import com.nineplus.bestwork.repository.TRoleRepository;
 import com.nineplus.bestwork.repository.TUserRepository;
@@ -303,8 +304,8 @@ public class CompanyService {
 		return userCompanyRes;
 	}
 
-	public List<TCompany> getAllCompany() throws BestWorkBussinessException {
-		return tCompanyRepository.findAll();
+	public List<CompanyProjection> getAllCompany() throws BestWorkBussinessException {
+			return tCompanyRepository.getAllCompany();
 	}
 
 	/**
