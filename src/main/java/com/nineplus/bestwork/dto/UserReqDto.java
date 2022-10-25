@@ -52,4 +52,7 @@ public class UserReqDto extends BaseDto {
 	@JsonProperty("role")
 	private long role;
 
+	@JsonProperty("avatar")
+	private String avatar;
+
 }

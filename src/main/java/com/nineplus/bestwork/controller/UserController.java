@@ -66,32 +66,38 @@ public class UserController extends BaseController {
 	}
 
 	@PostMapping("/create")
-	public ResponseEntity<? extends Object> registerUser(@Valid @RequestBody UserReqDto userReqDto,
-			BindingResult bindingResult) throws BestWorkBussinessException {
+	public ResponseEntity<?> registerUser(@Valid @RequestBody UserReqDto userReqDto,
+										  BindingResult bindingResult) throws BestWorkBussinessException {
 
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
 
 		if (userAuthRoleReq.getIsSysAdmin()) {
 			return failed(CommonConstants.MessageCode.E1X0014, null);
 		}
-		long companyId = this.userService.findCompanyIdByAdminUsername(userAuthRoleReq);
-		List<TUser> existsUsers = this.userService.findAllUsersByCompanyId(companyId);
-		for (TUser user : existsUsers) {
-			if (user.getUserName().equals(userReqDto.getUserName())) {
-				bindingResult.rejectValue("username", "ExistedUsername", "Username already exists in the company.");
-			}
-		}
-
-		if (bindingResult.hasErrors()) {
+		if (checkExists(userReqDto, bindingResult, userAuthRoleReq)) {
 			return failedWithError(CommonConstants.MessageCode.ECU0001, bindingResult.getFieldErrors().toArray(), null);
 		}
-		TUser createdUser = new TUser();
+		TUser createdUser;
 		try {
 			createdUser = userService.createUser(userReqDto);
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}
 		return success(CommonConstants.MessageCode.SCU0001, createdUser, null);
+	}
+
+	private boolean checkExists(UserReqDto userReqDto, BindingResult bindingResult, UserAuthDetected userAuthRoleReq) {
+		long companyId = this.userService.findCompanyIdByAdminUsername(userAuthRoleReq);
+		List<TUser> existsUsers = this.userService.findAllUsersByCompanyId(companyId);
+		for (TUser user : existsUsers) {
+			if (user.getUserName().equals(userReqDto.getUserName())) {
+				bindingResult.rejectValue("userName", "ExistedUsername", "Username already exists in the company.");
+			} else if (user.getEmail().equals(userReqDto.getEmail())) {
+				bindingResult.rejectValue("email", "ExistedEmail", "Email already exists in the company.");
+			}
+		}
+
+		return bindingResult.hasErrors();
 	}
 
 	@GetMapping("/{userId}")
