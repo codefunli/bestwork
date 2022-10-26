@@ -1,6 +1,7 @@
 package com.nineplus.bestwork.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.nineplus.bestwork.dto.PageSearchUserDto;
 import org.springframework.data.domain.Page;
@@ -80,4 +81,10 @@ public interface TUserRepository extends JpaRepository<TUser, Long> {
 					"  and tsau.enable like :#{#pageCondition.status} " +
 					"  and tsar.id like :#{#pageCondition.role} and tc.id like :companyId ")
     Page<TUser> getAllUsers(Pageable pageable,@Param("companyId") String companyId, @Param("pageCondition") PageSearchUserDto pageCondition);
+
+	@Query(value = " select u.* from t_sys_app_user u " +
+			" join t_company_user tcu on u.id = tcu.user_id " +
+			" join t_company tc on tc.id = tcu.company_id " +
+			" where u.id = :userId and tc.id like :companyId ", nativeQuery = true)
+	Optional<TUser> findUserById(@Param("userId") long userId, @Param("companyId") String companyId);
 }

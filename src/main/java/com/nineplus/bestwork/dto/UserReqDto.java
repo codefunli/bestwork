@@ -55,4 +55,7 @@ public class UserReqDto extends BaseDto {
 	@JsonProperty("avatar")
 	private String avatar;
 
+	@JsonProperty("updateDate")
+	private String updateDate;
+
 }

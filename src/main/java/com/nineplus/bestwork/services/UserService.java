@@ -10,7 +10,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import com.nineplus.bestwork.dto.*;
 import org.apache.commons.lang3.ObjectUtils;
@@ -98,6 +97,7 @@ public class UserService implements UserDetailsService {
 	@Autowired
 	TCompanyRepository tCompanyRepository;
 
+
 	@Override
 	public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
 		TUser user = tUserRepo.findByUserName(userName);
@@ -116,11 +116,11 @@ public class UserService implements UserDetailsService {
 			dto.setId(user.getId());
 			dto.setUserName(user.getUserName());
 			dto.setEmail(user.getEmail());
-			dto.setRole(user.getRole().getRoleName());
-			dto.setIsEnable(user.getIsEnable());
+			dto.setRole(user.getRole());
+			dto.setEnable(user.getIsEnable());
 			dto.setTelNo(user.getTelNo());
-			dto.setFirstNm(user.getFirstNm());
-			dto.setLastNm(user.getLastNm());
+			dto.setFirstName(user.getFirstNm());
+			dto.setLastName(user.getLastNm());
 		}
 
 		return dto;
@@ -197,12 +197,16 @@ public class UserService implements UserDetailsService {
 		return this.tUserRepo.findAllUsersByCompanyId(companyId);
 	}
 
-	public TUser getUserById(long userId) {
-		Optional<TUser> userOptional = this.tUserRepo.findById(userId);
-		if (!userOptional.isPresent()) {
-			return null;
+	public TUser getUserById(long userId) throws BestWorkBussinessException {
+		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
+		TCompany company = tCompanyRepository.findById(findCompanyIdByUsername(userAuthRoleReq)).orElse(new TCompany());
+		Optional<TUser> userOptional;
+		if (null != company.getId()) {
+			userOptional = this.tUserRepo.findUserById(userId, String.valueOf(company.getId()));
+		} else {
+			userOptional = this.tUserRepo.findUserById(userId, "%%");
 		}
-		return userOptional.get();
+		return userOptional.orElse(null);
 	}
 
 	@Transactional(rollbackFor = { Exception.class })
@@ -258,12 +262,12 @@ public class UserService implements UserDetailsService {
 				UserResDto userResDto = new UserResDto();
 				userResDto.setUserName(tUser.getUserName());
 				userResDto.setEmail(tUser.getEmail());
-				userResDto.setFirstNm(tUser.getFirstNm());
-				userResDto.setLastNm(tUser.getLastNm());
+				userResDto.setFirstName(tUser.getFirstNm());
+				userResDto.setLastName(tUser.getLastNm());
 				userResDto.setTelNo(tUser.getTelNo());
-				userResDto.setRole(tUser.getRole().getRoleName());
+				userResDto.setRole(tUser.getRole());
 				userResDto.setId(tUser.getId());
-				userResDto.setIsEnable(tUser.getIsEnable());
+				userResDto.setEnable(tUser.getIsEnable());
 				userResDto.setAvatar(Arrays.toString(tUser.getUserAvatar()));
 				userResDtoList.add(userResDto);
 			}
@@ -304,5 +308,41 @@ public class UserService implements UserDetailsService {
 
 		return PageRequest.of(Integer.parseInt(pageCondition.getPage()), Integer.parseInt(pageCondition.getSize()),
 				Sort.by(pageCondition.getSortDirection(), convertResponseUtils.convertResponseUser(pageCondition.getSortBy())));
+	}
+
+	public TUser editUser(UserReqDto userReqDto, long userId) throws BestWorkBussinessException {
+		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
+		TCompany company = tCompanyRepository.findById(findCompanyIdByUsername(userAuthRoleReq)).orElse(new TCompany());
+		if (null != company.getId()) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.ECU0003, null);
+		}
+		TUser user = tUserRepo.findById(userId).orElse(null);
+		if (null == user) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.ECU0003, null);
+		}
+		TUser tUser = new TUser();
+		tUser.setId(userId);
+		tUser.setUserName(userReqDto.getUserName());
+		tUser.setPassword(encoder.encode(userReqDto.getPassword()));
+		tUser.setFirstNm(userReqDto.getFirstName());
+		tUser.setLastNm(userReqDto.getLastName());
+		tUser.setEmail(userReqDto.getEmail());
+		tUser.setTelNo(userReqDto.getTelNo());
+		tUser.setIsEnable(userReqDto.getEnabled());
+		TRole tRole = new TRole();
+		tRole.setId(userReqDto.getRole());
+		tUser.setRole(tRole);
+		if (null != userReqDto.getAvatar()) {
+			tUser.setUserAvatar(userReqDto.getAvatar().getBytes());
+		} else {
+			tUser.setUserAvatar("".getBytes());
+		}
+		tUser.setUpdateDate(LocalDateTime.now());
+		tUserRepo.save(tUser);
+		return tUser;
+	}
+
+	public List<TRole> getAllRoles() {
+		return this.roleRepository.findAll();
 	}
 }

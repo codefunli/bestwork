@@ -1,6 +1,7 @@
 package com.nineplus.bestwork.controller;
 
 import com.nineplus.bestwork.dto.*;
+import com.nineplus.bestwork.entity.TRole;
 import com.nineplus.bestwork.entity.TUser;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.model.UserAuthDetected;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.util.Arrays;
 import java.util.List;
 
 @PropertySource("classpath:application.properties")
@@ -94,54 +96,43 @@ public class UserController extends BaseController {
         return bindingResult.hasErrors();
     }
 
-    @GetMapping("/{userId}")
-    public ResponseEntity<? extends Object> getUserById(@PathVariable long userId) throws BestWorkBussinessException {
-        TUser user = userService.getUserById(userId);
-        if (user == null) {
-            return failed(CommonConstants.MessageCode.ECU0002, null);
-        }
-        UserResDto userResDto = new UserResDto();
-        userResDto.setId(userId);
-        userResDto.setUserName(user.getUserName());
-        userResDto.setFirstNm(user.getFirstNm());
-        userResDto.setLastNm(user.getLastNm());
-        userResDto.setEmail(user.getEmail());
-        userResDto.setTelNo(user.getTelNo());
-        userResDto.setIsEnable(user.getIsEnable());
-        userResDto.setRole(user.getRole().getRoleName());
+	@GetMapping("/{userId}")
+	public ResponseEntity<?> getUserById(@PathVariable long userId) throws BestWorkBussinessException {
+		TUser user = userService.getUserById(userId);
+		if (user == null) {
+			return failed(CommonConstants.MessageCode.ECU0002, null);
+		}
+		UserResDto userResDto = new UserResDto();
+		userResDto.setId(userId);
+		userResDto.setUserName(user.getUserName());
+		userResDto.setFirstName(user.getFirstNm());
+		userResDto.setLastName(user.getLastNm());
+		userResDto.setEmail(user.getEmail());
+		userResDto.setTelNo(user.getTelNo());
+		userResDto.setEnable(user.getIsEnable());
+		userResDto.setRole(user.getRole());
+		if (null != user.getUserAvatar()) {
+			userResDto.setAvatar(Arrays.toString(user.getUserAvatar()));
+		}
+		userResDto.setUpdateDate(user.getUpdateDate().toString());
 
-        return success(CommonConstants.MessageCode.SCU0002, userResDto, null);
-    }
+		return success(CommonConstants.MessageCode.SCU0002, userResDto, null);
+	}
 
-    @PatchMapping("/update/{id}")
-    public ResponseEntity<? extends Object> updateUser(@PathVariable long id, @Valid @RequestBody UserReqDto userReqDto,
-                                                       BindingResult bindingResult) throws BestWorkBussinessException {
-        TUser user = new TUser();
-//		try {
-//			user = this.userService.getUserById(id);
-//			if (user == null) {
-//				return failed(CommonConstants.MessageCode.ECU0002, null);
-//			}
-//		} catch (BestWorkBussinessException ex) {
-//			return failed(ex.getMsgCode(), ex.getParam());
-//		}
-//		if (bindingResult.hasErrors()) {
-//			return failedWithError(CommonConstants.MessageCode.ECU0003, bindingResult.getFieldErrors().toArray(), null);
-//		}
-//		BeanUtils.copyProperties(userReqDto, user);
-//		TUser updatedUser = null;
-        return null;
-//		try {
-//			user.setStatus(ProjectStatus.values()[projectRequestDto.getStatus()]);
-//			user.setUpdateDate(LocalDateTime.now());
-//			user.setProjectType(this.getProjectTypeById(projectRequestDto.getProjectType()));
-//
-//			updatedProject = this.projectService.updateProject(projectOptional.get());
-//		} catch (BestWorkBussinessException ex) {
-//			return failed(ex.getMsgCode(), ex.getParam());
-//		}
-//		return success(CommonConstants.MessageCode.S1X0008, updatedProject, null);
-    }
+	@PutMapping("/update/{id}")
+	public ResponseEntity<?> updateUser(@PathVariable long id, @Valid @RequestBody UserReqDto userReqDto,
+										BindingResult bindingResult) throws BestWorkBussinessException {
+		if (bindingResult.hasErrors()) {
+			return failedWithError(CommonConstants.MessageCode.ECU0001, bindingResult.getFieldErrors().toArray(), null);
+		}
+		TUser userEdit;
+		try {
+			userEdit = userService.editUser(userReqDto, id);
+		} catch (BestWorkBussinessException ex) {
+			return failed(ex.getMsgCode(), ex.getParam());
+		}
+		return success(CommonConstants.MessageCode.SCU0003, userEdit, null);
+	}
 
     @PostMapping("/delete")
     public ResponseEntity<? extends Object> deleteUser(@RequestBody(required = false) UserListIdDto listId) {
@@ -153,6 +144,11 @@ public class UserController extends BaseController {
             return failed(ex.getMsgCode(), ex.getParam());
         }
         return success(CommonConstants.MessageCode.SCU0004, null, null);
+    }
+
+    @GetMapping("/roles")
+    public ResponseEntity<?> getRoles() {
+        return ResponseEntity.ok(this.userService.getAllRoles());
     }
 
 }
