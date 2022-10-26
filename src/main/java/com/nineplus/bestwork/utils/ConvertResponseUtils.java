@@ -38,11 +38,11 @@ public class ConvertResponseUtils {
 		itemUser.put("lastName", "last_name");
 		itemUser.put("userName", "user_name");
 		itemUser.put("countLoginFailed", "count_login_failed");
-		itemUser.put("telNo", "tel_no");
+		itemUser.put("uTelNo", "tel_no");
 		itemUser.put("createDate", "create_date");
 		itemUser.put("updateDate", "update_date");
 		itemUser.put("role", "app_role_id");
-		itemUser.put("email", "email");
+		itemUser.put("uEmail", "email");
 		if (itemUser.containsKey(item)) {
 			columnMapped = itemUser.get(item);
 		}

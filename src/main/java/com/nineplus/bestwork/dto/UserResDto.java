@@ -2,6 +2,7 @@ package com.nineplus.bestwork.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import com.nineplus.bestwork.entity.TRole;
 import lombok.Data;
 
 @Data
@@ -13,25 +14,28 @@ public class UserResDto {
 	@JsonProperty("userName")
     private String userName;
 
-	@JsonProperty("firstNm")
-    private String firstNm;
+	@JsonProperty("firstName")
+    private String firstName;
 
-	@JsonProperty("lastNm")
-    private String lastNm;
+	@JsonProperty("lastName")
+    private String lastName;
 
 	@JsonProperty("uEmail")
     private String email;
 
-	@JsonProperty("isEnable")
-    private int isEnable;
+	@JsonProperty("enable")
+    private int enable;
 	
 	@JsonProperty("uTelNo")
     private String telNo;
 
 	@JsonProperty("role")
-    private String role;
+    private TRole role;
 
     @JsonProperty("avatar")
     private String avatar;
+
+    @JsonProperty("updateDate")
+    private String updateDate;
 
 }
