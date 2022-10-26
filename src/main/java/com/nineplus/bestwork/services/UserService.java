@@ -348,4 +348,16 @@ public class UserService implements UserDetailsService {
 	public List<TUser> findAll() {
 		return this.tUserRepo.findAll();
 	}
+
+	public Object getAllCompanyOfUser() throws BestWorkBussinessException {
+		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
+		TCompany company = tCompanyRepository.findById(findCompanyIdByUsername(userAuthRoleReq)).orElse(new TCompany());
+		if (null != company.getId()) {
+			List<TCompany> tCompanyList = new ArrayList<>();
+			tCompanyList.add(company);
+			return tCompanyList;
+		} else {
+			return this.tCompanyRepository.findAll();
+		}
+	}
 }
