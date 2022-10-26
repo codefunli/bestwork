@@ -1,9 +1,11 @@
 package com.nineplus.bestwork.controller;
 
 import com.nineplus.bestwork.dto.*;
+import com.nineplus.bestwork.entity.TCompany;
 import com.nineplus.bestwork.entity.TRole;
 import com.nineplus.bestwork.entity.TUser;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
+import com.nineplus.bestwork.model.UserAuthDetected;
 import com.nineplus.bestwork.services.UserService;
 import com.nineplus.bestwork.utils.CommonConstants;
 import com.nineplus.bestwork.utils.TokenUtils;
@@ -142,4 +144,14 @@ public class UserController extends BaseController {
         return ResponseEntity.ok(this.userService.getAllRoles());
     }
 
+    @GetMapping("/companies")
+    public ResponseEntity<?> getCompanyOfUser() {
+        Object company;
+        try {
+            company = this.userService.getAllCompanyOfUser();
+        } catch (BestWorkBussinessException ex) {
+            return failed(ex.getMsgCode(), ex.getParam());
+        }
+        return ResponseEntity.ok(company);
+    }
 }
