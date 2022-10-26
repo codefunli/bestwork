@@ -13,12 +13,15 @@ import com.nineplus.bestwork.exception.BestWorkBussinessException;
  *
  */
 public interface IProgressService {
-	void saveProgress(ProgressReqDto progressReqDto) throws BestWorkBussinessException;
-
-	List<ProgressResDto> getAllProgress() throws BestWorkBussinessException;
+	void registProgress(ProgressReqDto progressReqDto) throws BestWorkBussinessException;
+	
+	void updateProgress(ProgressReqDto progressReqDto, Long progressId) throws BestWorkBussinessException;
 
 	List<ProgressResDto> getProgressByProjectId(String projectId) throws BestWorkBussinessException;
 
 	ProgressAndProjectResDto getProjectAndProgress(String projectId) throws BestWorkBussinessException;
 	
+	void deleteProgressList(List<Long> ids) throws BestWorkBussinessException;
+
+	ProgressResDto getProgressById(Long progressId) throws BestWorkBussinessException;
 }
