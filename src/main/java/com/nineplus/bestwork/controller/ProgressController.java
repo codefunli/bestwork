@@ -3,7 +3,6 @@ package com.nineplus.bestwork.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.nineplus.bestwork.dto.PostResponseDto;
+import com.nineplus.bestwork.dto.ProgressAndProjectResDto;
 import com.nineplus.bestwork.dto.ProgressReqDto;
 import com.nineplus.bestwork.dto.ProgressResDto;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
@@ -37,16 +36,15 @@ public class ProgressController extends BaseController {
 		return success(CommonConstants.MessageCode.S1X0004, null, null);
 	}
 
-	@GetMapping("/{projectId}")
+	@GetMapping("by/project/{projectId}")
 	public ResponseEntity<? extends Object> getAllProgressByCompanyId(@PathVariable String projectId)
 			throws BestWorkBussinessException {
-		List<ProgressResDto> progress = null;
+		ProgressAndProjectResDto progressAndProjectDto = null;
 		try {
-			progress = progressService.getProgressByProjectId(projectId);
+			progressAndProjectDto = progressService.getProjectAndProgress(projectId);
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}
-		return success(CommonConstants.MessageCode.S1X0004, progress, null);
+		return success(CommonConstants.MessageCode.S1X0004, progressAndProjectDto, null);
 	}
-
 }

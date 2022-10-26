@@ -26,5 +26,7 @@ public class FileStorageResponseDto extends BaseDto {
 	private String type;
 
 	private Timestamp createDate;
+	
+	private long progressId; 
 
 }

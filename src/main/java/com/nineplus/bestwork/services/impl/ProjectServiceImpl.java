@@ -157,7 +157,9 @@ public class ProjectServiceImpl implements IProjectService {
 			// Validate project information
 			this.validateProject(projectTaskDto.getProject(), false);
 			registNewProject(projectTaskDto.getProject(), projectType, generateProjectId);
-			registAssign(projectTaskDto.getRoleData(), projectType, generateProjectId);
+			for (int i = 0; i < projectTaskDto.getRoleData().length; i++)
+				registAssign(projectTaskDto.getRoleData()[i], projectType, generateProjectId);
+
 		}
 	}
 
@@ -228,9 +230,10 @@ public class ProjectServiceImpl implements IProjectService {
 	public void updateProject(ProjectTaskDto projectTaskDto, ProjectTypeEntity projectType, String projectId)
 			throws BestWorkBussinessException {
 		ProjectEntity currentProject = null;
-		Long companyId = projectTaskDto.getRoleData().getCompanyId();
+		for (int j = 0; j < projectTaskDto.getRoleData().length; j++) {
+		Long companyId = projectTaskDto.getRoleData()[j].getCompanyId();
 		currentProject = projectRepository.findbyProjectId(projectId);
-		List<ProjectRoleUserReqDto> userList = projectTaskDto.getRoleData().getUserList();
+		List<ProjectRoleUserReqDto> userList = projectTaskDto.getRoleData()[j].getUserList();
 		AssignTask assignTask = null;
 		try {
 			// Save for project
@@ -261,13 +264,12 @@ public class ProjectServiceImpl implements IProjectService {
 
 			}
 
-			// Save for assign task
-
 		} catch (Exception ex) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0004,
 					new Object[] { CommonConstants.Character.PROJECT, (projectTaskDto.getProject().getProjectName()) });
 		}
 
+	}
 	}
 
 	@Override

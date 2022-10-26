@@ -1,5 +1,7 @@
 package com.nineplus.bestwork.dto;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
@@ -17,5 +19,5 @@ public class ProjectTaskDto extends BaseDto {
 	    private ProjectReqDto project;
 
 	 @JsonProperty("roleData")
-	    private ProjectAssignReqDto roleData;
+	    private ProjectAssignReqDto[] roleData;
 }
