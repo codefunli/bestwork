@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 import com.nineplus.bestwork.entity.Progress;
 
 public interface ProgressRepository extends JpaRepository<Progress, Long> {
-	@Query(value = " select * from PROGRESS_TRACKING where project_id = :projectId", nativeQuery = true)
-	List<Progress> findPostsByProjectId(@Param(value = "projectId") String projectId);
+	@Query(value = "select * from PROGRESS_TRACKING where project_id = :projectId", nativeQuery = true)
+	List<Progress> findProgressByProjectId(@Param(value = "projectId") String projectId);
 
 }

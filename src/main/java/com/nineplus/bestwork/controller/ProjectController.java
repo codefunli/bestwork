@@ -1,6 +1,5 @@
 package com.nineplus.bestwork.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,7 +23,6 @@ import com.nineplus.bestwork.dto.ProjectTypeResponseDto;
 import com.nineplus.bestwork.entity.ProjectEntity;
 import com.nineplus.bestwork.entity.ProjectTypeEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
-import com.nineplus.bestwork.model.ProjectStatus;
 import com.nineplus.bestwork.repository.ProjectAssignProjection;
 import com.nineplus.bestwork.services.IProjectService;
 import com.nineplus.bestwork.services.IProjectTypeService;
@@ -109,18 +107,6 @@ public class ProjectController extends BaseController {
 		return this.projectTypeService.getProjectTypeById(projectTypeId);
 	}
 
-	@GetMapping("/status")
-	public ResponseEntity<List<ProjectStatus>> getAllProjectStatus() {
-		List<ProjectStatus> statusList = new ArrayList<>();
-		for (ProjectStatus status : ProjectStatus.values()) {
-			statusList.add(status);
-		}
-		if (statusList.isEmpty()) {
-			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-		}
-		return new ResponseEntity<>(statusList, HttpStatus.OK);
-	}
-
 	@PostMapping("/regist")
 	public ResponseEntity<? extends Object> registProject(@RequestBody ProjectTaskDto projectTask) {
 		try {
@@ -132,6 +118,19 @@ public class ProjectController extends BaseController {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}
 		return success(CommonConstants.MessageCode.S1X0004, null, null);
+	}
+	
+	@PostMapping("/update/{projectId}")
+	public ResponseEntity<? extends Object> updateProject(@RequestBody ProjectTaskDto projectTask, @PathVariable String projectId) {
+		try {
+			ProjectTypeEntity projectType = this.getProjectTypeById(projectTask.getProject().getProjectType());
+			if (projectType != null) {
+				projectService.updateProject(projectTask,projectType, projectId);
+			}
+		} catch (BestWorkBussinessException ex) {
+			return failed(ex.getMsgCode(), ex.getParam());
+		}
+		return success(CommonConstants.MessageCode.S1X0008, null, null);
 	}
 
 	@PostMapping("/assign-list")

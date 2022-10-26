@@ -1,6 +1,7 @@
 package com.nineplus.bestwork.dto;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.nineplus.bestwork.entity.ProjectTypeEntity;
@@ -51,7 +52,7 @@ public class ProjectResponseDto extends BaseDto {
 	private String createDate;
 
 	@JsonProperty("updateDate")
-	private Timestamp updateDate;
+	private LocalDateTime updateDate;
 
 //	@JsonProperty("posts")
 //	private Collection<PostEntity> posts;

@@ -4,17 +4,22 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.nineplus.bestwork.dto.FileStorageResponseDto;
+import com.nineplus.bestwork.dto.ProgressAndProjectResDto;
 import com.nineplus.bestwork.dto.ProgressReqDto;
 import com.nineplus.bestwork.dto.ProgressResDto;
+import com.nineplus.bestwork.dto.ProjectResponseDto;
 import com.nineplus.bestwork.entity.FileStorageEntity;
 import com.nineplus.bestwork.entity.Progress;
+import com.nineplus.bestwork.entity.ProjectEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.model.UserAuthDetected;
 import com.nineplus.bestwork.repository.ProgressRepository;
+import com.nineplus.bestwork.repository.ProjectRepository;
 import com.nineplus.bestwork.services.IProgressService;
 import com.nineplus.bestwork.services.IProjectService;
 import com.nineplus.bestwork.services.IStorageService;
@@ -28,10 +33,16 @@ public class ProgressServiceImpl implements IProgressService {
 	private ProgressRepository progressRepository;
 
 	@Autowired
+	private ProjectRepository projectRepository;
+
+	@Autowired
 	DateUtils dateUtils;
 
 	@Autowired
 	UserAuthUtils userAuthUtils;
+
+	@Autowired
+	ModelMapper modelMapper;
 
 	@Autowired
 	private IStorageService storageService;
@@ -76,7 +87,7 @@ public class ProgressServiceImpl implements IProgressService {
 
 	@Override
 	public List<ProgressResDto> getProgressByProjectId(String projectId) throws BestWorkBussinessException {
-		List<Progress> progress = progressRepository.findPostsByProjectId(projectId);
+		List<Progress> progress = progressRepository.findProgressByProjectId(projectId);
 		List<ProgressResDto> progressDto = new ArrayList<>();
 		for (Progress pro : progress) {
 			ProgressResDto proDto = new ProgressResDto();
@@ -104,5 +115,46 @@ public class ProgressServiceImpl implements IProgressService {
 			progressDto.add(proDto);
 		}
 		return progressDto;
+	}
+
+
+	@Override
+	public ProgressAndProjectResDto getProjectAndProgress(String projectId) throws BestWorkBussinessException {
+		ProgressAndProjectResDto dto = new ProgressAndProjectResDto();
+		List<ProgressResDto> lst = new ArrayList<>();
+		ProjectEntity project = projectRepository.findbyProjectId(projectId);
+		List<Progress> progress = progressRepository.findProgressByProjectId(projectId);
+		
+		if (project != null && progress != null) {
+			ProjectResponseDto projectDto = modelMapper.map(project, ProjectResponseDto.class);
+			for (Progress prog : progress) {
+				ProgressResDto progressDto = new ProgressResDto();
+				List<FileStorageResponseDto> lstfileDto = new ArrayList<>();
+				progressDto.setTitle(prog.getTitle());
+				progressDto.setStatus(prog.getStatus());
+				progressDto.setNote(prog.getNote());	
+				progressDto.setReport(prog.getReport());
+				progressDto.setCreateBy(prog.getCreateBy());
+				progressDto.setStartDate(prog.getStartDate());
+				progressDto.setEndDate(prog.getEndDate());
+				progressDto.setCreateDate(LocalDateTime.now().toString());
+				List<FileStorageEntity> fileStorages = prog.getFileStorages();
+				for (FileStorageEntity file : fileStorages) {
+					FileStorageResponseDto fileDto = new FileStorageResponseDto();
+					fileDto.setProgressId(file.getProgress().getId());
+					fileDto.setId(file.getId());
+					fileDto.setName(file.getName());
+					fileDto.setType(file.getType());
+					fileDto.setData(new String(file.getData()));
+					fileDto.setCreateDate(file.getCreateDate());
+					lstfileDto.add(fileDto);
+				}
+				progressDto.setFileStorages(lstfileDto);
+				lst.add(progressDto);
+			}
+			dto.setProject(projectDto);
+			dto.setProgess(lst);
+		}
+		return dto;
 	}
 }

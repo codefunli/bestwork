@@ -2,6 +2,7 @@ package com.nineplus.bestwork.services;
 
 import java.util.List;
 
+import com.nineplus.bestwork.dto.ProgressAndProjectResDto;
 import com.nineplus.bestwork.dto.ProgressReqDto;
 import com.nineplus.bestwork.dto.ProgressResDto;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
@@ -17,4 +18,7 @@ public interface IProgressService {
 	List<ProgressResDto> getAllProgress() throws BestWorkBussinessException;
 
 	List<ProgressResDto> getProgressByProjectId(String projectId) throws BestWorkBussinessException;
+
+	ProgressAndProjectResDto getProjectAndProgress(String projectId) throws BestWorkBussinessException;
+	
 }

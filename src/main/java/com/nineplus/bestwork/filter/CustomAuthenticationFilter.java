@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.stream.Collectors;
 
 import javax.servlet.FilterChain;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -17,6 +18,8 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
@@ -81,6 +84,13 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         // set content type as json
         response.setContentType("application/json");
+     // set TUser && pecBeanUtils
+        if (userService == null || bestWorkBeanUtils == null) {
+            ServletContext servletContext = request.getServletContext();
+            WebApplicationContext webApplicationContext = WebApplicationContextUtils.getWebApplicationContext(servletContext);
+            userService = webApplicationContext.getBean(UserService.class);
+            bestWorkBeanUtils = webApplicationContext.getBean(BestWorkBeanUtils.class);
+        }
 
         LoginFailedResDTO loginFailedDTO = new LoginFailedResDTO();
 
