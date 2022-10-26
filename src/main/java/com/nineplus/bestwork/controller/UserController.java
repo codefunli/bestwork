@@ -4,7 +4,6 @@ import com.nineplus.bestwork.dto.*;
 import com.nineplus.bestwork.entity.TRole;
 import com.nineplus.bestwork.entity.TUser;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
-import com.nineplus.bestwork.model.UserAuthDetected;
 import com.nineplus.bestwork.services.UserService;
 import com.nineplus.bestwork.utils.CommonConstants;
 import com.nineplus.bestwork.utils.TokenUtils;
@@ -63,14 +62,9 @@ public class UserController extends BaseController {
 
     @PostMapping("/create")
     public ResponseEntity<?> registerUser(@Valid @RequestBody UserReqDto userReqDto,
-                                          BindingResult bindingResult) throws BestWorkBussinessException {
+                                          BindingResult bindingResult) {
 
-        UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
-
-        if (userAuthRoleReq.getIsSysAdmin()) {
-            return failed(CommonConstants.MessageCode.E1X0014, null);
-        }
-        if (checkExists(userReqDto, bindingResult, userAuthRoleReq)) {
+        if (checkExists(userReqDto, bindingResult)) {
             return failedWithError(CommonConstants.MessageCode.ECU0001, bindingResult.getFieldErrors().toArray(), null);
         }
         TUser createdUser;
@@ -82,9 +76,8 @@ public class UserController extends BaseController {
         return success(CommonConstants.MessageCode.SCU0001, createdUser, null);
     }
 
-    private boolean checkExists(UserReqDto userReqDto, BindingResult bindingResult, UserAuthDetected userAuthRoleReq) {
-        long companyId = this.userService.findCompanyIdByAdminUsername(userAuthRoleReq);
-        List<TUser> existsUsers = this.userService.findAllUsersByCompanyId(companyId);
+    private boolean checkExists(UserReqDto userReqDto, BindingResult bindingResult) {
+        List<TUser> existsUsers = this.userService.findAll();
         for (TUser user : existsUsers) {
             if (user.getUserName().equals(userReqDto.getUserName())) {
                 bindingResult.rejectValue("userName", "ExistedUsername", "Username already exists in the company.");
@@ -92,7 +85,6 @@ public class UserController extends BaseController {
                 bindingResult.rejectValue("email", "ExistedEmail", "Email already exists in the company.");
             }
         }
-
         return bindingResult.hasErrors();
     }
 
@@ -115,7 +107,6 @@ public class UserController extends BaseController {
 			userResDto.setAvatar(Arrays.toString(user.getUserAvatar()));
 		}
 		userResDto.setUpdateDate(user.getUpdateDate().toString());
-
 		return success(CommonConstants.MessageCode.SCU0002, userResDto, null);
 	}
 

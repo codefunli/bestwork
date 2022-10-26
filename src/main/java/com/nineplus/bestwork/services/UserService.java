@@ -7,18 +7,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import java.util.*;
 
 import com.nineplus.bestwork.dto.*;
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -47,9 +44,6 @@ import com.nineplus.bestwork.utils.ConvertResponseUtils;
 import com.nineplus.bestwork.utils.MessageUtils;
 import com.nineplus.bestwork.utils.PageUtils;
 import com.nineplus.bestwork.utils.UserAuthUtils;
-import org.springframework.validation.BindingResult;
-
-import javax.validation.Valid;
 
 @Service
 @Transactional
@@ -118,6 +112,8 @@ public class UserService implements UserDetailsService {
 			dto.setEmail(user.getEmail());
 			dto.setRole(user.getRole());
 			dto.setEnable(user.getIsEnable());
+			dto.setRole(user.getRole());
+			dto.setEnable(user.getIsEnable());
 			dto.setTelNo(user.getTelNo());
 			dto.setFirstName(user.getFirstNm());
 			dto.setLastName(user.getLastNm());
@@ -168,12 +164,17 @@ public class UserService implements UserDetailsService {
 		if (roleOptional.isPresent()) {
 			role = roleOptional.get();
 		}
-		TCompany company = tCompanyRepository.findById(findCompanyIdByAdminUsername(userAuthRoleReq)).orElse(new TCompany());
+		TCompany company = tCompanyRepository.findById(findCompanyIdByUsername(userAuthRoleReq)).orElse(new TCompany());
 		Set<TCompany> companies = new HashSet<>();
-		if (!ObjectUtils.isEmpty(company)) {
+		TUser user = new TUser();
+		if (null != company.getId()) {
+			companies.add(company);
+		} else {
+			company = tCompanyRepository.findByCompanyId(Long.valueOf(userReqDto.getCompany()));
 			companies.add(company);
 		}
-		TUser user = new TUser();
+
+		user.setCompanys(companies);
 		user.setUserName(userReqDto.getUserName());
 		user.setPassword(encoder.encode(userReqDto.getPassword()));
 		user.setFirstNm(userReqDto.getFirstName());
@@ -185,11 +186,9 @@ public class UserService implements UserDetailsService {
 		user.setCreateBy(createUser);
 		user.setCreateDate(LocalDateTime.now());
 		user.setDeleteFlag(0);
-		user.setCompanys(companies);
 		if (null != userReqDto.getAvatar()) {
 			user.setUserAvatar(userReqDto.getAvatar().getBytes());
 		}
-
 		return this.tUserRepo.save(user);
 	}
 
@@ -344,5 +343,9 @@ public class UserService implements UserDetailsService {
 
 	public List<TRole> getAllRoles() {
 		return this.roleRepository.findAll();
+	}
+
+	public List<TUser> findAll() {
+		return this.tUserRepo.findAll();
 	}
 }
