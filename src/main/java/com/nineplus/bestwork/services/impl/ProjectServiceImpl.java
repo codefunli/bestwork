@@ -231,45 +231,44 @@ public class ProjectServiceImpl implements IProjectService {
 			throws BestWorkBussinessException {
 		ProjectEntity currentProject = null;
 		for (int j = 0; j < projectTaskDto.getRoleData().length; j++) {
-		Long companyId = projectTaskDto.getRoleData()[j].getCompanyId();
-		currentProject = projectRepository.findbyProjectId(projectId);
-		List<ProjectRoleUserReqDto> userList = projectTaskDto.getRoleData()[j].getUserList();
-		AssignTask assignTask = null;
-		try {
-			// Save for project
-			currentProject.setProjectName(projectTaskDto.getProject().getProjectName());
-			currentProject.setDescription(projectTaskDto.getProject().getDescription());
-			currentProject.setNotificationFlag(projectTaskDto.getProject().getNotificationFlag());
-			currentProject.setIsPaid(projectTaskDto.getProject().getIsPaid());
-			currentProject.setStatus(ProjectStatus.values()[projectTaskDto.getProject().getStatus()]);
-			currentProject.setUpdateDate(LocalDateTime.now());
-			currentProject.setProjectType(projectType);
-			projectRepository.save(currentProject);
-
-			for (int i = 0; i < userList.size(); i++) {
-				assignTask = assignTaskRepository.findbyCondition(userList.get(i).getUserId(), companyId, projectId);
-				if (assignTask != null) {
-					assignTask.setCanView(userList.get(i).isCanView());
-					assignTask.setCanEdit(userList.get(i).isCanEdit());
-					assignTaskRepository.save(assignTask);
-				} else {
-					AssignTask assignTaskNew = new AssignTask();
-					assignTaskNew.setCompanyId(companyId);
-					assignTaskNew.setProjectId(projectId);
-					assignTaskNew.setUserId(userList.get(i).getUserId());
-					assignTaskNew.setCanView(userList.get(i).isCanView());
-					assignTaskNew.setCanEdit(userList.get(i).isCanEdit());
-					assignTaskRepository.save(assignTaskNew);
+			Long companyId = projectTaskDto.getRoleData()[j].getCompanyId();
+			currentProject = projectRepository.findbyProjectId(projectId);
+			List<ProjectRoleUserReqDto> userList = projectTaskDto.getRoleData()[j].getUserList();
+			AssignTask assignTask = null;
+			try {
+				// Save for project
+				currentProject.setProjectName(projectTaskDto.getProject().getProjectName());
+				currentProject.setDescription(projectTaskDto.getProject().getDescription());
+				currentProject.setNotificationFlag(projectTaskDto.getProject().getNotificationFlag());
+				currentProject.setIsPaid(projectTaskDto.getProject().getIsPaid());
+				currentProject.setStatus(ProjectStatus.values()[projectTaskDto.getProject().getStatus()]);
+				currentProject.setUpdateDate(LocalDateTime.now());
+				currentProject.setProjectType(projectType);
+				projectRepository.save(currentProject);
+	
+				for (int i = 0; i < userList.size(); i++) {
+					assignTask = assignTaskRepository.findbyCondition(userList.get(i).getUserId(), companyId, projectId);
+					if (assignTask != null) {
+						assignTask.setCanView(userList.get(i).isCanView());
+						assignTask.setCanEdit(userList.get(i).isCanEdit());
+						assignTaskRepository.save(assignTask);
+					} else {
+						AssignTask assignTaskNew = new AssignTask();
+						assignTaskNew.setCompanyId(companyId);
+						assignTaskNew.setProjectId(projectId);
+						assignTaskNew.setUserId(userList.get(i).getUserId());
+						assignTaskNew.setCanView(userList.get(i).isCanView());
+						assignTaskNew.setCanEdit(userList.get(i).isCanEdit());
+						assignTaskRepository.save(assignTaskNew);
+					}
+	
 				}
-
+	
+			} catch (Exception ex) {
+				throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0004,
+						new Object[] { CommonConstants.Character.PROJECT, (projectTaskDto.getProject().getProjectName()) });
 			}
-
-		} catch (Exception ex) {
-			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0004,
-					new Object[] { CommonConstants.Character.PROJECT, (projectTaskDto.getProject().getProjectName()) });
 		}
-
-	}
 	}
 
 	@Override
@@ -286,5 +285,14 @@ public class ProjectServiceImpl implements IProjectService {
 			lstResult = projectRepository.GetCompanyAndRoleUserByCompanyId(companyId);
 		}
 		return lstResult;
+	}
+
+	public boolean isExistedProjectId(String projectId) {
+		Optional<ProjectEntity> project = null;
+		project = projectRepository.findById(projectId);
+		if (project.isPresent()) {
+			return true;
+		}
+		return false;
 	}
 }

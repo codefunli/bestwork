@@ -14,5 +14,8 @@ public interface StorageRepository extends JpaRepository<FileStorageEntity, Stri
 	@Query(value = "select * from FILE_STORAGE where post_id = :postId", nativeQuery = true)
 	List<FileStorageEntity> findAllByPostId(String postId);
 
+	@Query(value = " delete from FILE_STORAGE where post_id = :postId", nativeQuery = true)
+	void deleteByPostId(String postId);
+
 
 }

@@ -4,6 +4,7 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.UUID;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,7 +30,7 @@ public class StorageServiceImpl implements IStorageService {
 	private StorageRepository storageRepository;
 
 	@Override
-	public FileStorageEntity storeFile(String imageData, PostEntity reqPost) {
+	public FileStorageEntity storeFilePost(String imageData, PostEntity reqPost) {
 		try {
 			FileStorageEntity image = new FileStorageEntity();
 			image.setData(imageData.getBytes());
@@ -87,5 +88,14 @@ public class StorageServiceImpl implements IStorageService {
 			e.getMessage();
 			return null;
 		}
+	}
+
+	public List<FileStorageEntity> findFilesByPostId(String postId) {
+		return this.storageRepository.findAllByPostId(postId);
+	}
+
+	@Override
+	public void deleteFilesByPostId(String postId) {
+		this.storageRepository.deleteByPostId(postId);
 	}
 }
