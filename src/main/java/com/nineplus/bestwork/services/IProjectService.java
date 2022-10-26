@@ -28,4 +28,5 @@ public interface IProjectService {
 
 	public void registProject(ProjectTaskDto projectTaskDto, ProjectTypeEntity type) throws BestWorkBussinessException;
 
+	boolean isExistedProjectId(String projectId);
 }

@@ -16,7 +16,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.nineplus.bestwork.dto.CompanyReqDto;
 import com.nineplus.bestwork.dto.PageResponseDto;
 import com.nineplus.bestwork.dto.PageSearchDto;
 import com.nineplus.bestwork.dto.ProjectAssignReqDto;
@@ -27,7 +26,6 @@ import com.nineplus.bestwork.dto.ProjectTaskDto;
 import com.nineplus.bestwork.entity.AssignTask;
 import com.nineplus.bestwork.entity.ProjectEntity;
 import com.nineplus.bestwork.entity.ProjectTypeEntity;
-import com.nineplus.bestwork.entity.TCompany;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.model.ProjectStatus;
 import com.nineplus.bestwork.repository.AssignTaskRepository;
@@ -220,5 +218,15 @@ public class ProjectServiceImpl implements IProjectService {
 			}
 		}
 
+	}
+
+	@Override
+	public boolean isExistedProjectId(String projectId) {
+		Optional<ProjectEntity> project = null;
+		project = projectRepository.findById(projectId);
+		if (project.isPresent()) {
+			return true;
+		}
+		return false;
 	}
 }

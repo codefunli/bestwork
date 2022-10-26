@@ -3,6 +3,7 @@ package com.nineplus.bestwork.services.impl;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -67,5 +68,17 @@ public class StorageServiceImpl implements IStorageService {
 			return imageName.substring(0, 30) + "...";
 		}
 
+	}
+
+	@Override
+	public List<FileStorageEntity> findFilesByPostId(String postId) {
+
+		return this.storageRepository.findAllByPostId(postId);
+	}
+
+	@Override
+	public void deleteFilesByPostId(String postId) {
+	this.storageRepository.deleteByPostId(postId);
+		
 	}
 }

@@ -27,7 +27,7 @@ public class FileStorageEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private String id;
+	private int id;
 
 	@Column(name = "name", nullable = false)
 	private String name;

@@ -144,6 +144,13 @@ public class CommonConstants {
 		public static final String SCU0003 = "scu0003";
 		public static final String ECU0003 = "ecu0003";
 
+		
+		public static final String SPOST0001 = "sPost0001";
+		public static final String EPOST0001 = "ePost0001";
+		public static final String SPOST0002 = "sPost0002";
+		public static final String EPOST0002 = "ePost0002";
+		public static final String SPOST0003 = "sPost0003";
+		public static final String EPOST0003 = "ePost0003";
 	}
 
 	public class Url {
