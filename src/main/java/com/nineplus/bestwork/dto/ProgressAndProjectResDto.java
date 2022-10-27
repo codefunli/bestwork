@@ -19,6 +19,6 @@ public class ProgressAndProjectResDto extends BaseDto {
 	private ProjectResponseDto project;
 
 	@JsonProperty("progess")
-	private List<ProgressResDto> progess;
+	private List<ProgressResDto> progress;
 
 }
