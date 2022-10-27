@@ -13,7 +13,7 @@ import com.nineplus.bestwork.dto.ProjectTaskDto;
 import com.nineplus.bestwork.entity.ProjectEntity;
 import com.nineplus.bestwork.entity.ProjectTypeEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
-import com.nineplus.bestwork.repository.ProjectAssignProjection;
+import com.nineplus.bestwork.repository.ProjectAssignRepository;
 
 public interface IProjectService {
 
@@ -32,7 +32,7 @@ public interface IProjectService {
 
 	public void updateProject(ProjectTaskDto projectTaskDto,ProjectTypeEntity projectType, String projectId) throws BestWorkBussinessException;
 
-	public List<ProjectAssignProjection> getCompanyUserForAssign(AssignTaskReqDto assignTaskReqDto) throws BestWorkBussinessException;
+	public List<ProjectAssignRepository> getCompanyUserForAssign(AssignTaskReqDto assignTaskReqDto) throws BestWorkBussinessException;
 
 	boolean isExistedProjectId(String projectId);
 }

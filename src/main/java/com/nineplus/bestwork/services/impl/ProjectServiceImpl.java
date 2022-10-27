@@ -32,7 +32,7 @@ import com.nineplus.bestwork.entity.ProjectTypeEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.model.ProjectStatus;
 import com.nineplus.bestwork.repository.AssignTaskRepository;
-import com.nineplus.bestwork.repository.ProjectAssignProjection;
+import com.nineplus.bestwork.repository.ProjectAssignRepository;
 import com.nineplus.bestwork.repository.ProjectRepository;
 import com.nineplus.bestwork.services.IProjectService;
 import com.nineplus.bestwork.utils.CommonConstants;
@@ -157,8 +157,8 @@ public class ProjectServiceImpl implements IProjectService {
 			// Validate project information
 			this.validateProject(projectTaskDto.getProject(), false);
 			registNewProject(projectTaskDto.getProject(), projectType, generateProjectId);
-			for (int i = 0; i < projectTaskDto.getRoleData().length; i++)
-				registAssign(projectTaskDto.getRoleData()[i], projectType, generateProjectId);
+			for (int i = 0; i < projectTaskDto.getRoleData().size(); i++)
+				registAssign(projectTaskDto.getRoleData().get(i), projectType, generateProjectId);
 
 		}
 	}
@@ -230,10 +230,11 @@ public class ProjectServiceImpl implements IProjectService {
 	public void updateProject(ProjectTaskDto projectTaskDto, ProjectTypeEntity projectType, String projectId)
 			throws BestWorkBussinessException {
 		ProjectEntity currentProject = null;
-		for (int j = 0; j < projectTaskDto.getRoleData().length; j++) {
-			Long companyId = projectTaskDto.getRoleData()[j].getCompanyId();
+    
+		for (int j = 0; j < projectTaskDto.getRoleData().size(); j++) {
+			Long companyId = projectTaskDto.getRoleData().get(j).getCompanyId();
 			currentProject = projectRepository.findbyProjectId(projectId);
-			List<ProjectRoleUserReqDto> userList = projectTaskDto.getRoleData()[j].getUserList();
+			List<ProjectRoleUserReqDto> userList = projectTaskDto.getRoleData().get(j).getUserList();
 			AssignTask assignTask = null;
 			try {
 				// Save for project
@@ -272,9 +273,9 @@ public class ProjectServiceImpl implements IProjectService {
 	}
 
 	@Override
-	public List<ProjectAssignProjection> getCompanyUserForAssign(AssignTaskReqDto assignTaskReqDto)
+	public List<ProjectAssignRepository> getCompanyUserForAssign(AssignTaskReqDto assignTaskReqDto)
 			throws BestWorkBussinessException {
-		List<ProjectAssignProjection> lstResult = null;
+		List<ProjectAssignRepository> lstResult = null;
 		if (StringUtils.isNotBlank(assignTaskReqDto.getProjectId())
 				&& StringUtils.isNotBlank(assignTaskReqDto.getCompanyId())) {
 			long companyId = Long.parseLong(assignTaskReqDto.getCompanyId());

@@ -23,7 +23,7 @@ import com.nineplus.bestwork.dto.ProjectTypeResponseDto;
 import com.nineplus.bestwork.entity.ProjectEntity;
 import com.nineplus.bestwork.entity.ProjectTypeEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
-import com.nineplus.bestwork.repository.ProjectAssignProjection;
+import com.nineplus.bestwork.repository.ProjectAssignRepository;
 import com.nineplus.bestwork.services.IProjectService;
 import com.nineplus.bestwork.services.IProjectTypeService;
 import com.nineplus.bestwork.utils.CommonConstants;
@@ -135,7 +135,7 @@ public class ProjectController extends BaseController {
 
 	@PostMapping("/assign-list")
 	public ResponseEntity<? extends Object> getCompanyUserForAssignString(@RequestBody AssignTaskReqDto assignTaskReqDto ) {
-		List<ProjectAssignProjection> assignList;
+		List<ProjectAssignRepository> assignList;
 		try {
 			assignList = projectService.getCompanyUserForAssign(assignTaskReqDto);
 		} catch (BestWorkBussinessException ex) {

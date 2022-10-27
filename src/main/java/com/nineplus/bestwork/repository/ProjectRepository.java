@@ -40,10 +40,10 @@ public interface ProjectRepository extends JpaRepository<ProjectEntity, String> 
 	@Query(value = "SELECT * FROM PROJECT WHERE id = :id", nativeQuery = true)
 	ProjectEntity findbyProjectId(String id);
 
-	@Query(value = "select tus.user_name as name, ast.user_id as userId, 0 as canView ,0 as canEdit from ASSIGN_TASK ast JOIN T_SYS_APP_USER tus ON tus.id = ast.user_id  WHERE ast.company_id = ?1 group by user_name, user_id", nativeQuery = true)
-	List<ProjectAssignProjection> GetCompanyAndRoleUserByCompanyId(Long companyId);
+	@Query(value = "Select tus.user_name as name, tus.id as userId, 'false' as canView ,'false' as canEdit from T_SYS_APP_USER tus JOIN T_COMPANY_USER tcu ON tus.id = tcu.user_id WHERE tcu.company_id = ?1", nativeQuery = true)
+	List<ProjectAssignRepository> GetCompanyAndRoleUserByCompanyId(Long companyId);
 	
-	@Query(value = "select tus.user_name as name, ast.user_id as userId, 0 as canView ,0 as canEdit from ASSIGN_TASK ast JOIN T_SYS_APP_USER tus ON tus.id = ast.user_id  WHERE ast.company_id = ?1 AND ast.project_id = ?2", nativeQuery = true)
-	List<ProjectAssignProjection> GetCompanyAndRoleUserByCompanyAndProject(Long companyId, String projectId);
+	@Query(value = "select tus.user_name as name, ast.user_id as userId, ast.can_view as canView , ast.can_edit as canEdit from ASSIGN_TASK ast JOIN PROJECT pr ON ast.project_id = pr.id JOIN T_SYS_APP_USER tus ON tus.id = ast.user_id  WHERE ast.company_id = ?1 AND ast.project_id = ?2", nativeQuery = true)
+	List<ProjectAssignRepository> GetCompanyAndRoleUserByCompanyAndProject(Long companyId, String projectId);
 
 }
