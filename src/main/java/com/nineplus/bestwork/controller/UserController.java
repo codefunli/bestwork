@@ -1,6 +1,6 @@
 package com.nineplus.bestwork.controller;
 
-import java.util.Arrays;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -25,7 +25,6 @@ import com.nineplus.bestwork.dto.PageSearchUserDto;
 import com.nineplus.bestwork.dto.UserListIdDto;
 import com.nineplus.bestwork.dto.UserReqDto;
 import com.nineplus.bestwork.dto.UserResDto;
-import com.nineplus.bestwork.dto.*;
 import com.nineplus.bestwork.entity.TCompany;
 import com.nineplus.bestwork.entity.TUser;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
@@ -33,18 +32,6 @@ import com.nineplus.bestwork.services.UserService;
 import com.nineplus.bestwork.utils.CommonConstants;
 import com.nineplus.bestwork.utils.TokenUtils;
 import com.nineplus.bestwork.utils.UserAuthUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
 
 @PropertySource("classpath:application.properties")
 @RequestMapping(value = "api/v1/users")
