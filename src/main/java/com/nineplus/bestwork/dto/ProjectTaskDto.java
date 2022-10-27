@@ -16,8 +16,8 @@ public class ProjectTaskDto extends BaseDto {
 	 */
 	private static final long serialVersionUID = 2234703426292619983L;
 	@JsonProperty("project")
-	    private ProjectReqDto project;
+	private ProjectReqDto project;
 
 	 @JsonProperty("roleData")
-	    private ProjectAssignReqDto[] roleData;
+	private List<ProjectAssignReqDto> roleData;
 }

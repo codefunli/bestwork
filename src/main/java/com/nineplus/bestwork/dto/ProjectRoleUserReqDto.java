@@ -23,8 +23,5 @@ public class ProjectRoleUserReqDto extends BaseDto {
 
 	@JsonProperty("canEdit")
 	private boolean canEdit;
-	
-	@JsonProperty("name")
-	private boolean name;
 
 }

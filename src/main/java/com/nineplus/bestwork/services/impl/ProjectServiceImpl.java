@@ -32,7 +32,7 @@ import com.nineplus.bestwork.entity.ProjectTypeEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.model.ProjectStatus;
 import com.nineplus.bestwork.repository.AssignTaskRepository;
-import com.nineplus.bestwork.repository.ProjectAssignProjection;
+import com.nineplus.bestwork.repository.ProjectAssignRepository;
 import com.nineplus.bestwork.repository.ProjectRepository;
 import com.nineplus.bestwork.services.IProjectService;
 import com.nineplus.bestwork.utils.CommonConstants;
@@ -157,8 +157,8 @@ public class ProjectServiceImpl implements IProjectService {
 			// Validate project information
 			this.validateProject(projectTaskDto.getProject(), false);
 			registNewProject(projectTaskDto.getProject(), projectType, generateProjectId);
-			for (int i = 0; i < projectTaskDto.getRoleData().length; i++)
-				registAssign(projectTaskDto.getRoleData()[i], projectType, generateProjectId);
+			for (int i = 0; i < projectTaskDto.getRoleData().size(); i++)
+				registAssign(projectTaskDto.getRoleData().get(i), projectType, generateProjectId);
 
 		}
 	}
@@ -230,52 +230,51 @@ public class ProjectServiceImpl implements IProjectService {
 	public void updateProject(ProjectTaskDto projectTaskDto, ProjectTypeEntity projectType, String projectId)
 			throws BestWorkBussinessException {
 		ProjectEntity currentProject = null;
-		for (int j = 0; j < projectTaskDto.getRoleData().length; j++) {
-		Long companyId = projectTaskDto.getRoleData()[j].getCompanyId();
-		currentProject = projectRepository.findbyProjectId(projectId);
-		List<ProjectRoleUserReqDto> userList = projectTaskDto.getRoleData()[j].getUserList();
-		AssignTask assignTask = null;
-		try {
-			// Save for project
-			currentProject.setProjectName(projectTaskDto.getProject().getProjectName());
-			currentProject.setDescription(projectTaskDto.getProject().getDescription());
-			currentProject.setNotificationFlag(projectTaskDto.getProject().getNotificationFlag());
-			currentProject.setIsPaid(projectTaskDto.getProject().getIsPaid());
-			currentProject.setStatus(ProjectStatus.values()[projectTaskDto.getProject().getStatus()]);
-			currentProject.setUpdateDate(LocalDateTime.now());
-			currentProject.setProjectType(projectType);
-			projectRepository.save(currentProject);
-
-			for (int i = 0; i < userList.size(); i++) {
-				assignTask = assignTaskRepository.findbyCondition(userList.get(i).getUserId(), companyId, projectId);
-				if (assignTask != null) {
-					assignTask.setCanView(userList.get(i).isCanView());
-					assignTask.setCanEdit(userList.get(i).isCanEdit());
-					assignTaskRepository.save(assignTask);
-				} else {
-					AssignTask assignTaskNew = new AssignTask();
-					assignTaskNew.setCompanyId(companyId);
-					assignTaskNew.setProjectId(projectId);
-					assignTaskNew.setUserId(userList.get(i).getUserId());
-					assignTaskNew.setCanView(userList.get(i).isCanView());
-					assignTaskNew.setCanEdit(userList.get(i).isCanEdit());
-					assignTaskRepository.save(assignTaskNew);
+		for (int j = 0; j < projectTaskDto.getRoleData().size(); j++) {
+			Long companyId = projectTaskDto.getRoleData().get(j).getCompanyId();
+			currentProject = projectRepository.findbyProjectId(projectId);
+			List<ProjectRoleUserReqDto> userList = projectTaskDto.getRoleData().get(j).getUserList();
+			AssignTask assignTask = null;
+			try {
+				// Save for project
+				currentProject.setProjectName(projectTaskDto.getProject().getProjectName());
+				currentProject.setDescription(projectTaskDto.getProject().getDescription());
+				currentProject.setNotificationFlag(projectTaskDto.getProject().getNotificationFlag());
+				currentProject.setIsPaid(projectTaskDto.getProject().getIsPaid());
+				currentProject.setStatus(ProjectStatus.values()[projectTaskDto.getProject().getStatus()]);
+				currentProject.setUpdateDate(LocalDateTime.now());
+				currentProject.setProjectType(projectType);
+				projectRepository.save(currentProject);
+	
+				for (int i = 0; i < userList.size(); i++) {
+					assignTask = assignTaskRepository.findbyCondition(userList.get(i).getUserId(), companyId, projectId);
+					if (assignTask != null) {
+						assignTask.setCanView(userList.get(i).isCanView());
+						assignTask.setCanEdit(userList.get(i).isCanEdit());
+						assignTaskRepository.save(assignTask);
+					} else {
+						AssignTask assignTaskNew = new AssignTask();
+						assignTaskNew.setCompanyId(companyId);
+						assignTaskNew.setProjectId(projectId);
+						assignTaskNew.setUserId(userList.get(i).getUserId());
+						assignTaskNew.setCanView(userList.get(i).isCanView());
+						assignTaskNew.setCanEdit(userList.get(i).isCanEdit());
+						assignTaskRepository.save(assignTaskNew);
+					}
+	
 				}
-
+	
+			} catch (Exception ex) {
+				throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0004,
+						new Object[] { CommonConstants.Character.PROJECT, (projectTaskDto.getProject().getProjectName()) });
 			}
-
-		} catch (Exception ex) {
-			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0004,
-					new Object[] { CommonConstants.Character.PROJECT, (projectTaskDto.getProject().getProjectName()) });
 		}
-
-	}
 	}
 
 	@Override
-	public List<ProjectAssignProjection> getCompanyUserForAssign(AssignTaskReqDto assignTaskReqDto)
+	public List<ProjectAssignRepository> getCompanyUserForAssign(AssignTaskReqDto assignTaskReqDto)
 			throws BestWorkBussinessException {
-		List<ProjectAssignProjection> lstResult = null;
+		List<ProjectAssignRepository> lstResult = null;
 		if (StringUtils.isNotBlank(assignTaskReqDto.getProjectId())
 				&& StringUtils.isNotBlank(assignTaskReqDto.getCompanyId())) {
 			long companyId = Long.parseLong(assignTaskReqDto.getCompanyId());
@@ -286,5 +285,14 @@ public class ProjectServiceImpl implements IProjectService {
 			lstResult = projectRepository.GetCompanyAndRoleUserByCompanyId(companyId);
 		}
 		return lstResult;
+	}
+
+	public boolean isExistedProjectId(String projectId) {
+		Optional<ProjectEntity> project = null;
+		project = projectRepository.findById(projectId);
+		if (project.isPresent()) {
+			return true;
+		}
+		return false;
 	}
 }

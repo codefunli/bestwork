@@ -50,10 +50,10 @@ public class ProjectEntity {
 	private String description;
 
 	@Column(name = "notification_flag", nullable = true, columnDefinition = "tinyint(1)")
-	private Integer notificationFlag;
+	private Boolean notificationFlag;
 
 	@Column(name = "is_paid", nullable = true, columnDefinition = "tinyint(1)")
-	private Integer isPaid;
+	private Boolean isPaid;
 
 	@Column(name = "status", nullable = false, columnDefinition = "tinyint(1)")
 	private ProjectStatus status;
