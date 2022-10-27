@@ -146,12 +146,20 @@ public class CommonConstants {
 		public static final String SCU0004 = "scu0004";
 		public static final String ECU0004 = "ecu0004";
 		public static final String ECU0005 = "ecu0005";
-		
+
+		public static final String SPOST0001 = "sPost0001";
+		public static final String EPOST0001 = "ePost0001";
+		public static final String SPOST0002 = "sPost0002";
+		public static final String EPOST0002 = "ePost0002";
+		public static final String SPOST0003 = "sPost0003";
+		public static final String EPOST0003 = "ePost0003";
+
 		public static final String sPu00001 = "sPu0001";
 		public static final String sPu00002 = "sPu0002";
 		public static final String sPu00003 = "sPu0003";
 		public static final String sPu0004 = "sPu0004";
 		public static final String sPu0005 = "sPu0005";
+
 	}
 
 	public class Url {

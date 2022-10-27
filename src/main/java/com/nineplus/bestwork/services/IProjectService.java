@@ -34,4 +34,5 @@ public interface IProjectService {
 
 	public List<ProjectAssignProjection> getCompanyUserForAssign(AssignTaskReqDto assignTaskReqDto) throws BestWorkBussinessException;
 
+	boolean isExistedProjectId(String projectId);
 }

@@ -15,4 +15,7 @@ public interface PostRepository extends JpaRepository<PostEntity, String> {
 	@Query(value = " select * from POST where project_id = :projectId ", nativeQuery = true)
 	List<PostEntity> findPostsByProjectId(@Param(value = "projectId") String projectId);
 
+	@Query(value = " select * from POST where project_id = :projectId and id =:postId  ", nativeQuery = true)
+	PostEntity findPostByIdAndProjectId(@Param("postId") String postId, String projectId);
+
 }
