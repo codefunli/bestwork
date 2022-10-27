@@ -230,6 +230,7 @@ public class ProjectServiceImpl implements IProjectService {
 	public void updateProject(ProjectTaskDto projectTaskDto, ProjectTypeEntity projectType, String projectId)
 			throws BestWorkBussinessException {
 		ProjectEntity currentProject = null;
+    
 		for (int j = 0; j < projectTaskDto.getRoleData().size(); j++) {
 			Long companyId = projectTaskDto.getRoleData().get(j).getCompanyId();
 			currentProject = projectRepository.findbyProjectId(projectId);

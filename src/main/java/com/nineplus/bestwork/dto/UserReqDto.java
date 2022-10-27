@@ -5,6 +5,8 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 
+import com.nineplus.bestwork.entity.TCompany;
+import com.nineplus.bestwork.entity.TRole;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
@@ -25,8 +27,6 @@ public class UserReqDto extends BaseDto {
 	@JsonProperty("userName")
 	private String userName;
 
-	@NotBlank(message = "Enter password.")
-//	@Pattern(regexp = "[0-9]{6,10}", message = "Enter from 6 to 10 digits.")
 	@JsonProperty("password")
 	private String password;
 
@@ -50,7 +50,7 @@ public class UserReqDto extends BaseDto {
 	private int enabled;
 
 	@JsonProperty("role")
-	private long role;
+	private TRole role;
 
 	@JsonProperty("avatar")
 	private String avatar;
@@ -59,6 +59,6 @@ public class UserReqDto extends BaseDto {
 	private String updateDate;
 
 	@JsonProperty("company")
-	private String company;
+	private TCompany company;
 
 }

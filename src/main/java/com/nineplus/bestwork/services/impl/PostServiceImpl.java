@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,8 +14,10 @@ import com.nineplus.bestwork.dto.FileStorageResponseDto;
 import com.nineplus.bestwork.dto.PostResponseDto;
 import com.nineplus.bestwork.entity.FileStorageEntity;
 import com.nineplus.bestwork.entity.PostEntity;
+import com.nineplus.bestwork.entity.ProjectEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.repository.PostRepository;
+import com.nineplus.bestwork.repository.ProjectRepository;
 import com.nineplus.bestwork.services.IPostService;
 
 /**
@@ -79,6 +82,7 @@ public class PostServiceImpl implements IPostService {
 			dto.setDescription(postEntity.getDescription());
 			dto.setCreateDate(postEntity.getCreateDate().toString());
 			dto.setProject(postEntity.getProject());
+			dto.setComment(postEntity.getComment());
 			List<FileStorageResponseDto> fileStorageResponseDtos = new ArrayList<>();
 			for (FileStorageEntity file : postEntity.getFileStorages()) {
 				FileStorageResponseDto fileStorageResponseDto = new FileStorageResponseDto();
@@ -101,6 +105,17 @@ public class PostServiceImpl implements IPostService {
 		}
 
 		return postResponseDtos;
+	}
+
+	@Override
+	public PostEntity getPostByPostIdAndProjectId(String postId, String projectId) {
+		return this.postRepository.findPostByIdAndProjectId(postId, projectId);
+	
+	}
+
+	@Override
+	public PostEntity updatePost(PostEntity post) {
+		return this.postRepository.save(post);
 	}
 
 }
