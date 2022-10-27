@@ -1,5 +1,6 @@
 package com.nineplus.bestwork.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,6 +19,7 @@ import com.nineplus.bestwork.dto.PageResponseDto;
 import com.nineplus.bestwork.dto.PageSearchDto;
 import com.nineplus.bestwork.dto.ProjectDeleteByIdDto;
 import com.nineplus.bestwork.dto.ProjectResponseDto;
+import com.nineplus.bestwork.dto.ProjectStatusResDto;
 import com.nineplus.bestwork.dto.ProjectTaskDto;
 import com.nineplus.bestwork.dto.ProjectTypeResponseDto;
 import com.nineplus.bestwork.entity.ProjectEntity;
@@ -27,6 +29,7 @@ import com.nineplus.bestwork.repository.ProjectAssignRepository;
 import com.nineplus.bestwork.services.IProjectService;
 import com.nineplus.bestwork.services.IProjectTypeService;
 import com.nineplus.bestwork.utils.CommonConstants;
+import com.nineplus.bestwork.utils.Enums.ProjectStatus;;
 
 /**
  * This controller use for processing with project
@@ -119,13 +122,14 @@ public class ProjectController extends BaseController {
 		}
 		return success(CommonConstants.MessageCode.S1X0004, null, null);
 	}
-	
+
 	@PostMapping("/update/{projectId}")
-	public ResponseEntity<? extends Object> updateProject(@RequestBody ProjectTaskDto projectTask, @PathVariable String projectId) {
+	public ResponseEntity<? extends Object> updateProject(@RequestBody ProjectTaskDto projectTask,
+			@PathVariable String projectId) {
 		try {
 			ProjectTypeEntity projectType = this.getProjectTypeById(projectTask.getProject().getProjectType());
 			if (projectType != null) {
-				projectService.updateProject(projectTask,projectType, projectId);
+				projectService.updateProject(projectTask, projectType, projectId);
 			}
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
@@ -134,7 +138,8 @@ public class ProjectController extends BaseController {
 	}
 
 	@PostMapping("/assign-list")
-	public ResponseEntity<? extends Object> getCompanyUserForAssignString(@RequestBody AssignTaskReqDto assignTaskReqDto ) {
+	public ResponseEntity<? extends Object> getCompanyUserForAssignString(
+			@RequestBody AssignTaskReqDto assignTaskReqDto) {
 		List<ProjectAssignRepository> assignList;
 		try {
 			assignList = projectService.getCompanyUserForAssign(assignTaskReqDto);
@@ -142,5 +147,17 @@ public class ProjectController extends BaseController {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}
 		return success(CommonConstants.MessageCode.S1X0004, assignList, null);
+	}
+
+	@GetMapping("/status")
+	public ResponseEntity<? extends Object> getProgressStatus() throws BestWorkBussinessException {
+		List<ProjectStatusResDto> projectStatus = new ArrayList<>();
+		for (ProjectStatus status : ProjectStatus.values()) {
+			ProjectStatusResDto dto =  new ProjectStatusResDto();
+			dto.setId(status.ordinal());
+			dto.setStatus(status.getValue());
+			projectStatus.add(dto);
+		}
+		return success(CommonConstants.MessageCode.S1X0015, projectStatus, null);
 	}
 }

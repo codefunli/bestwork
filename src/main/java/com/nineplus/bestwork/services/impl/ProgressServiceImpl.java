@@ -143,6 +143,7 @@ public class ProgressServiceImpl implements IProgressService {
 			for (Progress prog : progress) {
 				ProgressResDto progressDto = new ProgressResDto();
 				List<FileStorageResponseDto> lstfileDto = new ArrayList<>();
+				progressDto.setId(prog.getId());
 				progressDto.setTitle(prog.getTitle());
 				progressDto.setStatus(prog.getStatus());
 				progressDto.setNote(prog.getNote());
@@ -166,7 +167,7 @@ public class ProgressServiceImpl implements IProgressService {
 				lst.add(progressDto);
 			}
 			dto.setProject(projectDto);
-			dto.setProgess(lst);
+			dto.setProgress(lst);
 		}
 		return dto;
 	}

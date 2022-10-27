@@ -16,6 +16,9 @@ public class ProgressResDto extends BaseDto {
 	 */
 	private static final long serialVersionUID = 2837534167302839503L;
 
+	@JsonProperty("id")
+	private Long id;
+	
 	@JsonProperty("title")
 	private String title;
 
