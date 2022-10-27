@@ -2,6 +2,7 @@ package com.nineplus.bestwork.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import com.nineplus.bestwork.entity.TCompany;
 import com.nineplus.bestwork.entity.TRole;
 import lombok.Data;
 
@@ -23,8 +24,8 @@ public class UserResDto {
 	@JsonProperty("uEmail")
     private String email;
 
-	@JsonProperty("enable")
-    private int enable;
+	@JsonProperty("enabled")
+    private int enabled;
 	
 	@JsonProperty("uTelNo")
     private String telNo;
@@ -37,5 +38,14 @@ public class UserResDto {
 
     @JsonProperty("updateDate")
     private String updateDate;
+
+    @JsonProperty("countLoginFailed")
+    private String countLoginFailed;
+
+    @JsonProperty("deleteFlag")
+    private int deleteFlag;
+
+    @JsonProperty("company")
+    TCompany company;
 
 }

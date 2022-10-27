@@ -111,9 +111,9 @@ public class UserService implements UserDetailsService {
 			dto.setUserName(user.getUserName());
 			dto.setEmail(user.getEmail());
 			dto.setRole(user.getRole());
-			dto.setEnable(user.getIsEnable());
+			dto.setEnabled(user.getIsEnable());
 			dto.setRole(user.getRole());
-			dto.setEnable(user.getIsEnable());
+			dto.setEnabled(user.getIsEnable());
 			dto.setTelNo(user.getTelNo());
 			dto.setFirstName(user.getFirstNm());
 			dto.setLastName(user.getLastNm());
@@ -160,7 +160,7 @@ public class UserService implements UserDetailsService {
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
 		String createUser = userAuthRoleReq.getUsername();
 		TRole role = new TRole();
-		Optional<TRole> roleOptional = roleRepository.findById(userReqDto.getRole());
+		Optional<TRole> roleOptional = roleRepository.findById(userReqDto.getRole().getId());
 		if (roleOptional.isPresent()) {
 			role = roleOptional.get();
 		}
@@ -170,7 +170,7 @@ public class UserService implements UserDetailsService {
 		if (null != company.getId()) {
 			companies.add(company);
 		} else {
-			company = tCompanyRepository.findByCompanyId(Long.valueOf(userReqDto.getCompany()));
+			company = tCompanyRepository.findByCompanyId(userReqDto.getCompany().getId());
 			companies.add(company);
 		}
 
@@ -266,7 +266,7 @@ public class UserService implements UserDetailsService {
 				userResDto.setTelNo(tUser.getTelNo());
 				userResDto.setRole(tUser.getRole());
 				userResDto.setId(tUser.getId());
-				userResDto.setEnable(tUser.getIsEnable());
+				userResDto.setEnabled(tUser.getIsEnable());
 				userResDto.setAvatar(Arrays.toString(tUser.getUserAvatar()));
 				userResDtoList.add(userResDto);
 			}
@@ -319,17 +319,33 @@ public class UserService implements UserDetailsService {
 		if (null == user) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.ECU0003, null);
 		}
+
+		if (userReqDto.getRole().getId() == 1) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.ECU0003, null);
+		}
+
 		TUser tUser = new TUser();
+		Set<TCompany> tCompanySet = new HashSet<>();
+		if (null != userReqDto.getCompany()) {
+			tCompanySet.add(userReqDto.getCompany());
+			tUser.setCompanys(tCompanySet);
+		} else {
+			tUser.setCompanys(user.getCompanys());
+		}
 		tUser.setId(userId);
 		tUser.setUserName(userReqDto.getUserName());
-		tUser.setPassword(encoder.encode(userReqDto.getPassword()));
+		if (null != userReqDto.getPassword()) {
+			tUser.setPassword(encoder.encode(userReqDto.getPassword()));
+		} else {
+			tUser.setPassword(user.getPassword());
+		}
 		tUser.setFirstNm(userReqDto.getFirstName());
 		tUser.setLastNm(userReqDto.getLastName());
 		tUser.setEmail(userReqDto.getEmail());
 		tUser.setTelNo(userReqDto.getTelNo());
 		tUser.setIsEnable(userReqDto.getEnabled());
 		TRole tRole = new TRole();
-		tRole.setId(userReqDto.getRole());
+		tRole.setId(userReqDto.getRole().getId());
 		tUser.setRole(tRole);
 		if (null != userReqDto.getAvatar()) {
 			tUser.setUserAvatar(userReqDto.getAvatar().getBytes());
@@ -342,7 +358,9 @@ public class UserService implements UserDetailsService {
 	}
 
 	public List<TRole> getAllRoles() {
-		return this.roleRepository.findAll();
+		List<TRole> tRoleList = this.roleRepository.findAll();
+		tRoleList.removeIf(tRole -> tRole.getId() == 1);
+		return tRoleList;
 	}
 
 	public List<TUser> findAll() {
