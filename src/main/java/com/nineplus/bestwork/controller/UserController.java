@@ -25,12 +25,26 @@ import com.nineplus.bestwork.dto.PageSearchUserDto;
 import com.nineplus.bestwork.dto.UserListIdDto;
 import com.nineplus.bestwork.dto.UserReqDto;
 import com.nineplus.bestwork.dto.UserResDto;
+import com.nineplus.bestwork.dto.*;
+import com.nineplus.bestwork.entity.TCompany;
 import com.nineplus.bestwork.entity.TUser;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.services.UserService;
 import com.nineplus.bestwork.utils.CommonConstants;
 import com.nineplus.bestwork.utils.TokenUtils;
 import com.nineplus.bestwork.utils.UserAuthUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 @PropertySource("classpath:application.properties")
 @RequestMapping(value = "api/v1/users")
@@ -112,10 +126,15 @@ public class UserController extends BaseController {
 		userResDto.setLastName(user.getLastNm());
 		userResDto.setEmail(user.getEmail());
 		userResDto.setTelNo(user.getTelNo());
-		userResDto.setEnable(user.getIsEnable());
+		userResDto.setEnabled(user.getIsEnable());
 		userResDto.setRole(user.getRole());
+        userResDto.setCountLoginFailed("0");
+        userResDto.setDeleteFlag(user.getDeleteFlag());
+        for (TCompany tCompany: user.getCompanys()) {
+            userResDto.setCompany(tCompany);
+        }
 		if (null != user.getUserAvatar()) {
-			userResDto.setAvatar(Arrays.toString(user.getUserAvatar()));
+			userResDto.setAvatar(new String(user.getUserAvatar(), StandardCharsets.UTF_8));
 		}
 		userResDto.setUpdateDate(user.getUpdateDate().toString());
 		return success(CommonConstants.MessageCode.SCU0002, userResDto, null);
@@ -124,6 +143,7 @@ public class UserController extends BaseController {
 	@PutMapping("/update/{id}")
 	public ResponseEntity<?> updateUser(@PathVariable long id, @Valid @RequestBody UserReqDto userReqDto,
 										BindingResult bindingResult) throws BestWorkBussinessException {
+
 		if (bindingResult.hasErrors()) {
 			return failedWithError(CommonConstants.MessageCode.ECU0001, bindingResult.getFieldErrors().toArray(), null);
 		}
@@ -133,7 +153,7 @@ public class UserController extends BaseController {
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}
-		return success(CommonConstants.MessageCode.SCU0003, userEdit, null);
+		return success(CommonConstants.MessageCode.SCU0003, null, null);
 	}
 
     @PostMapping("/delete")
