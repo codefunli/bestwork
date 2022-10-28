@@ -20,7 +20,7 @@ import com.nineplus.bestwork.dto.PageSearchDto;
 import com.nineplus.bestwork.dto.ProjectDeleteByIdDto;
 import com.nineplus.bestwork.dto.ProjectResponseDto;
 import com.nineplus.bestwork.dto.ProjectStatusResDto;
-import com.nineplus.bestwork.dto.ProjectTaskDto;
+import com.nineplus.bestwork.dto.ProjectTaskReqDto;
 import com.nineplus.bestwork.dto.ProjectTypeResponseDto;
 import com.nineplus.bestwork.entity.ProjectEntity;
 import com.nineplus.bestwork.entity.ProjectTypeEntity;
@@ -71,18 +71,18 @@ public class ProjectController extends BaseController {
 
 	}
 
-	@GetMapping("/{id}")
-	public ResponseEntity<? extends Object> getProjectById(@PathVariable("id") String id) {
-		Optional<ProjectEntity> projectOptional = null;
+	@GetMapping("/{projectId}")
+	public ResponseEntity<? extends Object> getProjectById(@PathVariable String projectId) {
+		ProjectResponseDto project = null;
 		try {
-			projectOptional = this.projectService.getProjectById(id);
-			if (!projectOptional.isPresent()) {
+			project = projectService.getDetailProject(projectId);
+			if (project == null) {
 				return failed(CommonConstants.MessageCode.E1X0003, null);
 			}
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}
-		return success(CommonConstants.MessageCode.S1X0001, projectOptional.get(), null);
+		return success(CommonConstants.MessageCode.S1X0001, project, null);
 	}
 
 	@PostMapping("/delete")
@@ -111,7 +111,7 @@ public class ProjectController extends BaseController {
 	}
 
 	@PostMapping("/regist")
-	public ResponseEntity<? extends Object> registProject(@RequestBody ProjectTaskDto projectTask) {
+	public ResponseEntity<? extends Object> registProject(@RequestBody ProjectTaskReqDto projectTask) {
 		try {
 			ProjectTypeEntity projectType = this.getProjectTypeById(projectTask.getProject().getProjectType());
 			if (projectType != null) {
@@ -124,7 +124,7 @@ public class ProjectController extends BaseController {
 	}
 
 	@PostMapping("/update/{projectId}")
-	public ResponseEntity<? extends Object> updateProject(@RequestBody ProjectTaskDto projectTask,
+	public ResponseEntity<? extends Object> updateProject(@RequestBody ProjectTaskReqDto projectTask,
 			@PathVariable String projectId) {
 		try {
 			ProjectTypeEntity projectType = this.getProjectTypeById(projectTask.getProject().getProjectType());
@@ -138,22 +138,21 @@ public class ProjectController extends BaseController {
 	}
 
 	@PostMapping("/assign-list")
-	public ResponseEntity<? extends Object> getCompanyUserForAssignString(
-			@RequestBody AssignTaskReqDto assignTaskReqDto) {
+	public ResponseEntity<? extends Object> getCompanyUserForAssign(@RequestBody AssignTaskReqDto assignTaskReqDto) {
 		List<ProjectAssignRepository> assignList;
 		try {
 			assignList = projectService.getCompanyUserForAssign(assignTaskReqDto);
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}
-		return success(CommonConstants.MessageCode.S1X0004, assignList, null);
+		return success(CommonConstants.MessageCode.S1X0016, assignList, null);
 	}
 
 	@GetMapping("/status")
 	public ResponseEntity<? extends Object> getProgressStatus() throws BestWorkBussinessException {
 		List<ProjectStatusResDto> projectStatus = new ArrayList<>();
 		for (ProjectStatus status : ProjectStatus.values()) {
-			ProjectStatusResDto dto =  new ProjectStatusResDto();
+			ProjectStatusResDto dto = new ProjectStatusResDto();
 			dto.setId(status.ordinal());
 			dto.setStatus(status.getValue());
 			projectStatus.add(dto);

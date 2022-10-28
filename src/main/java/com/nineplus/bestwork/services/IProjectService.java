@@ -9,7 +9,8 @@ import com.nineplus.bestwork.dto.AssignTaskReqDto;
 import com.nineplus.bestwork.dto.PageResponseDto;
 import com.nineplus.bestwork.dto.PageSearchDto;
 import com.nineplus.bestwork.dto.ProjectResponseDto;
-import com.nineplus.bestwork.dto.ProjectTaskDto;
+import com.nineplus.bestwork.dto.ProjectTaskReqDto;
+import com.nineplus.bestwork.dto.ProjectTaskResDto;
 import com.nineplus.bestwork.entity.ProjectEntity;
 import com.nineplus.bestwork.entity.ProjectTypeEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
@@ -28,11 +29,14 @@ public interface IProjectService {
 
 	public void deleteProjectById(List<String> list) throws BestWorkBussinessException;
 
-	public void saveProject(ProjectTaskDto projectTaskDto, ProjectTypeEntity type) throws BestWorkBussinessException;
+	public void saveProject(ProjectTaskReqDto projectTaskDto, ProjectTypeEntity type) throws BestWorkBussinessException;
 
-	public void updateProject(ProjectTaskDto projectTaskDto,ProjectTypeEntity projectType, String projectId) throws BestWorkBussinessException;
+	public void updateProject(ProjectTaskReqDto projectTaskDto,ProjectTypeEntity projectType, String projectId) throws BestWorkBussinessException;
 
 	public List<ProjectAssignRepository> getCompanyUserForAssign(AssignTaskReqDto assignTaskReqDto) throws BestWorkBussinessException;
 
 	boolean isExistedProjectId(String projectId);
+	
+	public ProjectResponseDto getDetailProject(String projectId) throws BestWorkBussinessException;
+
 }
