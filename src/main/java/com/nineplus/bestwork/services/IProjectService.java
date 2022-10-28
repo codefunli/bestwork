@@ -1,6 +1,7 @@
 package com.nineplus.bestwork.services;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.data.domain.Pageable;
@@ -9,6 +10,7 @@ import com.nineplus.bestwork.dto.AssignTaskReqDto;
 import com.nineplus.bestwork.dto.PageResponseDto;
 import com.nineplus.bestwork.dto.PageSearchDto;
 import com.nineplus.bestwork.dto.ProjectResponseDto;
+import com.nineplus.bestwork.dto.ProjectRoleUserResDto;
 import com.nineplus.bestwork.dto.ProjectTaskReqDto;
 import com.nineplus.bestwork.entity.ProjectEntity;
 import com.nineplus.bestwork.entity.ProjectTypeEntity;
@@ -33,6 +35,8 @@ public interface IProjectService {
 	public void updateProject(ProjectTaskReqDto projectTaskDto,ProjectTypeEntity projectType, String projectId) throws BestWorkBussinessException;
 
 	public List<ProjectAssignRepository> getCompanyUserForAssign(AssignTaskReqDto assignTaskReqDto) throws BestWorkBussinessException;
+
+	public Map<Long, List<ProjectRoleUserResDto>> getListAssign(AssignTaskReqDto assignTaskReqDto) throws BestWorkBussinessException;
 
 	boolean isExistedProjectId(String projectId);
 	

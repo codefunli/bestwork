@@ -56,7 +56,7 @@ public class ProjectEntity {
 	private Boolean isPaid;
 
 	@Column(name = "status", nullable = false, columnDefinition = "tinyint(1)")
-	private ProjectStatus status;
+	private String status;
 
 	@Column(name = "create_date", nullable = true)
 	private String createDate;

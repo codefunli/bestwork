@@ -13,7 +13,6 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper = false)
 public class ProjectAssignResDto extends BaseDto {
 
-	
 	/**
 	 * 
 	 */
@@ -21,9 +20,9 @@ public class ProjectAssignResDto extends BaseDto {
 
 	@JsonProperty("companyId")
 	private long companyId;
-	
+
 	@JsonProperty("companyName")
-	private long companyName;
+	private String companyName;
 
 	@JsonProperty("userList")
 	private List<ProjectRoleUserResDto> userList;

@@ -2,6 +2,7 @@ package com.nineplus.bestwork.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,11 +18,14 @@ import org.springframework.web.bind.annotation.RestController;
 import com.nineplus.bestwork.dto.AssignTaskReqDto;
 import com.nineplus.bestwork.dto.PageResponseDto;
 import com.nineplus.bestwork.dto.PageSearchDto;
+import com.nineplus.bestwork.dto.ProjectAssignResDto;
 import com.nineplus.bestwork.dto.ProjectDeleteByIdDto;
 import com.nineplus.bestwork.dto.ProjectResponseDto;
+import com.nineplus.bestwork.dto.ProjectRoleUserResDto;
 import com.nineplus.bestwork.dto.ProjectStatusResDto;
 import com.nineplus.bestwork.dto.ProjectTaskReqDto;
 import com.nineplus.bestwork.dto.ProjectTypeResponseDto;
+import com.nineplus.bestwork.entity.ProjectEntity;
 import com.nineplus.bestwork.entity.ProjectTypeEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.repository.ProjectAssignRepository;
@@ -136,11 +140,22 @@ public class ProjectController extends BaseController {
 		return success(CommonConstants.MessageCode.S1X0008, null, null);
 	}
 
-	@PostMapping("/assign-list")
+	@PostMapping("/assign-list-create")
 	public ResponseEntity<? extends Object> getCompanyUserForAssign(@RequestBody AssignTaskReqDto assignTaskReqDto) {
 		List<ProjectAssignRepository> assignList;
 		try {
 			assignList = projectService.getCompanyUserForAssign(assignTaskReqDto);
+		} catch (BestWorkBussinessException ex) {
+			return failed(ex.getMsgCode(), ex.getParam());
+		}
+		return success(CommonConstants.MessageCode.S1X0016, assignList, null);
+	}
+	
+	@PostMapping("/assign-list-edit")
+	public ResponseEntity<? extends Object> getCompanyUserForAssignEdit(@RequestBody AssignTaskReqDto assignTaskReqDto) {
+		Map<Long, List<ProjectRoleUserResDto>> assignList;
+		try {
+			assignList = projectService.getListAssign(assignTaskReqDto);
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}
