@@ -26,8 +26,8 @@ public class ProjectResponseDto extends BaseDto {
 	 */
 	private static final long serialVersionUID = 7969015153524943561L;
 
-	@JsonProperty("projectId")
-	private String projectId;
+	@JsonProperty("id")
+	private String id ;
 
 	@JsonProperty("projectName")
 	private String projectName;

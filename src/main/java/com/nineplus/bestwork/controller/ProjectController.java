@@ -22,7 +22,6 @@ import com.nineplus.bestwork.dto.ProjectResponseDto;
 import com.nineplus.bestwork.dto.ProjectStatusResDto;
 import com.nineplus.bestwork.dto.ProjectTaskReqDto;
 import com.nineplus.bestwork.dto.ProjectTypeResponseDto;
-import com.nineplus.bestwork.entity.ProjectEntity;
 import com.nineplus.bestwork.entity.ProjectTypeEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.repository.ProjectAssignRepository;

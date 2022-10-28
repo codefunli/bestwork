@@ -26,7 +26,6 @@ import com.nineplus.bestwork.dto.ProjectReqDto;
 import com.nineplus.bestwork.dto.ProjectResponseDto;
 import com.nineplus.bestwork.dto.ProjectRoleUserReqDto;
 import com.nineplus.bestwork.dto.ProjectTaskReqDto;
-import com.nineplus.bestwork.dto.ProjectTaskResDto;
 import com.nineplus.bestwork.entity.AssignTask;
 import com.nineplus.bestwork.entity.ProjectEntity;
 import com.nineplus.bestwork.entity.ProjectTypeEntity;
@@ -43,6 +42,7 @@ import com.nineplus.bestwork.utils.PageUtils;
 import com.nineplus.bestwork.utils.Enums.ProjectStatus;
 
 @Service
+@Transactional
 public class ProjectServiceImpl implements IProjectService {
 
 	private final Logger logger = LoggerFactory.getLogger(ProjectServiceImpl.class);

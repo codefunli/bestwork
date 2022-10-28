@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.nineplus.bestwork.dto.ProjectTypeResponseDto;
 import com.nineplus.bestwork.entity.ProjectTypeEntity;
@@ -13,6 +14,7 @@ import com.nineplus.bestwork.repository.ProjectTypeRepository;
 import com.nineplus.bestwork.services.IProjectTypeService;
 
 @Service
+@Transactional
 public class ProjectTypeServiceImpl implements IProjectTypeService {
 
 	@Autowired

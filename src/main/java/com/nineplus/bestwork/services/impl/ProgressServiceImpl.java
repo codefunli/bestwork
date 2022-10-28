@@ -29,6 +29,7 @@ import com.nineplus.bestwork.utils.DateUtils;
 import com.nineplus.bestwork.utils.UserAuthUtils;
 
 @Service
+@Transactional
 public class ProgressServiceImpl implements IProgressService {
 	@Autowired
 	private ProgressRepository progressRepository;
@@ -89,12 +90,23 @@ public class ProgressServiceImpl implements IProgressService {
 			}
 			progressRepository.save(progress);
 
-			for (String imageData : progressReqDto.getImages()) {
-				storageService.storeFile(imageData, progress);
-			}
+			saveImage(progressReqDto.getFileStorages(), progress);
 
 		} catch (Exception ex) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0001, null);
+		}
+
+	}
+
+	public void saveImage(List<FileStorageEntity> fileStorages, Progress progress) {
+		List<FileStorageEntity> currentFiles = storageService.findFilesByProgressId(progress.getId());
+
+		for (FileStorageEntity file : fileStorages) {
+			if (currentFiles.contains(file)) {
+				fileStorages.remove(file);
+			} else {
+				storageService.storeFileProgress(file, progress);
+			}
 		}
 
 	}

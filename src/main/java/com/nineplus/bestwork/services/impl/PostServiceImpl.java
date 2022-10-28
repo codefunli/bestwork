@@ -5,19 +5,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.nineplus.bestwork.dto.FileStorageResponseDto;
 import com.nineplus.bestwork.dto.PostResponseDto;
 import com.nineplus.bestwork.entity.FileStorageEntity;
 import com.nineplus.bestwork.entity.PostEntity;
-import com.nineplus.bestwork.entity.ProjectEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.repository.PostRepository;
-import com.nineplus.bestwork.repository.ProjectRepository;
 import com.nineplus.bestwork.services.IPostService;
 
 /**
@@ -27,6 +25,7 @@ import com.nineplus.bestwork.services.IPostService;
  */
 
 @Service
+@Transactional
 public class PostServiceImpl implements IPostService {
 
 	@Autowired

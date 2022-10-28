@@ -1,6 +1,9 @@
 package com.nineplus.bestwork.dto;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.nineplus.bestwork.entity.FileStorageEntity;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -33,5 +36,5 @@ public class ProgressReqDto {
 	private String note;
 
 	@JsonProperty("images")
-	private String[] images;
+	private List<FileStorageEntity> fileStorages;
 }
