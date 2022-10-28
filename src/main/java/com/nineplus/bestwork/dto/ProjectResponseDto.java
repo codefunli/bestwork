@@ -45,7 +45,7 @@ public class ProjectResponseDto extends BaseDto {
 	private Boolean isPaid;
 
 	@JsonProperty("status")
-	private ProjectStatus status;
+	private String status;
 
 	@JsonProperty("createDate")
 	private String createDate;

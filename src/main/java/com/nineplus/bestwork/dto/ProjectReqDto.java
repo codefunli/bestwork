@@ -27,7 +27,7 @@ public class ProjectReqDto extends BaseDto {
 	private Boolean isPaid;
 
 	@JsonProperty("status")
-	private int status;
+	private String status;
 
 	@JsonProperty("projectType")
 	private int projectType;

@@ -2,8 +2,11 @@ package com.nineplus.bestwork.services.impl;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -22,9 +25,12 @@ import com.nineplus.bestwork.dto.AssignTaskReqDto;
 import com.nineplus.bestwork.dto.PageResponseDto;
 import com.nineplus.bestwork.dto.PageSearchDto;
 import com.nineplus.bestwork.dto.ProjectAssignReqDto;
+import com.nineplus.bestwork.dto.ProjectAssignResDto;
 import com.nineplus.bestwork.dto.ProjectReqDto;
 import com.nineplus.bestwork.dto.ProjectResponseDto;
+import com.nineplus.bestwork.dto.ProjectRoleUserCompanyResDto;
 import com.nineplus.bestwork.dto.ProjectRoleUserReqDto;
+import com.nineplus.bestwork.dto.ProjectRoleUserResDto;
 import com.nineplus.bestwork.dto.ProjectTaskReqDto;
 import com.nineplus.bestwork.entity.AssignTask;
 import com.nineplus.bestwork.entity.ProjectEntity;
@@ -37,9 +43,9 @@ import com.nineplus.bestwork.services.IProjectService;
 import com.nineplus.bestwork.utils.CommonConstants;
 import com.nineplus.bestwork.utils.ConvertResponseUtils;
 import com.nineplus.bestwork.utils.DateUtils;
+import com.nineplus.bestwork.utils.Enums.ProjectStatus;
 import com.nineplus.bestwork.utils.MessageUtils;
 import com.nineplus.bestwork.utils.PageUtils;
-import com.nineplus.bestwork.utils.Enums.ProjectStatus;
 
 @Service
 @Transactional
@@ -174,7 +180,7 @@ public class ProjectServiceImpl implements IProjectService {
 			projectRegist.setDescription(projectReqDto.getDescription());
 			projectRegist.setNotificationFlag(projectReqDto.getNotificationFlag());
 			projectRegist.setIsPaid(projectReqDto.getIsPaid());
-			projectRegist.setStatus(ProjectStatus.values()[projectReqDto.getStatus()]);
+			projectRegist.setStatus(projectReqDto.getStatus());
 
 			// Convert date UTC to String
 			String registerDate = dateUtils.convertToUTC(projectReqDto.getCreateDate());
@@ -242,7 +248,7 @@ public class ProjectServiceImpl implements IProjectService {
 				currentProject.setDescription(projectTaskDto.getProject().getDescription());
 				currentProject.setNotificationFlag(projectTaskDto.getProject().getNotificationFlag());
 				currentProject.setIsPaid(projectTaskDto.getProject().getIsPaid());
-				currentProject.setStatus(ProjectStatus.values()[projectTaskDto.getProject().getStatus()]);
+				currentProject.setStatus(projectTaskDto.getProject().getStatus());
 				currentProject.setUpdateDate(LocalDateTime.now());
 				currentProject.setProjectType(projectType);
 				projectRepository.save(currentProject);
@@ -277,16 +283,9 @@ public class ProjectServiceImpl implements IProjectService {
 	public List<ProjectAssignRepository> getCompanyUserForAssign(AssignTaskReqDto assignTaskReqDto)
 			throws BestWorkBussinessException {
 		List<ProjectAssignRepository> lstResult = null;
-		if (StringUtils.isNotBlank(assignTaskReqDto.getProjectId())
-				&& StringUtils.isNotBlank(assignTaskReqDto.getCompanyId())) {
-			long companyId = Long.parseLong(assignTaskReqDto.getCompanyId());
-			lstResult = projectRepository.GetCompanyAndRoleUserByCompanyAndProject(companyId,
-					assignTaskReqDto.getProjectId());
-		} else if (StringUtils.isNotBlank(assignTaskReqDto.getCompanyId())) {
+		if (StringUtils.isNotBlank(assignTaskReqDto.getCompanyId())) {
 			long companyId = Long.parseLong(assignTaskReqDto.getCompanyId());
 			lstResult = projectRepository.GetCompanyAndRoleUserByCompanyId(companyId);
-		} else if (StringUtils.isNotBlank(assignTaskReqDto.getProjectId())) {
-			lstResult = projectRepository.GetCompanyAndRoleUserByProject(assignTaskReqDto.getProjectId());
 		}
 		return lstResult;
 	}
@@ -306,6 +305,7 @@ public class ProjectServiceImpl implements IProjectService {
 		ProjectResponseDto projectDto = null;
 		if (project != null) {
 			projectDto = new ProjectResponseDto();
+			projectDto.setId(project.getId());
 			projectDto.setProjectName(project.getProjectName());
 			projectDto.setDescription(project.getDescription());
 			projectDto.setNotificationFlag(project.getNotificationFlag());
@@ -319,4 +319,20 @@ public class ProjectServiceImpl implements IProjectService {
 
 	}
 
+	@Override
+	public Map<Long, List<ProjectRoleUserResDto>> getListAssign(AssignTaskReqDto assignTaskReqDto)
+			throws BestWorkBussinessException {
+		List<ProjectAssignRepository> listRole = null;
+		if (StringUtils.isNotBlank(assignTaskReqDto.getProjectId())) {
+			listRole = projectRepository.GetCompanyAndRoleUserByProject(assignTaskReqDto.getProjectId());
+		}
+		
+		Map<Long, List<ProjectRoleUserResDto>> resultList =
+				listRole
+				.stream()
+				.map(listR -> new ProjectRoleUserResDto(listR.getCompanyId(), listR.getUserId(), listR.getCanView(), listR.getCanEdit()))
+				.collect(Collectors.groupingBy(ProjectRoleUserResDto::getCompanyId, Collectors.toList()));
+
+		return resultList;
+	}
 }
