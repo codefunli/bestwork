@@ -25,7 +25,8 @@ import com.nineplus.bestwork.dto.ProjectAssignReqDto;
 import com.nineplus.bestwork.dto.ProjectReqDto;
 import com.nineplus.bestwork.dto.ProjectResponseDto;
 import com.nineplus.bestwork.dto.ProjectRoleUserReqDto;
-import com.nineplus.bestwork.dto.ProjectTaskDto;
+import com.nineplus.bestwork.dto.ProjectTaskReqDto;
+import com.nineplus.bestwork.dto.ProjectTaskResDto;
 import com.nineplus.bestwork.entity.AssignTask;
 import com.nineplus.bestwork.entity.ProjectEntity;
 import com.nineplus.bestwork.entity.ProjectTypeEntity;
@@ -105,7 +106,6 @@ public class ProjectServiceImpl implements IProjectService {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
 		}
 		return this.projectRepository.findById(id);
-
 	}
 
 	private String getLastProjectId() {
@@ -143,7 +143,7 @@ public class ProjectServiceImpl implements IProjectService {
 	}
 
 	@Override
-	public void saveProject(ProjectTaskDto projectTaskDto, ProjectTypeEntity projectType)
+	public void saveProject(ProjectTaskReqDto projectTaskDto, ProjectTypeEntity projectType)
 			throws BestWorkBussinessException {
 		// Generate project ID
 		String generateProjectId = "";
@@ -227,10 +227,10 @@ public class ProjectServiceImpl implements IProjectService {
 	}
 
 	@Override
-	public void updateProject(ProjectTaskDto projectTaskDto, ProjectTypeEntity projectType, String projectId)
+	public void updateProject(ProjectTaskReqDto projectTaskDto, ProjectTypeEntity projectType, String projectId)
 			throws BestWorkBussinessException {
 		ProjectEntity currentProject = null;
-    
+
 		for (int j = 0; j < projectTaskDto.getRoleData().size(); j++) {
 			Long companyId = projectTaskDto.getRoleData().get(j).getCompanyId();
 			currentProject = projectRepository.findbyProjectId(projectId);
@@ -246,9 +246,10 @@ public class ProjectServiceImpl implements IProjectService {
 				currentProject.setUpdateDate(LocalDateTime.now());
 				currentProject.setProjectType(projectType);
 				projectRepository.save(currentProject);
-	
+
 				for (int i = 0; i < userList.size(); i++) {
-					assignTask = assignTaskRepository.findbyCondition(userList.get(i).getUserId(), companyId, projectId);
+					assignTask = assignTaskRepository.findbyCondition(userList.get(i).getUserId(), companyId,
+							projectId);
 					if (assignTask != null) {
 						assignTask.setCanView(userList.get(i).isCanView());
 						assignTask.setCanEdit(userList.get(i).isCanEdit());
@@ -262,12 +263,12 @@ public class ProjectServiceImpl implements IProjectService {
 						assignTaskNew.setCanEdit(userList.get(i).isCanEdit());
 						assignTaskRepository.save(assignTaskNew);
 					}
-	
+
 				}
-	
+
 			} catch (Exception ex) {
-				throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0004,
-						new Object[] { CommonConstants.Character.PROJECT, (projectTaskDto.getProject().getProjectName()) });
+				throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0004, new Object[] {
+						CommonConstants.Character.PROJECT, (projectTaskDto.getProject().getProjectName()) });
 			}
 		}
 	}
@@ -284,6 +285,8 @@ public class ProjectServiceImpl implements IProjectService {
 		} else if (StringUtils.isNotBlank(assignTaskReqDto.getCompanyId())) {
 			long companyId = Long.parseLong(assignTaskReqDto.getCompanyId());
 			lstResult = projectRepository.GetCompanyAndRoleUserByCompanyId(companyId);
+		} else if (StringUtils.isNotBlank(assignTaskReqDto.getProjectId())) {
+			lstResult = projectRepository.GetCompanyAndRoleUserByProject(assignTaskReqDto.getProjectId());
 		}
 		return lstResult;
 	}
@@ -296,4 +299,24 @@ public class ProjectServiceImpl implements IProjectService {
 		}
 		return false;
 	}
+
+	@Override
+	public ProjectResponseDto getDetailProject(String projectId) throws BestWorkBussinessException {
+		ProjectEntity project = projectRepository.findbyProjectId(projectId);
+		ProjectResponseDto projectDto = null;
+		if (project != null) {
+			projectDto = new ProjectResponseDto();
+			projectDto.setProjectName(project.getProjectName());
+			projectDto.setDescription(project.getDescription());
+			projectDto.setNotificationFlag(project.getNotificationFlag());
+			projectDto.setIsPaid(project.getIsPaid());
+			projectDto.setProjectType(project.getProjectType());
+			projectDto.setStatus(project.getStatus());
+			projectDto.setCreateDate(project.getCreateDate());
+			projectDto.setUpdateDate(project.getUpdateDate());
+		}
+		return projectDto;
+
+	}
+
 }

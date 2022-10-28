@@ -10,7 +10,7 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class ProjectTaskDto extends BaseDto {
+public class ProjectTaskReqDto extends BaseDto {
 	 /**
 	 * serialVersionUID
 	 */

@@ -26,8 +26,8 @@ public class ProjectResponseDto extends BaseDto {
 	 */
 	private static final long serialVersionUID = 7969015153524943561L;
 
-	@JsonProperty("id")
-	private String id;
+	@JsonProperty("projectId")
+	private String projectId;
 
 	@JsonProperty("projectName")
 	private String projectName;
@@ -39,10 +39,10 @@ public class ProjectResponseDto extends BaseDto {
 	private ProjectTypeEntity projectType;
 
 	@JsonProperty("notificationFlag")
-	private Integer notificationFlag;
+	private Boolean notificationFlag;
 
 	@JsonProperty("isPaid")
-	private Integer isPaid;
+	private Boolean isPaid;
 
 	@JsonProperty("status")
 	private ProjectStatus status;
