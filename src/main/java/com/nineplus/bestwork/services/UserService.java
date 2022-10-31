@@ -2,15 +2,13 @@ package com.nineplus.bestwork.services;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import java.util.*;
-
-import com.nineplus.bestwork.dto.*;
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,8 +25,12 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import com.nineplus.bestwork.dto.PageResponseDto;
 import com.nineplus.bestwork.dto.PageSearchUserDto;
+import com.nineplus.bestwork.dto.RPageDto;
+import com.nineplus.bestwork.dto.UserCompanyReqDto;
+import com.nineplus.bestwork.dto.UserListIdDto;
 import com.nineplus.bestwork.dto.UserReqDto;
 import com.nineplus.bestwork.dto.UserResDto;
 import com.nineplus.bestwork.entity.TCompany;
@@ -123,7 +125,7 @@ public class UserService implements UserDetailsService {
 	}
 
 	@Transactional(rollbackFor = { Exception.class })
-	public void registNewUser(UserReqDto newUser, TCompany tCompany, TRole tRole) {
+	public void registNewUser(UserCompanyReqDto newUser, TCompany tCompany, TRole tRole) {
 		TUser newTUser = new TUser();
 		Set<TCompany> tCompanyUser = new HashSet<TCompany>();
 		tCompanyUser.add(tCompany);

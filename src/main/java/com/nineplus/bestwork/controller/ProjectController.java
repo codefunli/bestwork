@@ -20,6 +20,7 @@ import com.nineplus.bestwork.dto.PageSearchDto;
 import com.nineplus.bestwork.dto.ProjectDeleteByIdDto;
 import com.nineplus.bestwork.dto.ProjectResponseDto;
 import com.nineplus.bestwork.dto.ProjectRoleUserResDto;
+import com.nineplus.bestwork.dto.ProjectStatusReqDto;
 import com.nineplus.bestwork.dto.ProjectStatusResDto;
 import com.nineplus.bestwork.dto.ProjectTaskReqDto;
 import com.nineplus.bestwork.dto.ProjectTypeResponseDto;
@@ -170,5 +171,16 @@ public class ProjectController extends BaseController {
 			projectStatus.add(dto);
 		}
 		return success(CommonConstants.MessageCode.S1X0015, projectStatus, null);
+	}
+
+	@PostMapping("{projectId}/change-status")
+	public ResponseEntity<? extends Object> changeStatus(@PathVariable String projectId,
+			@RequestBody ProjectStatusReqDto projectStatusReqDto) {
+		try {
+			projectService.changeStatus(projectId, projectStatusReqDto);
+		} catch (BestWorkBussinessException ex) {
+			return failed(ex.getMsgCode(), ex.getParam());
+		}
+		return success(CommonConstants.MessageCode.S1X0017, null, null);
 	}
 }

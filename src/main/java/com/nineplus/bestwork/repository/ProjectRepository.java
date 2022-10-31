@@ -33,19 +33,19 @@ public interface ProjectRepository extends JpaRepository<ProjectEntity, String> 
 	@Query(value = " delete from PROJECT where id in :id ", nativeQuery = true)
 	@Modifying
 	void deleteProjectById(@Param("id") List<String> id);
-	
+
 	@Query(value = "SELECT * FROM PROJECT WHERE project_name = :name", nativeQuery = true)
 	ProjectEntity findbyProjectName(String name);
-	
+
 	@Query(value = "SELECT * FROM PROJECT WHERE id = :id", nativeQuery = true)
 	ProjectEntity findbyProjectId(String id);
 
 	@Query(value = "Select tus.user_name as userName, tus.id as userId, 'false' as canView ,'false' as canEdit from T_SYS_APP_USER tus JOIN T_COMPANY_USER tcu ON tus.id = tcu.user_id WHERE tcu.company_id = ?1", nativeQuery = true)
 	List<ProjectAssignRepository> GetCompanyAndRoleUserByCompanyId(Long companyId);
-	
+
 	@Query(value = "select tus.user_name as userName, ast.user_id as userId, ast.can_view as canView , ast.can_edit as canEdit from ASSIGN_TASK ast JOIN PROJECT pr ON ast.project_id = pr.id JOIN T_SYS_APP_USER tus ON tus.id = ast.user_id  WHERE ast.company_id = ?1 AND ast.project_id = ?2", nativeQuery = true)
 	List<ProjectAssignRepository> GetCompanyAndRoleUserByCompanyAndProject(Long companyId, String projectId);
-	
+
 	@Query(value = "select ast.company_id as companyId, tc.company_name as companyName, tus.user_name as userName, ast.user_id as userId, ast.can_view as canView , ast.can_edit as canEdit from T_COMPANY tc join ASSIGN_TASK ast ON tc.id = ast.company_id JOIN PROJECT pr ON ast.project_id = pr.id JOIN T_SYS_APP_USER tus ON tus.id = ast.user_id WHERE ast.project_id = :projectId", nativeQuery = true)
 	List<ProjectAssignRepository> GetCompanyAndRoleUserByProject(String projectId);
 

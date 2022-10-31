@@ -1,5 +1,6 @@
 package com.nineplus.bestwork.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
@@ -47,7 +48,9 @@ public class CompanyReqDto extends BaseDto {
 	@JsonProperty("expiredDate")
 	private String expiredDate;
 	
+	@JsonIgnore
 	private String createBy;
-	
+
+	@JsonIgnore
 	private String updateBy;
 }
