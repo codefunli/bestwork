@@ -1,4 +1,4 @@
-package com.nineplus.bestwork.entity;
+	package com.nineplus.bestwork.entity;
 
 import java.sql.Timestamp;
 
@@ -27,6 +27,7 @@ public class FileStorageEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "id", nullable = false)
 	private String id;
 
 	@Column(name = "name", nullable = false)

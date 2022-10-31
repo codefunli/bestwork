@@ -11,9 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 public class ProjectReqDto extends BaseDto {
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 3716543566647577097L;
 
 	@JsonProperty("projectName")
@@ -23,13 +21,13 @@ public class ProjectReqDto extends BaseDto {
 	private String description;
 
 	@JsonProperty("notificationFlag")
-	private int notificationFlag;
+	private Boolean notificationFlag;
 
 	@JsonProperty("isPaid")
-	private int isPaid;
+	private Boolean isPaid;
 
 	@JsonProperty("status")
-	private int status;
+	private String status;
 
 	@JsonProperty("projectType")
 	private int projectType;

@@ -73,8 +73,8 @@ public class CommonConstants {
 		public static final String E1X0011 = "e1X0011";
 		public static final String E1X0012 = "e1X0012";
 		public static final String E1X0013 = "e1X0013";
-		public static final String E1X0014 = "e1X0014";
 		public static final String E1X0015 = "e1X0015";
+		public static final String E1X0014 = "e1X0014";
 		public static final String E1X0016 = "e1X0016";
 		public static final String E1X0017 = "e1X0017";
 		public static final String E1X0018 = "e1X0018";
@@ -148,6 +148,20 @@ public class CommonConstants {
 		public static final String SCU0004 = "scu0004";
 		public static final String ECU0004 = "ecu0004";
 		public static final String ECU0005 = "ecu0005";
+
+		public static final String SPOST0001 = "sPost0001";
+		public static final String EPOST0001 = "ePost0001";
+		public static final String SPOST0002 = "sPost0002";
+		public static final String EPOST0002 = "ePost0002";
+		public static final String SPOST0003 = "sPost0003";
+		public static final String EPOST0003 = "ePost0003";
+
+		public static final String sPu00001 = "sPu0001";
+		public static final String sPu00002 = "sPu0002";
+		public static final String sPu00003 = "sPu0003";
+		public static final String sPu0004 = "sPu0004";
+		public static final String sPu0005 = "sPu0005";
+		public static final String sPu0006 = "sPu0006";
 
 	}
 

@@ -15,7 +15,7 @@ import javax.persistence.Table;
 import org.hibernate.annotations.TypeDef;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.nineplus.bestwork.model.ProjectStatus;
+import com.nineplus.bestwork.utils.Enums.ProjectStatus;
 import com.vladmihalcea.hibernate.type.json.JsonStringType;
 
 import lombok.AllArgsConstructor;
@@ -50,13 +50,13 @@ public class ProjectEntity {
 	private String description;
 
 	@Column(name = "notification_flag", nullable = true, columnDefinition = "tinyint(1)")
-	private Integer notificationFlag;
+	private Boolean notificationFlag;
 
 	@Column(name = "is_paid", nullable = true, columnDefinition = "tinyint(1)")
-	private Integer isPaid;
+	private Boolean isPaid;
 
 	@Column(name = "status", nullable = false, columnDefinition = "tinyint(1)")
-	private ProjectStatus status;
+	private String status;
 
 	@Column(name = "create_date", nullable = true)
 	private String createDate;

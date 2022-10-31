@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.nineplus.bestwork.dto.FileStorageResponseDto;
 import com.nineplus.bestwork.dto.PostResponseDto;
@@ -24,6 +25,7 @@ import com.nineplus.bestwork.services.IPostService;
  */
 
 @Service
+@Transactional
 public class PostServiceImpl implements IPostService {
 
 	@Autowired
@@ -79,6 +81,7 @@ public class PostServiceImpl implements IPostService {
 			dto.setDescription(postEntity.getDescription());
 			dto.setCreateDate(postEntity.getCreateDate().toString());
 			dto.setProject(postEntity.getProject());
+			dto.setComment(postEntity.getComment());
 			List<FileStorageResponseDto> fileStorageResponseDtos = new ArrayList<>();
 			for (FileStorageEntity file : postEntity.getFileStorages()) {
 				FileStorageResponseDto fileStorageResponseDto = new FileStorageResponseDto();
@@ -101,6 +104,17 @@ public class PostServiceImpl implements IPostService {
 		}
 
 		return postResponseDtos;
+	}
+
+	@Override
+	public PostEntity getPostByPostIdAndProjectId(String postId, String projectId) {
+		return this.postRepository.findPostByIdAndProjectId(postId, projectId);
+	
+	}
+
+	@Override
+	public PostEntity updatePost(PostEntity post) {
+		return this.postRepository.save(post);
 	}
 
 }

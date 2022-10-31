@@ -4,11 +4,13 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.UUID;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.nineplus.bestwork.entity.FileStorageEntity;
 import com.nineplus.bestwork.entity.PostEntity;
@@ -23,13 +25,14 @@ import com.nineplus.bestwork.services.IStorageService;
  */
 
 @Service
+@Transactional
 public class StorageServiceImpl implements IStorageService {
 
 	@Autowired
 	private StorageRepository storageRepository;
 
 	@Override
-	public FileStorageEntity storeFile(String imageData, PostEntity reqPost) {
+	public FileStorageEntity storeFilePost(String imageData, PostEntity reqPost) {
 		try {
 			FileStorageEntity image = new FileStorageEntity();
 			image.setData(imageData.getBytes());
@@ -71,15 +74,14 @@ public class StorageServiceImpl implements IStorageService {
 	}
 
 	@Override
-	public FileStorageEntity storeFile(String imageData, Progress progress) {
+	public FileStorageEntity storeFileProgress(FileStorageEntity file, Progress progress) {
 		try {
 			FileStorageEntity image = new FileStorageEntity();
-			image.setData(imageData.getBytes());
+			image.setData(file.getData());
 			image.setProgress(progress);
 			String generatedFileName = UUID.randomUUID().toString().replace("-", "");
 			image.setName(generatedFileName);
-			String type = getImageType(imageData);
-			image.setType(type);
+			image.setType(file.getType());
 			image.setCreateDate(Timestamp.valueOf(LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"))));
 
 			return storageRepository.save(image);
@@ -87,5 +89,19 @@ public class StorageServiceImpl implements IStorageService {
 			e.getMessage();
 			return null;
 		}
+	}
+
+	public List<FileStorageEntity> findFilesByPostId(String postId) {
+		return this.storageRepository.findAllByPostId(postId);
+	}
+
+	@Override
+	public List<FileStorageEntity> findFilesByProgressId(Long progressId) {
+		return this.storageRepository.findAllByProgressId(progressId);
+	}
+
+	@Override
+	public void deleteFilesByPostId(String postId) {
+		this.storageRepository.deleteByPostId(postId);
 	}
 }

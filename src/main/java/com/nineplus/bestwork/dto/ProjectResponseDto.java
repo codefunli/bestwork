@@ -1,10 +1,10 @@
 package com.nineplus.bestwork.dto;
 
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.nineplus.bestwork.entity.ProjectTypeEntity;
-import com.nineplus.bestwork.model.ProjectStatus;
+import com.nineplus.bestwork.utils.Enums.ProjectStatus;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -27,7 +27,7 @@ public class ProjectResponseDto extends BaseDto {
 	private static final long serialVersionUID = 7969015153524943561L;
 
 	@JsonProperty("id")
-	private String id;
+	private String id ;
 
 	@JsonProperty("projectName")
 	private String projectName;
@@ -39,19 +39,19 @@ public class ProjectResponseDto extends BaseDto {
 	private ProjectTypeEntity projectType;
 
 	@JsonProperty("notificationFlag")
-	private Integer notificationFlag;
+	private Boolean notificationFlag;
 
 	@JsonProperty("isPaid")
-	private Integer isPaid;
+	private Boolean isPaid;
 
 	@JsonProperty("status")
-	private ProjectStatus status;
+	private String status;
 
 	@JsonProperty("createDate")
 	private String createDate;
 
 	@JsonProperty("updateDate")
-	private Timestamp updateDate;
+	private LocalDateTime updateDate;
 
 //	@JsonProperty("posts")
 //	private Collection<PostEntity> posts;

@@ -1,20 +1,26 @@
 package com.nineplus.bestwork.dto;
 
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import lombok.Data;
+import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
-@NoArgsConstructor
+@Getter
+@Setter
+@AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class ProjectRoleUserReqDto extends BaseDto {
-	
+public class ProjectRoleUserResDto extends BaseDto {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 2755608331672918521L;
+	private static final long serialVersionUID = 1159648122714585414L;
+	
+	@JsonProperty("companyId")
+	private long companyId;
+	
 	@JsonProperty("userId")
 	private long userId;
 

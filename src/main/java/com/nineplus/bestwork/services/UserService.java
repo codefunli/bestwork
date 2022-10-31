@@ -7,19 +7,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import com.nineplus.bestwork.dto.*;
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -48,9 +44,6 @@ import com.nineplus.bestwork.utils.ConvertResponseUtils;
 import com.nineplus.bestwork.utils.MessageUtils;
 import com.nineplus.bestwork.utils.PageUtils;
 import com.nineplus.bestwork.utils.UserAuthUtils;
-import org.springframework.validation.BindingResult;
-
-import javax.validation.Valid;
 
 @Service
 @Transactional
@@ -98,6 +91,7 @@ public class UserService implements UserDetailsService {
 	@Autowired
 	TCompanyRepository tCompanyRepository;
 
+
 	@Override
 	public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
 		TUser user = tUserRepo.findByUserName(userName);
@@ -116,11 +110,13 @@ public class UserService implements UserDetailsService {
 			dto.setId(user.getId());
 			dto.setUserName(user.getUserName());
 			dto.setEmail(user.getEmail());
-			dto.setRole(user.getRole().getRoleName());
-			dto.setIsEnable(user.getIsEnable());
+			dto.setRole(user.getRole());
+			dto.setEnabled(user.getIsEnable());
+			dto.setRole(user.getRole());
+			dto.setEnabled(user.getIsEnable());
 			dto.setTelNo(user.getTelNo());
-			dto.setFirstNm(user.getFirstNm());
-			dto.setLastNm(user.getLastNm());
+			dto.setFirstName(user.getFirstNm());
+			dto.setLastName(user.getLastNm());
 		}
 
 		return dto;
@@ -164,16 +160,21 @@ public class UserService implements UserDetailsService {
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
 		String createUser = userAuthRoleReq.getUsername();
 		TRole role = new TRole();
-		Optional<TRole> roleOptional = roleRepository.findById(userReqDto.getRole());
+		Optional<TRole> roleOptional = roleRepository.findById(userReqDto.getRole().getId());
 		if (roleOptional.isPresent()) {
 			role = roleOptional.get();
 		}
-		TCompany company = tCompanyRepository.findById(findCompanyIdByAdminUsername(userAuthRoleReq)).orElse(new TCompany());
+		TCompany company = tCompanyRepository.findById(findCompanyIdByUsername(userAuthRoleReq)).orElse(new TCompany());
 		Set<TCompany> companies = new HashSet<>();
-		if (!ObjectUtils.isEmpty(company)) {
+		TUser user = new TUser();
+		if (null != company.getId()) {
+			companies.add(company);
+		} else {
+			company = tCompanyRepository.findByCompanyId(userReqDto.getCompany().getId());
 			companies.add(company);
 		}
-		TUser user = new TUser();
+
+		user.setCompanys(companies);
 		user.setUserName(userReqDto.getUserName());
 		user.setPassword(encoder.encode(userReqDto.getPassword()));
 		user.setFirstNm(userReqDto.getFirstName());
@@ -185,11 +186,9 @@ public class UserService implements UserDetailsService {
 		user.setCreateBy(createUser);
 		user.setCreateDate(LocalDateTime.now());
 		user.setDeleteFlag(0);
-		user.setCompanys(companies);
 		if (null != userReqDto.getAvatar()) {
 			user.setUserAvatar(userReqDto.getAvatar().getBytes());
 		}
-
 		return this.tUserRepo.save(user);
 	}
 
@@ -197,12 +196,16 @@ public class UserService implements UserDetailsService {
 		return this.tUserRepo.findAllUsersByCompanyId(companyId);
 	}
 
-	public TUser getUserById(long userId) {
-		Optional<TUser> userOptional = this.tUserRepo.findById(userId);
-		if (!userOptional.isPresent()) {
-			return null;
+	public TUser getUserById(long userId) throws BestWorkBussinessException {
+		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
+		TCompany company = tCompanyRepository.findById(findCompanyIdByUsername(userAuthRoleReq)).orElse(new TCompany());
+		Optional<TUser> userOptional;
+		if (null != company.getId()) {
+			userOptional = this.tUserRepo.findUserById(userId, String.valueOf(company.getId()));
+		} else {
+			userOptional = this.tUserRepo.findUserById(userId, "%%");
 		}
-		return userOptional.get();
+		return userOptional.orElse(null);
 	}
 
 	@Transactional(rollbackFor = { Exception.class })
@@ -258,12 +261,12 @@ public class UserService implements UserDetailsService {
 				UserResDto userResDto = new UserResDto();
 				userResDto.setUserName(tUser.getUserName());
 				userResDto.setEmail(tUser.getEmail());
-				userResDto.setFirstNm(tUser.getFirstNm());
-				userResDto.setLastNm(tUser.getLastNm());
+				userResDto.setFirstName(tUser.getFirstNm());
+				userResDto.setLastName(tUser.getLastNm());
 				userResDto.setTelNo(tUser.getTelNo());
-				userResDto.setRole(tUser.getRole().getRoleName());
+				userResDto.setRole(tUser.getRole());
 				userResDto.setId(tUser.getId());
-				userResDto.setIsEnable(tUser.getIsEnable());
+				userResDto.setEnabled(tUser.getIsEnable());
 				userResDto.setAvatar(Arrays.toString(tUser.getUserAvatar()));
 				userResDtoList.add(userResDto);
 			}
@@ -304,5 +307,75 @@ public class UserService implements UserDetailsService {
 
 		return PageRequest.of(Integer.parseInt(pageCondition.getPage()), Integer.parseInt(pageCondition.getSize()),
 				Sort.by(pageCondition.getSortDirection(), convertResponseUtils.convertResponseUser(pageCondition.getSortBy())));
+	}
+
+	public TUser editUser(UserReqDto userReqDto, long userId) throws BestWorkBussinessException {
+		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
+		TCompany company = tCompanyRepository.findById(findCompanyIdByUsername(userAuthRoleReq)).orElse(new TCompany());
+		if (null != company.getId()) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.ECU0003, null);
+		}
+		TUser user = tUserRepo.findById(userId).orElse(null);
+		if (null == user) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.ECU0003, null);
+		}
+
+		if (userReqDto.getRole().getId() == 1) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.ECU0003, null);
+		}
+
+		TUser tUser = new TUser();
+		Set<TCompany> tCompanySet = new HashSet<>();
+		if (null != userReqDto.getCompany()) {
+			tCompanySet.add(userReqDto.getCompany());
+			tUser.setCompanys(tCompanySet);
+		} else {
+			tUser.setCompanys(user.getCompanys());
+		}
+		tUser.setId(userId);
+		tUser.setUserName(userReqDto.getUserName());
+		if (null != userReqDto.getPassword()) {
+			tUser.setPassword(encoder.encode(userReqDto.getPassword()));
+		} else {
+			tUser.setPassword(user.getPassword());
+		}
+		tUser.setFirstNm(userReqDto.getFirstName());
+		tUser.setLastNm(userReqDto.getLastName());
+		tUser.setEmail(userReqDto.getEmail());
+		tUser.setTelNo(userReqDto.getTelNo());
+		tUser.setIsEnable(userReqDto.getEnabled());
+		TRole tRole = new TRole();
+		tRole.setId(userReqDto.getRole().getId());
+		tUser.setRole(tRole);
+		if (null != userReqDto.getAvatar()) {
+			tUser.setUserAvatar(userReqDto.getAvatar().getBytes());
+		} else {
+			tUser.setUserAvatar("".getBytes());
+		}
+		tUser.setUpdateDate(LocalDateTime.now());
+		tUserRepo.save(tUser);
+		return tUser;
+	}
+
+	public List<TRole> getAllRoles() {
+		List<TRole> tRoleList = this.roleRepository.findAll();
+		tRoleList.removeIf(tRole -> tRole.getId() == 1);
+		return tRoleList;
+	}
+
+	public List<TUser> findAll() {
+		return this.tUserRepo.findAll();
+	}
+
+	public Object getAllCompanyOfUser() throws BestWorkBussinessException {
+		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
+		TCompany company = tCompanyRepository.findById(findCompanyIdByUsername(userAuthRoleReq)).orElse(new TCompany());
+		if (null != company.getId()) {
+			List<TCompany> tCompanyList = new ArrayList<>();
+			tCompanyList.add(company);
+			return tCompanyList;
+		} else {
+			return this.tCompanyRepository.findAll();
+		}
 	}
 }
