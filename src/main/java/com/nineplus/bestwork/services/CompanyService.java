@@ -25,7 +25,7 @@ import com.nineplus.bestwork.dto.CompanyUserReqDto;
 import com.nineplus.bestwork.dto.CompanyUserResDto;
 import com.nineplus.bestwork.dto.PageResponseDto;
 import com.nineplus.bestwork.dto.PageSearchDto;
-import com.nineplus.bestwork.dto.UserReqDto;
+import com.nineplus.bestwork.dto.UserCompanyReqDto;
 import com.nineplus.bestwork.dto.UserResDto;
 import com.nineplus.bestwork.entity.TCompany;
 import com.nineplus.bestwork.entity.TRole;
@@ -135,7 +135,7 @@ public class CompanyService {
 
 	}
 
-	public void validateUserInfor(UserReqDto userReq) throws BestWorkBussinessException {
+	public void validateUserInfor(UserCompanyReqDto userReq) throws BestWorkBussinessException {
 		String userEmail = userReq.getEmail();
 		String userName = userReq.getUserName();
 		String password = userReq.getPassword();

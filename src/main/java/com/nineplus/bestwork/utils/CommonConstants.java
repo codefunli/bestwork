@@ -164,6 +164,9 @@ public class CommonConstants {
 		public static final String sPu0005 = "sPu0005";
 		public static final String sPu0006 = "sPu0006";
 		public static final String ePu0001 = "ePu0001";
+		public static final String ePu0002 = "ePu0002";
+		public static final String S1X0017 = "s1X0017";
+		
 		
 
 	}

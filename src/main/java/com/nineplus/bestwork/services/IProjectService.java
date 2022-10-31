@@ -11,6 +11,7 @@ import com.nineplus.bestwork.dto.PageResponseDto;
 import com.nineplus.bestwork.dto.PageSearchDto;
 import com.nineplus.bestwork.dto.ProjectResponseDto;
 import com.nineplus.bestwork.dto.ProjectRoleUserResDto;
+import com.nineplus.bestwork.dto.ProjectStatusReqDto;
 import com.nineplus.bestwork.dto.ProjectTaskReqDto;
 import com.nineplus.bestwork.entity.ProjectEntity;
 import com.nineplus.bestwork.entity.ProjectTypeEntity;
@@ -41,5 +42,7 @@ public interface IProjectService {
 	boolean isExistedProjectId(String projectId);
 	
 	public ProjectResponseDto getDetailProject(String projectId) throws BestWorkBussinessException;
-	
+
+	public void changeStatus(String projectId, ProjectStatusReqDto projectStatusReqDto) throws BestWorkBussinessException;
+
 }

@@ -28,6 +28,7 @@ import com.nineplus.bestwork.dto.ProjectReqDto;
 import com.nineplus.bestwork.dto.ProjectResponseDto;
 import com.nineplus.bestwork.dto.ProjectRoleUserReqDto;
 import com.nineplus.bestwork.dto.ProjectRoleUserResDto;
+import com.nineplus.bestwork.dto.ProjectStatusReqDto;
 import com.nineplus.bestwork.dto.ProjectTaskReqDto;
 import com.nineplus.bestwork.entity.AssignTask;
 import com.nineplus.bestwork.entity.ProjectEntity;
@@ -324,14 +325,27 @@ public class ProjectServiceImpl implements IProjectService {
 		if (StringUtils.isNotBlank(assignTaskReqDto.getProjectId())) {
 			listRole = projectRepository.GetCompanyAndRoleUserByProject(assignTaskReqDto.getProjectId());
 		}
-		
-		Map<Long, List<ProjectRoleUserResDto>> resultList =
-				listRole
-				.stream()
-				.map(listR -> new ProjectRoleUserResDto(listR.getCompanyId(), listR.getUserId(),listR.getUserName(),listR.getCanView(), listR.getCanEdit()))
+
+		Map<Long, List<ProjectRoleUserResDto>> resultList = listRole.stream()
+				.map(listR -> new ProjectRoleUserResDto(listR.getCompanyId(), listR.getUserId(), listR.getUserName(),
+						listR.getCanView(), listR.getCanEdit()))
 				.collect(Collectors.groupingBy(ProjectRoleUserResDto::getCompanyId, Collectors.toList()));
 
 		return resultList;
 	}
 
+	@Override
+	public void changeStatus(String projectId, ProjectStatusReqDto projectStatusReqDto)
+			throws BestWorkBussinessException {
+		ProjectEntity currentProject = null;
+
+		try {
+			currentProject = projectRepository.findbyProjectId(projectId);
+			if (currentProject != null) {
+				currentProject.setStatus(projectStatusReqDto.getToStatus());
+			}
+		} catch (Exception ex) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0017, null);
+		}
+	}
 }
