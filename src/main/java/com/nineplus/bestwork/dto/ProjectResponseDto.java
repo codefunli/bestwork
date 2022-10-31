@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.nineplus.bestwork.entity.ProjectTypeEntity;
-import com.nineplus.bestwork.utils.Enums.ProjectStatus;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
