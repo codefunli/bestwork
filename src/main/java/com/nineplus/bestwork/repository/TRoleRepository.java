@@ -1,18 +1,20 @@
 package com.nineplus.bestwork.repository;
 
-import java.util.Optional;
-
+import com.nineplus.bestwork.entity.TRole;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import com.nineplus.bestwork.entity.TRole;
-import com.nineplus.bestwork.model.ERole;
+import java.util.Optional;
 
 @Repository
 public interface TRoleRepository extends JpaRepository<TRole, Long> {
-	Optional<TRole> findByRoleName(ERole name);
+	Optional<TRole> findTRoleByRoleNameContains(String roleName);
 
-	@Query(value = "SELECT * FROM t_sys_app_role WHERE UPPER(name) = :role", nativeQuery = true)
+	Page<TRole> findTRolesByRoleNameContaining(String roleName, Pageable pageable);
+
+	@Query(value = "SELECT * FROM T_SYS_APP_ROLE WHERE UPPER(name) = :role", nativeQuery = true)
 	TRole findRole(String role);
 }

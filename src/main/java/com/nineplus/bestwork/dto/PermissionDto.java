@@ -3,24 +3,22 @@ package com.nineplus.bestwork.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
-import java.util.List;
-
 @Data
-public class ResPermissionDto {
+public class PermissionDto {
     @JsonProperty("id")
     private Long id;
-    @JsonProperty("canAccess")
-    private Boolean canAccess;
+    @JsonProperty("monitorId")
+    private Long monitorId;
+    @JsonProperty("monitorName")
+    private String monitorName;
     @JsonProperty("canAdd")
     private Boolean canAdd;
     @JsonProperty("canEdit")
     private Boolean canEdit;
     @JsonProperty("canDelete")
     private Boolean canDelete;
+    @JsonProperty("canAccess")
+    private Boolean canAccess;
     @JsonProperty("status")
     private Integer status;
-    @JsonProperty("monitorId")
-    private Long monitorId;
-    @JsonProperty("roleId")
-    private Long roleId;
 }

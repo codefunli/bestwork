@@ -8,17 +8,22 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.servlet.FilterChain;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.nineplus.bestwork.utils.BeanUtil;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.auth0.jwt.JWT;
@@ -39,15 +44,14 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 
 	public String PUBLIC_URL[];
 
-	@Autowired
 	UserService userService;
 
-	public CustomAuthorizationFilter(String prefixToken, String secretKey, String jwtExpiration, String publicUrl[]) {
+	public CustomAuthorizationFilter(String prefixToken, String secretKey, String jwtExpiration, String[] publicUrl) {
 		super();
 		PREFIX_TOKEN = prefixToken;
 		SECRET_KEY = secretKey;
 		JWT_EXPIRATION = Integer.parseInt(jwtExpiration);
-		this.PUBLIC_URL = Stream.of(publicUrl).map(item -> item.replace("/**", "")).collect(Collectors.toList())
+		this.PUBLIC_URL = Stream.of(publicUrl).map(item -> item.replace("/**", "")).toList()
 				.toArray(new String[publicUrl.length]);
 	}
 
@@ -63,7 +67,11 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
-
+		if (userService == null) {
+			ServletContext servletContext = request.getServletContext();
+			WebApplicationContext webApplicationContext = WebApplicationContextUtils.getWebApplicationContext(servletContext);
+			userService = webApplicationContext.getBean(UserService.class);
+		}
 		if (isPublicUrl(request.getServletPath())) {
 			filterChain.doFilter(request, response);
 		} else {

@@ -8,5 +8,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PermissionRepository extends JpaRepository<SysPermission, Long> {
-    Page<SysPermission> findBySysMonitor_NameContainingIgnoreCaseAndSysRole_NameContainingIgnoreCase(String monitorName,String roleName, Pageable pageable);
+    Page<SysPermission> findBySysMonitor_NameContainingIgnoreCaseAndSysRole_RoleNameContainingIgnoreCase
+            (String monitorName, String roleName, Pageable pageable);
+
 }

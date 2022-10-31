@@ -21,7 +21,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 @PropertySource("classpath:application.properties")
-@RequestMapping(value = "api/v1/users")
+@RequestMapping(value = CommonConstants.ApiPath.BASE_PATH+"/users")
 @RestController
 public class UserController extends BaseController {
 

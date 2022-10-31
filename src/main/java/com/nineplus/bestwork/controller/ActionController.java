@@ -1,9 +1,10 @@
 package com.nineplus.bestwork.controller;
+
 import com.nineplus.bestwork.dto.PageResponseDto;
-import com.nineplus.bestwork.dto.ResMonitorDto;
+import com.nineplus.bestwork.dto.ResActionDto;
 import com.nineplus.bestwork.dto.SearchDto;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
-import com.nineplus.bestwork.services.MonitorService;
+import com.nineplus.bestwork.services.ActionService;
 import com.nineplus.bestwork.utils.CommonConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
@@ -11,29 +12,27 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @PropertySource("classpath:application.properties")
-@RequestMapping(value = CommonConstants.ApiPath.BASE_PATH+"/monitor")
+@RequestMapping(value = CommonConstants.ApiPath.BASE_PATH + "/action")
 @RestController
-public class MonitorController extends BaseController {
-    
+public class ActionController extends BaseController {
     @Autowired
-    MonitorService monitorService;
+    ActionService actionService;
 
     @GetMapping("/{id}")
     public ResponseEntity<? extends Object> getMonitor(@PathVariable Long id) {
-        ResMonitorDto dto = null;
+        ResActionDto dto = null;
         try {
-            dto = monitorService.getMonitor(id);
+            dto = actionService.getAction(id);
         } catch (BestWorkBussinessException ex) {
             return failed(ex.getMsgCode(), ex.getParam());
         }
         return success(CommonConstants.MessageCode.RLS0001, dto, null);
-
     }
 
     @PostMapping
-    public ResponseEntity<? extends Object> addMonitor(@RequestBody ResMonitorDto dto) {
+    public ResponseEntity<? extends Object> addAction(@RequestBody ResActionDto dto) {
         try {
-            monitorService.addMonitor(dto);
+            actionService.addAction(dto);
         } catch (BestWorkBussinessException ex) {
             return failed(ex.getMsgCode(), ex.getParam());
         }
@@ -41,21 +40,21 @@ public class MonitorController extends BaseController {
     }
 
     @PutMapping
-    public ResponseEntity<? extends Object> updateMonitor(@RequestBody ResMonitorDto dto) {
-        ResMonitorDto resMonitorDto;
+    public ResponseEntity<? extends Object> updateAction(@RequestBody ResActionDto dto) {
+        ResActionDto resActionDto;
         try {
-            resMonitorDto = monitorService.updateMonitor(dto);
+            resActionDto = actionService.updateAction(dto);
         } catch (BestWorkBussinessException ex) {
             return failed(ex.getMsgCode(), ex.getParam());
         }
-        return success(CommonConstants.MessageCode.RLS0003, resMonitorDto, null);
+        return success(CommonConstants.MessageCode.RLS0003, resActionDto, null);
     }
 
     @PostMapping("/search")
-    public ResponseEntity<? extends Object> getMonitors(@RequestBody SearchDto dto) {
-        PageResponseDto<ResMonitorDto> pageSearchDto = null;
+    public ResponseEntity<? extends Object> getActions(@RequestBody SearchDto dto) {
+        PageResponseDto<ResActionDto> pageSearchDto = null;
         try {
-            pageSearchDto = monitorService.getMonitors(dto);
+            pageSearchDto = actionService.getActions(dto);
         } catch (BestWorkBussinessException ex) {
             return failed(ex.getMsgCode(), ex.getParam());
         }
@@ -63,9 +62,9 @@ public class MonitorController extends BaseController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<? extends Object> deleteMonitor(@PathVariable Long id) {
+    public ResponseEntity<? extends Object> deleteAction(@PathVariable Long id) {
         try {
-            monitorService.deleteMonitor(id);
+            actionService.deleteAction(id);
         } catch (BestWorkBussinessException ex) {
             return failed(ex.getMsgCode(), ex.getParam());
         }

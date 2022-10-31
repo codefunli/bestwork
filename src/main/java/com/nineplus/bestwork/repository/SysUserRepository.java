@@ -12,6 +12,6 @@ public interface SysUserRepository extends JpaRepository<TUser, Long> {
 
 	public TUser findByResetPasswordToken(String token);
 
-	@Query(value = " select * from t_sys_app_user where email = :email ", nativeQuery = true)
+	@Query(value = " select * from T_SYS_APP_USER where email = :email ", nativeQuery = true)
 	public TUser findByEmail(@Param(value = "email") String email);
 }

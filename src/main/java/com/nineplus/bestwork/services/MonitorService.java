@@ -76,14 +76,11 @@ public class MonitorService {
             }
             monitor = new SysMonitor();
             monitor.setName(dto.getName());
-            monitor.setIcon(dto.getIcon());
-            monitor.setParentId(Long.valueOf(dto.getParentId()));
-            monitor.setDisplayOrder(Integer.parseInt(dto.getDisplayOrder()));
-            monitor.setUrl(dto.getUrl());
-            monitor.setShowAdd(Integer.parseInt(dto.getShowAdd()));
-            monitor.setShowAccess(Integer.parseInt(dto.getShowAccess()));
-            monitor.setShowDelete(Integer.parseInt(dto.getShowDelete()));
-            monitor.setShowEdit(Integer.parseInt(dto.getShowEdit()));
+//            monitor.setUrl(dto.getUrl());
+//            monitor.setShowAdd(Integer.parseInt(dto.getShowAdd()));
+//            monitor.setShowAccess(Integer.parseInt(dto.getShowAccess()));
+//            monitor.setShowDelete(Integer.parseInt(dto.getShowDelete()));
+//            monitor.setShowEdit(Integer.parseInt(dto.getShowEdit()));
             monitor.setCreatedDate(new Timestamp(System.currentTimeMillis()));
 //            monitor.setCreatedUser();
             monitorRepository.save(monitor);
@@ -111,14 +108,11 @@ public class MonitorService {
             }
             SysMonitor monitor = checkExist.get();
             monitor.setName(dto.getName());
-            monitor.setIcon(dto.getIcon());
-            monitor.setParentId(Long.valueOf(dto.getParentId()));
-            monitor.setDisplayOrder(Integer.parseInt(dto.getDisplayOrder()));
-            monitor.setUrl(dto.getUrl());
-            monitor.setShowAdd(Integer.parseInt(dto.getShowAdd()));
-            monitor.setShowAccess(Integer.parseInt(dto.getShowAccess()));
-            monitor.setShowDelete(Integer.parseInt(dto.getShowDelete()));
-            monitor.setShowEdit(Integer.parseInt(dto.getShowEdit()));
+//            monitor.setUrl(dto.getUrl());
+//            monitor.setShowAdd(Integer.parseInt(dto.getShowAdd()));
+//            monitor.setShowAccess(Integer.parseInt(dto.getShowAccess()));
+//            monitor.setShowDelete(Integer.parseInt(dto.getShowDelete()));
+//            monitor.setShowEdit(Integer.parseInt(dto.getShowEdit()));
             monitor.setUpdatedDate(new Timestamp(System.currentTimeMillis()));
 //            monitor.setCreatedUser();
             monitorRepository.save(monitor);

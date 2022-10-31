@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 
 import javax.validation.Valid;
 
+import com.nineplus.bestwork.services.SysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -21,7 +22,6 @@ import com.nineplus.bestwork.dto.ResetPasswordReqDto;
 import com.nineplus.bestwork.entity.TUser;
 import com.nineplus.bestwork.exception.SysUserNotFoundException;
 import com.nineplus.bestwork.services.MailSenderService;
-import com.nineplus.bestwork.services.SysUserService;
 import com.nineplus.bestwork.utils.CommonConstants;
 import com.nineplus.bestwork.utils.MessageUtils;
 

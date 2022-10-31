@@ -5,16 +5,16 @@ import java.util.Set;
 
 import javax.persistence.*;
 
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
-
 @Entity(name = "TUser")
 @Table(name = "T_SYS_APP_USER")
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class TUser {
 
     @Id
@@ -58,7 +58,7 @@ public class TUser {
     private String updateBy;
 
     @Column(name = "count_login_failed")
-    private int loginFailedNum;
+    private Integer loginFailedNum;
     
     @Column(name = "tel_no")
     private String telNo;
@@ -71,7 +71,7 @@ public class TUser {
     private byte[] userAvatar;
 
     @ManyToOne
-    @JoinColumn(name = "app_role_id")
+    @JoinColumn(name = "role_id")
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private TRole role;
