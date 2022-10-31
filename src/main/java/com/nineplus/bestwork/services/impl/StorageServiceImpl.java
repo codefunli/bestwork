@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.nineplus.bestwork.dto.FileStorageReqDto;
 import com.nineplus.bestwork.entity.FileStorageEntity;
 import com.nineplus.bestwork.entity.PostEntity;
 import com.nineplus.bestwork.entity.Progress;
@@ -74,14 +75,14 @@ public class StorageServiceImpl implements IStorageService {
 	}
 
 	@Override
-	public FileStorageEntity storeFileProgress(FileStorageEntity file, Progress progress) {
+	public FileStorageEntity storeFileProgress(FileStorageReqDto file, Progress progress) {
 		try {
 			FileStorageEntity image = new FileStorageEntity();
-			image.setData(file.getData());
+			image.setData(file.getData().getBytes());
 			image.setProgress(progress);
 			String generatedFileName = UUID.randomUUID().toString().replace("-", "");
 			image.setName(generatedFileName);
-			image.setType(file.getType());
+			image.setType(getImageType(file.getData()));
 			image.setCreateDate(Timestamp.valueOf(LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"))));
 
 			return storageRepository.save(image);

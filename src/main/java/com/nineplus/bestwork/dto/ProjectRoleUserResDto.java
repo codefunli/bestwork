@@ -24,6 +24,9 @@ public class ProjectRoleUserResDto extends BaseDto {
 	@JsonProperty("userId")
 	private long userId;
 
+	@JsonProperty("userName")
+	private String userName;
+
 	@JsonProperty("canView")
 	private boolean canView;
 
