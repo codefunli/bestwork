@@ -4,7 +4,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * DiepTT
+ * 
+ * @author DiepTT
+ *
  */
 @Data
 @EqualsAndHashCode

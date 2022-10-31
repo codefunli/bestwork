@@ -7,14 +7,15 @@ import javax.validation.constraints.NotBlank;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-
+/**
+ * 
+ * @author DiepTT
+ *
+ */
 @Data
 @EqualsAndHashCode
 public class ForgotPasswordReqDto implements Serializable {
 
-	/**
-	 * DiepTT
-	 */
 	private static final long serialVersionUID = -6473445208447048668L;
 	
 	@NotBlank(message = "Enter your email.")
