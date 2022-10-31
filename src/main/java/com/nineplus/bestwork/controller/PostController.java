@@ -136,7 +136,7 @@ public class PostController extends BaseController {
 
 	}
 
-	@PatchMapping("/{projectId}/{postId}/comment")
+	@PatchMapping("/{postId}/project/{projectId}/comment")
 	public ResponseEntity<? extends Object> addComment(@PathVariable String projectId, @PathVariable String postId,
 			@Valid @RequestBody PostCommentRequestDto postCommentRequestDto, BindingResult bindingResult)
 			throws BestWorkBussinessException {
