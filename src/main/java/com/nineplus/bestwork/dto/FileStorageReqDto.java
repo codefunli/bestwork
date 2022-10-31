@@ -1,26 +1,15 @@
 package com.nineplus.bestwork.dto;
 
-import java.sql.Timestamp;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
-/**
- * 
- * @author DiepTT
- *
- */
-
 @Getter
 @Setter
-public class FileStorageResponseDto extends BaseDto {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 9071487189534200767L;
+@EqualsAndHashCode(callSuper = false)
+public class FileStorageReqDto {
 
 	@JsonProperty("id")
 	private long id;
@@ -35,9 +24,6 @@ public class FileStorageResponseDto extends BaseDto {
 	private String type;
 
 	@JsonProperty("createDate")
-	private Timestamp createDate;
-	
-	@JsonProperty("progressId")
-	private long progressId; 
+	private String createDate;
 
 }

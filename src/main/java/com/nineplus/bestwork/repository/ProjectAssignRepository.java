@@ -6,7 +6,7 @@ public interface ProjectAssignRepository {
 	
 	String getCompanyName();
 
-	String getName();
+	String getUserName();
 
 	Long getUserId();
 

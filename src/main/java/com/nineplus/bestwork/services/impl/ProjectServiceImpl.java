@@ -247,6 +247,7 @@ public class ProjectServiceImpl implements IProjectService {
 				currentProject.setNotificationFlag(projectTaskDto.getProject().getNotificationFlag());
 				currentProject.setIsPaid(projectTaskDto.getProject().getIsPaid());
 				currentProject.setStatus(projectTaskDto.getProject().getStatus());
+				currentProject.setCreateDate(projectTaskDto.getProject().getCreateDate());
 				currentProject.setUpdateDate(LocalDateTime.now());
 				currentProject.setProjectType(projectType);
 				projectRepository.save(currentProject);
@@ -328,7 +329,7 @@ public class ProjectServiceImpl implements IProjectService {
 		Map<Long, List<ProjectRoleUserResDto>> resultList =
 				listRole
 				.stream()
-				.map(listR -> new ProjectRoleUserResDto(listR.getCompanyId(), listR.getUserId(), listR.getCanView(), listR.getCanEdit()))
+				.map(listR -> new ProjectRoleUserResDto(listR.getCompanyId(), listR.getUserId(),listR.getUserName(),listR.getCanView(), listR.getCanEdit()))
 				.collect(Collectors.groupingBy(ProjectRoleUserResDto::getCompanyId, Collectors.toList()));
 
 		return resultList;
