@@ -8,13 +8,14 @@ import javax.validation.constraints.Pattern;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+/**
+ * DiepTT
+ */
+
 @Data
 @EqualsAndHashCode
 public class ChangePasswordReqDto implements Serializable {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 4432556268398475664L;
 
 	@NotBlank(message = "Enter your current password")
