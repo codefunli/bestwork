@@ -3,14 +3,10 @@ package com.nineplus.bestwork.dto;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Pattern;
-
-import com.nineplus.bestwork.entity.TCompany;
-import com.nineplus.bestwork.entity.TRole;
-import org.springframework.validation.Errors;
-import org.springframework.validation.Validator;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.nineplus.bestwork.entity.TCompany;
+import com.nineplus.bestwork.entity.TRole;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;

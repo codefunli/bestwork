@@ -15,7 +15,6 @@ import javax.persistence.Table;
 import org.hibernate.annotations.TypeDef;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.nineplus.bestwork.utils.Enums.ProjectStatus;
 import com.vladmihalcea.hibernate.type.json.JsonStringType;
 
 import lombok.AllArgsConstructor;

@@ -34,71 +34,72 @@ import com.nineplus.bestwork.utils.TokenUtils;
 import com.nineplus.bestwork.utils.UserAuthUtils;
 
 @PropertySource("classpath:application.properties")
-@RequestMapping(value = CommonConstants.ApiPath.BASE_PATH+"/users")
+@RequestMapping(value = CommonConstants.ApiPath.BASE_PATH + "/users")
 @RestController
 public class UserController extends BaseController {
 
-    @Autowired
-    UserService userService;
+	@Autowired
+	UserService userService;
 
-    @Autowired
-    TokenUtils tokenUtils;
+	@Autowired
+	TokenUtils tokenUtils;
 
-    @Autowired
-    UserAuthUtils userAuthUtils;
+	@Autowired
+	UserAuthUtils userAuthUtils;
 
-    @Value("${app.login.jwtPrefix}")
-    private String PRE_STRING;
+	@Value("${app.login.jwtPrefix}")
+	private String PRE_STRING;
 
-    @GetMapping("/isCheckLogin")
-    public ResponseEntity<? extends Object> isCheckLogin(HttpServletRequest request, HttpServletResponse response) {
-        return success(CommonConstants.MessageCode.S1X0010, null, null);
-    }
+	@GetMapping("/isCheckLogin")
+	public ResponseEntity<? extends Object> isCheckLogin(HttpServletRequest request, HttpServletResponse response) {
+		return success(CommonConstants.MessageCode.S1X0010, null, null);
+	}
 
-    /**
-     * Get list company
-     *
-     * @return list company
-     */
-    @PostMapping("/list")
-    public ResponseEntity<?> getAllUsers(@Valid @RequestBody(required = false) PageSearchUserDto pageCondition, BindingResult bindingResult) {
-        if (bindingResult.hasErrors() || null == pageCondition) return failed(CommonConstants.MessageCode.ECU0002, null);
-        PageResponseDto<UserResDto> pageUser;
-        try {
-            pageUser = userService.getAllUsers(pageCondition);
-        } catch (BestWorkBussinessException ex) {
-            return failed(ex.getMsgCode(), ex.getParam());
-        }
-        return success(CommonConstants.MessageCode.sU0006, pageUser, null);
-    }
+	/**
+	 * Get list company
+	 *
+	 * @return list company
+	 */
+	@PostMapping("/list")
+	public ResponseEntity<?> getAllUsers(@Valid @RequestBody(required = false) PageSearchUserDto pageCondition,
+			BindingResult bindingResult) {
+		if (bindingResult.hasErrors() || null == pageCondition)
+			return failed(CommonConstants.MessageCode.ECU0002, null);
+		PageResponseDto<UserResDto> pageUser;
+		try {
+			pageUser = userService.getAllUsers(pageCondition);
+		} catch (BestWorkBussinessException ex) {
+			return failed(ex.getMsgCode(), ex.getParam());
+		}
+		return success(CommonConstants.MessageCode.sU0006, pageUser, null);
+	}
 
-    @PostMapping("/create")
-    public ResponseEntity<?> registerUser(@Valid @RequestBody UserReqDto userReqDto,
-                                          BindingResult bindingResult) {
+	@PostMapping("/create")
+	public ResponseEntity<?> registerUser(@Valid @RequestBody UserReqDto userReqDto, BindingResult bindingResult) {
 
-        if (checkExists(userReqDto, bindingResult)) {
-            return failedWithError(CommonConstants.MessageCode.ECU0001, bindingResult.getFieldErrors().toArray(), null);
-        }
-        TUser createdUser;
-        try {
-            createdUser = userService.createUser(userReqDto);
-        } catch (BestWorkBussinessException ex) {
-            return failed(ex.getMsgCode(), ex.getParam());
-        }
-        return success(CommonConstants.MessageCode.SCU0001, createdUser, null);
-    }
+		if (checkExists(userReqDto, bindingResult)) {
+			return failedWithError(CommonConstants.MessageCode.ECU0001, bindingResult.getFieldErrors().toArray(), null);
+		}
+		TUser createdUser;
+		try {
+			createdUser = userService.createUser(userReqDto);
+		} catch (BestWorkBussinessException ex) {
+			return failed(ex.getMsgCode(), ex.getParam());
+		}
+		return success(CommonConstants.MessageCode.SCU0001, createdUser, null);
+	}
 
-    private boolean checkExists(UserReqDto userReqDto, BindingResult bindingResult) {
-        List<TUser> existsUsers = this.userService.findAll();
-        for (TUser user : existsUsers) {
-            if (user.getUserName().equals(userReqDto.getUserName())) {
-                bindingResult.rejectValue("userName", "ExistedUsername", "Username already exists in the company.");
-            } else if (user.getEmail().equals(userReqDto.getEmail())) {
-                bindingResult.rejectValue("email", "ExistedEmail", "Email already exists in the company.");
-            }
-        }
-        return bindingResult.hasErrors();
-    }
+	private boolean checkExists(UserReqDto userReqDto, BindingResult bindingResult) {
+		List<TUser> existsUsers = this.userService.findAll();
+		for (TUser user : existsUsers) {
+			if (user.getUserName().equals(userReqDto.getUserName())) {
+				bindingResult.rejectValue("userName", "ExistedUsername", "Username already exists in the company.");
+			} else if (user.getEmail().equals(userReqDto.getEmail())) {
+				bindingResult.rejectValue("email", "ExistedEmail", "Email already exists in the company.");
+			}
+		}
+		return bindingResult.hasErrors();
+	}
 
 	@GetMapping("/{userId}")
 	public ResponseEntity<?> getUserById(@PathVariable long userId) throws BestWorkBussinessException {
@@ -115,11 +116,11 @@ public class UserController extends BaseController {
 		userResDto.setTelNo(user.getTelNo());
 		userResDto.setEnabled(user.getIsEnable());
 		userResDto.setRole(user.getRole());
-        userResDto.setCountLoginFailed("0");
-        userResDto.setDeleteFlag(user.getDeleteFlag());
-        for (TCompany tCompany: user.getCompanys()) {
-            userResDto.setCompany(tCompany);
-        }
+		userResDto.setCountLoginFailed("0");
+		userResDto.setDeleteFlag(user.getDeleteFlag());
+		for (TCompany tCompany : user.getCompanys()) {
+			userResDto.setCompany(tCompany);
+		}
 		if (null != user.getUserAvatar()) {
 			userResDto.setAvatar(new String(user.getUserAvatar(), StandardCharsets.UTF_8));
 		}
@@ -129,7 +130,7 @@ public class UserController extends BaseController {
 
 	@PutMapping("/update/{id}")
 	public ResponseEntity<?> updateUser(@PathVariable long id, @Valid @RequestBody UserReqDto userReqDto,
-										BindingResult bindingResult) throws BestWorkBussinessException {
+			BindingResult bindingResult) throws BestWorkBussinessException {
 
 		if (bindingResult.hasErrors()) {
 			return failedWithError(CommonConstants.MessageCode.ECU0001, bindingResult.getFieldErrors().toArray(), null);
@@ -143,31 +144,31 @@ public class UserController extends BaseController {
 		return success(CommonConstants.MessageCode.SCU0003, null, null);
 	}
 
-    @PostMapping("/delete")
-    public ResponseEntity<? extends Object> deleteUser(@RequestBody(required = false) UserListIdDto listId) {
-        try {
-            userService.deleteUser(listId);
-        } catch (NullPointerException ex) {
-            return failed(CommonConstants.MessageCode.SU0003, null);
-        } catch (BestWorkBussinessException ex) {
-            return failed(ex.getMsgCode(), ex.getParam());
-        }
-        return success(CommonConstants.MessageCode.SCU0004, null, null);
-    }
+	@PostMapping("/delete")
+	public ResponseEntity<? extends Object> deleteUser(@RequestBody(required = false) UserListIdDto listId) {
+		try {
+			userService.deleteUser(listId);
+		} catch (NullPointerException ex) {
+			return failed(CommonConstants.MessageCode.SU0003, null);
+		} catch (BestWorkBussinessException ex) {
+			return failed(ex.getMsgCode(), ex.getParam());
+		}
+		return success(CommonConstants.MessageCode.SCU0004, null, null);
+	}
 
-    @GetMapping("/roles")
-    public ResponseEntity<?> getRoles() {
-        return ResponseEntity.ok(this.userService.getAllRoles());
-    }
+	@GetMapping("/roles")
+	public ResponseEntity<?> getRoles() {
+		return ResponseEntity.ok(this.userService.getAllRoles());
+	}
 
-    @GetMapping("/companies")
-    public ResponseEntity<?> getCompanyOfUser() {
-        Object company;
-        try {
-            company = this.userService.getAllCompanyOfUser();
-        } catch (BestWorkBussinessException ex) {
-            return failed(ex.getMsgCode(), ex.getParam());
-        }
-        return ResponseEntity.ok(company);
-    }
+	@GetMapping("/companies")
+	public ResponseEntity<?> getCompanyOfUser() {
+		Object company;
+		try {
+			company = this.userService.getAllCompanyOfUser();
+		} catch (BestWorkBussinessException ex) {
+			return failed(ex.getMsgCode(), ex.getParam());
+		}
+		return ResponseEntity.ok(company);
+	}
 }

@@ -41,5 +41,5 @@ public interface IProjectService {
 	boolean isExistedProjectId(String projectId);
 	
 	public ProjectResponseDto getDetailProject(String projectId) throws BestWorkBussinessException;
-
+	
 }
