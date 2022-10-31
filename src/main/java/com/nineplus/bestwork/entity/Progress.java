@@ -55,6 +55,7 @@ public class Progress {
 
 	@Column(name = "update_date")
 	LocalDateTime updateDate;
+
 	@ManyToOne
 	@JoinColumn(name = "project_id")
 	@JsonIgnore
