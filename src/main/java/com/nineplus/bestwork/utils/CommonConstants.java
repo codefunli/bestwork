@@ -134,6 +134,8 @@ public class CommonConstants {
 		public static final String RLF0001 = "RLF0001";
 		public static final String RLF0002 = "RLF0001";
 		public static final String RLS0003 = "RLS0003";
+
+		public static final String SPS0001 = "SPS0001";
 		public static final String RLS0004 = "RLS0004";
 		public static final String sU0006 = "sU0006";
 
@@ -178,6 +180,10 @@ public class CommonConstants {
 		public static final String M1P0005 = "m1p0005";
 		public static final String M1U0006 = "m1u0006";
 		public static final String M1W0007 = "m1w0007";
+	}
+
+	public class ApiPath {
+		public static final String BASE_PATH = "/api/v1";
 	}
 
 }

@@ -1,5 +1,6 @@
 package com.nineplus.bestwork.controller;
 import com.nineplus.bestwork.dto.PageResponseDto;
+import com.nineplus.bestwork.dto.RegPermissionDto;
 import com.nineplus.bestwork.dto.ResPermissionDto;
 import com.nineplus.bestwork.dto.SearchDto;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
@@ -10,8 +11,10 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @PropertySource("classpath:application.properties")
-@RequestMapping(value = "api/v1/permission")
+@RequestMapping(value = CommonConstants.ApiPath.BASE_PATH+"/permission")
 @RestController
 public class PermissionController extends BaseController {
 
@@ -30,21 +33,21 @@ public class PermissionController extends BaseController {
 
     }
 
-    @PostMapping
-    public ResponseEntity<? extends Object> addPermission(@RequestBody ResPermissionDto dto) {
-        try {
-            permissionService.addPermission(dto);
-        } catch (BestWorkBussinessException ex) {
-            return failed(ex.getMsgCode(), ex.getParam());
-        }
-        return success(CommonConstants.MessageCode.CPN0001, null, null);
-    }
+//    @PostMapping
+//    public ResponseEntity<? extends Object> addPermission(@RequestBody ResPermissionDto dto) {
+//        try {
+//            permissionService.addPermission(dto);
+//        } catch (BestWorkBussinessException ex) {
+//            return failed(ex.getMsgCode(), ex.getParam());
+//        }
+//        return success(CommonConstants.MessageCode.CPN0001, null, null);
+//    }
 
-    @PutMapping
-    public ResponseEntity<? extends Object> updatePermission(@RequestBody ResPermissionDto dto) {
-        ResPermissionDto resPermissionDto;
+    @PostMapping
+    public ResponseEntity<? extends Object> updatePermission(@RequestBody RegPermissionDto dto) {
+        List<ResPermissionDto> resPermissionDto;
         try {
-            resPermissionDto = permissionService.updatePermission(dto);
+            resPermissionDto = permissionService.updatePermissions(dto);
         } catch (BestWorkBussinessException ex) {
             return failed(ex.getMsgCode(), ex.getParam());
         }

@@ -1,12 +1,12 @@
 package com.nineplus.bestwork.services;
-
 import com.nineplus.bestwork.dto.PageResponseDto;
-import com.nineplus.bestwork.dto.ResRoleDto;
+import com.nineplus.bestwork.dto.ResActionDto;
 import com.nineplus.bestwork.dto.SearchDto;
-import com.nineplus.bestwork.entity.TRole;
+import com.nineplus.bestwork.entity.SysAction;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.model.UserAuthDetected;
-import com.nineplus.bestwork.repository.TRoleRepository;
+import com.nineplus.bestwork.model.enumtype.Status;
+import com.nineplus.bestwork.repository.SysActionRepository;
 import com.nineplus.bestwork.utils.CommonConstants;
 import com.nineplus.bestwork.utils.MessageUtils;
 import com.nineplus.bestwork.utils.PageUtils;
@@ -21,16 +21,17 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
 @Transactional
-public class RoleService {
+public class ActionService {
+
 
     private final Logger logger = LoggerFactory.getLogger(CompanyService.class);
 
@@ -41,7 +42,7 @@ public class RoleService {
     MessageUtils messageUtils;
 
     @Autowired
-    TRoleRepository roleRepository;
+    SysActionRepository actionRepository;
 
     @Autowired
     ModelMapper modelMapper;
@@ -49,36 +50,40 @@ public class RoleService {
     @Autowired
     private PageUtils responseUtils;
 
-    public ResRoleDto getRole(Long id) throws BestWorkBussinessException {
-        Optional<TRole> role = roleRepository.findById(id);
-        if (role.isPresent()) {
-            return modelMapper.map(role.get(), ResRoleDto.class);
+    public ResActionDto getAction(Long id) throws BestWorkBussinessException {
+        Optional<SysAction> action = actionRepository.findById(id);
+        if (action.isPresent()) {
+            return modelMapper.map(action.get(), ResActionDto.class);
         }
         throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
+
     }
 
     @Transactional(rollbackFor = {Exception.class})
-    public ResRoleDto addRole(ResRoleDto dto) throws BestWorkBussinessException {
+    public ResActionDto addAction(ResActionDto dto) throws BestWorkBussinessException {
         UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
         // Only system admin can do this
         if (!userAuthRoleReq.getIsSysAdmin()) {
             logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0014, null));
             throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
         }
-        TRole role = null;
+        SysAction action = null;
         try {
-            role = roleRepository.findRole(dto.getName());
-            if (!ObjectUtils.isEmpty(role)) {
+            action = actionRepository.findSysActionByName(dto.getName());
+            if (!ObjectUtils.isEmpty(action)) {
                 logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0014, null));
                 throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
             }
-            role = new TRole();
-            role.setRoleName(dto.getName());
-            role.setDescription(dto.getDescription());
-            role.setCreateDate(LocalDateTime.now());
-            role.setCreateBy(userAuthUtils.getUserInfoFromReq(false).getUsername());
-            roleRepository.save(role);
-            return modelMapper.map(role, ResRoleDto.class);
+            action = new SysAction();
+            action.setName(dto.getName());
+            action.setIcon(dto.getIcon());
+            action.setUrl(dto.getUrl());
+            action.setStatus(Status.fromValue(Integer.parseInt(dto.getStatus())));
+            action.setHttpMethod(HttpMethod.resolve(dto.getMethod()));
+            action.setCreatedDate(new Timestamp(System.currentTimeMillis()));
+//            action.setCreatedUser();
+            actionRepository.save(action);
+            return modelMapper.map(action, ResActionDto.class);
         } catch (Exception e) {
             logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0001, null), e);
             throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0001, null);
@@ -86,51 +91,54 @@ public class RoleService {
     }
 
     @Transactional(rollbackFor = {Exception.class})
-    public ResRoleDto updateRole(ResRoleDto dto) throws BestWorkBussinessException {
+    public ResActionDto updateAction(ResActionDto dto) throws BestWorkBussinessException {
         UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
         // Only system admin can do this
         if (!userAuthRoleReq.getIsSysAdmin()) {
             logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0014, null));
             throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
         }
-        TRole role = null;
+        Optional<SysAction> checkExist;
         try {
-            role = roleRepository.findById(dto.getId()).orElse(null);
-            if (ObjectUtils.isEmpty(role)) {
-                logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0013, null));
-                throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0013, null);
+            checkExist = actionRepository.findById(dto.getId());
+            if (checkExist.isEmpty()) {
+                logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0014, null));
+                throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
             }
-            role.setRoleName(dto.getName());
-            role.setDescription(dto.getDescription());
-            role.setUpdateDate(LocalDateTime.now());
-            role.setUpdateBy(userAuthUtils.getUserInfoFromReq(false).getUsername());
-            roleRepository.save(role);
-            return modelMapper.map(role, ResRoleDto.class);
-        } catch (Exception e) {
-            logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0001, null), e);
+            SysAction action = checkExist.get();
+            action.setName(dto.getName());
+            action.setIcon(dto.getIcon());
+            action.setUrl(dto.getUrl());
+            action.setStatus(Status.fromValue(Integer.parseInt(dto.getStatus())));
+            action.setHttpMethod(HttpMethod.resolve(dto.getMethod()));
+            action.setUpdatedDate(new Timestamp(System.currentTimeMillis()));
+//            action.setCreatedUser();
+            actionRepository.save(action);
+            return modelMapper.map(action, ResActionDto.class);
+        }catch (Exception ex) {
+            logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0001, null), ex);
             throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0001, null);
         }
     }
 
-    public PageResponseDto<ResRoleDto> getRoles(SearchDto pageSearchDto) throws BestWorkBussinessException {
+    public PageResponseDto<ResActionDto> getActions(SearchDto dto) throws BestWorkBussinessException {
         try {
-            int pageNumber = NumberUtils.toInt(pageSearchDto.getPageConditon().getPage());
+            int pageNumber = NumberUtils.toInt(dto.getPageConditon().getPage());
             if (pageNumber > 0) {
                 pageNumber = pageNumber - 1;
             }
-            Pageable pageable = PageRequest.of(pageNumber, Integer.parseInt(pageSearchDto.getPageConditon().getSize()),
-                    Sort.by(pageSearchDto.getPageConditon().getSortDirection(),
-                            pageSearchDto.getPageConditon().getSortBy()));
-            Page<TRole> pageSysRole = roleRepository.findTRolesByRoleNameContaining
-                    (pageSearchDto.getConditionSearchDto().getName(), pageable);
-            return responseUtils.convertPageEntityToDTO(pageSysRole, ResRoleDto.class);
+            Pageable pageable = PageRequest.of(pageNumber, Integer.parseInt(dto.getPageConditon().getSize()),
+                    Sort.by(dto.getPageConditon().getSortDirection(),
+                            dto.getPageConditon().getSortBy()));
+            Page<SysAction> pageSysRole = actionRepository.findAllByNameContains(dto.getConditionSearchDto().getName(), pageable);
+            return responseUtils.convertPageEntityToDTO(pageSysRole, ResActionDto.class);
         } catch (Exception ex) {
             logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0001, null), ex);
             throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0001, null);
         }
     }
 
-    public void deleteRole(Long id) throws BestWorkBussinessException {
+    public void deleteAction(Long id) throws BestWorkBussinessException {
         try {
             UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
             // Only system admin can do this
@@ -138,8 +146,8 @@ public class RoleService {
                 logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0014, null));
                 throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
             }
-            Optional<TRole> role = roleRepository.findById(id);
-            role.ifPresent(sysRole -> roleRepository.delete(sysRole));
+            Optional<SysAction> action = actionRepository.findById(id);
+            action.ifPresent(sysAction -> actionRepository.delete(sysAction));
         } catch (Exception ex) {
             logger.error(messageUtils.getMessage(CommonConstants.MessageCode.RLF0002, null), ex);
             throw new BestWorkBussinessException(CommonConstants.MessageCode.RLF0002, null);

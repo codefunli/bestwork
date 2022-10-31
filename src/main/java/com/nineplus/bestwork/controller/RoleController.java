@@ -12,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @PropertySource("classpath:application.properties")
-@RequestMapping(value = "api/v1/role")
+@RequestMapping(value = CommonConstants.ApiPath.BASE_PATH+"/role")
 @RestController
 public class RoleController extends BaseController {
 

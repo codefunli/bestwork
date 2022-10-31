@@ -34,7 +34,7 @@ import com.nineplus.bestwork.utils.TokenUtils;
 import com.nineplus.bestwork.utils.UserAuthUtils;
 
 @PropertySource("classpath:application.properties")
-@RequestMapping(value = "api/v1/users")
+@RequestMapping(value = CommonConstants.ApiPath.BASE_PATH+"/users")
 @RestController
 public class UserController extends BaseController {
 

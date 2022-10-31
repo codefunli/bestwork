@@ -3,6 +3,7 @@ package com.nineplus.bestwork.entity;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -13,18 +14,18 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
-
 @Entity(name = "TRole")
 @Table(name = "T_SYS_APP_ROLE")
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class TRole implements Serializable {
 
 	/**
@@ -52,7 +53,7 @@ public class TRole implements Serializable {
     private LocalDateTime updateDate;
 
     @Column(name = "delete_flag")
-    private int deleteFlag;
+    private Integer deleteFlag;
 
     @Column(name = "create_by")
     private String createBy;
@@ -65,4 +66,10 @@ public class TRole implements Serializable {
 	@ToString.Exclude
 	@JsonBackReference
 	private Collection<TUser> users;
+
+	@OneToMany(mappedBy = "sysRole", cascade = CascadeType.ALL)
+	@EqualsAndHashCode.Exclude
+	@ToString.Exclude
+	@JsonBackReference
+	private Collection<SysPermission> sysPermissions;
 }

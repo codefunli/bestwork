@@ -5,11 +5,19 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @Data
-public class ResMonitorDto {
+public class ResActionDto {
     @JsonProperty("id")
     private Long id;
     @JsonProperty("name")
     private String name;
     @JsonProperty("url")
     private String url;
+    @JsonProperty("icon")
+    private String icon;
+    @JsonProperty("status")
+    private String status;
+    @JsonProperty("method")
+    private String method;
+
+
 }
