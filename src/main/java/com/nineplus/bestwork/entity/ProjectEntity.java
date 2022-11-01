@@ -12,7 +12,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.TypeDef;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.vladmihalcea.hibernate.type.json.JsonStringType;
@@ -57,10 +59,15 @@ public class ProjectEntity {
 	@Column(name = "status", nullable = false, columnDefinition = "tinyint(1)")
 	private String status;
 
-	@Column(name = "create_date", nullable = true)
-	private String createDate;
+	@Column(name = "start_date", nullable = false)
+	private String startDate;
 
-	@Column(name = "update_date", nullable = true, columnDefinition = "timestamp")
+	@Column(name = "create_date", nullable = false, insertable = false, updatable = false)
+	@CreationTimestamp
+	private LocalDateTime createDate;
+
+	@Column(name = "update_date", nullable = false)
+	@UpdateTimestamp
 	private LocalDateTime updateDate;
 
 	@ManyToOne

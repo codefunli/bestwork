@@ -27,8 +27,6 @@ public interface IProjectService {
 
 	public Optional<ProjectEntity> getProjectById(String id) throws BestWorkBussinessException;
 
-	public ProjectEntity updateProject(ProjectEntity project) throws BestWorkBussinessException;
-
 	public void deleteProjectById(List<String> list) throws BestWorkBussinessException;
 
 	public void saveProject(ProjectTaskReqDto projectTaskDto, ProjectTypeEntity type) throws BestWorkBussinessException;

@@ -1,6 +1,5 @@
 package com.nineplus.bestwork.dto;
 
-import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.nineplus.bestwork.entity.ProjectTypeEntity;
@@ -45,14 +44,8 @@ public class ProjectResponseDto extends BaseDto {
 
 	@JsonProperty("status")
 	private String status;
-
-	@JsonProperty("createDate")
-	private String createDate;
-
-	@JsonProperty("updateDate")
-	private LocalDateTime updateDate;
-
-//	@JsonProperty("posts")
-//	private Collection<PostEntity> posts;
+	
+	@JsonProperty("startDate")
+	private String startDate;
 
 }
