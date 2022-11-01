@@ -91,7 +91,6 @@ public class ProjectServiceImpl implements IProjectService {
 			}
 			return responseUtils.convertPageEntityToDTO(pageTProject, ProjectResponseDto.class);
 		} catch (Exception ex) {
-			logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0003, null), ex);
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
 		}
 
@@ -104,7 +103,6 @@ public class ProjectServiceImpl implements IProjectService {
 			return responseUtils.convertPageEntityToDTO(pageTProject, ProjectResponseDto.class);
 
 		} catch (Exception ex) {
-			logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0003, null), ex);
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
 		}
 	}
@@ -141,26 +139,20 @@ public class ProjectServiceImpl implements IProjectService {
 	}
 
 	@Override
-	public ProjectEntity updateProject(ProjectEntity project) throws BestWorkBussinessException {
-		return this.projectRepository.save(project);
-
-	}
-
-	@Override
 	public void deleteProjectById(List<String> listProjectId) throws BestWorkBussinessException {
 		try {
 			// Delete project
 			this.projectRepository.deleteProjectById(listProjectId);
-			
-			//Delete progress relate project
+
+			// Delete progress relate project
 			/*
 			 * List<Long> listProgress =
 			 * iProgressService.getAllProgressByProject(listProjectId); if(listProgress!=
 			 * null) { iProgressService.deleteProgressList(listProgress); }
 			 */
-			
+
 			// Delete post relate project
-			//List<String> listPostId = iPostService.getAllPostIdByProject(listProjectId);
+			// List<String> listPostId = iPostService.getAllPostIdByProject(listProjectId);
 		} catch (Exception ex) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0002, null);
 		}
@@ -184,7 +176,6 @@ public class ProjectServiceImpl implements IProjectService {
 			registNewProject(projectTaskDto.getProject(), projectType, generateProjectId);
 			for (int i = 0; i < projectTaskDto.getRoleData().size(); i++)
 				registAssign(projectTaskDto.getRoleData().get(i), projectType, generateProjectId);
-
 		}
 	}
 
@@ -193,17 +184,14 @@ public class ProjectServiceImpl implements IProjectService {
 			throws BestWorkBussinessException {
 		ProjectEntity projectRegist = new ProjectEntity();
 		try {
-
 			projectRegist.setId(generateProjectId);
 			projectRegist.setProjectName(projectReqDto.getProjectName());
 			projectRegist.setDescription(projectReqDto.getDescription());
 			projectRegist.setNotificationFlag(projectReqDto.getNotificationFlag());
 			projectRegist.setIsPaid(projectReqDto.getIsPaid());
 			projectRegist.setStatus(projectReqDto.getStatus());
-
-			// Convert date UTC to String
-			String registerDate = dateUtils.convertToUTC(projectReqDto.getCreateDate());
-			projectRegist.setCreateDate(registerDate);
+			projectRegist.setStartDate(projectReqDto.getStartDate());
+			projectRegist.setCreateDate(LocalDateTime.now());
 			projectRegist.setProjectType(projectType);
 			projectRepository.save(projectRegist);
 		} catch (Exception ex) {
@@ -255,49 +243,42 @@ public class ProjectServiceImpl implements IProjectService {
 	public void updateProject(ProjectTaskReqDto projectTaskDto, ProjectTypeEntity projectType, String projectId)
 			throws BestWorkBussinessException {
 		ProjectEntity currentProject = null;
+		currentProject = projectRepository.findbyProjectId(projectId);
 
-		for (int j = 0; j < projectTaskDto.getRoleData().size(); j++) {
-			Long companyId = projectTaskDto.getRoleData().get(j).getCompanyId();
-			currentProject = projectRepository.findbyProjectId(projectId);
-			List<ProjectRoleUserReqDto> userList = projectTaskDto.getRoleData().get(j).getUserList();
-			AssignTask assignTask = null;
-			try {
-				// Save for project
-				currentProject.setProjectName(projectTaskDto.getProject().getProjectName());
-				currentProject.setDescription(projectTaskDto.getProject().getDescription());
-				currentProject.setNotificationFlag(projectTaskDto.getProject().getNotificationFlag());
-				currentProject.setIsPaid(projectTaskDto.getProject().getIsPaid());
-				currentProject.setStatus(projectTaskDto.getProject().getStatus());
-				currentProject.setCreateDate(projectTaskDto.getProject().getCreateDate());
-				currentProject.setUpdateDate(LocalDateTime.now());
-				currentProject.setProjectType(projectType);
-				projectRepository.save(currentProject);
-
-				for (int i = 0; i < userList.size(); i++) {
-					assignTask = assignTaskRepository.findbyCondition(userList.get(i).getUserId(), companyId,
-							projectId);
-					if (assignTask != null) {
-						assignTask.setCanView(userList.get(i).isCanView());
-						assignTask.setCanEdit(userList.get(i).isCanEdit());
-						assignTaskRepository.save(assignTask);
-					} else {
-						AssignTask assignTaskNew = new AssignTask();
-						assignTaskNew.setCompanyId(companyId);
-						assignTaskNew.setProjectId(projectId);
-						assignTaskNew.setUserId(userList.get(i).getUserId());
-						assignTaskNew.setCanView(userList.get(i).isCanView());
-						assignTaskNew.setCanEdit(userList.get(i).isCanEdit());
-						assignTaskRepository.save(assignTaskNew);
+		if (projectTaskDto.getRoleData() != null && projectTaskDto.getRoleData().size() > 0) {
+			for (int j = 0; j < projectTaskDto.getRoleData().size(); j++) {
+				Long companyId = projectTaskDto.getRoleData().get(j).getCompanyId();
+				List<ProjectRoleUserReqDto> userList = projectTaskDto.getRoleData().get(j).getUserList();
+				AssignTask assignTask = null;
+				try {
+					updateProject(currentProject,projectTaskDto.getProject(), projectType);
+					for (int i = 0; i < userList.size(); i++) {
+						assignTask = assignTaskRepository.findbyCondition(userList.get(i).getUserId(), companyId,
+								projectId);
+						if (assignTask != null) {
+							assignTask.setCanView(userList.get(i).isCanView());
+							assignTask.setCanEdit(userList.get(i).isCanEdit());
+							assignTaskRepository.save(assignTask);
+						} else {
+							AssignTask assignTaskNew = new AssignTask();
+							assignTaskNew.setCompanyId(companyId);
+							assignTaskNew.setProjectId(projectId);
+							assignTaskNew.setUserId(userList.get(i).getUserId());
+							assignTaskNew.setCanView(userList.get(i).isCanView());
+							assignTaskNew.setCanEdit(userList.get(i).isCanEdit());
+							assignTaskRepository.save(assignTaskNew);
+						}
 					}
 
+				} catch (Exception ex) {
+					throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0004, new Object[] {
+							CommonConstants.Character.PROJECT, (projectTaskDto.getProject().getProjectName()) });
 				}
-
-			} catch (Exception ex) {
-				throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0004, new Object[] {
-						CommonConstants.Character.PROJECT, (projectTaskDto.getProject().getProjectName()) });
+			}
+		} else {
+			updateProject(currentProject,projectTaskDto.getProject(), projectType);
 			}
 		}
-	}
 
 	@Override
 	public List<ProjectAssignRepository> getCompanyUserForAssign(AssignTaskReqDto assignTaskReqDto)
@@ -332,8 +313,7 @@ public class ProjectServiceImpl implements IProjectService {
 			projectDto.setIsPaid(project.getIsPaid());
 			projectDto.setProjectType(project.getProjectType());
 			projectDto.setStatus(project.getStatus());
-			projectDto.setCreateDate(project.getCreateDate());
-			projectDto.setUpdateDate(project.getUpdateDate());
+			projectDto.setStartDate(project.getStartDate());
 		}
 		return projectDto;
 
@@ -377,5 +357,21 @@ public class ProjectServiceImpl implements IProjectService {
 			listProjectId = projectRepository.getAllProjectIdByCompany(listCompanyId);
 		}
 		return listProjectId;
+	}
+
+	public void updateProject(ProjectEntity currentProject, ProjectReqDto projectReqDto, ProjectTypeEntity projectType)
+			throws BestWorkBussinessException {
+		if (currentProject != null) {
+			currentProject.setProjectName(projectReqDto.getProjectName());
+			currentProject.setDescription(projectReqDto.getDescription());
+			currentProject.setNotificationFlag(projectReqDto.getNotificationFlag());
+			currentProject.setIsPaid(projectReqDto.getIsPaid());
+			currentProject.setStatus(projectReqDto.getStatus());
+			currentProject.setStartDate(projectReqDto.getStartDate());
+			currentProject.setUpdateDate(LocalDateTime.now());
+			currentProject.setProjectType(projectType);
+			projectRepository.save(currentProject);
+		}
+
 	}
 }

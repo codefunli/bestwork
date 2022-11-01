@@ -32,7 +32,7 @@ public class ProjectReqDto extends BaseDto {
 	@JsonProperty("projectType")
 	private int projectType;
 
-	@JsonProperty("createDate")
-	private String createDate;
+	@JsonProperty("startDate")
+	private String startDate;
 
 }
