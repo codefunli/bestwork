@@ -44,5 +44,7 @@ public interface IProjectService {
 	public ProjectResponseDto getDetailProject(String projectId) throws BestWorkBussinessException;
 
 	public void changeStatus(String projectId, ProjectStatusReqDto projectStatusReqDto) throws BestWorkBussinessException;
+	
+	List<String> getAllProjectIdByCompany(List<Long> listCompanyId) throws BestWorkBussinessException;
 
 }

@@ -39,6 +39,9 @@ public interface ProjectRepository extends JpaRepository<ProjectEntity, String> 
 
 	@Query(value = "SELECT * FROM PROJECT WHERE id = :id", nativeQuery = true)
 	ProjectEntity findbyProjectId(String id);
+	
+	@Query(value = "SELECT prj.id FROM PROJECT prj JOIN ASSIGN_TASK ast ON prj.id = ast.project_id where ast.company_id in ?1 ", nativeQuery = true)
+	List<String> getAllProjectIdByCompany(List<Long> listCompanyId);
 
 	@Query(value = "Select tus.user_name as userName, tus.id as userId, 'false' as canView ,'false' as canEdit from T_SYS_APP_USER tus JOIN T_COMPANY_USER tcu ON tus.id = tcu.user_id WHERE tcu.company_id = ?1", nativeQuery = true)
 	List<ProjectAssignRepository> GetCompanyAndRoleUserByCompanyId(Long companyId);

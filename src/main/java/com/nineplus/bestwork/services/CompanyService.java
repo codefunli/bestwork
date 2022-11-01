@@ -79,6 +79,9 @@ public class CompanyService {
 	@Autowired
 	ConvertResponseUtils convertResponseUtils;
 
+	@Autowired
+	IProjectService iProjectService;
+
 	@Transactional(rollbackFor = { Exception.class })
 	public void registCompany(CompanyUserReqDto companyReqDto) throws BestWorkBussinessException {
 
@@ -267,6 +270,10 @@ public class CompanyService {
 			// delete user relate company
 			List<TUser> allTusers = tUserRepos.findAllUserByCompanyIdList(Arrays.asList(listId.getLstCompanyId()));
 			tUserRepos.deleteAllInBatch(allTusers);
+			
+			// delete all project of company
+			List<String> allProject = iProjectService.getAllProjectIdByCompany(Arrays.asList(listId.getLstCompanyId()));
+			iProjectService.deleteProjectById(allProject);
 
 		} catch (Exception ex) {
 			logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0002, null), ex);
@@ -305,7 +312,7 @@ public class CompanyService {
 	}
 
 	public List<CompanyProjection> getAllCompany() throws BestWorkBussinessException {
-			return tCompanyRepository.getAllCompany();
+		return tCompanyRepository.getAllCompany();
 	}
 
 	/**

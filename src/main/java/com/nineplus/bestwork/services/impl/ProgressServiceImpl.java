@@ -252,4 +252,12 @@ public class ProgressServiceImpl implements IProgressService {
 		return progressDto;
 	}
 
+	@Override
+	public List<Long> getAllProgressByProject(List<String> listProjectId) {
+		List<Long> listProgressId = null;
+		if (listProjectId != null) {
+			listProgressId = progressRepository.getAllProgressByProject(listProjectId);
+		}
+		return listProgressId;
+	}
 }
