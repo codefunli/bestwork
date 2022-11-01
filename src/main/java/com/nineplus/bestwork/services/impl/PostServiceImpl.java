@@ -109,12 +109,21 @@ public class PostServiceImpl implements IPostService {
 	@Override
 	public PostEntity getPostByPostIdAndProjectId(String postId, String projectId) {
 		return this.postRepository.findPostByIdAndProjectId(postId, projectId);
-	
+
 	}
 
 	@Override
 	public PostEntity updatePost(PostEntity post) {
 		return this.postRepository.save(post);
+	}
+
+	@Override
+	public List<String> getAllPostIdByProject(List<String> listProjectId) throws BestWorkBussinessException {
+		List<String> listPostId = null;
+		if (listProjectId != null) {
+			listPostId = postRepository.getAllPostIdByProject(listProjectId);
+		}
+		return listPostId;
 	}
 
 }

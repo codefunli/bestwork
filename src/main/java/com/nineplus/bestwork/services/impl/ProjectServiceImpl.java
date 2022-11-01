@@ -2,6 +2,7 @@ package com.nineplus.bestwork.services.impl;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -33,10 +34,14 @@ import com.nineplus.bestwork.dto.ProjectTaskReqDto;
 import com.nineplus.bestwork.entity.AssignTask;
 import com.nineplus.bestwork.entity.ProjectEntity;
 import com.nineplus.bestwork.entity.ProjectTypeEntity;
+import com.nineplus.bestwork.entity.TUser;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.repository.AssignTaskRepository;
+import com.nineplus.bestwork.repository.ProgressRepository;
 import com.nineplus.bestwork.repository.ProjectAssignRepository;
 import com.nineplus.bestwork.repository.ProjectRepository;
+import com.nineplus.bestwork.services.IPostService;
+import com.nineplus.bestwork.services.IProgressService;
 import com.nineplus.bestwork.services.IProjectService;
 import com.nineplus.bestwork.utils.CommonConstants;
 import com.nineplus.bestwork.utils.ConvertResponseUtils;
@@ -142,8 +147,24 @@ public class ProjectServiceImpl implements IProjectService {
 	}
 
 	@Override
-	public void deleteProjectById(List<String> id) throws BestWorkBussinessException {
-		this.projectRepository.deleteProjectById(id);
+	public void deleteProjectById(List<String> listProjectId) throws BestWorkBussinessException {
+		try {
+			// Delete project
+			this.projectRepository.deleteProjectById(listProjectId);
+			
+			//Delete progress relate project
+			/*
+			 * List<Long> listProgress =
+			 * iProgressService.getAllProgressByProject(listProjectId); if(listProgress!=
+			 * null) { iProgressService.deleteProgressList(listProgress); }
+			 */
+			
+			// Delete post relate project
+			//List<String> listPostId = iPostService.getAllPostIdByProject(listProjectId);
+		} catch (Exception ex) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0002, null);
+		}
+
 	}
 
 	@Override
@@ -347,5 +368,14 @@ public class ProjectServiceImpl implements IProjectService {
 		} catch (Exception ex) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0017, null);
 		}
+	}
+
+	@Override
+	public List<String> getAllProjectIdByCompany(List<Long> listCompanyId) throws BestWorkBussinessException {
+		List<String> listProjectId = null;
+		if (listCompanyId != null) {
+			listProjectId = projectRepository.getAllProjectIdByCompany(listCompanyId);
+		}
+		return listProjectId;
 	}
 }

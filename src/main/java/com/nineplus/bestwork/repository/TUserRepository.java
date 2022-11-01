@@ -48,7 +48,7 @@ public interface TUserRepository extends JpaRepository<TUser, Long> {
 
 	@Query(value = " select tsau.* " + " from t_sys_app_user tsau "
 			+ "         join t_company_user tcu on tsau.id = tcu.user_id "
-			+ "         join t_sys_app_role tsar on tsar.id = tsau.app_role_id "
+			+ "         join t_sys_app_role tsar on tsar.id = tsau.role_id "
 			+ "         join t_company tc on tc.id = tcu.company_id "
 			+ " where ( tsau.email like :#{#pageCondition.keyword} or tsau.user_name like :#{#pageCondition.keyword} "
 			+ " or tsau.first_name like :#{#pageCondition.keyword} or tsau.last_name like :#{#pageCondition.keyword} or "
@@ -56,7 +56,7 @@ public interface TUserRepository extends JpaRepository<TUser, Long> {
 			+ "  and tsau.enable like :#{#pageCondition.status} "
 			+ "  and tsar.id like :#{#pageCondition.role} and tc.id like :companyId ", nativeQuery = true, countQuery = " select tsau.* "
 					+ " from t_sys_app_user tsau " + "         join t_company_user tcu on tsau.id = tcu.user_id "
-					+ "         join t_sys_app_role tsar on tsar.id = tsau.app_role_id "
+					+ "         join t_sys_app_role tsar on tsar.id = tsau.role_id "
 					+ "         join t_company tc on tc.id = tcu.company_id "
 					+ " where ( tsau.email like :#{#pageCondition.keyword} or tsau.user_name like :#{#pageCondition.keyword} "
 					+ " or tsau.first_name like :#{#pageCondition.keyword} or tsau.last_name like :#{#pageCondition.keyword} or "

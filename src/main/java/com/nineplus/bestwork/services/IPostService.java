@@ -22,6 +22,7 @@ public interface IPostService {
 	PostEntity getPostByPostIdAndProjectId(String postId, String projectId) throws BestWorkBussinessException;
 
 	PostEntity updatePost(PostEntity post) throws BestWorkBussinessException;
-
+	
+	List<String> getAllPostIdByProject(List<String> listProjectId) throws BestWorkBussinessException;
 	
 }

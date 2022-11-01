@@ -2,6 +2,7 @@ package com.nineplus.bestwork.services;
 
 import java.util.List;
 
+
 import com.nineplus.bestwork.dto.ProgressAndProjectResDto;
 import com.nineplus.bestwork.dto.ProgressReqDto;
 import com.nineplus.bestwork.dto.ProgressResDto;
@@ -24,4 +25,6 @@ public interface IProgressService {
 	void deleteProgressList(List<Long> ids) throws BestWorkBussinessException;
 
 	ProgressResDto getProgressById(Long progressId) throws BestWorkBussinessException;
+	
+	List<Long> getAllProgressByProject(List<String> listProjectId) throws BestWorkBussinessException;
 }
