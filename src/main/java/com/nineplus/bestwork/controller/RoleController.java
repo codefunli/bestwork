@@ -2,10 +2,16 @@ package com.nineplus.bestwork.controller;
 
 import com.nineplus.bestwork.dto.PageResponseDto;
 import com.nineplus.bestwork.dto.ResRoleDto;
+import com.nineplus.bestwork.dto.RoleResDto;
 import com.nineplus.bestwork.dto.SearchDto;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.services.RoleService;
 import com.nineplus.bestwork.utils.CommonConstants;
+import com.nineplus.bestwork.utils.Enums.TRole;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.ResponseEntity;
@@ -72,5 +78,17 @@ public class RoleController extends BaseController {
         }
         return success(CommonConstants.MessageCode.RLS0004, id, null);
     }
+    
+    @GetMapping("/all")
+	public ResponseEntity<? extends Object> getAllRole() throws BestWorkBussinessException {
+		List<RoleResDto> roleList = new ArrayList<>();
+		for (TRole role : TRole.values()) {
+			RoleResDto roleDto = new RoleResDto();
+			roleDto.setId(role.ordinal() + 1);
+			roleDto.setRole(role.getValue());
+			roleList.add(roleDto);
+		}
+		return success(CommonConstants.MessageCode.RLS0001, roleList, null);
+	}
 
 }
