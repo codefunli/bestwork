@@ -9,6 +9,7 @@ import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 import org.thymeleaf.templateresolver.ITemplateResolver;
 
+import com.nineplus.bestwork.dto.CompanyUserReqDto;
 import com.nineplus.bestwork.services.ThymleafService;
 
 @Service
@@ -18,7 +19,8 @@ public class ThymleafServiceImpl implements ThymleafService{
 	private static final String MAIL_TEMPLATE_SUFFIX = ".html";
 	private static final String UTF_8 = "UTF-8";
 
-	private static final String RESET_PASSWORD_TEMPLATE_NAME = "mail-template";
+	private static final String RESET_PASSWORD_TEMPLATE_NAME = "reset-password-mail-template";
+	private static final String REGISTER_USER_COMPANY_TEMPLATE_NAME = "register-user-company-mail-template";
 
 	private static TemplateEngine templateEngine;
 	static {
@@ -55,5 +57,16 @@ public class ThymleafServiceImpl implements ThymleafService{
 		context.setVariable("username", username);
 		context.setVariable("link", link);
 		return templateEngine.process(RESET_PASSWORD_TEMPLATE_NAME, context);
+	}
+
+	@Override
+	public String getContentMailRegisterUserCompany(CompanyUserReqDto companyUserReqDto, String linkLogin) {
+		final Context context = new Context();
+		context.setVariable("company", companyUserReqDto.getCompany().getCompanyName());
+		context.setVariable("username", companyUserReqDto.getUser().getUserName());
+		context.setVariable("password", companyUserReqDto.getUser().getPassword());
+		context.setVariable("link", linkLogin);
+		
+		return templateEngine.process(REGISTER_USER_COMPANY_TEMPLATE_NAME, context);
 	}
 }

@@ -81,6 +81,7 @@ public class CompanyService {
 
 	@Autowired
 	IProjectService iProjectService;
+	
 
 	@Transactional(rollbackFor = { Exception.class })
 	public void registCompany(CompanyUserReqDto companyReqDto) throws BestWorkBussinessException {
@@ -106,7 +107,8 @@ public class CompanyService {
 			TRole role = roleRepository.findRole(CommonConstants.RoleName.ORG_ADMIN);
 
 			// Register user for this company
-			userService.registNewUser(companyReqDto.getUser(), newCompanySaved, role);
+			userService.registNewUser(companyReqDto, newCompanySaved, role);
+			
 		} catch (BestWorkBussinessException ex) {
 			logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0001,
 					new Object[] { CommonConstants.Character.COMPANY, companyReqDto.getCompany().getCompanyName() }),
