@@ -180,6 +180,7 @@ public class CommonConstants {
 
 	public class SpringMail {
 
+		public static final String M1X0002 = "m1x0002";
 		public static final String M1X0003 = "m1x0003";
 		public static final String M1H0004 = "m1h0004";
 		public static final String M1P0005 = "m1p0005";

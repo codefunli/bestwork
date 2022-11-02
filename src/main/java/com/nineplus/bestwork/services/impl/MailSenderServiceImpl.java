@@ -14,6 +14,7 @@ import javax.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.nineplus.bestwork.dto.CompanyUserReqDto;
 import com.nineplus.bestwork.services.MailSenderService;
 import com.nineplus.bestwork.services.ThymleafService;
 import com.nineplus.bestwork.utils.CommonConstants;
@@ -44,6 +45,23 @@ public class MailSenderServiceImpl implements MailSenderService {
 		}
 	}
 
+	
+	public void sendMailRegisterUserCompany(String toEmail, CompanyUserReqDto companyUserReqDto, String linkLogin) {
+
+		String email = messageUtils.getMessage(CommonConstants.SpringMail.M1U0006, null);
+		String subject = messageUtils.getMessage(CommonConstants.SpringMail.M1X0002, null);
+		Message message = new MimeMessage(mailCommon());
+		try {
+			message.setRecipients(Message.RecipientType.TO, new InternetAddress[] { new InternetAddress(toEmail) });
+			message.setFrom(new InternetAddress(email));
+			message.setSubject(subject);
+			message.setContent(thymleafService.getContentMailRegisterUserCompany(companyUserReqDto, linkLogin), CONTENT_TYPE_TEXT_HTML);
+			Transport.send(message);
+		} catch (MessagingException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	private Session mailCommon() {
 		String host = messageUtils.getMessage(CommonConstants.SpringMail.M1H0004, null);
 		String port = messageUtils.getMessage(CommonConstants.SpringMail.M1P0005, null);

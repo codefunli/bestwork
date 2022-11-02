@@ -26,6 +26,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.nineplus.bestwork.dto.CompanyUserReqDto;
 import com.nineplus.bestwork.dto.PageResponseDto;
 import com.nineplus.bestwork.dto.PageSearchUserDto;
 import com.nineplus.bestwork.dto.RPageDto;
@@ -93,6 +94,9 @@ public class UserService implements UserDetailsService {
 	@Autowired
 	TCompanyRepository tCompanyRepository;
 
+	@Autowired
+	MailSenderService mailSenderService;
+
 	@Override
 	public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
 		TUser user = tUserRepo.findByUserName(userName);
@@ -124,9 +128,10 @@ public class UserService implements UserDetailsService {
 	}
 
 	@Transactional(rollbackFor = { Exception.class })
-	public void registNewUser(UserCompanyReqDto newUser, TCompany tCompany, TRole tRole) {
+	public void registNewUser(CompanyUserReqDto companyReqDto, TCompany tCompany, TRole tRole) {
 		TUser newTUser = new TUser();
 		Set<TCompany> tCompanyUser = new HashSet<TCompany>();
+		UserCompanyReqDto newUser = companyReqDto.getUser();
 		tCompanyUser.add(tCompany);
 		newTUser.setEmail(newUser.getEmail());
 		newTUser.setUserName(newUser.getUserName());
@@ -140,6 +145,8 @@ public class UserService implements UserDetailsService {
 		newTUser.setCompanys(tCompanyUser);
 
 		tUserRepo.save(newTUser);
+		String linkLogin = messageUtils.getMessage(CommonConstants.Url.URL0001, null) + "/login";
+		mailSenderService.sendMailRegisterUserCompany(newUser.getEmail(), companyReqDto, linkLogin);
 	}
 
 	public TUser getUserByCompanyId(long companyId) {
