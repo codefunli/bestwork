@@ -134,6 +134,8 @@ public class CommonConstants {
 		public static final String RLF0001 = "RLF0001";
 		public static final String RLF0002 = "RLF0001";
 		public static final String RLS0003 = "RLS0003";
+		public static final String eR0002 = "eR0002";
+		
 
 		public static final String SPS0001 = "SPS0001";
 		public static final String RLS0004 = "RLS0004";

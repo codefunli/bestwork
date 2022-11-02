@@ -17,4 +17,7 @@ public interface TRoleRepository extends JpaRepository<TRole, Long> {
 
 	@Query(value = "SELECT * FROM T_SYS_APP_ROLE WHERE UPPER(name) = :role", nativeQuery = true)
 	TRole findRole(String role);
+
+	@Query(value = "SELECT * FROM T_SYS_APP_ROLE WHERE id = :roleId", nativeQuery = true)
+	TRole findRole(Long roleId);
 }
