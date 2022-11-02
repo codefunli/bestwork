@@ -1,6 +1,5 @@
 package com.nineplus.bestwork.dto;
 
-
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 
@@ -41,12 +40,15 @@ public class UserReqDto extends BaseDto {
 
 	@JsonProperty("uTelNo")
 	private String telNo;
-	
+
 	@JsonProperty("enabled")
 	private int enabled;
 
+	/*
+	 * @JsonProperty("role") private TRole role;
+	 */
 	@JsonProperty("role")
-	private TRole role;
+	private long role;
 
 	@JsonProperty("avatar")
 	private String avatar;
@@ -55,6 +57,6 @@ public class UserReqDto extends BaseDto {
 	private String updateDate;
 
 	@JsonProperty("company")
-	private TCompany company;
+	private long company;
 
 }
