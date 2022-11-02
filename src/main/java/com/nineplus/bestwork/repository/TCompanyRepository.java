@@ -39,5 +39,7 @@ public interface TCompanyRepository extends JpaRepository<TCompany, Long> {
 	@Query(value = "DELETE from T_COMPANY c where c.id in ?1", nativeQuery = true)
 	void deleteCompaniesWithIds(List<Long> ids);
 
+	@Query(value = "SELECT * FROM T_COMPANY c JOIN T_COMPANY_USER tcu ON c.id = tcu.company_id JOIN T_SYS_APP_USER tsu ON tsu.id = tcu.user_id WHERE tsu.id = :userId ",nativeQuery = true)
+	TCompany getCompanyOfUser(long userId);
 
 }

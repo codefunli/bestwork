@@ -18,7 +18,7 @@ public class ConvertResponseUtils {
 		itemCompany.put("street", "street");
 		itemCompany.put("telNo", "tel_no");
 		itemCompany.put("startDate", "start_date");
-		itemCompany.put("expireDate", "expired_date");
+		itemCompany.put("expiredDate", "expired_date");
 		itemCompany.put("status", "is_expired");
 		itemCompany.put("cpEmail", "email");
 		if (itemCompany.containsKey(item)) {

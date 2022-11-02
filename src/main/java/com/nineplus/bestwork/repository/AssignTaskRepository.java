@@ -11,11 +11,14 @@ import com.nineplus.bestwork.entity.AssignTask;
 public interface AssignTaskRepository extends JpaRepository<AssignTask, Long> {
 	@Query(value = "SELECT * FROM ASSIGN_TASK WHERE company_id = :id", nativeQuery = true)
 	List<AssignTask> findbyCompanyId(Long id);
-	
+
 	@Query(value = "SELECT * FROM ASSIGN_TASK WHERE user_id = ?1 and company_id = ?2 and project_id = ?3", nativeQuery = true)
 	AssignTask findbyCondition(Long userId, Long companyId, String projectId);
 
 	@Query(value = " select * from ASSIGN_TASK where project_id = :projectId and user_id = :userId  ", nativeQuery = true)
 	AssignTask findByProjectIdAndUserId(String projectId, long userId);
+
+	@Query(value = "select p.id as projectId, p.project_name as projectName ,can_view as canView, can_edit as canEdit from ASSIGN_TASK ast JOIN PROJECT p on p.id = ast.project_id JOIN T_SYS_APP_USER u on ast.user_id = u.id where u.id = :userId and u.user_name = :userName", nativeQuery = true)
+	List<UserProjectRepository> findListProjectByUser(long userId, String userName );
 
 }

@@ -25,7 +25,7 @@ public class UserResDto {
     private String email;
 
 	@JsonProperty("enabled")
-    private int enabled;
+    private int isEnable;
 	
 	@JsonProperty("uTelNo")
     private String telNo;
@@ -41,9 +41,6 @@ public class UserResDto {
 
     @JsonProperty("countLoginFailed")
     private String countLoginFailed;
-
-    @JsonProperty("deleteFlag")
-    private int deleteFlag;
 
     @JsonProperty("company")
     TCompany company;
