@@ -21,6 +21,8 @@ public class PostRequestDto extends BaseDto {
 	private String projectId;
 
 	private String description;
+	
+	private String eqBill;
 
 	private String[] images;
 }

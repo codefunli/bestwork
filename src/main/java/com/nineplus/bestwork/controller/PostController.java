@@ -69,13 +69,10 @@ public class PostController extends BaseController {
 		}
 		PostEntity post = new PostEntity();
 		post.setDescription(postRequestDto.getDescription());
+		post.setEqBill(postRequestDto.getEqBill());
 		post.setProject(projectService.getProjectById(postRequestDto.getProjectId()).get());
 		post.setCreateDate(Timestamp.valueOf(LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"))));
 
-		for (String imgData : postRequestDto.getImages()) {
-			System.out.println(imgData);
-		}
-	
 		PostEntity createdPost = null;
 		try {
 			createdPost = this.postService.savePost(post);
@@ -116,6 +113,7 @@ public class PostController extends BaseController {
 			postResponseDto.setId(postId);
 			postResponseDto.setProject(post.getProject());
 			postResponseDto.setDescription(post.getDescription());
+			postResponseDto.setEqBill(post.getEqBill());
 			postResponseDto.setCreateDate(post.getCreateDate().toString());
 			postResponseDto.setComment(post.getComment());
 			List<FileStorageResponseDto> fileStorageResponseDtos = new ArrayList<>();

@@ -45,6 +45,7 @@ public class PostServiceImpl implements IPostService {
 				PostResponseDto dto = new PostResponseDto();
 				dto.setId(postEntity.getId());
 				dto.setDescription(postEntity.getDescription());
+				dto.setEqBill(postEntity.getEqBill());
 				dto.setCreateDate(postEntity.getCreateDate().toString());
 				dto.setProject(postEntity.getProject());
 				List<FileStorageResponseDto> fileStorageResponseDtos = new ArrayList<>();
@@ -79,6 +80,7 @@ public class PostServiceImpl implements IPostService {
 			PostResponseDto dto = new PostResponseDto();
 			dto.setId(postEntity.getId());
 			dto.setDescription(postEntity.getDescription());
+			dto.setEqBill(postEntity.getEqBill());
 			dto.setCreateDate(postEntity.getCreateDate().toString());
 			dto.setProject(postEntity.getProject());
 			dto.setComment(postEntity.getComment());
