@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.modelmapper.ModelMapper;
@@ -15,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -239,8 +241,7 @@ public class UserService implements UserDetailsService {
 	@Transactional(rollbackFor = { Exception.class })
 	public void deleteUser(UserListIdDto listId) throws BestWorkBussinessException {
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
-		if (!userAuthRoleReq.getIsSysAdmin()) {
-			logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0014, null));
+		if (!userAuthRoleReq.getIsSysAdmin() && !userAuthRoleReq.getIsOrgAdmin()) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
 		}
 		try {
@@ -276,6 +277,11 @@ public class UserService implements UserDetailsService {
 		} else {
 			tUserPage = tUserRepo.getAllUsers(pageable, "%%", pageCondition);
 		}
+
+		  List<TUser> result = tUserPage.getContent().stream().filter(u->
+		  !userAuthRoleReq.getUsername().equals(u.getUserName()))
+		  .collect(Collectors.toList());
+		 tUserPage = new PageImpl<TUser>(result,pageable,tUserPage.getTotalElements());
 		RPageDto rPageDto = createRPageDto(tUserPage);
 		List<UserResDto> userResDtoList = convertTUser(tUserPage);
 		pageResponseDto.setContent(userResDtoList);
@@ -343,7 +349,7 @@ public class UserService implements UserDetailsService {
 	public TUser editUser(UserReqDto userReqDto, long userId) throws BestWorkBussinessException {
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
 		TCompany company = tCompanyRepository.findById(findCompanyIdByUsername(userAuthRoleReq)).orElse(new TCompany());
-		if (null != company.getId()) {
+		if (null == company.getId()) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.ECU0003, null);
 		}
 		TUser user = tUserRepo.findById(userId).orElse(null);
@@ -404,7 +410,7 @@ public class UserService implements UserDetailsService {
 
 	public List<TRole> getAllRoles() {
 		List<TRole> tRoleList = this.roleRepository.findAll();
-		tRoleList.removeIf(tRole -> tRole.getId() == 1);
+		tRoleList.removeIf(tRole -> tRole.getId() == 1 || tRole.getId() == 2);
 		return tRoleList;
 	}
 
