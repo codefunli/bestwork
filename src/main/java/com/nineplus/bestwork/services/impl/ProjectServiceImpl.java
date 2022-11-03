@@ -36,6 +36,7 @@ import com.nineplus.bestwork.entity.ProjectEntity;
 import com.nineplus.bestwork.entity.ProjectTypeEntity;
 import com.nineplus.bestwork.entity.TUser;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
+import com.nineplus.bestwork.model.UserAuthDetected;
 import com.nineplus.bestwork.repository.AssignTaskRepository;
 import com.nineplus.bestwork.repository.ProgressRepository;
 import com.nineplus.bestwork.repository.ProjectAssignRepository;
@@ -49,6 +50,7 @@ import com.nineplus.bestwork.utils.DateUtils;
 import com.nineplus.bestwork.utils.Enums.ProjectStatus;
 import com.nineplus.bestwork.utils.MessageUtils;
 import com.nineplus.bestwork.utils.PageUtils;
+import com.nineplus.bestwork.utils.UserAuthUtils;
 
 @Service
 @Transactional
@@ -74,20 +76,33 @@ public class ProjectServiceImpl implements IProjectService {
 	@Autowired
 	DateUtils dateUtils;
 
+	@Autowired
+	UserAuthUtils userAuthUtils;
+
 	@Override
 	public PageResponseDto<ProjectResponseDto> getProjectPage(PageSearchDto pageSearchDto)
 			throws BestWorkBussinessException {
+		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
+		String userCurrent = userAuthRoleReq.getUsername();
 		try {
 			int pageNumber = NumberUtils.toInt(pageSearchDto.getPage());
 			String mappedColumn = convertResponseUtils.convertResponseProject(pageSearchDto.getSortBy());
 			Pageable pageable = PageRequest.of(pageNumber, Integer.parseInt(pageSearchDto.getSize()),
 					Sort.by(pageSearchDto.getSortDirection(), mappedColumn));
-			Page<ProjectEntity> pageTProject;
+			Page<ProjectEntity> pageTProject = null;
 			int status = pageSearchDto.getStatus();
-			if (status >= 0 && status < ProjectStatus.values().length) {
-				pageTProject = projectRepository.findProjectWithStatus(pageSearchDto, pageable);
-			} else {
-				pageTProject = projectRepository.findProjectWithoutStatus(pageSearchDto, pageable);
+			if (userAuthRoleReq.getIsOrgAdmin()) {
+				if (status >= 0 && status < ProjectStatus.values().length) {
+					pageTProject = projectRepository.findProjectWithStatus(pageSearchDto, pageable, userCurrent);
+				} else {
+					pageTProject = projectRepository.findProjectWithoutStatus(pageSearchDto, pageable, userCurrent);
+				}
+			} else if (userAuthRoleReq.getIsOrgUser()){
+				if (status >= 0 && status < ProjectStatus.values().length) {
+					pageTProject = projectRepository.findAssignToUserWithStatus(pageSearchDto, pageable, userCurrent);
+				} else {
+					pageTProject = projectRepository.findAssignToUserWithOutStatus(pageSearchDto, pageable, userCurrent);
+				}
 			}
 			return responseUtils.convertPageEntityToDTO(pageTProject, ProjectResponseDto.class);
 		} catch (Exception ex) {
@@ -163,6 +178,10 @@ public class ProjectServiceImpl implements IProjectService {
 	public void saveProject(ProjectTaskReqDto projectTaskDto, ProjectTypeEntity projectType)
 			throws BestWorkBussinessException {
 		// Generate project ID
+		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
+		if (!userAuthRoleReq.getIsOrgAdmin()) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
+		}
 		String generateProjectId = "";
 		if (projectTaskDto.getProject() != null && projectTaskDto.getRoleData() == null) {
 			generateProjectId = this.setProjectId();
@@ -183,6 +202,10 @@ public class ProjectServiceImpl implements IProjectService {
 	public void registNewProject(ProjectReqDto projectReqDto, ProjectTypeEntity projectType, String generateProjectId)
 			throws BestWorkBussinessException {
 		ProjectEntity projectRegist = new ProjectEntity();
+		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
+		if (!userAuthRoleReq.getIsOrgAdmin()) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
+		}
 		try {
 			projectRegist.setId(generateProjectId);
 			projectRegist.setProjectName(projectReqDto.getProjectName());
@@ -191,6 +214,8 @@ public class ProjectServiceImpl implements IProjectService {
 			projectRegist.setIsPaid(projectReqDto.getIsPaid());
 			projectRegist.setStatus(projectReqDto.getStatus());
 			projectRegist.setStartDate(projectReqDto.getStartDate());
+			projectRegist.setCreateBy(userAuthRoleReq.getUsername());
+			projectRegist.setUpdateBy(userAuthRoleReq.getUsername());
 			projectRegist.setCreateDate(LocalDateTime.now());
 			projectRegist.setProjectType(projectType);
 			projectRepository.save(projectRegist);
@@ -243,15 +268,18 @@ public class ProjectServiceImpl implements IProjectService {
 	public void updateProject(ProjectTaskReqDto projectTaskDto, ProjectTypeEntity projectType, String projectId)
 			throws BestWorkBussinessException {
 		ProjectEntity currentProject = null;
+		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
+		if (!userAuthRoleReq.getIsOrgAdmin()) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
+		}
 		currentProject = projectRepository.findbyProjectId(projectId);
-
 		if (projectTaskDto.getRoleData() != null && projectTaskDto.getRoleData().size() > 0) {
 			for (int j = 0; j < projectTaskDto.getRoleData().size(); j++) {
 				Long companyId = projectTaskDto.getRoleData().get(j).getCompanyId();
 				List<ProjectRoleUserReqDto> userList = projectTaskDto.getRoleData().get(j).getUserList();
 				AssignTask assignTask = null;
 				try {
-					updateProject(currentProject,projectTaskDto.getProject(), projectType);
+					updateProject(currentProject, projectTaskDto.getProject(), projectType);
 					for (int i = 0; i < userList.size(); i++) {
 						assignTask = assignTaskRepository.findbyCondition(userList.get(i).getUserId(), companyId,
 								projectId);
@@ -276,9 +304,9 @@ public class ProjectServiceImpl implements IProjectService {
 				}
 			}
 		} else {
-			updateProject(currentProject,projectTaskDto.getProject(), projectType);
-			}
+			updateProject(currentProject, projectTaskDto.getProject(), projectType);
 		}
+	}
 
 	@Override
 	public List<ProjectAssignRepository> getCompanyUserForAssign(AssignTaskReqDto assignTaskReqDto)
@@ -339,7 +367,6 @@ public class ProjectServiceImpl implements IProjectService {
 	public void changeStatus(String projectId, ProjectStatusReqDto projectStatusReqDto)
 			throws BestWorkBussinessException {
 		ProjectEntity currentProject = null;
-
 		try {
 			currentProject = projectRepository.findbyProjectId(projectId);
 			if (currentProject != null) {
@@ -361,6 +388,7 @@ public class ProjectServiceImpl implements IProjectService {
 
 	public void updateProject(ProjectEntity currentProject, ProjectReqDto projectReqDto, ProjectTypeEntity projectType)
 			throws BestWorkBussinessException {
+		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
 		if (currentProject != null) {
 			currentProject.setProjectName(projectReqDto.getProjectName());
 			currentProject.setDescription(projectReqDto.getDescription());
@@ -368,6 +396,7 @@ public class ProjectServiceImpl implements IProjectService {
 			currentProject.setIsPaid(projectReqDto.getIsPaid());
 			currentProject.setStatus(projectReqDto.getStatus());
 			currentProject.setStartDate(projectReqDto.getStartDate());
+			currentProject.setUpdateBy(userAuthRoleReq.getUsername());
 			currentProject.setUpdateDate(LocalDateTime.now());
 			currentProject.setProjectType(projectType);
 			projectRepository.save(currentProject);

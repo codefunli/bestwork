@@ -180,10 +180,8 @@ public class CompanyService {
 			company.setDistrict(companyReqDto.getCompany().getDistrict());
 			company.setWard(companyReqDto.getCompany().getWard());
 			company.setStreet(companyReqDto.getCompany().getStreet());
-			String startDt = dateUtils.convertToUTC(companyReqDto.getCompany().getStartDate());
-			String expiredDt = dateUtils.convertToUTC(companyReqDto.getCompany().getExpiredDate());
-			company.setStartDate(startDt);
-			company.setExpiredDate(expiredDt);
+			company.setStartDate(companyReqDto.getCompany().getStartDate());
+			company.setExpiredDate(companyReqDto.getCompany().getExpiredDate());
 			company.setCreateDt(LocalDateTime.now());
 			company.setCreateBy(companyReqDto.getCompany().getCreateBy());
 

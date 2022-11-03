@@ -278,10 +278,9 @@ public class UserService implements UserDetailsService {
 			tUserPage = tUserRepo.getAllUsers(pageable, "%%", pageCondition);
 		}
 
-		  List<TUser> result = tUserPage.getContent().stream().filter(u->
-		  !userAuthRoleReq.getUsername().equals(u.getUserName()))
-		  .collect(Collectors.toList());
-		 tUserPage = new PageImpl<TUser>(result,pageable,tUserPage.getTotalElements());
+		List<TUser> result = tUserPage.getContent().stream()
+				.filter(u -> !userAuthRoleReq.getUsername().equals(u.getUserName())).collect(Collectors.toList());
+		tUserPage = new PageImpl<TUser>(result, pageable, tUserPage.getTotalElements());
 		RPageDto rPageDto = createRPageDto(tUserPage);
 		List<UserResDto> userResDtoList = convertTUser(tUserPage);
 		pageResponseDto.setContent(userResDtoList);
@@ -348,9 +347,12 @@ public class UserService implements UserDetailsService {
 	@Transactional(rollbackFor = { Exception.class })
 	public TUser editUser(UserReqDto userReqDto, long userId) throws BestWorkBussinessException {
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
-		TCompany company = tCompanyRepository.findById(findCompanyIdByUsername(userAuthRoleReq)).orElse(new TCompany());
-		if (null == company.getId()) {
-			throw new BestWorkBussinessException(CommonConstants.MessageCode.ECU0003, null);
+		if (!userAuthRoleReq.getIsSysAdmin()) {
+			TCompany company = tCompanyRepository.findById(findCompanyIdByUsername(userAuthRoleReq))
+					.orElse(new TCompany());
+			if (null == company.getId()) {
+				throw new BestWorkBussinessException(CommonConstants.MessageCode.ECU0003, null);
+			}
 		}
 		TUser user = tUserRepo.findById(userId).orElse(null);
 		if (null == user) {
@@ -449,7 +451,10 @@ public class UserService implements UserDetailsService {
 			}
 		}
 		TCompany company = companyRepository.getCompanyOfUser(userId);
-		CompanyResDto companyRes = modelMapper.map(company, CompanyResDto.class);
+		CompanyResDto companyRes = null;
+		if (company != null) {
+			companyRes = modelMapper.map(company, CompanyResDto.class);
+		}
 		UserDetectResDto userResDto = modelMapper.map(user, UserDetectResDto.class);
 		if (companyRes != null) {
 			userResDto.setCompany(companyRes);
