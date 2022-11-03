@@ -1,5 +1,6 @@
 package com.nineplus.bestwork.services.impl;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
@@ -9,11 +10,14 @@ import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 import org.thymeleaf.templateresolver.ITemplateResolver;
 
-import com.nineplus.bestwork.dto.CompanyUserReqDto;
+import com.nineplus.bestwork.entity.MailStorage;
+import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.services.ThymleafService;
+import com.nineplus.bestwork.utils.EncryptionUtils;
 
 @Service
-public class ThymleafServiceImpl implements ThymleafService{
+public class ThymleafServiceImpl implements ThymleafService {
+
 	private static final String MAIL_TEMPLATE_BASE_NAME = "mail/MailMessages";
 	private static final String MAIL_TEMPLATE_PREFIX = "/templates/";
 	private static final String MAIL_TEMPLATE_SUFFIX = ".html";
@@ -26,6 +30,9 @@ public class ThymleafServiceImpl implements ThymleafService{
 	static {
 		templateEngine = emailTemplateEngine();
 	}
+
+	@Autowired
+	private EncryptionUtils encryptionUtils;
 
 	private static TemplateEngine emailTemplateEngine() {
 		final SpringTemplateEngine templateEngine = new SpringTemplateEngine();
@@ -60,13 +67,15 @@ public class ThymleafServiceImpl implements ThymleafService{
 	}
 
 	@Override
-	public String getContentMailRegisterUserCompany(CompanyUserReqDto companyUserReqDto, String linkLogin) {
+	public String getContentMailRegisterUserCompany(MailStorage mailStorage) throws BestWorkBussinessException {
 		final Context context = new Context();
-		context.setVariable("company", companyUserReqDto.getCompany().getCompanyName());
-		context.setVariable("username", companyUserReqDto.getUser().getUserName());
-		context.setVariable("password", companyUserReqDto.getUser().getPassword());
-		context.setVariable("link", linkLogin);
-		
+		String paramString = encryptionUtils.decrypt(mailStorage.getParams(), encryptionUtils.getSecret());
+		String[] keyValuePairs = paramString.split(", ");
+
+		for (String pair : keyValuePairs) {
+			String[] entry = pair.split("=");
+			context.setVariable(entry[0].trim(), entry[1].trim());
+		}
 		return templateEngine.process(REGISTER_USER_COMPANY_TEMPLATE_NAME, context);
 	}
 }

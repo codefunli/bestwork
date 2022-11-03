@@ -17,6 +17,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -34,6 +36,7 @@ import com.nineplus.bestwork.dto.UserCompanyReqDto;
 import com.nineplus.bestwork.dto.UserListIdDto;
 import com.nineplus.bestwork.dto.UserReqDto;
 import com.nineplus.bestwork.dto.UserResDto;
+import com.nineplus.bestwork.entity.MailStorage;
 import com.nineplus.bestwork.entity.TCompany;
 import com.nineplus.bestwork.entity.TRole;
 import com.nineplus.bestwork.entity.TUser;
@@ -42,6 +45,7 @@ import com.nineplus.bestwork.model.UserAuthDetected;
 import com.nineplus.bestwork.repository.TCompanyRepository;
 import com.nineplus.bestwork.repository.TRoleRepository;
 import com.nineplus.bestwork.repository.TUserRepository;
+import com.nineplus.bestwork.services.impl.ScheduleServiceImpl;
 import com.nineplus.bestwork.utils.CommonConstants;
 import com.nineplus.bestwork.utils.ConvertResponseUtils;
 import com.nineplus.bestwork.utils.MessageUtils;
@@ -96,6 +100,12 @@ public class UserService implements UserDetailsService {
 
 	@Autowired
 	MailSenderService mailSenderService;
+	
+	@Autowired
+	MailStorageService mailStorageService;
+	
+	@Autowired
+	ScheduleService scheduleService;
 
 	@Override
 	public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
@@ -145,8 +155,9 @@ public class UserService implements UserDetailsService {
 		newTUser.setCompanys(tCompanyUser);
 
 		tUserRepo.save(newTUser);
-		String linkLogin = messageUtils.getMessage(CommonConstants.Url.URL0001, null) + "/login";
-		mailSenderService.sendMailRegisterUserCompany(newUser.getEmail(), companyReqDto, linkLogin);
+		
+		mailStorageService.saveMailRegisterUserCompToSendLater(newUser.getEmail(), companyReqDto);
+		ScheduleServiceImpl.isCompleted = true;
 	}
 
 	public TUser getUserByCompanyId(long companyId) {
