@@ -81,7 +81,6 @@ public class CompanyService {
 
 	@Autowired
 	IProjectService iProjectService;
-	
 
 	@Transactional(rollbackFor = { Exception.class })
 	public void registCompany(CompanyUserReqDto companyReqDto) throws BestWorkBussinessException {
@@ -303,7 +302,8 @@ public class CompanyService {
 	public CompanyUserResDto getCompanyAndUser(long companyId) throws BestWorkBussinessException {
 		CompanyUserResDto userCompanyRes = new CompanyUserResDto();
 		TCompany company = tCompanyRepository.findByCompanyId(companyId);
-		TUser user = userService.getUserByCompanyId(companyId);
+		TRole role = roleRepository.findRole(CommonConstants.RoleName.ORG_ADMIN);
+		TUser user = userService.getUserByCompanyId(companyId,role.getId());
 		if (company != null && user != null) {
 			CompanyResDto resCompany = modelMapper.map(company, CompanyResDto.class);
 			UserResDto resUser = modelMapper.map(user, UserResDto.class);

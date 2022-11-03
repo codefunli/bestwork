@@ -16,9 +16,12 @@ public interface PostRepository extends JpaRepository<PostEntity, String> {
 	List<PostEntity> findPostsByProjectId(@Param(value = "projectId") String projectId);
 
 	@Query(value = " select * from POST where project_id = :projectId and id =:postId  ", nativeQuery = true)
-	PostEntity findPostByIdAndProjectId(@Param("postId") String postId, String projectId);
+	PostEntity findPostByIdAndProjectId(@Param("postId") String postId, @Param("projectId") String projectId);
 	
 	@Query(value = "SELECT p.id FROM POST p WHERE p.project_id in ?1", nativeQuery = true)
 	List<String> getAllPostIdByProject(List<String> listProjectId);
+	
+	
+
 
 }

@@ -3,6 +3,7 @@ package com.nineplus.bestwork.controller;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -22,6 +23,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.nineplus.bestwork.dto.PageResponseDto;
 import com.nineplus.bestwork.dto.PageSearchUserDto;
+import com.nineplus.bestwork.dto.TUserResponseDTO;
+import com.nineplus.bestwork.dto.UserDetectResDto;
 import com.nineplus.bestwork.dto.UserListIdDto;
 import com.nineplus.bestwork.dto.UserReqDto;
 import com.nineplus.bestwork.dto.UserResDto;
@@ -49,6 +52,8 @@ public class UserController extends BaseController {
 
 	@Value("${app.login.jwtPrefix}")
 	private String PRE_STRING;
+
+	private final int MAX_LOGIN_FAILED_NUM = 5;
 
 	@GetMapping("/isCheckLogin")
 	public ResponseEntity<? extends Object> isCheckLogin(HttpServletRequest request, HttpServletResponse response) {
@@ -110,14 +115,16 @@ public class UserController extends BaseController {
 		UserResDto userResDto = new UserResDto();
 		userResDto.setId(userId);
 		userResDto.setUserName(user.getUserName());
-		userResDto.setFirstName(user.getFirstNm());
-		userResDto.setLastName(user.getLastNm());
+		userResDto.setFirstName(user.getFirstName());
+		userResDto.setLastName(user.getLastName());
 		userResDto.setEmail(user.getEmail());
 		userResDto.setTelNo(user.getTelNo());
-		userResDto.setEnabled(user.getIsEnable());
+		userResDto.setIsEnable(user.getIsEnable());
+		int countLoginfailed = user.getLoginFailedNum();
+		if (countLoginfailed > MAX_LOGIN_FAILED_NUM) {
+			userResDto.setIsEnable(0);
+		}
 		userResDto.setRole(user.getRole());
-		userResDto.setCountLoginFailed("0");
-		userResDto.setDeleteFlag(user.getDeleteFlag());
 		for (TCompany tCompany : user.getCompanys()) {
 			userResDto.setCompany(tCompany);
 		}
@@ -170,5 +177,21 @@ public class UserController extends BaseController {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}
 		return ResponseEntity.ok(company);
+	}
+
+	@GetMapping("/detect-infor")
+	public ResponseEntity<? extends Object> detectUserLogin(HttpServletRequest request, HttpServletResponse response) {
+		Cookie accessCookie = tokenUtils.getCookieFromRequest(request, CommonConstants.Authentication.ACCESS_COOKIE);
+		if (accessCookie != null) {
+			try {
+				String username = tokenUtils.getUserNameFromCookie(accessCookie);
+				UserDetectResDto userDetect = userService.detectUser(username);
+				return userDetect != null ? success(CommonConstants.MessageCode.sUS0001, userDetect, null)
+						: failed(CommonConstants.MessageCode.E1X0003, null);
+			} catch (Exception ex) {
+				return failed(CommonConstants.MessageCode.E1X0003, null);
+			}
+		}
+		return success(CommonConstants.MessageCode.S1X0003, null, null);
 	}
 }

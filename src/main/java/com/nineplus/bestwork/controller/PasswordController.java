@@ -93,8 +93,8 @@ public class PasswordController extends BaseController {
 		ForgotPasswordResDto forgotPasswordResDto = new ForgotPasswordResDto();
 		forgotPasswordResDto.setUsername(sysUserReq.getUserName());
 		forgotPasswordResDto.setEmail(sysUserReq.getEmail());
-		forgotPasswordResDto.setFirstname(sysUserReq.getFirstNm());
-		forgotPasswordResDto.setLastname(sysUserReq.getLastNm());
+		forgotPasswordResDto.setFirstname(sysUserReq.getFirstName());
+		forgotPasswordResDto.setLastname(sysUserReq.getLastName());
 		return success(CommonConstants.MessageCode.SU0001, forgotPasswordResDto, null);
 	}
 

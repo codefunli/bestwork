@@ -29,10 +29,10 @@ public class TUser {
     private String password;
     
     @Column(name = "first_name", nullable = false)
-    private String firstNm;
+    private String firstName;
     
     @Column(name = "last_name", nullable = false)
-    private String lastNm;
+    private String lastName;
     
     @Column(name = "email", nullable = false)
     private String email;

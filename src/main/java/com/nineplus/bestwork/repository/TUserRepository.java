@@ -22,8 +22,8 @@ public interface TUserRepository extends JpaRepository<TUser, Long> {
 	@Query(value = "select u.* from T_SYS_APP_USER u JOIN T_COMPANY_USER tcu ON (u.id = tcu.user_id) where tcu.company_id in ?1", nativeQuery = true)
 	List<TUser> findAllUserByCompanyIdList(List<Long> ids);
 
-	@Query(value = "select t.* from T_SYS_APP_USER t JOIN T_COMPANY_USER tcu ON (t.id = tcu.user_id) where tcu.company_id = :companyId", nativeQuery = true)
-	TUser findUserByOrgId(Long companyId);
+	@Query(value = "select t.* from T_SYS_APP_USER t JOIN T_COMPANY_USER tcu ON (t.id = tcu.user_id) where tcu.company_id = :companyId and t.role_id = :role ", nativeQuery = true)
+	TUser findUserByOrgId(Long companyId, Long role);
 
 	@Query(value = "select * from T_SYS_APP_USER", countQuery = "select count(*) from T_SYS_APP_USER ", nativeQuery = true)
 	Page<TUser> getPageUser(Pageable pageable);

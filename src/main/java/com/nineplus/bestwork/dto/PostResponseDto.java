@@ -27,6 +27,9 @@ public class PostResponseDto extends BaseDto{
 	@JsonProperty("description")
 	private String description;
 	
+	@JsonProperty("eqBill")
+	private String eqBill;
+	
 	@JsonProperty("createDate")
 	private String createDate;
 	

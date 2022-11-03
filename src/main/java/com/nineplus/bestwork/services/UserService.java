@@ -8,17 +8,18 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ObjectUtils;
+import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -28,23 +29,27 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.nineplus.bestwork.dto.CompanyResDto;
 import com.nineplus.bestwork.dto.CompanyUserReqDto;
 import com.nineplus.bestwork.dto.PageResponseDto;
 import com.nineplus.bestwork.dto.PageSearchUserDto;
 import com.nineplus.bestwork.dto.RPageDto;
 import com.nineplus.bestwork.dto.UserCompanyReqDto;
+import com.nineplus.bestwork.dto.UserDetectResDto;
 import com.nineplus.bestwork.dto.UserListIdDto;
 import com.nineplus.bestwork.dto.UserReqDto;
 import com.nineplus.bestwork.dto.UserResDto;
-import com.nineplus.bestwork.entity.MailStorage;
+import com.nineplus.bestwork.dto.UserWithProjectResDto;
 import com.nineplus.bestwork.entity.TCompany;
 import com.nineplus.bestwork.entity.TRole;
 import com.nineplus.bestwork.entity.TUser;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.model.UserAuthDetected;
+import com.nineplus.bestwork.repository.AssignTaskRepository;
 import com.nineplus.bestwork.repository.TCompanyRepository;
 import com.nineplus.bestwork.repository.TRoleRepository;
 import com.nineplus.bestwork.repository.TUserRepository;
+import com.nineplus.bestwork.repository.UserProjectRepository;
 import com.nineplus.bestwork.services.impl.ScheduleServiceImpl;
 import com.nineplus.bestwork.utils.CommonConstants;
 import com.nineplus.bestwork.utils.ConvertResponseUtils;
@@ -100,12 +105,18 @@ public class UserService implements UserDetailsService {
 
 	@Autowired
 	MailSenderService mailSenderService;
-	
+
 	@Autowired
 	MailStorageService mailStorageService;
-	
+
 	@Autowired
 	ScheduleService scheduleService;
+
+	@Autowired
+	AssignTaskRepository assignTaskRepository;
+
+	@Autowired
+	ModelMapper modelMapper;
 
 	@Override
 	public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
@@ -126,12 +137,12 @@ public class UserService implements UserDetailsService {
 			dto.setUserName(user.getUserName());
 			dto.setEmail(user.getEmail());
 			dto.setRole(user.getRole());
-			dto.setEnabled(user.getIsEnable());
+			dto.setIsEnable(countUserLoginFailedBlocked);
 			dto.setRole(user.getRole());
-			dto.setEnabled(user.getIsEnable());
+			dto.setIsEnable(user.getIsEnable());
 			dto.setTelNo(user.getTelNo());
-			dto.setFirstName(user.getFirstNm());
-			dto.setLastName(user.getLastNm());
+			dto.setFirstName(user.getFirstName());
+			dto.setLastName(user.getLastName());
 		}
 
 		return dto;
@@ -146,8 +157,8 @@ public class UserService implements UserDetailsService {
 		newTUser.setEmail(newUser.getEmail());
 		newTUser.setUserName(newUser.getUserName());
 		newTUser.setIsEnable(newUser.getEnabled());
-		newTUser.setFirstNm(newUser.getFirstName());
-		newTUser.setLastNm(newUser.getLastName());
+		newTUser.setFirstName(newUser.getFirstName());
+		newTUser.setLastName(newUser.getLastName());
 		newTUser.setLoginFailedNum(0);
 		newTUser.setPassword(encoder.encode(newUser.getPassword()));
 		newTUser.setTelNo(newUser.getTelNo());
@@ -155,13 +166,13 @@ public class UserService implements UserDetailsService {
 		newTUser.setCompanys(tCompanyUser);
 
 		tUserRepo.save(newTUser);
-		
+
 		mailStorageService.saveMailRegisterUserCompToSendLater(newUser.getEmail(), companyReqDto);
 		ScheduleServiceImpl.isCompleted = true;
 	}
 
-	public TUser getUserByCompanyId(long companyId) {
-		return tUserRepo.findUserByOrgId(companyId);
+	public TUser getUserByCompanyId(long companyId, long role) {
+		return tUserRepo.findUserByOrgId(companyId, role);
 
 	}
 
@@ -203,8 +214,8 @@ public class UserService implements UserDetailsService {
 		user.setCompanys(companies);
 		user.setUserName(userReqDto.getUserName());
 		user.setPassword(encoder.encode(userReqDto.getPassword()));
-		user.setFirstNm(userReqDto.getFirstName());
-		user.setLastNm(userReqDto.getLastName());
+		user.setFirstName(userReqDto.getFirstName());
+		user.setLastName(userReqDto.getLastName());
 		user.setEmail(userReqDto.getEmail());
 		user.setTelNo(userReqDto.getTelNo());
 		user.setIsEnable(userReqDto.getEnabled());
@@ -238,8 +249,7 @@ public class UserService implements UserDetailsService {
 	@Transactional(rollbackFor = { Exception.class })
 	public void deleteUser(UserListIdDto listId) throws BestWorkBussinessException {
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
-		if (!userAuthRoleReq.getIsSysAdmin()) {
-			logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0014, null));
+		if (!userAuthRoleReq.getIsSysAdmin() && !userAuthRoleReq.getIsOrgAdmin()) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
 		}
 		try {
@@ -275,6 +285,10 @@ public class UserService implements UserDetailsService {
 		} else {
 			tUserPage = tUserRepo.getAllUsers(pageable, "%%", pageCondition);
 		}
+
+		List<TUser> result = tUserPage.getContent().stream()
+				.filter(u -> !userAuthRoleReq.getUsername().equals(u.getUserName())).collect(Collectors.toList());
+		tUserPage = new PageImpl<TUser>(result, pageable, tUserPage.getTotalElements());
 		RPageDto rPageDto = createRPageDto(tUserPage);
 		List<UserResDto> userResDtoList = convertTUser(tUserPage);
 		pageResponseDto.setContent(userResDtoList);
@@ -289,12 +303,12 @@ public class UserService implements UserDetailsService {
 				UserResDto userResDto = new UserResDto();
 				userResDto.setUserName(tUser.getUserName());
 				userResDto.setEmail(tUser.getEmail());
-				userResDto.setFirstName(tUser.getFirstNm());
-				userResDto.setLastName(tUser.getLastNm());
+				userResDto.setFirstName(tUser.getFirstName());
+				userResDto.setLastName(tUser.getLastName());
 				userResDto.setTelNo(tUser.getTelNo());
 				userResDto.setRole(tUser.getRole());
 				userResDto.setId(tUser.getId());
-				userResDto.setEnabled(tUser.getIsEnable());
+				userResDto.setIsEnable(tUser.getIsEnable());
 				userResDto.setAvatar(Arrays.toString(tUser.getUserAvatar()));
 				userResDtoList.add(userResDto);
 			}
@@ -342,7 +356,7 @@ public class UserService implements UserDetailsService {
 	public TUser editUser(UserReqDto userReqDto, long userId) throws BestWorkBussinessException {
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
 		TCompany company = tCompanyRepository.findById(findCompanyIdByUsername(userAuthRoleReq)).orElse(new TCompany());
-		if (null != company.getId()) {
+		if (null == company.getId()) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.ECU0003, null);
 		}
 		TUser user = tUserRepo.findById(userId).orElse(null);
@@ -374,11 +388,14 @@ public class UserService implements UserDetailsService {
 		} else {
 			tUser.setPassword(user.getPassword());
 		}
-		tUser.setFirstNm(userReqDto.getFirstName());
-		tUser.setLastNm(userReqDto.getLastName());
+		tUser.setFirstName(userReqDto.getFirstName());
+		tUser.setLastName(userReqDto.getLastName());
 		tUser.setEmail(userReqDto.getEmail());
 		tUser.setTelNo(userReqDto.getTelNo());
 		tUser.setIsEnable(userReqDto.getEnabled());
+		if (1 == userReqDto.getEnabled()) {
+			tUser.setLoginFailedNum(0);
+		}
 		if (ObjectUtils.isNotEmpty(userReqDto.getRole())) {
 			TRole roleCurrent = roleRepository.findRole(userReqDto.getRole());
 			if (roleCurrent != null) {
@@ -400,7 +417,7 @@ public class UserService implements UserDetailsService {
 
 	public List<TRole> getAllRoles() {
 		List<TRole> tRoleList = this.roleRepository.findAll();
-		tRoleList.removeIf(tRole -> tRole.getId() == 1);
+		tRoleList.removeIf(tRole -> tRole.getId() == 1 || tRole.getId() == 2);
 		return tRoleList;
 	}
 
@@ -418,6 +435,36 @@ public class UserService implements UserDetailsService {
 		} else {
 			return this.tCompanyRepository.findAll();
 		}
+	}
+
+	public UserDetectResDto detectUser(String username) {
+		TUser user = this.getUserByUsername(username);
+		long userId = 0;
+		if (user != null) {
+			userId = user.getId();
+		}
+		List<UserProjectRepository> userProject = assignTaskRepository.findListProjectByUser(userId, username);
+		List<UserWithProjectResDto> listAssignDto = new ArrayList<>();
+		if (userProject != null) {
+			for (UserProjectRepository assign : userProject) {
+				UserWithProjectResDto assignDto = new UserWithProjectResDto();
+				assignDto.setProjectId(assign.getProjectId());
+				assignDto.setProjectName(assign.getProjectName());
+				assignDto.setCanView(assign.getCanView());
+				assignDto.setCanEdit(assign.getCanEdit());
+				listAssignDto.add(assignDto);
+			}
+		}
+		TCompany company = companyRepository.getCompanyOfUser(userId);
+		CompanyResDto companyRes = modelMapper.map(company, CompanyResDto.class);
+		UserDetectResDto userResDto = modelMapper.map(user, UserDetectResDto.class);
+		if (companyRes != null) {
+			userResDto.setCompany(companyRes);
+		}
+		if (listAssignDto != null) {
+			userResDto.setRoleProject(listAssignDto);
+		}
+		return userResDto;
 	}
 
 }

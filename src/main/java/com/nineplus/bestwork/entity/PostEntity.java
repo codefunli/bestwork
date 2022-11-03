@@ -41,6 +41,9 @@ public class PostEntity {
 
 	@Column(name = "description", nullable = true, columnDefinition = "VARCHAR(255)")
 	private String description;
+	
+	@Column(name = "eq_bill", nullable = true, columnDefinition = "VARCHAR(100)")
+	private String eqBill;
 
 	@Column(name = "create_date", nullable = true)
 	private Timestamp createDate;
