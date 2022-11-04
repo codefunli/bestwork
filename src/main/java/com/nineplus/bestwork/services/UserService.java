@@ -412,7 +412,7 @@ public class UserService implements UserDetailsService {
 
 	public List<TRole> getAllRoles() {
 		List<TRole> tRoleList = this.roleRepository.findAll();
-		tRoleList.removeIf(tRole -> tRole.getId() == 1 || tRole.getId() == 2);
+		tRoleList.removeIf(tRole -> tRole.getId() == 1);
 		return tRoleList;
 	}
 
