@@ -8,6 +8,11 @@ import org.springframework.stereotype.Repository;
 
 import com.nineplus.bestwork.entity.MailStorage;
 
+/**
+ * 
+ * @author DiepTT
+ *
+ */
 @Repository
 public interface MailStorageRepository extends JpaRepository<MailStorage, Long> {
 

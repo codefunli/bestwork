@@ -14,6 +14,12 @@ import com.nineplus.bestwork.utils.CommonConstants;
 import com.nineplus.bestwork.utils.EncryptionUtils;
 import com.nineplus.bestwork.utils.MessageUtils;
 
+/**
+ * 
+ * @author DiepTT
+ *
+ */
+
 @Service
 public class MailStorageServiceImpl implements MailStorageService {
 

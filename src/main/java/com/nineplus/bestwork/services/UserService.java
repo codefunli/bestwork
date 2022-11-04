@@ -144,7 +144,6 @@ public class UserService implements UserDetailsService {
 			dto.setFirstName(user.getFirstName());
 			dto.setLastName(user.getLastName());
 		}
-
 		return dto;
 	}
 

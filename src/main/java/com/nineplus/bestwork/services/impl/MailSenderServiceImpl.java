@@ -21,7 +21,11 @@ import com.nineplus.bestwork.services.MailStorageService;
 import com.nineplus.bestwork.services.ThymleafService;
 import com.nineplus.bestwork.utils.CommonConstants;
 import com.nineplus.bestwork.utils.MessageUtils;
-
+/**
+ * 
+ * @author DiepTT
+ *
+ */
 @Service
 public class MailSenderServiceImpl implements MailSenderService {
 	private static final String CONTENT_TYPE_TEXT_HTML = "text/html;charset=\"utf-8\"";

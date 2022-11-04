@@ -12,6 +12,11 @@ import org.springframework.stereotype.Component;
 
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 
+/**
+ * 
+ * @author DiepTT
+ *
+ */
 @Component
 public class EncryptionUtils {
 	@Value("${secretkey}")

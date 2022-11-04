@@ -14,6 +14,12 @@ import com.vladmihalcea.hibernate.type.json.JsonStringType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+/**
+ * 
+ * @author DiepTT
+ *
+ */
+
 @Entity(name = "MailStorage")
 @Data
 @EqualsAndHashCode

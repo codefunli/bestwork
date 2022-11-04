@@ -7,6 +7,11 @@ import org.springframework.stereotype.Service;
 import com.nineplus.bestwork.services.MailSenderService;
 import com.nineplus.bestwork.services.ScheduleService;
 
+/**
+ * 
+ * @author DiepTT
+ *
+ */
 @Service
 public class ScheduleServiceImpl implements ScheduleService {
 
