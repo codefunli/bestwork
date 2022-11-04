@@ -2,7 +2,6 @@ package com.nineplus.bestwork.services;
 
 import java.util.List;
 
-import com.nineplus.bestwork.dto.CompanyUserReqDto;
 import com.nineplus.bestwork.entity.MailStorage;
 
 /**
