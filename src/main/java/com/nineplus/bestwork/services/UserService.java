@@ -149,10 +149,10 @@ public class UserService implements UserDetailsService {
 	}
 
 	@Transactional(rollbackFor = { Exception.class })
-	public void registNewUser(CompanyUserReqDto companyReqDto, TCompany tCompany, TRole tRole) {
+	public void registNewUser(CompanyUserReqDto companyUserReqDto, TCompany tCompany, TRole tRole) {
 		TUser newTUser = new TUser();
 		Set<TCompany> tCompanyUser = new HashSet<TCompany>();
-		UserCompanyReqDto newUser = companyReqDto.getUser();
+		UserCompanyReqDto newUser = companyUserReqDto.getUser();
 		tCompanyUser.add(tCompany);
 		newTUser.setEmail(newUser.getEmail());
 		newTUser.setUserName(newUser.getUserName());
@@ -167,7 +167,8 @@ public class UserService implements UserDetailsService {
 
 		tUserRepo.save(newTUser);
 
-		mailStorageService.saveMailRegisterUserCompToSendLater(newUser.getEmail(), companyReqDto);
+		mailStorageService.saveMailRegisterUserCompToSendLater(newUser.getEmail(), tCompany.getCompanyName(),
+				newUser.getUserName(), newUser.getPassword());
 		ScheduleServiceImpl.isCompleted = true;
 	}
 
@@ -201,8 +202,9 @@ public class UserService implements UserDetailsService {
 			}
 		}
 		Set<TCompany> companies = new HashSet<>();
+		TCompany companyCurrent = new TCompany();
 		if (ObjectUtils.isNotEmpty(userReqDto.getCompany())) {
-			TCompany companyCurrent = companyRepository.findByCompanyId(userReqDto.getCompany());
+			companyCurrent = companyRepository.findByCompanyId(userReqDto.getCompany());
 			if (companyCurrent != null) {
 				companies.add(companyCurrent);
 			} else {
@@ -227,7 +229,12 @@ public class UserService implements UserDetailsService {
 		if (null != userReqDto.getAvatar()) {
 			user.setUserAvatar(userReqDto.getAvatar().getBytes());
 		}
-		return this.tUserRepo.save(user);
+		TUser createdUser = this.tUserRepo.save(user);
+		mailStorageService.saveMailRegisterUserCompToSendLater(userReqDto.getEmail(), companyCurrent.getCompanyName(),
+				userReqDto.getUserName(), userReqDto.getPassword());
+		ScheduleServiceImpl.isCompleted = true;
+
+		return createdUser;
 	}
 
 	public List<TUser> findAllUsersByCompanyId(long companyId) {

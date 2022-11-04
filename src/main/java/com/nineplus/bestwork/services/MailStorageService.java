@@ -7,7 +7,7 @@ import com.nineplus.bestwork.entity.MailStorage;
 
 public interface MailStorageService {
 
-	void saveMailRegisterUserCompToSendLater(String email, CompanyUserReqDto companyReqDto);
+	void saveMailRegisterUserCompToSendLater(String email, String companyName, String username, String password);
 
 	List<MailStorage> get10FirstMails();
 
