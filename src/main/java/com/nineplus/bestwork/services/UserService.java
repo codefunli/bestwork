@@ -50,6 +50,7 @@ import com.nineplus.bestwork.repository.TCompanyRepository;
 import com.nineplus.bestwork.repository.TRoleRepository;
 import com.nineplus.bestwork.repository.TUserRepository;
 import com.nineplus.bestwork.repository.UserProjectRepository;
+import com.nineplus.bestwork.services.impl.ScheduleServiceImpl;
 import com.nineplus.bestwork.utils.CommonConstants;
 import com.nineplus.bestwork.utils.ConvertResponseUtils;
 import com.nineplus.bestwork.utils.MessageUtils;
@@ -106,6 +107,12 @@ public class UserService implements UserDetailsService {
 	MailSenderService mailSenderService;
 
 	@Autowired
+	MailStorageService mailStorageService;
+
+	@Autowired
+	ScheduleService scheduleService;
+
+	@Autowired
 	AssignTaskRepository assignTaskRepository;
 
 	@Autowired
@@ -137,15 +144,14 @@ public class UserService implements UserDetailsService {
 			dto.setFirstName(user.getFirstName());
 			dto.setLastName(user.getLastName());
 		}
-
 		return dto;
 	}
 
 	@Transactional(rollbackFor = { Exception.class })
-	public void registNewUser(CompanyUserReqDto companyReqDto, TCompany tCompany, TRole tRole) {
+	public void registNewUser(CompanyUserReqDto companyUserReqDto, TCompany tCompany, TRole tRole) {
 		TUser newTUser = new TUser();
 		Set<TCompany> tCompanyUser = new HashSet<TCompany>();
-		UserCompanyReqDto newUser = companyReqDto.getUser();
+		UserCompanyReqDto newUser = companyUserReqDto.getUser();
 		tCompanyUser.add(tCompany);
 		newTUser.setEmail(newUser.getEmail());
 		newTUser.setUserName(newUser.getUserName());
@@ -159,8 +165,10 @@ public class UserService implements UserDetailsService {
 		newTUser.setCompanys(tCompanyUser);
 
 		tUserRepo.save(newTUser);
-		String linkLogin = messageUtils.getMessage(CommonConstants.Url.URL0001, null) + "/login";
-		mailSenderService.sendMailRegisterUserCompany(newUser.getEmail(), companyReqDto, linkLogin);
+
+		mailStorageService.saveMailRegisterUserCompToSendLater(newUser.getEmail(), tCompany.getCompanyName(),
+				newUser.getUserName(), newUser.getPassword());
+		ScheduleServiceImpl.isCompleted = true;
 	}
 
 	public TUser getUserByCompanyId(long companyId, long role) {
@@ -193,8 +201,9 @@ public class UserService implements UserDetailsService {
 			}
 		}
 		Set<TCompany> companies = new HashSet<>();
+		TCompany companyCurrent = new TCompany();
 		if (ObjectUtils.isNotEmpty(userReqDto.getCompany())) {
-			TCompany companyCurrent = companyRepository.findByCompanyId(userReqDto.getCompany());
+			companyCurrent = companyRepository.findByCompanyId(userReqDto.getCompany());
 			if (companyCurrent != null) {
 				companies.add(companyCurrent);
 			} else {
@@ -219,7 +228,12 @@ public class UserService implements UserDetailsService {
 		if (null != userReqDto.getAvatar()) {
 			user.setUserAvatar(userReqDto.getAvatar().getBytes());
 		}
-		return this.tUserRepo.save(user);
+		TUser createdUser = this.tUserRepo.save(user);
+		mailStorageService.saveMailRegisterUserCompToSendLater(userReqDto.getEmail(), companyCurrent.getCompanyName(),
+				userReqDto.getUserName(), userReqDto.getPassword());
+		ScheduleServiceImpl.isCompleted = true;
+
+		return createdUser;
 	}
 
 	public List<TUser> findAllUsersByCompanyId(long companyId) {

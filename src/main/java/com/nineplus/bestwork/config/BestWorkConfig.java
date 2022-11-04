@@ -4,11 +4,14 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Configuration
+@EnableScheduling
 public class BestWorkConfig {
 	private static final String[] BASE_NAMES = { "classpath:i18n/messages" };
+	
 
 	@Bean
 	public MessageSource messageSource() {
