@@ -403,9 +403,7 @@ public class UserService implements UserDetailsService {
 		tUser.setEmail(userReqDto.getEmail());
 		tUser.setTelNo(userReqDto.getTelNo());
 		tUser.setIsEnable(userReqDto.getEnabled());
-		if (1 == userReqDto.getEnabled()) {
-			tUser.setLoginFailedNum(0);
-		}
+		tUser.setLoginFailedNum(0);
 		if (ObjectUtils.isNotEmpty(userReqDto.getRole())) {
 			TRole roleCurrent = roleRepository.findRole(userReqDto.getRole());
 			if (roleCurrent != null) {
