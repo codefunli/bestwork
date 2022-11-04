@@ -28,9 +28,4 @@ public class BestWorkConfig {
 	BCryptPasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	};
-
-//	@Scheduled(fixedDelay = 1000)
-//	private void scheduleSendMail() {
-//		scheduleService.sendMailRegisterUserCompany();
-//	}
 }
