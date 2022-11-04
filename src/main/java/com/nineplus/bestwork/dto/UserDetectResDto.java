@@ -46,6 +46,9 @@ public class UserDetectResDto extends BaseDto {
     @JsonProperty("loginFailedNum")
     private String loginFailedNum;
 
+    @JsonProperty("avatar")
+    private String avatar;
+
     @JsonProperty("company")
     CompanyResDto company;
 
