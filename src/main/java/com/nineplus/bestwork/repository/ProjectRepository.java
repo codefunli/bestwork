@@ -19,12 +19,29 @@ import com.nineplus.bestwork.entity.ProjectEntity;
 @Transactional
 public interface ProjectRepository extends JpaRepository<ProjectEntity, String> {
 
+	@Query(value = " select * from PROJECT where " + " (project_name like %:#{#project.keyword}% or "
+			+ " description like %:#{#project.keyword}%) and status = :#{#project.status} ", nativeQuery = true)
+	Page<ProjectEntity> findProjectForAdminWithStatus(@Param("project") PageSearchDto pageSearchDto, Pageable pageable);
+
+	@Query(value = " select * from PROJECT where " + " (project_name like %:#{#project.keyword}% or "
+			+ " description like %:#{#project.keyword}%) ", nativeQuery = true)
+	Page<ProjectEntity> findProjectForAdminWithoutStatus(@Param("project") PageSearchDto pageSearchDto, Pageable pageable);
+
+	// Get project for each company creator
 	@Query(value = " select * from PROJECT where create_by = :userCreated AND"
 			+ " (project_name like %:#{#project.keyword}% or "
 			+ " description like %:#{#project.keyword}%) and status = :#{#project.status} ", nativeQuery = true)
-	Page<ProjectEntity> findProjectWithStatus(@Param("project") PageSearchDto pageSearchDto, Pageable pageable,
+	Page<ProjectEntity> findProjectForCompanyWithStatus(@Param("project") PageSearchDto pageSearchDto, Pageable pageable,
 			String userCreated);
 
+	// Get project for each company creator
+	@Query(value = " select * from PROJECT where create_by = :userCreated AND"
+			+ " (project_name like %:#{#project.keyword}% or "
+			+ " description like %:#{#project.keyword}%) ", nativeQuery = true)
+	Page<ProjectEntity> findProjectForCompanyWithoutStatus(@Param("project") PageSearchDto pageSearchDto, Pageable pageable,
+			String userCreated);
+
+	// Get project for user be assign
 	@Query(value = "select prj.id, prj.project_name, prj.description, prj.project_type,"
 			+ " prj.notification_flag,prj.is_paid, prj.status, prj.create_date, prj.update_date, prj.start_date,prj.create_by, prj.update_by from PROJECT prj"
 			+ " LEFT join ASSIGN_TASK ast on prj.id =  ast.project_id "
@@ -34,6 +51,7 @@ public interface ProjectRepository extends JpaRepository<ProjectEntity, String> 
 	Page<ProjectEntity> findAssignToUserWithStatus(@Param("project") PageSearchDto pageSearchDto, Pageable pageable,
 			String user);
 
+	// Get project for user be assign
 	@Query(value = "select prj.id, prj.project_name, prj.description, prj.project_type,"
 			+ " prj.notification_flag,prj.is_paid, prj.status, prj.create_date, prj.update_date, prj.start_date,prj.create_by, prj.update_by from PROJECT prj"
 			+ " LEFT join ASSIGN_TASK ast on prj.id =  ast.project_id "
@@ -42,12 +60,6 @@ public interface ProjectRepository extends JpaRepository<ProjectEntity, String> 
 			+ " description like %:#{#project.keyword}%)", nativeQuery = true)
 	Page<ProjectEntity> findAssignToUserWithOutStatus(@Param("project") PageSearchDto pageSearchDto, Pageable pageable,
 			String user);
-
-	@Query(value = " select * from PROJECT where create_by = :userCreated AND"
-			+ " (project_name like %:#{#project.keyword}% or "
-			+ " description like %:#{#project.keyword}%) ", nativeQuery = true)
-	Page<ProjectEntity> findProjectWithoutStatus(@Param("project") PageSearchDto pageSearchDto, Pageable pageable,
-			String userCreated);
 
 	@Query(value = " select id from PROJECT order by id desc limit 1 ", nativeQuery = true)
 	String getLastProjectIdString();

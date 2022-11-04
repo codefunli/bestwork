@@ -1,5 +1,6 @@
 package com.nineplus.bestwork.services;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -470,6 +471,10 @@ public class UserService implements UserDetailsService {
 			companyRes = modelMapper.map(company, CompanyResDto.class);
 		}
 		UserDetectResDto userResDto = modelMapper.map(user, UserDetectResDto.class);
+		if (user.getUserAvatar() != null) {
+			userResDto.setAvatar(new String(user.getUserAvatar(), StandardCharsets.UTF_8));
+
+		}
 		if (companyRes != null) {
 			userResDto.setCompany(companyRes);
 		}

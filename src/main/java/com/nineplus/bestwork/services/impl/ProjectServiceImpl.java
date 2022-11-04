@@ -91,17 +91,25 @@ public class ProjectServiceImpl implements IProjectService {
 					Sort.by(pageSearchDto.getSortDirection(), mappedColumn));
 			Page<ProjectEntity> pageTProject = null;
 			int status = pageSearchDto.getStatus();
-			if (userAuthRoleReq.getIsOrgAdmin()) {
+
+			if (userAuthRoleReq.getIsSysAdmin()) {
 				if (status >= 0 && status < ProjectStatus.values().length) {
-					pageTProject = projectRepository.findProjectWithStatus(pageSearchDto, pageable, userCurrent);
+					pageTProject = projectRepository.findProjectForAdminWithStatus(pageSearchDto, pageable);
 				} else {
-					pageTProject = projectRepository.findProjectWithoutStatus(pageSearchDto, pageable, userCurrent);
+					pageTProject = projectRepository.findProjectForAdminWithoutStatus(pageSearchDto, pageable);
 				}
-			} else if (userAuthRoleReq.getIsOrgUser()){
+			} else if (userAuthRoleReq.getIsOrgAdmin()) {
+				if (status >= 0 && status < ProjectStatus.values().length) {
+					pageTProject = projectRepository.findProjectForCompanyWithStatus(pageSearchDto, pageable, userCurrent);
+				} else {
+					pageTProject = projectRepository.findProjectForCompanyWithoutStatus(pageSearchDto, pageable, userCurrent);
+				}
+			} else if (userAuthRoleReq.getIsOrgUser()) {
 				if (status >= 0 && status < ProjectStatus.values().length) {
 					pageTProject = projectRepository.findAssignToUserWithStatus(pageSearchDto, pageable, userCurrent);
 				} else {
-					pageTProject = projectRepository.findAssignToUserWithOutStatus(pageSearchDto, pageable, userCurrent);
+					pageTProject = projectRepository.findAssignToUserWithOutStatus(pageSearchDto, pageable,
+							userCurrent);
 				}
 			}
 			return responseUtils.convertPageEntityToDTO(pageTProject, ProjectResponseDto.class);
