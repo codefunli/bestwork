@@ -18,20 +18,19 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nineplus.bestwork.dto.PageResponseDto;
+import com.nineplus.bestwork.dto.PageResDto;
+import com.nineplus.bestwork.dto.PermissionResDto;
 import com.nineplus.bestwork.dto.RegPermissionDto;
-import com.nineplus.bestwork.dto.ResPermissionDto;
 import com.nineplus.bestwork.dto.SearchDto;
-import com.nineplus.bestwork.entity.SysMonitor;
-import com.nineplus.bestwork.entity.SysPermission;
-import com.nineplus.bestwork.entity.TRole;
+import com.nineplus.bestwork.entity.RoleEntity;
+import com.nineplus.bestwork.entity.SysMonitorEntity;
+import com.nineplus.bestwork.entity.SysPermissionEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.model.UserAuthDetected;
 import com.nineplus.bestwork.model.enumtype.Status;
 import com.nineplus.bestwork.repository.PermissionRepository;
+import com.nineplus.bestwork.repository.RoleRepository;
 import com.nineplus.bestwork.repository.SysMonitorRepository;
-import com.nineplus.bestwork.repository.TRoleRepository;
 import com.nineplus.bestwork.utils.CommonConstants;
 import com.nineplus.bestwork.utils.MessageUtils;
 import com.nineplus.bestwork.utils.PageUtils;
@@ -53,7 +52,7 @@ public class PermissionService {
     private PermissionRepository permissionRepository;
 
     @Autowired
-    private TRoleRepository sysRoleRepository;
+    private RoleRepository sysRoleRepository;
 
     @Autowired
     private SysMonitorRepository monitorRepository;
@@ -63,9 +62,6 @@ public class PermissionService {
     @Autowired
     private PageUtils responseUtils;
 
-    @Autowired
-    private ObjectMapper mapper;
-
     public void deletePermission(Long id) throws BestWorkBussinessException {
         try {
             UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
@@ -74,7 +70,7 @@ public class PermissionService {
                 logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0014, null));
                 throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
             }
-            Optional<SysPermission> sysPermission = permissionRepository.findById(id);
+            Optional<SysPermissionEntity> sysPermission = permissionRepository.findById(id);
             sysPermission.ifPresent(permission -> permissionRepository.delete(permission));
         } catch (Exception ex) {
             logger.error(messageUtils.getMessage(CommonConstants.MessageCode.RLF0002, null), ex);
@@ -82,28 +78,27 @@ public class PermissionService {
         }
     }
 
-    public List<ResPermissionDto> updatePermissions(RegPermissionDto dto) throws BestWorkBussinessException {
-        Optional<SysPermission> checkExist;
+    public List<PermissionResDto> updatePermissions(RegPermissionDto dto) throws BestWorkBussinessException {
         try {
-            Optional<TRole> role = sysRoleRepository.findById(dto.getRoleId());
+            Optional<RoleEntity> role = sysRoleRepository.findById(dto.getRoleId());
             if (role.isEmpty()) {
                 logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0014, null));
                 throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
             }
             Converter<String, Integer> classificationConverter =
                     ctx -> ctx.getSource() == null ? null : Status.getStatusEnum(ctx.getSource());
-            modelMapper.typeMap(SysPermission.class,ResPermissionDto.class)
-                    .addMappings(mapper -> mapper.using(classificationConverter).map(SysPermission::getStatus,ResPermissionDto::setStatus));
-            List<ResPermissionDto> sysPermissions = dto.getMonitorInfo().stream().map(permissionDto -> {
-                        SysPermission sysPermission = new SysPermission();
-                        SysMonitor sysMonitor = new SysMonitor();
+            modelMapper.typeMap(SysPermissionEntity.class,PermissionResDto.class)
+                    .addMappings(mapper -> mapper.using(classificationConverter).map(SysPermissionEntity::getStatus,PermissionResDto::setStatus));
+            List<PermissionResDto> sysPermissions = dto.getMonitorInfo().stream().map(permissionDto -> {
+                        SysPermissionEntity sysPermission = new SysPermissionEntity();
+                        SysMonitorEntity sysMonitor = new SysMonitorEntity();
                         if (permissionDto.getId() != null) {
                             sysPermission = permissionRepository.findById(permissionDto.getId())
-                                    .orElse(new SysPermission());
+                                    .orElse(new SysPermissionEntity());
                             sysMonitor = sysPermission.getSysMonitor();
                         } else if (permissionDto.getMonitorId() != null) {
                             sysMonitor = monitorRepository.findById(permissionDto.getMonitorId())
-                                    .orElse(new SysMonitor());
+                                    .orElse(new SysMonitorEntity());
                         }
                         try {
                             if (sysPermission.getId() != null) {
@@ -135,7 +130,7 @@ public class PermissionService {
                         sysPermission.setCanAdd(permissionDto.getCanAdd());
                         sysPermission.setCanAccess(permissionDto.getCanAccess());
                         sysPermission.setStatus(Status.fromValue(permissionDto.getStatus()));
-                        return modelMapper.map(permissionRepository.save(sysPermission),ResPermissionDto.class);
+                        return modelMapper.map(permissionRepository.save(sysPermission),PermissionResDto.class);
                     }
             ).collect(Collectors.toList());
             return sysPermissions;
@@ -145,16 +140,16 @@ public class PermissionService {
         }
     }
 
-    public ResPermissionDto getPermission(Long id) throws BestWorkBussinessException {
-        Optional<SysPermission> sysPermission = permissionRepository.findById(id);
+    public PermissionResDto getPermission(Long id) throws BestWorkBussinessException {
+        Optional<SysPermissionEntity> sysPermission = permissionRepository.findById(id);
         if (sysPermission.isPresent()) {
-            return modelMapper.map(sysPermission.get(), ResPermissionDto.class);
+            return modelMapper.map(sysPermission.get(), PermissionResDto.class);
         }
         throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
 
     }
 
-    public PageResponseDto<ResPermissionDto> getPermissions(SearchDto dto) throws BestWorkBussinessException {
+    public PageResDto<PermissionResDto> getPermissions(SearchDto dto) throws BestWorkBussinessException {
         try {
             int pageNumber = NumberUtils.toInt(dto.getPageConditon().getPage());
             if (pageNumber > 0) {
@@ -163,10 +158,10 @@ public class PermissionService {
             Pageable pageable = PageRequest.of(pageNumber, Integer.parseInt(dto.getPageConditon().getSize()),
                     Sort.by(dto.getPageConditon().getSortDirection(),
                             dto.getPageConditon().getSortBy()));
-            Page<SysPermission> pageSysRole =
+            Page<SysPermissionEntity> pageSysRole =
                     permissionRepository.findBySysMonitor_NameContainingIgnoreCaseAndSysRole_RoleNameContainingIgnoreCase(
                             dto.getConditionSearchDto().getMonitorName(), dto.getConditionSearchDto().getRoleName(), pageable);
-            return responseUtils.convertPageEntityToDTO(pageSysRole, ResPermissionDto.class);
+            return responseUtils.convertPageEntityToDTO(pageSysRole, PermissionResDto.class);
         } catch (Exception ex) {
             logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0001, null), ex);
             throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0001, null);

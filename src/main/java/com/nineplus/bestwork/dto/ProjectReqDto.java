@@ -1,12 +1,16 @@
 package com.nineplus.bestwork.dto;
 
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+
+/**
+ * 
+ * @author TuanNA
+ *
+ */
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)

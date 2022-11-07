@@ -4,8 +4,8 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.nineplus.bestwork.entity.TCompany;
-import com.nineplus.bestwork.entity.TRole;
+import com.nineplus.bestwork.entity.CompanyEntity;
+import com.nineplus.bestwork.entity.RoleEntity;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;

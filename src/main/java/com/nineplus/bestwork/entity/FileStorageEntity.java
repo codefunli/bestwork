@@ -52,6 +52,6 @@ public class FileStorageEntity {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "progress_id")
 	@JsonIgnore
-	private Progress progress;
+	private ProgressEntity progress;
 
 }

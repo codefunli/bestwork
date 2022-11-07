@@ -5,7 +5,7 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class ProjectTypeResponseDto extends BaseDto {
+public class ProjectTypeResDto extends BaseDto {
 	/**
 	 * 
 	 */

@@ -2,7 +2,6 @@ package com.nineplus.bestwork.services.impl;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -22,27 +21,23 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.nineplus.bestwork.dto.AssignTaskReqDto;
-import com.nineplus.bestwork.dto.PageResponseDto;
+import com.nineplus.bestwork.dto.PageResDto;
 import com.nineplus.bestwork.dto.PageSearchDto;
 import com.nineplus.bestwork.dto.ProjectAssignReqDto;
 import com.nineplus.bestwork.dto.ProjectReqDto;
-import com.nineplus.bestwork.dto.ProjectResponseDto;
+import com.nineplus.bestwork.dto.ProjectResDto;
 import com.nineplus.bestwork.dto.ProjectRoleUserReqDto;
 import com.nineplus.bestwork.dto.ProjectRoleUserResDto;
 import com.nineplus.bestwork.dto.ProjectStatusReqDto;
 import com.nineplus.bestwork.dto.ProjectTaskReqDto;
-import com.nineplus.bestwork.entity.AssignTask;
+import com.nineplus.bestwork.entity.AssignTaskEntity;
 import com.nineplus.bestwork.entity.ProjectEntity;
 import com.nineplus.bestwork.entity.ProjectTypeEntity;
-import com.nineplus.bestwork.entity.TUser;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.model.UserAuthDetected;
 import com.nineplus.bestwork.repository.AssignTaskRepository;
-import com.nineplus.bestwork.repository.ProgressRepository;
 import com.nineplus.bestwork.repository.ProjectAssignRepository;
 import com.nineplus.bestwork.repository.ProjectRepository;
-import com.nineplus.bestwork.services.IPostService;
-import com.nineplus.bestwork.services.IProgressService;
 import com.nineplus.bestwork.services.IProjectService;
 import com.nineplus.bestwork.utils.CommonConstants;
 import com.nineplus.bestwork.utils.ConvertResponseUtils;
@@ -80,7 +75,7 @@ public class ProjectServiceImpl implements IProjectService {
 	UserAuthUtils userAuthUtils;
 
 	@Override
-	public PageResponseDto<ProjectResponseDto> getProjectPage(PageSearchDto pageSearchDto)
+	public PageResDto<ProjectResDto> getProjectPage(PageSearchDto pageSearchDto)
 			throws BestWorkBussinessException {
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
 		String userCurrent = userAuthRoleReq.getUsername();
@@ -112,7 +107,7 @@ public class ProjectServiceImpl implements IProjectService {
 							userCurrent);
 				}
 			}
-			return responseUtils.convertPageEntityToDTO(pageTProject, ProjectResponseDto.class);
+			return responseUtils.convertPageEntityToDTO(pageTProject, ProjectResDto.class);
 		} catch (Exception ex) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
 		}
@@ -120,10 +115,10 @@ public class ProjectServiceImpl implements IProjectService {
 	}
 
 	@Override
-	public PageResponseDto<ProjectResponseDto> getAllProjectPages(Pageable pageable) throws BestWorkBussinessException {
+	public PageResDto<ProjectResDto> getAllProjectPages(Pageable pageable) throws BestWorkBussinessException {
 		try {
-			Page<ProjectEntity> pageTProject = projectRepository.findAll(pageable);
-			return responseUtils.convertPageEntityToDTO(pageTProject, ProjectResponseDto.class);
+			Page<ProjectEntity> pageProject = projectRepository.findAll(pageable);
+			return responseUtils.convertPageEntityToDTO(pageProject, ProjectResDto.class);
 
 		} catch (Exception ex) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
@@ -237,9 +232,9 @@ public class ProjectServiceImpl implements IProjectService {
 			String generateProjectId) throws BestWorkBussinessException {
 		try {
 			List<ProjectRoleUserReqDto> userList = projectAssignReqDto.getUserList();
-			List<AssignTask> assignTasklist = new ArrayList<>();
+			List<AssignTaskEntity> assignTasklist = new ArrayList<>();
 			for (int i = 0; i < userList.size(); i++) {
-				AssignTask assignTask = new AssignTask();
+				AssignTaskEntity assignTask = new AssignTaskEntity();
 				assignTask.setCompanyId(projectAssignReqDto.getCompanyId());
 				assignTask.setProjectId(generateProjectId);
 				assignTask.setUserId(userList.get(i).getUserId());
@@ -285,7 +280,7 @@ public class ProjectServiceImpl implements IProjectService {
 			for (int j = 0; j < projectTaskDto.getRoleData().size(); j++) {
 				Long companyId = projectTaskDto.getRoleData().get(j).getCompanyId();
 				List<ProjectRoleUserReqDto> userList = projectTaskDto.getRoleData().get(j).getUserList();
-				AssignTask assignTask = null;
+				AssignTaskEntity assignTask = null;
 				try {
 					updateProject(currentProject, projectTaskDto.getProject(), projectType);
 					for (int i = 0; i < userList.size(); i++) {
@@ -296,7 +291,7 @@ public class ProjectServiceImpl implements IProjectService {
 							assignTask.setCanEdit(userList.get(i).isCanEdit());
 							assignTaskRepository.save(assignTask);
 						} else {
-							AssignTask assignTaskNew = new AssignTask();
+							AssignTaskEntity assignTaskNew = new AssignTaskEntity();
 							assignTaskNew.setCompanyId(companyId);
 							assignTaskNew.setProjectId(projectId);
 							assignTaskNew.setUserId(userList.get(i).getUserId());
@@ -337,11 +332,11 @@ public class ProjectServiceImpl implements IProjectService {
 	}
 
 	@Override
-	public ProjectResponseDto getDetailProject(String projectId) throws BestWorkBussinessException {
+	public ProjectResDto getDetailProject(String projectId) throws BestWorkBussinessException {
 		ProjectEntity project = projectRepository.findbyProjectId(projectId);
-		ProjectResponseDto projectDto = null;
+		ProjectResDto projectDto = null;
 		if (project != null) {
-			projectDto = new ProjectResponseDto();
+			projectDto = new ProjectResDto();
 			projectDto.setId(project.getId());
 			projectDto.setProjectName(project.getProjectName());
 			projectDto.setDescription(project.getDescription());

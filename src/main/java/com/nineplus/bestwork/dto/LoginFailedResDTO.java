@@ -1,6 +1,6 @@
 package com.nineplus.bestwork.dto;
 
-public class LoginFailedResDTO {
+public class LoginFailedResDto {
 	String username;
     int countLoginFailed;
     boolean isLocked;

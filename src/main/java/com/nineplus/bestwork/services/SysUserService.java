@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.nineplus.bestwork.entity.TUser;
+import com.nineplus.bestwork.entity.UserEntity;
 import com.nineplus.bestwork.exception.SysUserNotFoundException;
 
 @Service
@@ -17,7 +17,7 @@ public class SysUserService {
 	private SysUserRepository sysUserRepository;
 
 	public void updateResetPasswordToken(String token, String email) throws SysUserNotFoundException {
-		TUser sysUser = sysUserRepository.findByEmail(email);
+		UserEntity sysUser = sysUserRepository.findByEmail(email);
 
 		if (sysUser != null) {
 			sysUser.setResetPasswordToken(token);
@@ -27,11 +27,11 @@ public class SysUserService {
 		}
 	}
 
-	public TUser get(String resetPasswordToken) {
+	public UserEntity get(String resetPasswordToken) {
 		return sysUserRepository.findByResetPasswordToken(resetPasswordToken);
 	}
 
-	public void updatePassword(TUser sysUser, String newPassword) {
+	public void updatePassword(UserEntity sysUser, String newPassword) {
 		BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 		String encodedPassword = passwordEncoder.encode(newPassword);
 
@@ -41,11 +41,11 @@ public class SysUserService {
 		sysUserRepository.save(sysUser);
 	}
 
-	public TUser getUserByEmail(String email) {
+	public UserEntity getUserByEmail(String email) {
 		return this.sysUserRepository.findByEmail(email);
 	}
 
-	public List<TUser> getAllSysUser() {
+	public List<UserEntity> getAllSysUser() {
 		return this.sysUserRepository.findAll();
 	}
 

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-public class ResPermissionDto {
+public class PermissionResDto {
     @JsonProperty("id")
     private Long id;
     @JsonProperty("canAccess")

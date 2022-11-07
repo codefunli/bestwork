@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.nineplus.bestwork.dto.FileStorageReqDto;
 import com.nineplus.bestwork.entity.FileStorageEntity;
 import com.nineplus.bestwork.entity.PostEntity;
-import com.nineplus.bestwork.entity.Progress;
+import com.nineplus.bestwork.entity.ProgressEntity;
 import com.nineplus.bestwork.repository.StorageRepository;
 import com.nineplus.bestwork.services.IStorageService;
 
@@ -75,7 +75,7 @@ public class StorageServiceImpl implements IStorageService {
 	}
 
 	@Override
-	public FileStorageEntity storeFileProgress(FileStorageReqDto file, Progress progress) {
+	public FileStorageEntity storeFileProgress(FileStorageReqDto file, ProgressEntity progress) {
 		try {
 			FileStorageEntity image = new FileStorageEntity();
 			image.setData(file.getData().getBytes());

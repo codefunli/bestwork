@@ -5,7 +5,7 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode
-public class PostCommentRequestDto {
+public class PostCommentReqDto {
 
 	private String comment;
 }

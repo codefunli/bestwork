@@ -16,7 +16,7 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class PostResponseDto extends BaseDto{
+public class PostResDto extends BaseDto{
 	/**
 	 * 
 	 */
@@ -40,5 +40,5 @@ public class PostResponseDto extends BaseDto{
 	private ProjectEntity project;
 	
 	@JsonProperty("fileStorages")
-	private List<FileStorageResponseDto> fileStorages;
+	private List<FileStorageResDto> fileStorages;
 }

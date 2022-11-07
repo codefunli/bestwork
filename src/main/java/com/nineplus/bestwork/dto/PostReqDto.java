@@ -11,7 +11,7 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class PostRequestDto extends BaseDto {
+public class PostReqDto extends BaseDto {
 
 	/**
 	 * 

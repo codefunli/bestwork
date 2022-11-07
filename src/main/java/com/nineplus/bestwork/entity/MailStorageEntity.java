@@ -25,7 +25,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode
 @Table(name = "MAIL_STORAGE")
 @TypeDef(name = "json", typeClass = JsonStringType.class)
-public class MailStorage {
+public class MailStorageEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

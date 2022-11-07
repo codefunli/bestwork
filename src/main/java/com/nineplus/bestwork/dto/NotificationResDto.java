@@ -4,8 +4,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @Data
-@EqualsAndHashCode
-public class NotificationResponseDto extends BaseDto {
+@EqualsAndHashCode(callSuper = false)
+public class NotificationResDto extends BaseDto {
 
 	/**
 	 * 

@@ -20,7 +20,7 @@ import lombok.Data;
 @Entity(name = "Progress")
 @Table(name = "PROGRESS_TRACKING")
 @Data
-public class Progress {
+public class ProgressEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id", unique = true, nullable = false, precision = 19)

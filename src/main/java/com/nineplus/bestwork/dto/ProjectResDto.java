@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class ProjectResponseDto extends BaseDto {
+public class ProjectResDto extends BaseDto {
 
 	/**
 	 * serialVersionUID

@@ -15,7 +15,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class FileStorageResponseDto extends BaseDto {
+public class FileStorageResDto extends BaseDto {
 
 	/**
 	 * 

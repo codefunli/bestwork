@@ -2,7 +2,6 @@ package com.nineplus.bestwork.services.impl;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -12,15 +11,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.nineplus.bestwork.dto.FileStorageReqDto;
-import com.nineplus.bestwork.dto.FileStorageResponseDto;
+import com.nineplus.bestwork.dto.FileStorageResDto;
 import com.nineplus.bestwork.dto.ProgressAndProjectResDto;
 import com.nineplus.bestwork.dto.ProgressReqDto;
 import com.nineplus.bestwork.dto.ProgressResDto;
-import com.nineplus.bestwork.dto.ProjectResponseDto;
+import com.nineplus.bestwork.dto.ProjectResDto;
 import com.nineplus.bestwork.entity.FileStorageEntity;
-import com.nineplus.bestwork.entity.Progress;
+import com.nineplus.bestwork.entity.ProgressEntity;
 import com.nineplus.bestwork.entity.ProjectEntity;
-import com.nineplus.bestwork.entity.TUser;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.model.UserAuthDetected;
 import com.nineplus.bestwork.repository.ProgressRepository;
@@ -68,17 +66,17 @@ public class ProgressServiceImpl implements IProgressService {
 
 	@Override
 	public void updateProgress(ProgressReqDto progressReqDto, Long progressId) throws BestWorkBussinessException {
-		Progress currentProgress = progressRepository.findById(progressId).orElse(null);
+		ProgressEntity currentProgress = progressRepository.findById(progressId).orElse(null);
 		this.saveProgress(progressReqDto, currentProgress, true);
 	}
 
-	public void saveProgress(ProgressReqDto progressReqDto, Progress progress, boolean isEdit)
+	public void saveProgress(ProgressReqDto progressReqDto, ProgressEntity progress, boolean isEdit)
 			throws BestWorkBussinessException {
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
 		String createUser = userAuthRoleReq.getUsername();
 		try {
 			if (progress == null) {
-				progress = new Progress();
+				progress = new ProgressEntity();
 			}
 			progress.setTitle(progressReqDto.getTitle());
 			progress.setStatus(progressReqDto.getStatus());
@@ -105,7 +103,7 @@ public class ProgressServiceImpl implements IProgressService {
 
 	}
 
-	public void saveImage(List<FileStorageReqDto> fileStorages, Progress progress) {
+	public void saveImage(List<FileStorageReqDto> fileStorages, ProgressEntity progress) {
 		List<Long> listIdCurrent = storageRepository.getListIdFileByProgress(progress.getId());
 		List<Long> listIdUpdate = new ArrayList<>();
 		for (FileStorageReqDto file : fileStorages) {
@@ -134,9 +132,9 @@ public class ProgressServiceImpl implements IProgressService {
 
 	@Override
 	public List<ProgressResDto> getProgressByProjectId(String projectId) throws BestWorkBussinessException {
-		List<Progress> progress = progressRepository.findProgressByProjectId(projectId);
+		List<ProgressEntity> progress = progressRepository.findProgressByProjectId(projectId);
 		List<ProgressResDto> progressDto = new ArrayList<>();
-		for (Progress pro : progress) {
+		for (ProgressEntity pro : progress) {
 			ProgressResDto proDto = new ProgressResDto();
 			proDto.setTitle(pro.getTitle());
 			proDto.setStatus(pro.getStatus());
@@ -148,9 +146,9 @@ public class ProgressServiceImpl implements IProgressService {
 			if (pro.getCreateDate() != null) {
 				proDto.setCreateDate(pro.getCreateDate().toString());
 			}
-			List<FileStorageResponseDto> fileStorageResponseDtos = new ArrayList<>();
+			List<FileStorageResDto> fileStorageResponseDtos = new ArrayList<>();
 			for (FileStorageEntity file : pro.getFileStorages()) {
-				FileStorageResponseDto fileStorageResponseDto = new FileStorageResponseDto();
+				FileStorageResDto fileStorageResponseDto = new FileStorageResDto();
 				fileStorageResponseDto.setId(file.getId());
 				fileStorageResponseDto.setName(file.getName());
 				fileStorageResponseDto.setCreateDate(file.getCreateDate());
@@ -169,13 +167,13 @@ public class ProgressServiceImpl implements IProgressService {
 		ProgressAndProjectResDto dto = new ProgressAndProjectResDto();
 		List<ProgressResDto> lst = new ArrayList<>();
 		ProjectEntity project = projectRepository.findbyProjectId(projectId);
-		List<Progress> progress = progressRepository.findProgressByProjectId(projectId);
+		List<ProgressEntity> progress = progressRepository.findProgressByProjectId(projectId);
 
 		if (project != null && progress != null) {
-			ProjectResponseDto projectDto = modelMapper.map(project, ProjectResponseDto.class);
-			for (Progress prog : progress) {
+			ProjectResDto projectDto = modelMapper.map(project, ProjectResDto.class);
+			for (ProgressEntity prog : progress) {
 				ProgressResDto progressDto = new ProgressResDto();
-				List<FileStorageResponseDto> lstfileDto = new ArrayList<>();
+				List<FileStorageResDto> lstFileDto = new ArrayList<>();
 				progressDto.setId(prog.getId());
 				progressDto.setTitle(prog.getTitle());
 				progressDto.setStatus(prog.getStatus());
@@ -187,16 +185,16 @@ public class ProgressServiceImpl implements IProgressService {
 				progressDto.setCreateDate(LocalDateTime.now().toString());
 				List<FileStorageEntity> fileStorages = prog.getFileStorages();
 				for (FileStorageEntity file : fileStorages) {
-					FileStorageResponseDto fileDto = new FileStorageResponseDto();
+					FileStorageResDto fileDto = new FileStorageResDto();
 					fileDto.setProgressId(file.getProgress().getId());
 					fileDto.setId(file.getId());
 					fileDto.setName(file.getName());
 					fileDto.setType(file.getType());
 					fileDto.setData(new String(file.getData()));
 					fileDto.setCreateDate(file.getCreateDate());
-					lstfileDto.add(fileDto);
+					lstFileDto.add(fileDto);
 				}
-				progressDto.setFileStorages(lstfileDto);
+				progressDto.setFileStorages(lstFileDto);
 				lst.add(progressDto);
 			}
 			dto.setProject(projectDto);
@@ -221,11 +219,11 @@ public class ProgressServiceImpl implements IProgressService {
 
 	@Override
 	public ProgressResDto getProgressById(Long progressId) throws BestWorkBussinessException {
-		Progress progress = progressRepository.findById(Long.valueOf(progressId)).orElse(null);
+		ProgressEntity progress = progressRepository.findById(Long.valueOf(progressId)).orElse(null);
 		ProgressResDto progressDto = null;
 		if (progress != null) {
 			progressDto = new ProgressResDto();
-			List<FileStorageResponseDto> lstfileDto = new ArrayList<>();
+			List<FileStorageResDto> lstfileDto = new ArrayList<>();
 			progressDto.setId(progress.getId());
 			progressDto.setTitle(progress.getTitle());
 			progressDto.setStatus(progress.getStatus());
@@ -238,7 +236,7 @@ public class ProgressServiceImpl implements IProgressService {
 			List<FileStorageEntity> fileStorage = progress.getFileStorages();
 			for (FileStorageEntity file : fileStorage) {
 				// Dto for response file storage
-				FileStorageResponseDto fileDto = new FileStorageResponseDto();
+				FileStorageResDto fileDto = new FileStorageResDto();
 				fileDto.setProgressId(file.getProgress().getId());
 				fileDto.setId(file.getId());
 				fileDto.setName(file.getName());

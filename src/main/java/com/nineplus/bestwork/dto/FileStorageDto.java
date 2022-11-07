@@ -9,7 +9,7 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode
-public class TFileStorageDto {
+public class FileStorageDto {
 	@JsonProperty("id")
 	private Integer id;
 

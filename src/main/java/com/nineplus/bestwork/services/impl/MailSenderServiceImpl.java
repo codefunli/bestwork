@@ -15,7 +15,7 @@ import javax.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.nineplus.bestwork.entity.MailStorage;
+import com.nineplus.bestwork.entity.MailStorageEntity;
 import com.nineplus.bestwork.services.MailSenderService;
 import com.nineplus.bestwork.services.MailStorageService;
 import com.nineplus.bestwork.services.ThymleafService;
@@ -61,13 +61,13 @@ public class MailSenderServiceImpl implements MailSenderService {
 		String email = messageUtils.getMessage(CommonConstants.SpringMail.M1U0006, null);
 		Message message = new MimeMessage(mailCommon());
 
-		List<MailStorage> mailList = mailStorageService.get10FirstMails();
+		List<MailStorageEntity> mailList = mailStorageService.getTenFirstMails();
 		if (mailList.isEmpty()) {
 			System.out.println("Not found any mail!");
 			ScheduleServiceImpl.isCompleted = false;
 		} else {
 			ScheduleServiceImpl.isCompleted = false;
-			for (MailStorage mailStorage : mailList) {
+			for (MailStorageEntity mailStorage : mailList) {
 				try {
 					message.setRecipients(Message.RecipientType.TO,
 							new InternetAddress[] { new InternetAddress(mailStorage.getRecipient()) });

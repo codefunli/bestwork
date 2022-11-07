@@ -1,16 +1,8 @@
 package com.nineplus.bestwork.services;
 
-import com.nineplus.bestwork.dto.PageResponseDto;
-import com.nineplus.bestwork.dto.ResRoleDto;
-import com.nineplus.bestwork.dto.SearchDto;
-import com.nineplus.bestwork.entity.TRole;
-import com.nineplus.bestwork.exception.BestWorkBussinessException;
-import com.nineplus.bestwork.model.UserAuthDetected;
-import com.nineplus.bestwork.repository.TRoleRepository;
-import com.nineplus.bestwork.utils.CommonConstants;
-import com.nineplus.bestwork.utils.MessageUtils;
-import com.nineplus.bestwork.utils.PageUtils;
-import com.nineplus.bestwork.utils.UserAuthUtils;
+import java.time.LocalDateTime;
+import java.util.Optional;
+
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.modelmapper.ModelMapper;
@@ -24,9 +16,17 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.util.Optional;
+import com.nineplus.bestwork.dto.PageResDto;
+import com.nineplus.bestwork.dto.ResRoleDto;
+import com.nineplus.bestwork.dto.SearchDto;
+import com.nineplus.bestwork.entity.RoleEntity;
+import com.nineplus.bestwork.exception.BestWorkBussinessException;
+import com.nineplus.bestwork.model.UserAuthDetected;
+import com.nineplus.bestwork.repository.RoleRepository;
+import com.nineplus.bestwork.utils.CommonConstants;
+import com.nineplus.bestwork.utils.MessageUtils;
+import com.nineplus.bestwork.utils.PageUtils;
+import com.nineplus.bestwork.utils.UserAuthUtils;
 
 @Service
 @Transactional
@@ -41,7 +41,7 @@ public class RoleService {
     MessageUtils messageUtils;
 
     @Autowired
-    TRoleRepository roleRepository;
+    RoleRepository roleRepository;
 
     @Autowired
     ModelMapper modelMapper;
@@ -50,7 +50,7 @@ public class RoleService {
     private PageUtils responseUtils;
 
     public ResRoleDto getRole(Long id) throws BestWorkBussinessException {
-        Optional<TRole> role = roleRepository.findById(id);
+        Optional<RoleEntity> role = roleRepository.findById(id);
         if (role.isPresent()) {
             return modelMapper.map(role.get(), ResRoleDto.class);
         }
@@ -65,14 +65,14 @@ public class RoleService {
             logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0014, null));
             throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
         }
-        TRole role = null;
+        RoleEntity role = null;
         try {
             role = roleRepository.findRole(dto.getName());
             if (!ObjectUtils.isEmpty(role)) {
                 logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0014, null));
                 throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
             }
-            role = new TRole();
+            role = new RoleEntity();
             role.setRoleName(dto.getName());
             role.setDescription(dto.getDescription());
             role.setCreateDate(LocalDateTime.now());
@@ -93,7 +93,7 @@ public class RoleService {
             logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0014, null));
             throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
         }
-        TRole role = null;
+        RoleEntity role = null;
         try {
             role = roleRepository.findById(dto.getId()).orElse(null);
             if (ObjectUtils.isEmpty(role)) {
@@ -112,7 +112,7 @@ public class RoleService {
         }
     }
 
-    public PageResponseDto<ResRoleDto> getRoles(SearchDto pageSearchDto) throws BestWorkBussinessException {
+    public PageResDto<ResRoleDto> getRoles(SearchDto pageSearchDto) throws BestWorkBussinessException {
         try {
             int pageNumber = NumberUtils.toInt(pageSearchDto.getPageConditon().getPage());
             if (pageNumber > 0) {
@@ -121,7 +121,7 @@ public class RoleService {
             Pageable pageable = PageRequest.of(pageNumber, Integer.parseInt(pageSearchDto.getPageConditon().getSize()),
                     Sort.by(pageSearchDto.getPageConditon().getSortDirection(),
                             pageSearchDto.getPageConditon().getSortBy()));
-            Page<TRole> pageSysRole = roleRepository.findTRolesByRoleNameContaining
+            Page<RoleEntity> pageSysRole = roleRepository.findTRolesByRoleNameContaining
                     (pageSearchDto.getConditionSearchDto().getName(), pageable);
             return responseUtils.convertPageEntityToDTO(pageSysRole, ResRoleDto.class);
         } catch (Exception ex) {
@@ -138,7 +138,7 @@ public class RoleService {
                 logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0014, null));
                 throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
             }
-            Optional<TRole> role = roleRepository.findById(id);
+            Optional<RoleEntity> role = roleRepository.findById(id);
             role.ifPresent(sysRole -> roleRepository.delete(sysRole));
         } catch (Exception ex) {
             logger.error(messageUtils.getMessage(CommonConstants.MessageCode.RLF0002, null), ex);

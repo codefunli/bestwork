@@ -10,7 +10,7 @@ import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 import org.thymeleaf.templateresolver.ITemplateResolver;
 
-import com.nineplus.bestwork.entity.MailStorage;
+import com.nineplus.bestwork.entity.MailStorageEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.services.ThymleafService;
 import com.nineplus.bestwork.utils.EncryptionUtils;
@@ -67,7 +67,7 @@ public class ThymleafServiceImpl implements ThymleafService {
 	}
 
 	@Override
-	public String getContentMailRegisterUserCompany(MailStorage mailStorage) throws BestWorkBussinessException {
+	public String getContentMailRegisterUserCompany(MailStorageEntity mailStorage) throws BestWorkBussinessException {
 		final Context context = new Context();
 		String paramString = encryptionUtils.decrypt(mailStorage.getParams(), encryptionUtils.getSecret());
 		String[] keyValuePairs = paramString.split(", ");

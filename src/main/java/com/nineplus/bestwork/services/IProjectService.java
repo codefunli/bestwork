@@ -7,9 +7,9 @@ import java.util.Optional;
 import org.springframework.data.domain.Pageable;
 
 import com.nineplus.bestwork.dto.AssignTaskReqDto;
-import com.nineplus.bestwork.dto.PageResponseDto;
+import com.nineplus.bestwork.dto.PageResDto;
 import com.nineplus.bestwork.dto.PageSearchDto;
-import com.nineplus.bestwork.dto.ProjectResponseDto;
+import com.nineplus.bestwork.dto.ProjectResDto;
 import com.nineplus.bestwork.dto.ProjectRoleUserResDto;
 import com.nineplus.bestwork.dto.ProjectStatusReqDto;
 import com.nineplus.bestwork.dto.ProjectTaskReqDto;
@@ -20,10 +20,10 @@ import com.nineplus.bestwork.repository.ProjectAssignRepository;
 
 public interface IProjectService {
 
-	public PageResponseDto<ProjectResponseDto> getProjectPage(PageSearchDto pageSearchDto)
+	public PageResDto<ProjectResDto> getProjectPage(PageSearchDto pageSearchDto)
 			throws BestWorkBussinessException;
 
-	public PageResponseDto<ProjectResponseDto> getAllProjectPages(Pageable pageable) throws BestWorkBussinessException;
+	public PageResDto<ProjectResDto> getAllProjectPages(Pageable pageable) throws BestWorkBussinessException;
 
 	public Optional<ProjectEntity> getProjectById(String id) throws BestWorkBussinessException;
 
@@ -39,7 +39,7 @@ public interface IProjectService {
 
 	boolean isExistedProjectId(String projectId);
 	
-	public ProjectResponseDto getDetailProject(String projectId) throws BestWorkBussinessException;
+	public ProjectResDto getDetailProject(String projectId) throws BestWorkBussinessException;
 
 	public void changeStatus(String projectId, ProjectStatusReqDto projectStatusReqDto) throws BestWorkBussinessException;
 	

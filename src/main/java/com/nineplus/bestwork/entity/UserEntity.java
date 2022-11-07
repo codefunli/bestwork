@@ -36,7 +36,7 @@ import lombok.ToString;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class TUser {
+public class UserEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -95,11 +95,11 @@ public class TUser {
 	@JoinColumn(name = "role_id")
 	@EqualsAndHashCode.Exclude
 	@ToString.Exclude
-	private TRole role;
+	private RoleEntity role;
 
 	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "T_COMPANY_USER", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "company_id"))
-	Set<TCompany> companys;
+	Set<CompanyEntity> companys;
 
 	@OneToMany(mappedBy = "user")
 	@JsonBackReference

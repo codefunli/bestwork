@@ -1,9 +1,11 @@
 package com.nineplus.bestwork.voter;
 
-import com.nineplus.bestwork.entity.SysAction;
-import com.nineplus.bestwork.model.enumtype.Status;
-import com.nineplus.bestwork.services.SysActionService;
-import com.nineplus.bestwork.utils.CommonConstants;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.ServletContext;
+
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.core.Authentication;
@@ -13,13 +15,10 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.util.UriTemplate;
 
-import javax.servlet.ServletContext;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.nineplus.bestwork.entity.SysActionEntity;
+import com.nineplus.bestwork.model.enumtype.Status;
+import com.nineplus.bestwork.services.SysActionService;
+import com.nineplus.bestwork.utils.CommonConstants;
 
 public class CustomRoleBasedVoter implements AccessDecisionVoter<FilterInvocation> {
     private SysActionService sysActionService;
@@ -49,7 +48,7 @@ public class CustomRoleBasedVoter implements AccessDecisionVoter<FilterInvocatio
         }
         fi.getHttpRequest().getMethod();
         List<String> roleNames = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
-        List<SysAction> actionList = sysActionService.getSysActionBySysRole(roleNames, methodType);
+        List<SysActionEntity> actionList = sysActionService.getSysActionBySysRole(roleNames, methodType);
         if (!actionList.isEmpty()) {
             if (actionList.stream().anyMatch(sysAction -> {
                 UriTemplate uriTemplate = new UriTemplate(sysAction.getUrl());

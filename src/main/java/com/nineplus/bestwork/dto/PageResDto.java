@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class PageResponseDto<T> extends BaseDto {
+public class PageResDto<T> extends BaseDto {
 	
 	/**
      * serialVersionUID

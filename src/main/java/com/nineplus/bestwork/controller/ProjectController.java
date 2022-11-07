@@ -15,15 +15,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nineplus.bestwork.dto.AssignTaskReqDto;
-import com.nineplus.bestwork.dto.PageResponseDto;
+import com.nineplus.bestwork.dto.PageResDto;
 import com.nineplus.bestwork.dto.PageSearchDto;
 import com.nineplus.bestwork.dto.ProjectDeleteByIdDto;
-import com.nineplus.bestwork.dto.ProjectResponseDto;
+import com.nineplus.bestwork.dto.ProjectResDto;
 import com.nineplus.bestwork.dto.ProjectRoleUserResDto;
 import com.nineplus.bestwork.dto.ProjectStatusReqDto;
 import com.nineplus.bestwork.dto.ProjectStatusResDto;
 import com.nineplus.bestwork.dto.ProjectTaskReqDto;
-import com.nineplus.bestwork.dto.ProjectTypeResponseDto;
+import com.nineplus.bestwork.dto.ProjectTypeResDto;
 import com.nineplus.bestwork.entity.ProjectTypeEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.repository.ProjectAssignRepository;
@@ -59,7 +59,7 @@ public class ProjectController extends BaseController {
 	public ResponseEntity<? extends Object> getProjectPages(@RequestBody PageSearchDto prjConDto)
 			throws BestWorkBussinessException {
 
-		PageResponseDto<ProjectResponseDto> pageProject = null;
+		PageResDto<ProjectResDto> pageProject = null;
 		try {
 			pageProject = projectService.getProjectPage(prjConDto);
 		} catch (BestWorkBussinessException ex) {
@@ -74,7 +74,7 @@ public class ProjectController extends BaseController {
 
 	@GetMapping("/{projectId}")
 	public ResponseEntity<? extends Object> getProjectById(@PathVariable String projectId) {
-		ProjectResponseDto project = null;
+		ProjectResDto project = null;
 		try {
 			project = projectService.getDetailProject(projectId);
 			if (project == null) {
@@ -98,8 +98,8 @@ public class ProjectController extends BaseController {
 	}
 
 	@GetMapping("/types")
-	public ResponseEntity<List<ProjectTypeResponseDto>> getAllProjectTypes() {
-		List<ProjectTypeResponseDto> projectTypeResponseDtos = projectTypeService.getAllProjectTypes();
+	public ResponseEntity<List<ProjectTypeResDto>> getAllProjectTypes() {
+		List<ProjectTypeResDto> projectTypeResponseDtos = projectTypeService.getAllProjectTypes();
 		if (projectTypeResponseDtos.isEmpty()) {
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		}

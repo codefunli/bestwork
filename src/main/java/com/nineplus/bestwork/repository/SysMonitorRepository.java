@@ -5,11 +5,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.nineplus.bestwork.entity.SysMonitor;
+import com.nineplus.bestwork.entity.SysMonitorEntity;
 
 @Repository
-public interface SysMonitorRepository extends JpaRepository<SysMonitor, Long> {
+public interface SysMonitorRepository extends JpaRepository<SysMonitorEntity, Long> {
 
-    SysMonitor findSysMonitorByName(String name);
-    Page<SysMonitor> findAllByNameContains(String name, Pageable pageable);
+    SysMonitorEntity findSysMonitorByName(String name);
+    Page<SysMonitorEntity> findAllByNameContains(String name, Pageable pageable);
 }

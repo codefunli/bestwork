@@ -18,7 +18,7 @@ import lombok.Data;
 @Entity(name = "TCompany")
 @Table(name = "T_COMPANY")
 @Data
-public class TCompany implements Serializable {
+public class CompanyEntity implements Serializable {
 	/**
 	 * serialVersionUID
 	 */

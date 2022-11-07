@@ -21,15 +21,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.nineplus.bestwork.dto.PageResponseDto;
+import com.nineplus.bestwork.dto.PageResDto;
 import com.nineplus.bestwork.dto.PageSearchUserDto;
-import com.nineplus.bestwork.dto.TUserResponseDTO;
 import com.nineplus.bestwork.dto.UserDetectResDto;
 import com.nineplus.bestwork.dto.UserListIdDto;
 import com.nineplus.bestwork.dto.UserReqDto;
 import com.nineplus.bestwork.dto.UserResDto;
-import com.nineplus.bestwork.entity.TCompany;
-import com.nineplus.bestwork.entity.TUser;
+import com.nineplus.bestwork.entity.CompanyEntity;
+import com.nineplus.bestwork.entity.UserEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.services.UserService;
 import com.nineplus.bestwork.utils.CommonConstants;
@@ -70,7 +69,7 @@ public class UserController extends BaseController {
 			BindingResult bindingResult) {
 		if (bindingResult.hasErrors() || null == pageCondition)
 			return failed(CommonConstants.MessageCode.ECU0002, null);
-		PageResponseDto<UserResDto> pageUser;
+		PageResDto<UserResDto> pageUser;
 		try {
 			pageUser = userService.getAllUsers(pageCondition);
 		} catch (BestWorkBussinessException ex) {
@@ -85,7 +84,7 @@ public class UserController extends BaseController {
 		if (checkExists(userReqDto, bindingResult)) {
 			return failedWithError(CommonConstants.MessageCode.ECU0001, bindingResult.getFieldErrors().toArray(), null);
 		}
-		TUser createdUser;
+		UserEntity createdUser;
 		try {
 			createdUser = userService.createUser(userReqDto);
 		} catch (BestWorkBussinessException ex) {
@@ -95,8 +94,8 @@ public class UserController extends BaseController {
 	}
 
 	private boolean checkExists(UserReqDto userReqDto, BindingResult bindingResult) {
-		List<TUser> existsUsers = this.userService.findAll();
-		for (TUser user : existsUsers) {
+		List<UserEntity> existsUsers = this.userService.findAll();
+		for (UserEntity user : existsUsers) {
 			if (user.getUserName().equals(userReqDto.getUserName())) {
 				bindingResult.rejectValue("userName", "ExistedUsername", "Username already exists in the company.");
 			} else if (user.getEmail().equals(userReqDto.getEmail())) {
@@ -108,7 +107,7 @@ public class UserController extends BaseController {
 
 	@GetMapping("/{userId}")
 	public ResponseEntity<?> getUserById(@PathVariable long userId) throws BestWorkBussinessException {
-		TUser user = userService.getUserById(userId);
+		UserEntity user = userService.getUserById(userId);
 		if (user == null) {
 			return failed(CommonConstants.MessageCode.ECU0002, null);
 		}
@@ -125,7 +124,7 @@ public class UserController extends BaseController {
 			userResDto.setIsEnable(0);
 		}
 		userResDto.setRole(user.getRole());
-		for (TCompany tCompany : user.getCompanys()) {
+		for (CompanyEntity tCompany : user.getCompanys()) {
 			userResDto.setCompany(tCompany);
 		}
 		if (null != user.getUserAvatar()) {
@@ -142,7 +141,7 @@ public class UserController extends BaseController {
 		if (bindingResult.hasErrors()) {
 			return failedWithError(CommonConstants.MessageCode.ECU0001, bindingResult.getFieldErrors().toArray(), null);
 		}
-		TUser userEdit;
+		UserEntity userEdit = new UserEntity();
 		try {
 			userEdit = userService.editUser(userReqDto, id);
 		} catch (BestWorkBussinessException ex) {

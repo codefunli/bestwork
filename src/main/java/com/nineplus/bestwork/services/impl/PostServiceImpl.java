@@ -10,8 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.nineplus.bestwork.dto.FileStorageResponseDto;
-import com.nineplus.bestwork.dto.PostResponseDto;
+import com.nineplus.bestwork.dto.FileStorageResDto;
+import com.nineplus.bestwork.dto.PostResDto;
 import com.nineplus.bestwork.entity.FileStorageEntity;
 import com.nineplus.bestwork.entity.PostEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
@@ -37,20 +37,20 @@ public class PostServiceImpl implements IPostService {
 	}
 
 	@Override
-	public List<PostResponseDto> getAllPosts() {
+	public List<PostResDto> getAllPosts() {
 		List<PostEntity> postEntities = this.postRepository.findAll();
-		List<PostResponseDto> postResponseDtos = new ArrayList<>();
+		List<PostResDto> postResponseDtos = new ArrayList<>();
 		if (!postEntities.isEmpty()) {
 			for (PostEntity postEntity : postEntities) {
-				PostResponseDto dto = new PostResponseDto();
+				PostResDto dto = new PostResDto();
 				dto.setId(postEntity.getId());
 				dto.setDescription(postEntity.getDescription());
 				dto.setEqBill(postEntity.getEqBill());
 				dto.setCreateDate(postEntity.getCreateDate().toString());
 				dto.setProject(postEntity.getProject());
-				List<FileStorageResponseDto> fileStorageResponseDtos = new ArrayList<>();
+				List<FileStorageResDto> fileStorageResponseDtos = new ArrayList<>();
 				for (FileStorageEntity file : postEntity.getFileStorages()) {
-					FileStorageResponseDto fileStorageResponseDto = new FileStorageResponseDto();
+					FileStorageResDto fileStorageResponseDto = new FileStorageResDto();
 					fileStorageResponseDto.setId(file.getId());
 					fileStorageResponseDto.setName(file.getName());
 					fileStorageResponseDto.setCreateDate(file.getCreateDate());
@@ -60,9 +60,9 @@ public class PostServiceImpl implements IPostService {
 				}
 				dto.setFileStorages(fileStorageResponseDtos);
 				postResponseDtos.add(dto);
-				Collections.sort(postResponseDtos, new Comparator<PostResponseDto>() {
+				Collections.sort(postResponseDtos, new Comparator<PostResDto>() {
 					@Override
-					public int compare(PostResponseDto o1, PostResponseDto o2) {
+					public int compare(PostResDto o1, PostResDto o2) {
 						return (int) (Timestamp.valueOf(o2.getCreateDate()).getTime()
 								- Timestamp.valueOf(o1.getCreateDate()).getTime());
 					}
@@ -73,20 +73,20 @@ public class PostServiceImpl implements IPostService {
 	}
 
 	@Override
-	public List<PostResponseDto> getPostsByProjectId(String projectId) {
+	public List<PostResDto> getPostsByProjectId(String projectId) {
 		List<PostEntity> postEntities = this.postRepository.findPostsByProjectId(projectId);
-		List<PostResponseDto> postResponseDtos = new ArrayList<>();
+		List<PostResDto> postResponseDtos = new ArrayList<>();
 		for (PostEntity postEntity : postEntities) {
-			PostResponseDto dto = new PostResponseDto();
+			PostResDto dto = new PostResDto();
 			dto.setId(postEntity.getId());
 			dto.setDescription(postEntity.getDescription());
 			dto.setEqBill(postEntity.getEqBill());
 			dto.setCreateDate(postEntity.getCreateDate().toString());
 			dto.setProject(postEntity.getProject());
 			dto.setComment(postEntity.getComment());
-			List<FileStorageResponseDto> fileStorageResponseDtos = new ArrayList<>();
+			List<FileStorageResDto> fileStorageResponseDtos = new ArrayList<>();
 			for (FileStorageEntity file : postEntity.getFileStorages()) {
-				FileStorageResponseDto fileStorageResponseDto = new FileStorageResponseDto();
+				FileStorageResDto fileStorageResponseDto = new FileStorageResDto();
 				fileStorageResponseDto.setId(file.getId());
 				fileStorageResponseDto.setName(file.getName());
 				fileStorageResponseDto.setCreateDate(file.getCreateDate());
@@ -96,9 +96,9 @@ public class PostServiceImpl implements IPostService {
 			}
 			dto.setFileStorages(fileStorageResponseDtos);
 			postResponseDtos.add(dto);
-			Collections.sort(postResponseDtos, new Comparator<PostResponseDto>() {
+			Collections.sort(postResponseDtos, new Comparator<PostResDto>() {
 				@Override
-				public int compare(PostResponseDto o1, PostResponseDto o2) {
+				public int compare(PostResDto o1, PostResDto o2) {
 					return (int) (Timestamp.valueOf(o2.getCreateDate()).getTime()
 							- Timestamp.valueOf(o1.getCreateDate()).getTime());
 				}

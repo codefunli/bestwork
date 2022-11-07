@@ -21,10 +21,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.nineplus.bestwork.dto.FileStorageResponseDto;
-import com.nineplus.bestwork.dto.PostCommentRequestDto;
-import com.nineplus.bestwork.dto.PostRequestDto;
-import com.nineplus.bestwork.dto.PostResponseDto;
+import com.nineplus.bestwork.dto.FileStorageResDto;
+import com.nineplus.bestwork.dto.PostCommentReqDto;
+import com.nineplus.bestwork.dto.PostReqDto;
+import com.nineplus.bestwork.dto.PostResDto;
 import com.nineplus.bestwork.entity.FileStorageEntity;
 import com.nineplus.bestwork.entity.PostEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
@@ -57,7 +57,7 @@ public class PostController extends BaseController {
 	UserAuthUtils userAuthUtils;
 
 	@PostMapping("/create")
-	public ResponseEntity<? extends Object> createPost(@Valid @RequestBody PostRequestDto postRequestDto,
+	public ResponseEntity<? extends Object> createPost(@Valid @RequestBody PostReqDto postRequestDto,
 			BindingResult bindingResult) throws BestWorkBussinessException {
 
 		if (!projectService.isExistedProjectId(postRequestDto.getProjectId())) {
@@ -87,7 +87,7 @@ public class PostController extends BaseController {
 
 	@GetMapping("/all")
 	public ResponseEntity<? extends Object> getAllPosts() throws BestWorkBussinessException {
-		List<PostResponseDto> posts = null;
+		List<PostResDto> posts = null;
 		posts = postService.getAllPosts();
 		return new ResponseEntity<>(posts, HttpStatus.OK);
 	}
@@ -95,7 +95,7 @@ public class PostController extends BaseController {
 	@GetMapping("/{projectId}")
 	public ResponseEntity<? extends Object> getPostsByProjectId(@PathVariable String projectId)
 			throws BestWorkBussinessException {
-		List<PostResponseDto> posts = null;
+		List<PostResDto> posts = null;
 		posts = postService.getPostsByProjectId(projectId);
 		return new ResponseEntity<>(posts, HttpStatus.OK);
 	}
@@ -103,7 +103,7 @@ public class PostController extends BaseController {
 	@GetMapping("/{projectId}/detail/{postId}")
 	public ResponseEntity<? extends Object> getPostByPostId(@PathVariable String postId, @PathVariable String projectId)
 			throws BestWorkBussinessException {
-		PostResponseDto postResponseDto = new PostResponseDto();
+		PostResDto postResponseDto = new PostResDto();
 		PostEntity post = new PostEntity();
 		try {
 			post = postService.getPostByPostIdAndProjectId(postId, projectId);
@@ -116,9 +116,9 @@ public class PostController extends BaseController {
 			postResponseDto.setEqBill(post.getEqBill());
 			postResponseDto.setCreateDate(post.getCreateDate().toString());
 			postResponseDto.setComment(post.getComment());
-			List<FileStorageResponseDto> fileStorageResponseDtos = new ArrayList<>();
+			List<FileStorageResDto> fileStorageResponseDtos = new ArrayList<>();
 			for (FileStorageEntity file : post.getFileStorages()) {
-				FileStorageResponseDto fileStorageResponseDto = new FileStorageResponseDto();
+				FileStorageResDto fileStorageResponseDto = new FileStorageResDto();
 				fileStorageResponseDto.setId(file.getId());
 				fileStorageResponseDto.setName(file.getName());
 				fileStorageResponseDto.setCreateDate(file.getCreateDate());
@@ -136,7 +136,7 @@ public class PostController extends BaseController {
 
 	@PatchMapping("/{postId}/project/{projectId}/comment")
 	public ResponseEntity<? extends Object> addComment(@PathVariable String projectId, @PathVariable String postId,
-			@Valid @RequestBody PostCommentRequestDto postCommentRequestDto, BindingResult bindingResult)
+			@Valid @RequestBody PostCommentReqDto postCommentRequestDto, BindingResult bindingResult)
 			throws BestWorkBussinessException {
 		PostEntity post = new PostEntity();
 		try {
@@ -163,7 +163,7 @@ public class PostController extends BaseController {
 
 	@PatchMapping("/{projectId}/update/{postId}")
 	public ResponseEntity<? extends Object> updatePost(@PathVariable String postId, @PathVariable String projectId,
-			@Valid @RequestBody PostRequestDto postRequestDto, BindingResult bindingResult)
+			@Valid @RequestBody PostReqDto postRequestDto, BindingResult bindingResult)
 			throws BestWorkBussinessException {
 		PostEntity post = new PostEntity();
 		try {

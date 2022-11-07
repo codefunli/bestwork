@@ -16,7 +16,7 @@ public class ProgressAndProjectResDto extends BaseDto {
 	private static final long serialVersionUID = 1268385730131250682L;
 
 	@JsonProperty("project")
-	private ProjectResponseDto project;
+	private ProjectResDto project;
 
 	@JsonProperty("progress")
 	private List<ProgressResDto> progress;

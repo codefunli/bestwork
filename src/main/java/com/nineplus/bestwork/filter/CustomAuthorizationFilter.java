@@ -26,7 +26,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.nineplus.bestwork.entity.TUser;
+import com.nineplus.bestwork.entity.UserEntity;
 import com.nineplus.bestwork.services.UserService;
 import com.nineplus.bestwork.utils.CommonConstants;
 
@@ -93,7 +93,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 					JWTVerifier verifier = JWT.require(algorithm).build();
 					DecodedJWT decodedJWT = verifier.verify(token);
 					String username = decodedJWT.getSubject();
-					TUser user = userService.getUserByUsername(username);
+					UserEntity user = userService.getUserByUsername(username);
 					if (ObjectUtils.isEmpty(user) || userService.isBlocked(user.getLoginFailedNum())) {
 						throw new Exception();
 					}
@@ -118,7 +118,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 					JWTVerifier verifier = JWT.require(algorithm).build();
 					DecodedJWT decodedJWT = verifier.verify(token);
 					String username = decodedJWT.getSubject();
-					TUser user = userService.getUserByUsername(username);
+					UserEntity user = userService.getUserByUsername(username);
 					if (ObjectUtils.isEmpty(user) || userService.isBlocked(user.getLoginFailedNum())) {
 						throw new Exception();
 					}

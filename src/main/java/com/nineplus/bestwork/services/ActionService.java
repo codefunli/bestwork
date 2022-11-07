@@ -1,8 +1,8 @@
 package com.nineplus.bestwork.services;
-import com.nineplus.bestwork.dto.PageResponseDto;
-import com.nineplus.bestwork.dto.ResActionDto;
+import com.nineplus.bestwork.dto.PageResDto;
+import com.nineplus.bestwork.dto.ActionResDto;
 import com.nineplus.bestwork.dto.SearchDto;
-import com.nineplus.bestwork.entity.SysAction;
+import com.nineplus.bestwork.entity.SysActionEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.model.UserAuthDetected;
 import com.nineplus.bestwork.model.enumtype.Status;
@@ -50,31 +50,31 @@ public class ActionService {
     @Autowired
     private PageUtils responseUtils;
 
-    public ResActionDto getAction(Long id) throws BestWorkBussinessException {
-        Optional<SysAction> action = actionRepository.findById(id);
+    public ActionResDto getAction(Long id) throws BestWorkBussinessException {
+        Optional<SysActionEntity> action = actionRepository.findById(id);
         if (action.isPresent()) {
-            return modelMapper.map(action.get(), ResActionDto.class);
+            return modelMapper.map(action.get(), ActionResDto.class);
         }
         throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
 
     }
 
     @Transactional(rollbackFor = {Exception.class})
-    public ResActionDto addAction(ResActionDto dto) throws BestWorkBussinessException {
+    public ActionResDto addAction(ActionResDto dto) throws BestWorkBussinessException {
         UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
         // Only system admin can do this
         if (!userAuthRoleReq.getIsSysAdmin()) {
             logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0014, null));
             throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
         }
-        SysAction action = null;
+        SysActionEntity action = null;
         try {
             action = actionRepository.findSysActionByName(dto.getName());
             if (!ObjectUtils.isEmpty(action)) {
                 logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0014, null));
                 throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
             }
-            action = new SysAction();
+            action = new SysActionEntity();
             action.setName(dto.getName());
             action.setIcon(dto.getIcon());
             action.setUrl(dto.getUrl());
@@ -83,7 +83,7 @@ public class ActionService {
             action.setCreatedDate(new Timestamp(System.currentTimeMillis()));
 //            action.setCreatedUser();
             actionRepository.save(action);
-            return modelMapper.map(action, ResActionDto.class);
+            return modelMapper.map(action, ActionResDto.class);
         } catch (Exception e) {
             logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0001, null), e);
             throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0001, null);
@@ -91,21 +91,21 @@ public class ActionService {
     }
 
     @Transactional(rollbackFor = {Exception.class})
-    public ResActionDto updateAction(ResActionDto dto) throws BestWorkBussinessException {
+    public ActionResDto updateAction(ActionResDto dto) throws BestWorkBussinessException {
         UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
         // Only system admin can do this
         if (!userAuthRoleReq.getIsSysAdmin()) {
             logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0014, null));
             throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
         }
-        Optional<SysAction> checkExist;
+        Optional<SysActionEntity> checkExist;
         try {
             checkExist = actionRepository.findById(dto.getId());
             if (checkExist.isEmpty()) {
                 logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0014, null));
                 throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
             }
-            SysAction action = checkExist.get();
+            SysActionEntity action = checkExist.get();
             action.setName(dto.getName());
             action.setIcon(dto.getIcon());
             action.setUrl(dto.getUrl());
@@ -114,14 +114,14 @@ public class ActionService {
             action.setUpdatedDate(new Timestamp(System.currentTimeMillis()));
 //            action.setCreatedUser();
             actionRepository.save(action);
-            return modelMapper.map(action, ResActionDto.class);
+            return modelMapper.map(action, ActionResDto.class);
         }catch (Exception ex) {
             logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0001, null), ex);
             throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0001, null);
         }
     }
 
-    public PageResponseDto<ResActionDto> getActions(SearchDto dto) throws BestWorkBussinessException {
+    public PageResDto<ActionResDto> getActions(SearchDto dto) throws BestWorkBussinessException {
         try {
             int pageNumber = NumberUtils.toInt(dto.getPageConditon().getPage());
             if (pageNumber > 0) {
@@ -130,8 +130,8 @@ public class ActionService {
             Pageable pageable = PageRequest.of(pageNumber, Integer.parseInt(dto.getPageConditon().getSize()),
                     Sort.by(dto.getPageConditon().getSortDirection(),
                             dto.getPageConditon().getSortBy()));
-            Page<SysAction> pageSysRole = actionRepository.findAllByNameContains(dto.getConditionSearchDto().getName(), pageable);
-            return responseUtils.convertPageEntityToDTO(pageSysRole, ResActionDto.class);
+            Page<SysActionEntity> pageSysRole = actionRepository.findAllByNameContains(dto.getConditionSearchDto().getName(), pageable);
+            return responseUtils.convertPageEntityToDTO(pageSysRole, ActionResDto.class);
         } catch (Exception ex) {
             logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0001, null), ex);
             throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0001, null);
@@ -146,7 +146,7 @@ public class ActionService {
                 logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0014, null));
                 throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
             }
-            Optional<SysAction> action = actionRepository.findById(id);
+            Optional<SysActionEntity> action = actionRepository.findById(id);
             action.ifPresent(sysAction -> actionRepository.delete(sysAction));
         } catch (Exception ex) {
             logger.error(messageUtils.getMessage(CommonConstants.MessageCode.RLF0002, null), ex);

@@ -15,7 +15,7 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class SysMonitor {
+public class SysMonitorEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,10 +42,10 @@ public class SysMonitor {
 
 	@OneToMany(mappedBy = "sysMonitor")
 	@JsonBackReference
-	private List<SysPermission> sysPermissions;
+	private List<SysPermissionEntity> sysPermissions;
 
 	@OneToMany(mappedBy = "sysMonitor")
 	@JsonBackReference
-	private List<SysAction> sysActions;
+	private List<SysActionEntity> sysActions;
 
 }

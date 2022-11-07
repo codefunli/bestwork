@@ -30,7 +30,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class SysAction {
+public class SysActionEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -73,6 +73,6 @@ public class SysAction {
     @ManyToOne
     @JoinColumn(name = "monitor_id")
     @JsonManagedReference
-    private SysMonitor sysMonitor;
+    private SysMonitorEntity sysMonitor;
 
 }

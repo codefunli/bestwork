@@ -19,7 +19,7 @@ import com.nineplus.bestwork.dto.CompanyReqDto;
 import com.nineplus.bestwork.dto.CompanyResDto;
 import com.nineplus.bestwork.dto.CompanyUserReqDto;
 import com.nineplus.bestwork.dto.CompanyUserResDto;
-import com.nineplus.bestwork.dto.PageResponseDto;
+import com.nineplus.bestwork.dto.PageResDto;
 import com.nineplus.bestwork.dto.PageSearchDto;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.repository.CompanyProjection;
@@ -30,6 +30,7 @@ import com.nineplus.bestwork.utils.CommonConstants;
 @RequestMapping(value = "/api/v1/companies")
 @RestController
 public class CompanyController extends BaseController {
+	@SuppressWarnings("unused")
 	private final Logger logger = LoggerFactory.getLogger(CompanyController.class);
 
 	@Autowired
@@ -114,7 +115,7 @@ public class CompanyController extends BaseController {
 	 */
 	@PostMapping("/list")
 	public ResponseEntity<? extends Object> getAllCompany(@RequestBody PageSearchDto pageCondition) {
-		PageResponseDto<CompanyResDto> pageCompany = null;
+		PageResDto<CompanyResDto> pageCompany = null;
 		try {
 			if (pageCondition.getKeyword().isEmpty() && pageCondition.getStatus() == DEFAULT_STATUS) {
 				pageCompany = companyService.getCompanyPage(pageCondition);

@@ -7,12 +7,12 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import com.nineplus.bestwork.entity.Progress;
+import com.nineplus.bestwork.entity.ProgressEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 
-public interface ProgressRepository extends JpaRepository<Progress, Long> {
+public interface ProgressRepository extends JpaRepository<ProgressEntity, Long> {
 	@Query(value = "select * from PROGRESS_TRACKING where project_id = :projectId", nativeQuery = true)
-	List<Progress> findProgressByProjectId(@Param(value = "projectId") String projectId);
+	List<ProgressEntity> findProgressByProjectId(@Param(value = "projectId") String projectId);
 
 	@Modifying
 	@Query(value = "DELETE from PROGRESS_TRACKING p where p.id in ?1", nativeQuery = true)

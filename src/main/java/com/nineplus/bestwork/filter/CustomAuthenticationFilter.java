@@ -27,8 +27,8 @@ import org.springframework.security.core.userdetails.User;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.nineplus.bestwork.dto.LoginFailedResDTO;
-import com.nineplus.bestwork.entity.TUser;
+import com.nineplus.bestwork.dto.LoginFailedResDto;
+import com.nineplus.bestwork.entity.UserEntity;
 import com.nineplus.bestwork.services.UserService;
 import com.nineplus.bestwork.utils.BestWorkBeanUtils;
 import com.nineplus.bestwork.utils.CommonConstants;
@@ -43,7 +43,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
     public static final String USERNAME = "username";
     public static final String PASSWORD = "password";
     
-    protected TUser tUserAuth;
+    protected UserEntity tUserAuth;
     
     private AuthenticationManager authenticationManager;
 
@@ -91,7 +91,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
             bestWorkBeanUtils = webApplicationContext.getBean(BestWorkBeanUtils.class);
         }
 
-        LoginFailedResDTO loginFailedDTO = new LoginFailedResDTO();
+        LoginFailedResDto loginFailedDTO = new LoginFailedResDto();
 
         if (ObjectUtils.isEmpty(tUserAuth) || tUserAuth.getRole().getRoleName().equals(CommonConstants.RoleName.SYS_ADMIN)) {
             loginFailedDTO.setUsername(null);

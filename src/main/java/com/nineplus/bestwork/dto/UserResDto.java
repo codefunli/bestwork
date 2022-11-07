@@ -2,8 +2,8 @@ package com.nineplus.bestwork.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import com.nineplus.bestwork.entity.TCompany;
-import com.nineplus.bestwork.entity.TRole;
+import com.nineplus.bestwork.entity.CompanyEntity;
+import com.nineplus.bestwork.entity.RoleEntity;
 import lombok.Data;
 
 @Data
@@ -31,7 +31,7 @@ public class UserResDto {
     private String telNo;
 
 	@JsonProperty("role")
-    private TRole role;
+    private RoleEntity role;
 
     @JsonProperty("avatar")
     private String avatar;
@@ -43,6 +43,6 @@ public class UserResDto {
     private String countLoginFailed;
 
     @JsonProperty("company")
-    TCompany company;
+    CompanyEntity company;
 
 }

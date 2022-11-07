@@ -44,6 +44,6 @@ public class ProgressResDto extends BaseDto {
 	private String createDate;
 	
 	@JsonProperty("fileStorages")
-	private List<FileStorageResponseDto> fileStorages;
+	private List<FileStorageResDto> fileStorages;
 
 }

@@ -32,7 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.nineplus.bestwork.dto.CompanyResDto;
 import com.nineplus.bestwork.dto.CompanyUserReqDto;
-import com.nineplus.bestwork.dto.PageResponseDto;
+import com.nineplus.bestwork.dto.PageResDto;
 import com.nineplus.bestwork.dto.PageSearchUserDto;
 import com.nineplus.bestwork.dto.RPageDto;
 import com.nineplus.bestwork.dto.UserCompanyReqDto;
@@ -41,15 +41,15 @@ import com.nineplus.bestwork.dto.UserListIdDto;
 import com.nineplus.bestwork.dto.UserReqDto;
 import com.nineplus.bestwork.dto.UserResDto;
 import com.nineplus.bestwork.dto.UserWithProjectResDto;
-import com.nineplus.bestwork.entity.TCompany;
-import com.nineplus.bestwork.entity.TRole;
-import com.nineplus.bestwork.entity.TUser;
+import com.nineplus.bestwork.entity.CompanyEntity;
+import com.nineplus.bestwork.entity.RoleEntity;
+import com.nineplus.bestwork.entity.UserEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.model.UserAuthDetected;
 import com.nineplus.bestwork.repository.AssignTaskRepository;
-import com.nineplus.bestwork.repository.TCompanyRepository;
-import com.nineplus.bestwork.repository.TRoleRepository;
-import com.nineplus.bestwork.repository.TUserRepository;
+import com.nineplus.bestwork.repository.CompanyRepository;
+import com.nineplus.bestwork.repository.RoleRepository;
+import com.nineplus.bestwork.repository.UserRepository;
 import com.nineplus.bestwork.repository.UserProjectRepository;
 import com.nineplus.bestwork.services.impl.ScheduleServiceImpl;
 import com.nineplus.bestwork.utils.CommonConstants;
@@ -63,17 +63,18 @@ import com.nineplus.bestwork.utils.UserAuthUtils;
 public class UserService implements UserDetailsService {
 	int countUserLoginFailedBlocked = 5;
 
+	@SuppressWarnings("unused")
 	private final Logger logger = LoggerFactory.getLogger(UserService.class);
 
 	@Autowired
-	TUserRepository tUserRepo;
+	UserRepository userRepo;
 
-	public void saveUser(TUser user) {
-		tUserRepo.save(user);
+	public void saveUser(UserEntity user) {
+		userRepo.save(user);
 	}
 
-	public TUser getUserByUsername(String userName) {
-		return tUserRepo.findByUserName(userName);
+	public UserEntity getUserByUsername(String userName) {
+		return userRepo.findByUserName(userName);
 	}
 
 	public boolean isBlocked(int countLoginFailed) {
@@ -93,16 +94,13 @@ public class UserService implements UserDetailsService {
 	PageUtils responseUtils;
 
 	@Autowired
-	TCompanyRepository companyRepository;
+	CompanyRepository companyRepository;
 
 	@Autowired
-	TRoleRepository roleRepository;
+	RoleRepository roleRepository;
 
 	@Autowired
 	MessageUtils messageUtils;
-
-	@Autowired
-	TCompanyRepository tCompanyRepository;
 
 	@Autowired
 	MailSenderService mailSenderService;
@@ -121,7 +119,7 @@ public class UserService implements UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
-		TUser user = tUserRepo.findByUserName(userName);
+		UserEntity user = userRepo.findByUserName(userName);
 		if (ObjectUtils.isEmpty(user)) {
 			throw new UsernameNotFoundException("User not found");
 		}
@@ -130,7 +128,7 @@ public class UserService implements UserDetailsService {
 		return new User(user.getUserName(), user.getPassword(), authorities);
 	}
 
-	public UserResDto convertUserToUserDto(TUser user) {
+	public UserResDto convertUserToUserDto(UserEntity user) {
 		UserResDto dto = null;
 		if (user != null) {
 			dto = new UserResDto();
@@ -149,60 +147,61 @@ public class UserService implements UserDetailsService {
 	}
 
 	@Transactional(rollbackFor = { Exception.class })
-	public void registNewUser(CompanyUserReqDto companyUserReqDto, TCompany tCompany, TRole tRole) {
-		TUser newTUser = new TUser();
-		Set<TCompany> tCompanyUser = new HashSet<TCompany>();
-		UserCompanyReqDto newUser = companyUserReqDto.getUser();
-		tCompanyUser.add(tCompany);
-		newTUser.setEmail(newUser.getEmail());
-		newTUser.setUserName(newUser.getUserName());
-		newTUser.setIsEnable(newUser.getEnabled());
-		newTUser.setFirstName(newUser.getFirstName());
-		newTUser.setLastName(newUser.getLastName());
-		newTUser.setLoginFailedNum(0);
-		newTUser.setPassword(encoder.encode(newUser.getPassword()));
-		newTUser.setTelNo(newUser.getTelNo());
-		newTUser.setRole(tRole);
-		newTUser.setCompanys(tCompanyUser);
+	public void registNewUser(CompanyUserReqDto companyUserReqDto, CompanyEntity tCompany, RoleEntity role) {
+		UserEntity newUser = new UserEntity();
+		Set<CompanyEntity> companyUser = new HashSet<CompanyEntity>();
+		UserCompanyReqDto newUserCompany = companyUserReqDto.getUser();
+		companyUser.add(tCompany);
+		newUser.setEmail(newUserCompany.getEmail());
+		newUser.setUserName(newUserCompany.getUserName());
+		newUser.setIsEnable(newUserCompany.getEnabled());
+		newUser.setFirstName(newUserCompany.getFirstName());
+		newUser.setLastName(newUserCompany.getLastName());
+		newUser.setLoginFailedNum(0);
+		newUser.setPassword(encoder.encode(newUserCompany.getPassword()));
+		newUser.setTelNo(newUserCompany.getTelNo());
+		newUser.setRole(role);
+		newUser.setCompanys(companyUser);
 
-		tUserRepo.save(newTUser);
+		userRepo.save(newUser);
 
-		mailStorageService.saveMailRegisterUserCompToSendLater(newUser.getEmail(), tCompany.getCompanyName(),
-				newUser.getUserName(), newUser.getPassword());
+		mailStorageService.saveMailRegisterUserCompToSendLater(newUserCompany.getEmail(), tCompany.getCompanyName(),
+				newUserCompany.getUserName(), newUserCompany.getPassword());
 		ScheduleServiceImpl.isCompleted = true;
 	}
 
-	public TUser getUserByCompanyId(long companyId, long role) {
-		return tUserRepo.findUserByOrgId(companyId, role);
+	public UserEntity getUserByCompanyId(long companyId, long role) {
+		return userRepo.findUserByOrgId(companyId, role);
 
 	}
 
 	public long findCompanyIdByAdminUsername(UserAuthDetected userAuthRoleReq) {
 		String companyAdminUserName = userAuthRoleReq.getUsername();
-		long companyId = tUserRepo.findCompanyIdByAdminUsername(companyAdminUserName);
+		long companyId = userRepo.findCompanyIdByAdminUsername(companyAdminUserName);
 		return companyId;
 	}
 
-	private List<TUser> getUsersByKeyword(String keyword) {
-		return this.tUserRepo.getUsersByKeyword(keyword);
+	@SuppressWarnings("unused")
+	private List<UserEntity> getUsersByKeyword(String keyword) {
+		return this.userRepo.getUsersByKeyword(keyword);
 	}
 
 	@Transactional(rollbackFor = { Exception.class })
-	public TUser createUser(UserReqDto userReqDto) throws BestWorkBussinessException {
+	public UserEntity createUser(UserReqDto userReqDto) throws BestWorkBussinessException {
 
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
 		String createUser = userAuthRoleReq.getUsername();
-		TRole role = new TRole();
+		RoleEntity role = new RoleEntity();
 		if (ObjectUtils.isNotEmpty(userReqDto.getRole())) {
-			Optional<TRole> roleOptional = roleRepository.findById(userReqDto.getRole());
+			Optional<RoleEntity> roleOptional = roleRepository.findById(userReqDto.getRole());
 			if (roleOptional.isPresent()) {
 				role = roleOptional.get();
 			} else {
 				throw new BestWorkBussinessException(CommonConstants.MessageCode.eR0002, null);
 			}
 		}
-		Set<TCompany> companies = new HashSet<>();
-		TCompany companyCurrent = new TCompany();
+		Set<CompanyEntity> companies = new HashSet<>();
+		CompanyEntity companyCurrent = new CompanyEntity();
 		if (ObjectUtils.isNotEmpty(userReqDto.getCompany())) {
 			companyCurrent = companyRepository.findByCompanyId(userReqDto.getCompany());
 			if (companyCurrent != null) {
@@ -212,7 +211,7 @@ public class UserService implements UserDetailsService {
 			}
 		}
 
-		TUser user = new TUser();
+		UserEntity user = new UserEntity();
 		user.setCompanys(companies);
 		user.setUserName(userReqDto.getUserName());
 		user.setPassword(encoder.encode(userReqDto.getPassword()));
@@ -229,7 +228,7 @@ public class UserService implements UserDetailsService {
 		if (null != userReqDto.getAvatar()) {
 			user.setUserAvatar(userReqDto.getAvatar().getBytes());
 		}
-		TUser createdUser = this.tUserRepo.save(user);
+		UserEntity createdUser = this.userRepo.save(user);
 		mailStorageService.saveMailRegisterUserCompToSendLater(userReqDto.getEmail(), companyCurrent.getCompanyName(),
 				userReqDto.getUserName(), userReqDto.getPassword());
 		ScheduleServiceImpl.isCompleted = true;
@@ -237,18 +236,18 @@ public class UserService implements UserDetailsService {
 		return createdUser;
 	}
 
-	public List<TUser> findAllUsersByCompanyId(long companyId) {
-		return this.tUserRepo.findAllUsersByCompanyId(companyId);
+	public List<UserEntity> findAllUsersByCompanyId(long companyId) {
+		return this.userRepo.findAllUsersByCompanyId(companyId);
 	}
 
-	public TUser getUserById(long userId) throws BestWorkBussinessException {
+	public UserEntity getUserById(long userId) throws BestWorkBussinessException {
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
-		TCompany company = tCompanyRepository.findById(findCompanyIdByUsername(userAuthRoleReq)).orElse(new TCompany());
-		Optional<TUser> userOptional;
+		CompanyEntity company = companyRepository.findById(findCompanyIdByUsername(userAuthRoleReq)).orElse(new CompanyEntity());
+		Optional<UserEntity> userOptional;
 		if (null != company.getId()) {
-			userOptional = this.tUserRepo.findUserById(userId, String.valueOf(company.getId()));
+			userOptional = this.userRepo.findUserById(userId, String.valueOf(company.getId()));
 		} else {
-			userOptional = this.tUserRepo.findUserById(userId, "%%");
+			userOptional = this.userRepo.findUserById(userId, "%%");
 		}
 		return userOptional.orElse(null);
 	}
@@ -260,11 +259,11 @@ public class UserService implements UserDetailsService {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
 		}
 		try {
-			List<TUser> tUserList = tUserRepo.findAllById(Arrays.asList(listId.getUserIdList()));
+			List<UserEntity> tUserList = userRepo.findAllById(Arrays.asList(listId.getUserIdList()));
 			if (tUserList.isEmpty() || tUserList.size() < listId.getUserIdList().length) {
 				throw new BestWorkBussinessException(CommonConstants.MessageCode.ECU0005, listId.getUserIdList());
 			}
-			tUserRepo.deleteAllByIdInBatch(Arrays.asList(listId.getUserIdList()));
+			userRepo.deleteAllByIdInBatch(Arrays.asList(listId.getUserIdList()));
 		} catch (Exception ex) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.ECU0005, listId.getUserIdList());
 		}
@@ -274,28 +273,28 @@ public class UserService implements UserDetailsService {
 		String companyAdminUserName = userAuthRoleReq.getUsername();
 		long companyId;
 		try {
-			companyId = tUserRepo.findCompanyIdByAdminUsername(companyAdminUserName);
+			companyId = userRepo.findCompanyIdByAdminUsername(companyAdminUserName);
 		} catch (Exception e) {
 			return -1;
 		}
 		return companyId;
 	}
 
-	public PageResponseDto<UserResDto> getAllUsers(PageSearchUserDto pageCondition) throws BestWorkBussinessException {
-		PageResponseDto<UserResDto> pageResponseDto = new PageResponseDto<>();
+	public PageResDto<UserResDto> getAllUsers(PageSearchUserDto pageCondition) throws BestWorkBussinessException {
+		PageResDto<UserResDto> pageResponseDto = new PageResDto<>();
 		Pageable pageable = convertSearch(pageCondition);
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
-		TCompany company = tCompanyRepository.findById(findCompanyIdByUsername(userAuthRoleReq)).orElse(new TCompany());
-		Page<TUser> tUserPage;
+		CompanyEntity company = companyRepository.findById(findCompanyIdByUsername(userAuthRoleReq)).orElse(new CompanyEntity());
+		Page<UserEntity> tUserPage;
 		if (null != company.getId()) {
-			tUserPage = tUserRepo.getAllUsers(pageable, String.valueOf(company.getId()), pageCondition);
+			tUserPage = userRepo.getAllUsers(pageable, String.valueOf(company.getId()), pageCondition);
 		} else {
-			tUserPage = tUserRepo.getAllUsers(pageable, "%%", pageCondition);
+			tUserPage = userRepo.getAllUsers(pageable, "%%", pageCondition);
 		}
 
-		List<TUser> result = tUserPage.getContent().stream()
+		List<UserEntity> result = tUserPage.getContent().stream()
 				.filter(u -> !userAuthRoleReq.getUsername().equals(u.getUserName())).collect(Collectors.toList());
-		tUserPage = new PageImpl<TUser>(result, pageable, tUserPage.getTotalElements());
+		tUserPage = new PageImpl<UserEntity>(result, pageable, tUserPage.getTotalElements());
 		RPageDto rPageDto = createRPageDto(tUserPage);
 		List<UserResDto> userResDtoList = convertTUser(tUserPage);
 		pageResponseDto.setContent(userResDtoList);
@@ -303,10 +302,10 @@ public class UserService implements UserDetailsService {
 		return pageResponseDto;
 	}
 
-	private List<UserResDto> convertTUser(Page<TUser> tUserPage) throws BestWorkBussinessException {
+	private List<UserResDto> convertTUser(Page<UserEntity> tUserPage) throws BestWorkBussinessException {
 		List<UserResDto> userResDtoList = new ArrayList<>();
 		try {
-			for (TUser tUser : tUserPage.getContent()) {
+			for (UserEntity tUser : tUserPage.getContent()) {
 				UserResDto userResDto = new UserResDto();
 				userResDto.setUserName(tUser.getUserName());
 				userResDto.setEmail(tUser.getEmail());
@@ -326,7 +325,7 @@ public class UserService implements UserDetailsService {
 		return userResDtoList;
 	}
 
-	private RPageDto createRPageDto(Page<TUser> tUserPage) throws BestWorkBussinessException {
+	private RPageDto createRPageDto(Page<UserEntity> tUserPage) throws BestWorkBussinessException {
 		RPageDto rPageDto = new RPageDto();
 		try {
 			if (!tUserPage.isEmpty()) {
@@ -360,16 +359,16 @@ public class UserService implements UserDetailsService {
 	}
 
 	@Transactional(rollbackFor = { Exception.class })
-	public TUser editUser(UserReqDto userReqDto, long userId) throws BestWorkBussinessException {
+	public UserEntity editUser(UserReqDto userReqDto, long userId) throws BestWorkBussinessException {
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
 		if (!userAuthRoleReq.getIsSysAdmin()) {
-			TCompany company = tCompanyRepository.findById(findCompanyIdByUsername(userAuthRoleReq))
-					.orElse(new TCompany());
+			CompanyEntity company = companyRepository.findById(findCompanyIdByUsername(userAuthRoleReq))
+					.orElse(new CompanyEntity());
 			if (null == company.getId()) {
 				throw new BestWorkBussinessException(CommonConstants.MessageCode.ECU0003, null);
 			}
 		}
-		TUser user = tUserRepo.findById(userId).orElse(null);
+		UserEntity user = userRepo.findById(userId).orElse(null);
 		if (null == user) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.ECU0003, null);
 		}
@@ -378,75 +377,75 @@ public class UserService implements UserDetailsService {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.ECU0003, null);
 		}
 
-		TUser tUser = new TUser();
-		Set<TCompany> tCompanySet = new HashSet<>();
+		UserEntity userEntity = new UserEntity();
+		Set<CompanyEntity> tCompanySet = new HashSet<>();
 		if (ObjectUtils.isNotEmpty(userReqDto.getCompany())) {
-			TCompany companyCurrent = companyRepository.findByCompanyId(userReqDto.getCompany());
+			CompanyEntity companyCurrent = companyRepository.findByCompanyId(userReqDto.getCompany());
 			if (companyCurrent != null) {
 				tCompanySet.add(companyCurrent);
-				tUser.setCompanys(tCompanySet);
+				userEntity.setCompanys(tCompanySet);
 			} else {
 				throw new BestWorkBussinessException(CommonConstants.MessageCode.CPN0003, null);
 			}
 		} else {
-			tUser.setCompanys(user.getCompanys());
+			userEntity.setCompanys(user.getCompanys());
 		}
-		tUser.setId(userId);
-		tUser.setUserName(userReqDto.getUserName());
+		userEntity.setId(userId);
+		userEntity.setUserName(userReqDto.getUserName());
 		if (null != userReqDto.getPassword()) {
-			tUser.setPassword(encoder.encode(userReqDto.getPassword()));
+			userEntity.setPassword(encoder.encode(userReqDto.getPassword()));
 		} else {
-			tUser.setPassword(user.getPassword());
+			userEntity.setPassword(user.getPassword());
 		}
-		tUser.setFirstName(userReqDto.getFirstName());
-		tUser.setLastName(userReqDto.getLastName());
-		tUser.setEmail(userReqDto.getEmail());
-		tUser.setTelNo(userReqDto.getTelNo());
-		tUser.setIsEnable(userReqDto.getEnabled());
-		tUser.setLoginFailedNum(0);
+		userEntity.setFirstName(userReqDto.getFirstName());
+		userEntity.setLastName(userReqDto.getLastName());
+		userEntity.setEmail(userReqDto.getEmail());
+		userEntity.setTelNo(userReqDto.getTelNo());
+		userEntity.setIsEnable(userReqDto.getEnabled());
+		userEntity.setLoginFailedNum(0);
 		if (ObjectUtils.isNotEmpty(userReqDto.getRole())) {
-			TRole roleCurrent = roleRepository.findRole(userReqDto.getRole());
+			RoleEntity roleCurrent = roleRepository.findRole(userReqDto.getRole());
 			if (roleCurrent != null) {
-				tUser.setRole(roleCurrent);
+				userEntity.setRole(roleCurrent);
 			} else {
 				throw new BestWorkBussinessException(CommonConstants.MessageCode.eR0002, null);
 			}
 		}
 
 		if (null != userReqDto.getAvatar()) {
-			tUser.setUserAvatar(userReqDto.getAvatar().getBytes());
+			userEntity.setUserAvatar(userReqDto.getAvatar().getBytes());
 		} else {
-			tUser.setUserAvatar("".getBytes());
+			userEntity.setUserAvatar("".getBytes());
 		}
-		tUser.setUpdateDate(LocalDateTime.now());
-		tUserRepo.save(tUser);
-		return tUser;
+		userEntity.setUpdateDate(LocalDateTime.now());
+		userRepo.save(userEntity);
+		return userEntity;
 	}
 
-	public List<TRole> getAllRoles() {
-		List<TRole> tRoleList = this.roleRepository.findAll();
-		tRoleList.removeIf(tRole -> tRole.getId() == 1);
-		return tRoleList;
+	public List<RoleEntity> getAllRoles() {
+		List<RoleEntity> roleList = this.roleRepository.findAll();
+		roleList.removeIf(tRole -> tRole.getId() == 1);
+		return roleList;
 	}
 
-	public List<TUser> findAll() {
-		return this.tUserRepo.findAll();
+	public List<UserEntity> findAll() {
+		return this.userRepo.findAll();
 	}
 
 	public Object getAllCompanyOfUser() throws BestWorkBussinessException {
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
-		TCompany company = tCompanyRepository.findById(findCompanyIdByUsername(userAuthRoleReq)).orElse(new TCompany());
+		CompanyEntity company = companyRepository.findById(findCompanyIdByUsername(userAuthRoleReq)).orElse(new CompanyEntity());
 		if (null != company.getId()) {
-			List<TCompany> tCompanyList = new ArrayList<>();
-			tCompanyList.add(company);
-			return tCompanyList;
+			List<CompanyEntity> companyList = new ArrayList<>();
+			companyList.add(company);
+			return companyList;
 		} else {
-			return this.tCompanyRepository.findAll();
+			return this.companyRepository.findAll();
 		}
 	}
 
 	public UserDetectResDto detectUser(String username) {
-		TUser user = this.getUserByUsername(username);
+		UserEntity user = this.getUserByUsername(username);
 		long userId = 0;
 		if (user != null) {
 			userId = user.getId();
@@ -463,7 +462,7 @@ public class UserService implements UserDetailsService {
 				listAssignDto.add(assignDto);
 			}
 		}
-		TCompany company = companyRepository.getCompanyOfUser(userId);
+		CompanyEntity company = companyRepository.getCompanyOfUser(userId);
 		CompanyResDto companyRes = null;
 		if (company != null) {
 			companyRes = modelMapper.map(company, CompanyResDto.class);
@@ -482,9 +481,9 @@ public class UserService implements UserDetailsService {
 		return userResDto;
 	}
 
-	public TUser findUserByUsername(String username) {
-		TUser user = new TUser();
-		user = tUserRepo.findUserByUserName(username);
+	public UserEntity findUserByUsername(String username) {
+		UserEntity user = new UserEntity();
+		user = userRepo.findUserByUserName(username);
 		return user;
 	}
 

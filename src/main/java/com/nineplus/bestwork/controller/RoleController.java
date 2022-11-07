@@ -1,6 +1,6 @@
 package com.nineplus.bestwork.controller;
 
-import com.nineplus.bestwork.dto.PageResponseDto;
+import com.nineplus.bestwork.dto.PageResDto;
 import com.nineplus.bestwork.dto.ResRoleDto;
 import com.nineplus.bestwork.dto.RoleResDto;
 import com.nineplus.bestwork.dto.SearchDto;
@@ -60,7 +60,7 @@ public class RoleController extends BaseController {
 
     @PostMapping("/search")
     public ResponseEntity<? extends Object> getRoles(@RequestBody SearchDto dto) {
-        PageResponseDto<ResRoleDto> pageSearchDto = null;
+        PageResDto<ResRoleDto> pageSearchDto = null;
         try {
             pageSearchDto = roleService.getRoles(dto);
         } catch (BestWorkBussinessException ex) {

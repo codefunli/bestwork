@@ -3,7 +3,7 @@ package com.nineplus.bestwork.dto;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.nineplus.bestwork.entity.TCompany;
+import com.nineplus.bestwork.entity.CompanyEntity;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

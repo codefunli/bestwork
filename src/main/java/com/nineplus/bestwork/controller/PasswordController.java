@@ -20,7 +20,7 @@ import com.nineplus.bestwork.dto.ChangePasswordReqDto;
 import com.nineplus.bestwork.dto.ForgotPasswordReqDto;
 import com.nineplus.bestwork.dto.ForgotPasswordResDto;
 import com.nineplus.bestwork.dto.ResetPasswordReqDto;
-import com.nineplus.bestwork.entity.TUser;
+import com.nineplus.bestwork.entity.UserEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.exception.SysUserNotFoundException;
 import com.nineplus.bestwork.model.UserAuthDetected;
@@ -72,7 +72,7 @@ public class PasswordController extends BaseController {
 		}
 
 		String emailReq = forgotPasswordReqDto.getEmail();
-		TUser sysUserReq = this.sysUserService.getUserByEmail(emailReq);
+		UserEntity sysUserReq = this.sysUserService.getUserByEmail(emailReq);
 		if (sysUserReq == null) {
 			return failedWithError(CommonConstants.MessageCode.SU0002, forgotPasswordReqDto, null);
 		}
@@ -107,7 +107,7 @@ public class PasswordController extends BaseController {
 			return failedWithError(CommonConstants.MessageCode.SU0003, bindingResult.getFieldErrors().toArray(), null);
 		}
 
-		TUser sysUser = this.sysUserService.get(token);
+		UserEntity sysUser = this.sysUserService.get(token);
 		if (sysUser == null) {
 			return failedWithError(CommonConstants.MessageCode.SU0002, sysUser, null);
 		}
@@ -133,7 +133,7 @@ public class PasswordController extends BaseController {
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
 		String username = userAuthRoleReq.getUsername();
 
-		TUser currentUser = userService.getUserByUsername(username);
+		UserEntity currentUser = userService.getUserByUsername(username);
 
 		if (bindingResult.hasErrors()) {
 			return failedWithError(CommonConstants.MessageCode.SU0003, bindingResult.getFieldErrors().toArray(), null);

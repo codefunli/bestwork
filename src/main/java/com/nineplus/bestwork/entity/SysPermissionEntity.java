@@ -14,7 +14,7 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class SysPermission {
+public class SysPermissionEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -52,10 +52,10 @@ public class SysPermission {
 	@ManyToOne
 	@JoinColumn(name = "monitor_id")
 	@JsonManagedReference
-	private SysMonitor sysMonitor;
+	private SysMonitorEntity sysMonitor;
 
 	@ManyToOne
 	@JoinColumn(name = "role_id")
 	@JsonManagedReference
-	private TRole sysRole;
+	private RoleEntity sysRole;
 }

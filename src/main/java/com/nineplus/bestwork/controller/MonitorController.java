@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.nineplus.bestwork.dto.PageResponseDto;
-import com.nineplus.bestwork.dto.ResMonitorDto;
+import com.nineplus.bestwork.dto.PageResDto;
+import com.nineplus.bestwork.dto.MonitorResDto;
 import com.nineplus.bestwork.dto.SearchDto;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.services.MonitorService;
@@ -28,7 +28,7 @@ public class MonitorController extends BaseController {
 
     @GetMapping("/{id}")
     public ResponseEntity<? extends Object> getMonitor(@PathVariable Long id) {
-        ResMonitorDto dto = null;
+        MonitorResDto dto = null;
         try {
             dto = monitorService.getMonitor(id);
         } catch (BestWorkBussinessException ex) {
@@ -39,7 +39,7 @@ public class MonitorController extends BaseController {
     }
 
     @PostMapping
-    public ResponseEntity<? extends Object> addMonitor(@RequestBody ResMonitorDto dto) {
+    public ResponseEntity<? extends Object> addMonitor(@RequestBody MonitorResDto dto) {
         try {
             monitorService.addMonitor(dto);
         } catch (BestWorkBussinessException ex) {
@@ -49,8 +49,8 @@ public class MonitorController extends BaseController {
     }
 
     @PutMapping
-    public ResponseEntity<? extends Object> updateMonitor(@RequestBody ResMonitorDto dto) {
-        ResMonitorDto resMonitorDto;
+    public ResponseEntity<? extends Object> updateMonitor(@RequestBody MonitorResDto dto) {
+        MonitorResDto resMonitorDto;
         try {
             resMonitorDto = monitorService.updateMonitor(dto);
         } catch (BestWorkBussinessException ex) {
@@ -61,7 +61,7 @@ public class MonitorController extends BaseController {
 
     @PostMapping("/search")
     public ResponseEntity<? extends Object> getMonitors(@RequestBody SearchDto dto) {
-        PageResponseDto<ResMonitorDto> pageSearchDto = null;
+        PageResDto<MonitorResDto> pageSearchDto = null;
         try {
             pageSearchDto = monitorService.getMonitors(dto);
         } catch (BestWorkBussinessException ex) {
@@ -79,6 +79,5 @@ public class MonitorController extends BaseController {
         }
         return success(CommonConstants.MessageCode.RLS0004, id, null);
     }
-
 
 }

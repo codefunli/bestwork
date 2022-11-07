@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.nineplus.bestwork.dto.PageResponseDto;
+import com.nineplus.bestwork.dto.PageResDto;
 import com.nineplus.bestwork.dto.RegPermissionDto;
-import com.nineplus.bestwork.dto.ResPermissionDto;
+import com.nineplus.bestwork.dto.PermissionResDto;
 import com.nineplus.bestwork.dto.SearchDto;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.services.PermissionService;
@@ -30,7 +30,7 @@ public class PermissionController extends BaseController {
 
     @GetMapping("/{id}")
     public ResponseEntity<? extends Object> getPermission(@PathVariable Long id) {
-        ResPermissionDto dto = null;
+        PermissionResDto dto = null;
         try {
             dto = permissionService.getPermission(id);
         } catch (BestWorkBussinessException ex) {
@@ -52,7 +52,7 @@ public class PermissionController extends BaseController {
 
     @PostMapping
     public ResponseEntity<? extends Object> updatePermission(@RequestBody RegPermissionDto dto) {
-        List<ResPermissionDto> resPermissionDto;
+        List<PermissionResDto> resPermissionDto;
         try {
             resPermissionDto = permissionService.updatePermissions(dto);
         } catch (BestWorkBussinessException ex) {
@@ -63,7 +63,7 @@ public class PermissionController extends BaseController {
 
     @PostMapping("/search")
     public ResponseEntity<? extends Object> getPermissions(@RequestBody SearchDto dto) {
-        PageResponseDto<ResPermissionDto> pageSearchDto = null;
+        PageResDto<PermissionResDto> pageSearchDto = null;
         try {
             pageSearchDto = permissionService.getPermissions(dto);
         } catch (BestWorkBussinessException ex) {

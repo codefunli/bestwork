@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.nineplus.bestwork.dto.ProjectTypeResponseDto;
+import com.nineplus.bestwork.dto.ProjectTypeResDto;
 import com.nineplus.bestwork.entity.ProjectTypeEntity;
 import com.nineplus.bestwork.repository.ProjectTypeRepository;
 import com.nineplus.bestwork.services.IProjectTypeService;
@@ -30,11 +30,11 @@ public class ProjectTypeServiceImpl implements IProjectTypeService {
 	}
 
 	@Override
-	public List<ProjectTypeResponseDto> getAllProjectTypes() {
+	public List<ProjectTypeResDto> getAllProjectTypes() {
 		List<ProjectTypeEntity> typeList = this.projectTypeRepository.findAll();
-		List<ProjectTypeResponseDto> projectTypeResponseDtos = new ArrayList<>();
+		List<ProjectTypeResDto> projectTypeResponseDtos = new ArrayList<>();
 		for (ProjectTypeEntity type : typeList) {
-			ProjectTypeResponseDto dto = new ProjectTypeResponseDto();
+			ProjectTypeResDto dto = new ProjectTypeResDto();
 			dto.setId(type.getId());
 			dto.setName(type.getName());
 			dto.setDescription(type.getDescription());

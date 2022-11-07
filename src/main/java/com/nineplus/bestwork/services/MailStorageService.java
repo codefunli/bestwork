@@ -2,7 +2,7 @@ package com.nineplus.bestwork.services;
 
 import java.util.List;
 
-import com.nineplus.bestwork.entity.MailStorage;
+import com.nineplus.bestwork.entity.MailStorageEntity;
 
 /**
  * 
@@ -13,8 +13,8 @@ public interface MailStorageService {
 
 	void saveMailRegisterUserCompToSendLater(String email, String companyName, String username, String password);
 
-	List<MailStorage> get10FirstMails();
+	List<MailStorageEntity> getTenFirstMails();
 
-	void deleteMail(MailStorage mailStorage);
+	void deleteMail(MailStorageEntity mailStorage);
 
 }

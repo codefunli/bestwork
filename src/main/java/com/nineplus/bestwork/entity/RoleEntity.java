@@ -3,7 +3,6 @@ package com.nineplus.bestwork.entity;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -14,11 +13,17 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 @Entity(name = "TRole")
 @Table(name = "T_SYS_APP_ROLE")
@@ -26,7 +31,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class TRole implements Serializable {
+public class RoleEntity implements Serializable {
 
 	/**
 	* 
@@ -65,11 +70,11 @@ public class TRole implements Serializable {
 	@EqualsAndHashCode.Exclude
 	@ToString.Exclude
 	@JsonBackReference
-	private Collection<TUser> users;
+	private Collection<UserEntity> users;
 
 	@OneToMany(mappedBy = "sysRole", cascade = CascadeType.ALL)
 	@EqualsAndHashCode.Exclude
 	@ToString.Exclude
 	@JsonBackReference
-	private Collection<SysPermission> sysPermissions;
+	private Collection<SysPermissionEntity> sysPermissions;
 }

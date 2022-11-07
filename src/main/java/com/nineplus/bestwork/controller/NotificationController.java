@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.nineplus.bestwork.dto.NotificationResponseDto;
+import com.nineplus.bestwork.dto.NotificationResDto;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.services.NotificationService;
 import com.nineplus.bestwork.utils.CommonConstants;
@@ -23,7 +23,7 @@ public class NotificationController extends BaseController {
 	@GetMapping("/list")
 	public ResponseEntity<? extends Object> getAllNotificationsByUser() {
 
-		List<NotificationResponseDto> notificationList = null;
+		List<NotificationResDto> notificationList = null;
 
 		try {
 			notificationList = notificationService.getAllNotificationsByUser();

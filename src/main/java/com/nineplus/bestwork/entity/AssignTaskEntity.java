@@ -12,7 +12,7 @@ import lombok.Data;
 @Entity(name = "AssignTask")
 @Table(name = "ASSIGN_TASK")
 @Data
-public class AssignTask {
+public class AssignTaskEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id", unique = true, nullable = false, precision = 19)

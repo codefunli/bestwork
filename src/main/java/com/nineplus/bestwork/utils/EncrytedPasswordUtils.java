@@ -1,7 +1,6 @@
 package com.nineplus.bestwork.utils;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Component;
 
 public class EncrytedPasswordUtils {
 	public String encrytePassword(String password) {

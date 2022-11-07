@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.nineplus.bestwork.dto.PageResponseDto;
-import com.nineplus.bestwork.dto.ResActionDto;
+import com.nineplus.bestwork.dto.PageResDto;
+import com.nineplus.bestwork.dto.ActionResDto;
 import com.nineplus.bestwork.dto.SearchDto;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.services.ActionService;
@@ -28,7 +28,7 @@ public class ActionController extends BaseController {
 
     @GetMapping("/{id}")
     public ResponseEntity<? extends Object> getMonitor(@PathVariable Long id) {
-        ResActionDto dto = null;
+        ActionResDto dto = null;
         try {
             dto = actionService.getAction(id);
         } catch (BestWorkBussinessException ex) {
@@ -38,7 +38,7 @@ public class ActionController extends BaseController {
     }
 
     @PostMapping
-    public ResponseEntity<? extends Object> addAction(@RequestBody ResActionDto dto) {
+    public ResponseEntity<? extends Object> addAction(@RequestBody ActionResDto dto) {
         try {
             actionService.addAction(dto);
         } catch (BestWorkBussinessException ex) {
@@ -48,8 +48,8 @@ public class ActionController extends BaseController {
     }
 
     @PutMapping
-    public ResponseEntity<? extends Object> updateAction(@RequestBody ResActionDto dto) {
-        ResActionDto resActionDto;
+    public ResponseEntity<? extends Object> updateAction(@RequestBody ActionResDto dto) {
+        ActionResDto resActionDto;
         try {
             resActionDto = actionService.updateAction(dto);
         } catch (BestWorkBussinessException ex) {
@@ -60,7 +60,7 @@ public class ActionController extends BaseController {
 
     @PostMapping("/search")
     public ResponseEntity<? extends Object> getActions(@RequestBody SearchDto dto) {
-        PageResponseDto<ResActionDto> pageSearchDto = null;
+        PageResDto<ActionResDto> pageSearchDto = null;
         try {
             pageSearchDto = actionService.getActions(dto);
         } catch (BestWorkBussinessException ex) {

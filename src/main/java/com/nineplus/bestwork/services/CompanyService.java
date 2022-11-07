@@ -23,19 +23,19 @@ import com.nineplus.bestwork.dto.CompanyReqDto;
 import com.nineplus.bestwork.dto.CompanyResDto;
 import com.nineplus.bestwork.dto.CompanyUserReqDto;
 import com.nineplus.bestwork.dto.CompanyUserResDto;
-import com.nineplus.bestwork.dto.PageResponseDto;
+import com.nineplus.bestwork.dto.PageResDto;
 import com.nineplus.bestwork.dto.PageSearchDto;
 import com.nineplus.bestwork.dto.UserCompanyReqDto;
 import com.nineplus.bestwork.dto.UserResDto;
-import com.nineplus.bestwork.entity.TCompany;
-import com.nineplus.bestwork.entity.TRole;
-import com.nineplus.bestwork.entity.TUser;
+import com.nineplus.bestwork.entity.CompanyEntity;
+import com.nineplus.bestwork.entity.RoleEntity;
+import com.nineplus.bestwork.entity.UserEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.model.UserAuthDetected;
 import com.nineplus.bestwork.repository.CompanyProjection;
-import com.nineplus.bestwork.repository.TCompanyRepository;
-import com.nineplus.bestwork.repository.TRoleRepository;
-import com.nineplus.bestwork.repository.TUserRepository;
+import com.nineplus.bestwork.repository.CompanyRepository;
+import com.nineplus.bestwork.repository.RoleRepository;
+import com.nineplus.bestwork.repository.UserRepository;
 import com.nineplus.bestwork.utils.CommonConstants;
 import com.nineplus.bestwork.utils.ConvertResponseUtils;
 import com.nineplus.bestwork.utils.DateUtils;
@@ -56,10 +56,10 @@ public class CompanyService {
 	MessageUtils messageUtils;
 
 	@Autowired
-	TRoleRepository roleRepository;
+	RoleRepository roleRepository;
 
 	@Autowired
-	TCompanyRepository tCompanyRepository;
+	CompanyRepository companyRepository;
 
 	@Autowired
 	ModelMapper modelMapper;
@@ -68,7 +68,7 @@ public class CompanyService {
 	UserService userService;
 
 	@Autowired
-	TUserRepository tUserRepos;
+	UserRepository userRepos;
 
 	@Autowired
 	DateUtils dateUtils;
@@ -102,8 +102,8 @@ public class CompanyService {
 			// Register company information in DB
 			companyReqDto.getCompany().setCreateBy(createUser);
 			;
-			TCompany newCompanySaved = regist(companyReqDto);
-			TRole role = roleRepository.findRole(CommonConstants.RoleName.ORG_ADMIN);
+			CompanyEntity newCompanySaved = regist(companyReqDto);
+			RoleEntity role = roleRepository.findRole(CommonConstants.RoleName.ORG_ADMIN);
 
 			// Register user for this company
 			userService.registNewUser(companyReqDto, newCompanySaved, role);
@@ -131,7 +131,7 @@ public class CompanyService {
 
 		// Check exists company name in database
 		if (!isEdit) {
-			TCompany company = tCompanyRepository.findbyCompanyName(companyName);
+			CompanyEntity company = companyRepository.findbyCompanyName(companyName);
 			if (!ObjectUtils.isEmpty(company)) {
 				throw new BestWorkBussinessException(CommonConstants.MessageCode.CPN0005, new Object[] { company });
 			}
@@ -162,16 +162,16 @@ public class CompanyService {
 		}
 
 		// Check exists user email in DB
-		TUser user = tUserRepos.findByEmail(userEmail);
+		UserEntity user = userRepos.findByEmail(userEmail);
 		if (!ObjectUtils.isEmpty(user)) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.US0002, new Object[] { user });
 		}
 	}
 
-	public TCompany regist(CompanyUserReqDto companyReqDto) throws BestWorkBussinessException {
-		TCompany company = null;
+	public CompanyEntity regist(CompanyUserReqDto companyReqDto) throws BestWorkBussinessException {
+		CompanyEntity company = null;
 		try {
-			company = new TCompany();
+			company = new CompanyEntity();
 			company.setCompanyName(companyReqDto.getCompany().getCompanyName());
 			company.setEmail(companyReqDto.getCompany().getEmail());
 			company.setTelNo(companyReqDto.getCompany().getTelNo());
@@ -185,7 +185,7 @@ public class CompanyService {
 			company.setCreateDt(LocalDateTime.now());
 			company.setCreateBy(companyReqDto.getCompany().getCreateBy());
 
-			tCompanyRepository.save(company);
+			companyRepository.save(company);
 
 		} catch (Exception ex) {
 			logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0001, null), ex);
@@ -208,10 +208,10 @@ public class CompanyService {
 		// validate company information
 		this.validateCpmnyInfor(companyReqDto, true);
 
-		TCompany currentCompany = null;
+		CompanyEntity currentCompany = null;
 
 		try {
-			currentCompany = tCompanyRepository.findByCompanyId(companyId);
+			currentCompany = companyRepository.findByCompanyId(companyId);
 
 			if (ObjectUtils.isEmpty(currentCompany)) {
 				logger.error(messageUtils.getMessage(CommonConstants.MessageCode.CPN0003, null));
@@ -235,7 +235,7 @@ public class CompanyService {
 			currentCompany.setStreet(companyReqDto.getStreet());
 			currentCompany.setStartDate(companyReqDto.getStartDate());
 			currentCompany.setExpiredDate(companyReqDto.getExpiredDate());
-			tCompanyRepository.save(currentCompany);
+			companyRepository.save(currentCompany);
 
 			CompanyResDto resDTO = modelMapper.map(currentCompany, CompanyResDto.class);
 			return resDTO;
@@ -264,11 +264,11 @@ public class CompanyService {
 		}
 		try {
 			// Delete company
-			tCompanyRepository.deleteCompaniesWithIds(Arrays.asList(listId.getLstCompanyId()));
+			companyRepository.deleteCompaniesWithIds(Arrays.asList(listId.getLstCompanyId()));
 
 			// delete user relate company
-			List<TUser> allTusers = tUserRepos.findAllUserByCompanyIdList(Arrays.asList(listId.getLstCompanyId()));
-			tUserRepos.deleteAllInBatch(allTusers);
+			List<UserEntity> allTusers = userRepos.findAllUserByCompanyIdList(Arrays.asList(listId.getLstCompanyId()));
+			userRepos.deleteAllInBatch(allTusers);
 			
 			// delete all project of company
 			List<String> allProject = iProjectService.getAllProjectIdByCompany(Arrays.asList(listId.getLstCompanyId()));
@@ -286,8 +286,8 @@ public class CompanyService {
 	 * @param companyId Company ID
 	 * @return Company information
 	 */
-	public Optional<TCompany> getDetailCompany(long companyId) {
-		Optional<TCompany> company = tCompanyRepository.findById(companyId);
+	public Optional<CompanyEntity> getDetailCompany(long companyId) {
+		Optional<CompanyEntity> company = companyRepository.findById(companyId);
 		return company;
 	}
 
@@ -299,9 +299,9 @@ public class CompanyService {
 	 */
 	public CompanyUserResDto getCompanyAndUser(long companyId) throws BestWorkBussinessException {
 		CompanyUserResDto userCompanyRes = new CompanyUserResDto();
-		TCompany company = tCompanyRepository.findByCompanyId(companyId);
-		TRole role = roleRepository.findRole(CommonConstants.RoleName.ORG_ADMIN);
-		TUser user = userService.getUserByCompanyId(companyId,role.getId());
+		CompanyEntity company = companyRepository.findByCompanyId(companyId);
+		RoleEntity role = roleRepository.findRole(CommonConstants.RoleName.ORG_ADMIN);
+		UserEntity user = userService.getUserByCompanyId(companyId,role.getId());
 		if (company != null && user != null) {
 			CompanyResDto resCompany = modelMapper.map(company, CompanyResDto.class);
 			UserResDto resUser = modelMapper.map(user, UserResDto.class);
@@ -312,7 +312,7 @@ public class CompanyService {
 	}
 
 	public List<CompanyProjection> getAllCompany() throws BestWorkBussinessException {
-		return tCompanyRepository.getAllCompany();
+		return companyRepository.getAllCompany();
 	}
 
 	/**
@@ -321,17 +321,17 @@ public class CompanyService {
 	 * @return page of company follow condition
 	 * @throws BestWorkBussinessException
 	 */
-	public PageResponseDto<CompanyResDto> getCompanyPage(PageSearchDto pageCondition)
+	public PageResDto<CompanyResDto> getCompanyPage(PageSearchDto pageCondition)
 			throws BestWorkBussinessException {
-		Page<TCompany> pageTCompany;
+		Page<CompanyEntity> pageCompany;
 		try {
 			int pageNumber = NumberUtils.toInt(pageCondition.getPage());
 
 			String mappedColumn = convertResponseUtils.convertResponseCompany(pageCondition.getSortBy());
 			Pageable pageable = PageRequest.of(pageNumber, Integer.parseInt(pageCondition.getSize()),
 					Sort.by(pageCondition.getSortDirection(), mappedColumn));
-			pageTCompany = tCompanyRepository.getPageCompany(pageable);
-			return responseUtils.convertPageEntityToDTO(pageTCompany, CompanyResDto.class);
+			pageCompany = companyRepository.getPageCompany(pageable);
+			return responseUtils.convertPageEntityToDTO(pageCompany, CompanyResDto.class);
 		} catch (Exception ex) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
 		}
@@ -345,9 +345,9 @@ public class CompanyService {
 	 * @return
 	 * @throws BestWorkBussinessException
 	 */
-	public PageResponseDto<CompanyResDto> searchCompanyPage(String keyword, int status, PageSearchDto pageCondition)
+	public PageResDto<CompanyResDto> searchCompanyPage(String keyword, int status, PageSearchDto pageCondition)
 			throws BestWorkBussinessException {
-		Page<TCompany> pageTCompany = null;
+		Page<CompanyEntity> pageTCompany = null;
 		try {
 			int pageNumber = NumberUtils.toInt(pageCondition.getPage());
 
@@ -355,11 +355,11 @@ public class CompanyService {
 			Pageable pageable = PageRequest.of(pageNumber, Integer.parseInt(pageCondition.getSize()),
 					Sort.by(pageCondition.getSortDirection(), mappedColumn));
 			if (!keyword.isBlank() && status != 2) {
-				pageTCompany = tCompanyRepository.searchCompanyPage(convertWildCard(keyword), status, pageable);
+				pageTCompany = companyRepository.searchCompanyPage(convertWildCard(keyword), status, pageable);
 			} else if (keyword.isBlank()) {
-				pageTCompany = tCompanyRepository.searchCompanyPageWithOutKeyWord(status, pageable);
+				pageTCompany = companyRepository.searchCompanyPageWithOutKeyWord(status, pageable);
 			} else if (status == 2 && !keyword.isBlank()) {
-				pageTCompany = tCompanyRepository.searchCompanyPageWithOutStatus(convertWildCard(keyword), pageable);
+				pageTCompany = companyRepository.searchCompanyPageWithOutStatus(convertWildCard(keyword), pageable);
 			}
 			return responseUtils.convertPageEntityToDTO(pageTCompany, CompanyResDto.class);
 		} catch (Exception ex) {
