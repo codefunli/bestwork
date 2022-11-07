@@ -70,4 +70,7 @@ public interface TUserRepository extends JpaRepository<TUser, Long> {
 			+ " join t_company tc on tc.id = tcu.company_id "
 			+ " where u.id = :userId and tc.id like :companyId ", nativeQuery = true)
 	Optional<TUser> findUserById(@Param("userId") long userId, @Param("companyId") String companyId);
+
+	@Query(value = " select * from T_SYS_APP_USER where user_name = ?1 ", nativeQuery = true)
+	TUser findUserByUserName(String username);
 }

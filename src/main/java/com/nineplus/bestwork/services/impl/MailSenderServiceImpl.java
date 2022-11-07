@@ -82,7 +82,7 @@ public class MailSenderServiceImpl implements MailSenderService {
 					System.out.println("Send mail to " + mailStorage.getRecipient() + " successfully!");
 
 				} catch (Exception e) {
-					e.printStackTrace();
+					System.out.println("Failed to send mail to " + mailStorage.getRecipient() + "!");
 				}
 			}
 			ScheduleServiceImpl.isCompleted = true;

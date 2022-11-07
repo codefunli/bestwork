@@ -169,7 +169,12 @@ public class CommonConstants {
 		public static final String ePu0002 = "ePu0002";
 		public static final String S1X0017 = "s1X0017";
 		
-		
+		public static final String SNU0001 = "snu0001";
+		public static final String ENU0001 = "enu0001";
+		public static final String SNU0002 = "snu0002";
+		public static final String ENU0002 = "enu0002";
+		public static final String SNU0003 = "snu0003";
+		public static final String ENU0003 = "enu0003";
 
 	}
 

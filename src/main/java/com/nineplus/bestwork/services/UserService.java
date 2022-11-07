@@ -482,4 +482,10 @@ public class UserService implements UserDetailsService {
 		return userResDto;
 	}
 
+	public TUser findUserByUsername(String username) {
+		TUser user = new TUser();
+		user = tUserRepo.findUserByUserName(username);
+		return user;
+	}
+
 }
