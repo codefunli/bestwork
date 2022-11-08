@@ -19,7 +19,11 @@ import com.nineplus.bestwork.entity.NotificationEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.services.NotificationService;
 import com.nineplus.bestwork.utils.CommonConstants;
-
+/**
+ * 
+ * @author DiepTT
+ *
+ */
 @RestController
 @RequestMapping(value = "api/v1/notifications")
 public class NotificationController extends BaseController {

@@ -2,7 +2,11 @@ package com.nineplus.bestwork.dto;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-
+/**
+ * 
+ * @author DiepTT
+ *
+ */
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class NotificationResDto extends BaseDto {

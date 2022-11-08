@@ -7,7 +7,11 @@ import com.nineplus.bestwork.dto.NotificationReqDto;
 import com.nineplus.bestwork.dto.NotificationResDto;
 import com.nineplus.bestwork.entity.NotificationEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
-
+/**
+ * 
+ * @author DiepTT
+ *
+ */
 public interface NotificationService {
 
 	List<NotificationResDto> getAllNotificationsByUser() throws BestWorkBussinessException;

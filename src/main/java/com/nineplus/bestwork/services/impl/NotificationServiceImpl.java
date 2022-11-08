@@ -18,7 +18,11 @@ import com.nineplus.bestwork.repository.NotificationRepository;
 import com.nineplus.bestwork.services.NotificationService;
 import com.nineplus.bestwork.services.UserService;
 import com.nineplus.bestwork.utils.UserAuthUtils;
-
+/**
+ * 
+ * @author DiepTT
+ *
+ */
 @Service
 public class NotificationServiceImpl implements NotificationService {
 
