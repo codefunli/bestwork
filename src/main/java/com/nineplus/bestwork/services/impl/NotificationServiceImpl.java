@@ -1,11 +1,14 @@
 package com.nineplus.bestwork.services.impl;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.nineplus.bestwork.dto.NotificationReqDto;
 import com.nineplus.bestwork.dto.NotificationResDto;
 import com.nineplus.bestwork.entity.NotificationEntity;
 import com.nineplus.bestwork.entity.UserEntity;
@@ -30,8 +33,7 @@ public class NotificationServiceImpl implements NotificationService {
 
 	@Override
 	public List<NotificationResDto> getAllNotificationsByUser() throws BestWorkBussinessException {
-		UserAuthDetected userAuthDetected = userAuthUtils.getUserInfoFromReq(false);
-		String username = userAuthDetected.getUsername();
+		String username = getLoginningUsername();
 		UserEntity currentUser = userService.findUserByUsername(username);
 		List<NotificationResDto> dtoList = new ArrayList<>();
 		List<NotificationEntity> notificationList = notificationRepository.findAllByUser(currentUser.getId());
@@ -46,5 +48,37 @@ public class NotificationServiceImpl implements NotificationService {
 			dtoList.add(dto);
 		}
 		return dtoList;
+	}
+
+	private String getLoginningUsername() throws BestWorkBussinessException {
+		UserAuthDetected userAuthDetected = userAuthUtils.getUserInfoFromReq(false);
+		String username = userAuthDetected.getUsername();
+		return username;
+	}
+
+	@Override
+	public Optional<NotificationEntity> findById(long notifId) {
+		return this.notificationRepository.findById(notifId);
+	}
+
+	@Override
+	public NotificationEntity changeNotificationReadingStatus(NotificationEntity notification)
+			throws BestWorkBussinessException {
+		notification.setIsRead(1);
+		return this.notificationRepository.save(notification);
+	}
+
+	@Override
+	public void createNotification(NotificationReqDto notificationReqDto) throws BestWorkBussinessException {
+//		for (long userId : notificationReqDto.getUserIds()) {
+			NotificationEntity notification = new NotificationEntity();
+			notification.setTitle(notificationReqDto.getTitle());
+			notification.setContent(notificationReqDto.getContent());
+			notification.setCreateDate(LocalDateTime.now());
+			notification.setIsRead(0);
+			notification.setCreateBy(getLoginningUsername());
+			notification.setUser(userService.findUserByUserId(notificationReqDto.getUserId()));
+			notificationRepository.save(notification);
+//		}
 	}
 }

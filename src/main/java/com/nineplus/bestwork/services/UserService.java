@@ -487,4 +487,10 @@ public class UserService implements UserDetailsService {
 		return user;
 	}
 
+	public UserEntity findUserByUserId(long userId) {
+		Optional<UserEntity> userOpt = null;
+		userOpt = userRepo.findById(userId);
+		return userOpt.get();
+	}
+
 }

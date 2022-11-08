@@ -175,6 +175,9 @@ public class CommonConstants {
 		public static final String ENU0002 = "enu0002";
 		public static final String SNU0003 = "snu0003";
 		public static final String ENU0003 = "enu0003";
+		public static final String ENU0004 = "enu0004";
+		public static final String SNU0005 = "snu0005";
+		public static final String ENU0005 = "enu0005";
 
 	}
 
