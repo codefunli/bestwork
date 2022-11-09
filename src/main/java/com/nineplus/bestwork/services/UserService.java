@@ -49,8 +49,8 @@ import com.nineplus.bestwork.model.UserAuthDetected;
 import com.nineplus.bestwork.repository.AssignTaskRepository;
 import com.nineplus.bestwork.repository.CompanyRepository;
 import com.nineplus.bestwork.repository.RoleRepository;
-import com.nineplus.bestwork.repository.UserRepository;
 import com.nineplus.bestwork.repository.UserProjectRepository;
+import com.nineplus.bestwork.repository.UserRepository;
 import com.nineplus.bestwork.services.impl.ScheduleServiceImpl;
 import com.nineplus.bestwork.utils.CommonConstants;
 import com.nineplus.bestwork.utils.ConvertResponseUtils;
@@ -242,7 +242,8 @@ public class UserService implements UserDetailsService {
 
 	public UserEntity getUserById(long userId) throws BestWorkBussinessException {
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
-		CompanyEntity company = companyRepository.findById(findCompanyIdByUsername(userAuthRoleReq)).orElse(new CompanyEntity());
+		CompanyEntity company = companyRepository.findById(findCompanyIdByUsername(userAuthRoleReq))
+				.orElse(new CompanyEntity());
 		Optional<UserEntity> userOptional;
 		if (null != company.getId()) {
 			userOptional = this.userRepo.findUserById(userId, String.valueOf(company.getId()));
@@ -284,7 +285,8 @@ public class UserService implements UserDetailsService {
 		PageResDto<UserResDto> pageResponseDto = new PageResDto<>();
 		Pageable pageable = convertSearch(pageCondition);
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
-		CompanyEntity company = companyRepository.findById(findCompanyIdByUsername(userAuthRoleReq)).orElse(new CompanyEntity());
+		CompanyEntity company = companyRepository.findById(findCompanyIdByUsername(userAuthRoleReq))
+				.orElse(new CompanyEntity());
 		Page<UserEntity> tUserPage;
 		if (null != company.getId()) {
 			tUserPage = userRepo.getAllUsers(pageable, String.valueOf(company.getId()), pageCondition);
@@ -434,7 +436,8 @@ public class UserService implements UserDetailsService {
 
 	public Object getAllCompanyOfUser() throws BestWorkBussinessException {
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
-		CompanyEntity company = companyRepository.findById(findCompanyIdByUsername(userAuthRoleReq)).orElse(new CompanyEntity());
+		CompanyEntity company = companyRepository.findById(findCompanyIdByUsername(userAuthRoleReq))
+				.orElse(new CompanyEntity());
 		if (null != company.getId()) {
 			List<CompanyEntity> companyList = new ArrayList<>();
 			companyList.add(company);
@@ -488,9 +491,11 @@ public class UserService implements UserDetailsService {
 	}
 
 	public UserEntity findUserByUserId(long userId) {
-		Optional<UserEntity> userOpt = null;
-		userOpt = userRepo.findById(userId);
-		return userOpt.get();
+		Optional<UserEntity> userOpt = userRepo.findById(userId);
+		if (userOpt.isPresent()) {
+			return userOpt.get();
+		}
+		return null;
 	}
 
 }

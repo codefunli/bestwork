@@ -17,7 +17,9 @@ import com.nineplus.bestwork.model.UserAuthDetected;
 import com.nineplus.bestwork.repository.NotificationRepository;
 import com.nineplus.bestwork.services.NotificationService;
 import com.nineplus.bestwork.services.UserService;
+import com.nineplus.bestwork.utils.CommonConstants;
 import com.nineplus.bestwork.utils.UserAuthUtils;
+
 /**
  * 
  * @author DiepTT
@@ -74,15 +76,18 @@ public class NotificationServiceImpl implements NotificationService {
 
 	@Override
 	public void createNotification(NotificationReqDto notificationReqDto) throws BestWorkBussinessException {
-//		for (long userId : notificationReqDto.getUserIds()) {
+		UserEntity user = userService.findUserByUserId(notificationReqDto.getUserId());
+		if (user != null) {
 			NotificationEntity notification = new NotificationEntity();
 			notification.setTitle(notificationReqDto.getTitle());
 			notification.setContent(notificationReqDto.getContent());
 			notification.setCreateDate(LocalDateTime.now());
 			notification.setIsRead(0);
 			notification.setCreateBy(getLoginningUsername());
-			notification.setUser(userService.findUserByUserId(notificationReqDto.getUserId()));
+			notification.setUser(user);
 			notificationRepository.save(notification);
-//		}
+		} else {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.ECU0005, null);
+		}
 	}
 }
