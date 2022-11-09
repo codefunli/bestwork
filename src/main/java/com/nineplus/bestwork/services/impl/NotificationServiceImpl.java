@@ -37,6 +37,12 @@ public class NotificationServiceImpl implements NotificationService {
 	@Autowired
 	private UserService userService;
 
+	/**
+	 * @author DiepTT
+	 * @param none
+	 * @return list of notifications (response dto) per logged-in user
+	 * @throws BestWorkBussinessException
+	 */
 	@Override
 	public List<NotificationResDto> getAllNotificationsByUser() throws BestWorkBussinessException {
 		String username = getLoggedInUsername();
@@ -56,17 +62,39 @@ public class NotificationServiceImpl implements NotificationService {
 		return dtoList;
 	}
 
+
+	/**
+	 * @author DiepTT
+	 * @param none
+	 * @return username of logged-in user
+	 * @throws BestWorkBussinessException
+	 */
 	private String getLoggedInUsername() throws BestWorkBussinessException {
 		UserAuthDetected userAuthDetected = userAuthUtils.getUserInfoFromReq(false);
 		String username = userAuthDetected.getUsername();
 		return username;
 	}
 
+
+	/**
+	 * @author DiepTT
+	 * @param notifId (notification id)
+	 * @return Optional<NotificationEntity>
+	 * @throws none
+	 */
 	@Override
 	public Optional<NotificationEntity> findById(long notifId) {
 		return this.notificationRepository.findById(notifId);
 	}
 
+
+	/**
+	 * This method is used to change reading-status of the notification.
+	 * @author DiepTT
+	 * @param NotificationEntity
+	 * @return notification that is already read 
+	 * @throws BestWorkBussinessException
+	 */
 	@Override
 	public NotificationEntity changeNotificationReadingStatus(NotificationEntity notification)
 			throws BestWorkBussinessException {
@@ -74,6 +102,12 @@ public class NotificationServiceImpl implements NotificationService {
 		return this.notificationRepository.save(notification);
 	}
 
+	/**
+	 * This method is used to save notification into database.
+	 * @author DiepTT
+	 * @param notification (request dto)
+	 * @throws BestWorkBussinessException
+	 */
 	@Override
 	public void createNotification(NotificationReqDto notificationReqDto) throws BestWorkBussinessException {
 		UserEntity user = userService.findUserByUserId(notificationReqDto.getUserId());

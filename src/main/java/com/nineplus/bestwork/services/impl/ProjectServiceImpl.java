@@ -94,32 +94,32 @@ public class ProjectServiceImpl implements IProjectService {
 			String mappedColumn = convertResponseUtils.convertResponseProject(pageSearchDto.getSortBy());
 			Pageable pageable = PageRequest.of(pageNumber, Integer.parseInt(pageSearchDto.getSize()),
 					Sort.by(pageSearchDto.getSortDirection(), mappedColumn));
-			Page<ProjectEntity> pageTProject = null;
+			Page<ProjectEntity> pageProject = null;
 			int status = pageSearchDto.getStatus();
 
 			if (userAuthRoleReq.getIsSysAdmin()) {
 				if (status >= 0 && status < ProjectStatus.values().length) {
-					pageTProject = projectRepository.findProjectForAdminWithStatus(pageSearchDto, pageable);
+					pageProject = projectRepository.findProjectForAdminWithStatus(pageSearchDto, pageable);
 				} else {
-					pageTProject = projectRepository.findProjectForAdminWithoutStatus(pageSearchDto, pageable);
+					pageProject = projectRepository.findProjectForAdminWithoutStatus(pageSearchDto, pageable);
 				}
 			} else if (userAuthRoleReq.getIsOrgAdmin()) {
 				if (status >= 0 && status < ProjectStatus.values().length) {
-					pageTProject = projectRepository.findProjectForCompanyWithStatus(pageSearchDto, pageable,
+					pageProject = projectRepository.findProjectForCompanyWithStatus(pageSearchDto, pageable,
 							userCurrent);
 				} else {
-					pageTProject = projectRepository.findProjectForCompanyWithoutStatus(pageSearchDto, pageable,
+					pageProject = projectRepository.findProjectForCompanyWithoutStatus(pageSearchDto, pageable,
 							userCurrent);
 				}
 			} else if (userAuthRoleReq.getIsOrgUser()) {
 				if (status >= 0 && status < ProjectStatus.values().length) {
-					pageTProject = projectRepository.findAssignToUserWithStatus(pageSearchDto, pageable, userCurrent);
+					pageProject = projectRepository.findAssignToUserWithStatus(pageSearchDto, pageable, userCurrent);
 				} else {
-					pageTProject = projectRepository.findAssignToUserWithOutStatus(pageSearchDto, pageable,
+					pageProject = projectRepository.findAssignToUserWithOutStatus(pageSearchDto, pageable,
 							userCurrent);
 				}
 			}
-			return responseUtils.convertPageEntityToDTO(pageTProject, ProjectResDto.class);
+			return responseUtils.convertPageEntityToDTO(pageProject, ProjectResDto.class);
 		} catch (Exception ex) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
 		}
