@@ -394,7 +394,7 @@ public class ProjectServiceImpl implements IProjectService {
 		String projectName = projectRepository.findbyProjectId(projectId).getProjectName();
 
 		NotificationReqDto notificationReqDto = new NotificationReqDto();
-		notificationReqDto.setTitle("Remove assignment to project " + projectName);
+		notificationReqDto.setTitle("Remove assignment on project " + projectName);
 		notificationReqDto.setContent("Your assignment on the project has been removed by " + curUsername);
 		notificationReqDto.setUserId(user.getUserId());
 		notificationService.createNotification(notificationReqDto);

@@ -39,7 +39,7 @@ public class NotificationServiceImpl implements NotificationService {
 
 	@Override
 	public List<NotificationResDto> getAllNotificationsByUser() throws BestWorkBussinessException {
-		String username = getLoginningUsername();
+		String username = getLoggedInUsername();
 		UserEntity currentUser = userService.findUserByUsername(username);
 		List<NotificationResDto> dtoList = new ArrayList<>();
 		List<NotificationEntity> notificationList = notificationRepository.findAllByUser(currentUser.getId());
@@ -56,7 +56,7 @@ public class NotificationServiceImpl implements NotificationService {
 		return dtoList;
 	}
 
-	private String getLoginningUsername() throws BestWorkBussinessException {
+	private String getLoggedInUsername() throws BestWorkBussinessException {
 		UserAuthDetected userAuthDetected = userAuthUtils.getUserInfoFromReq(false);
 		String username = userAuthDetected.getUsername();
 		return username;
@@ -83,7 +83,7 @@ public class NotificationServiceImpl implements NotificationService {
 			notification.setContent(notificationReqDto.getContent());
 			notification.setCreateDate(LocalDateTime.now());
 			notification.setIsRead(0);
-			notification.setCreateBy(getLoginningUsername());
+			notification.setCreateBy(getLoggedInUsername());
 			notification.setUser(user);
 			notificationRepository.save(notification);
 		} else {
