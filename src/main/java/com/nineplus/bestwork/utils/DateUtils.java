@@ -19,6 +19,7 @@ public class DateUtils {
 
 	private static final String YYYYMMDD_HHMMSS = "yyyy-MM-dd HH:mm:ss";
 	public static final ZoneId DEFAULT_ZONE = ZoneId.systemDefault();
+	public static final String YYYYMMDD = "yyyyMMdd";
 
 	public String formatDate(Integer day, Integer month) {
 		String fDay;

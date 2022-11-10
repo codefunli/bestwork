@@ -63,5 +63,28 @@ public class Enums {
 		}
 
 	}
+	
+	public enum AirWayBillStatus {
+		NOT_YET_CUSTOMS_CLEARANCES("Not yet customs clearance"), IN_CUSTOMS_CLEARANCES_PROGRESS("In Customs Clearance Progess"), DONE("Done");
+
+		private String value;
+
+		private AirWayBillStatus(String value) {
+			this.value = value;
+		}
+
+		public String getValue() {
+			return this.value;
+		}
+
+	}
+	
+	public enum FolderType {
+			INVOICE,
+			PACKAGE,
+			EVIDENCE_BEFORE,
+			EVIDENCE_AFTER,
+			DEFAULT
+	}
 
 }

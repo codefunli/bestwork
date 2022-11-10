@@ -175,7 +175,15 @@ public class CommonConstants {
 		public static final String ENU0002 = "enu0002";
 		public static final String SNU0003 = "snu0003";
 		public static final String ENU0003 = "enu0003";
-
+		
+		public static final String eF0001 = "eF0001";
+		
+		public static final String sA0001 = "sA0001";
+		public static final String sA0002 = "sA0002";
+		public static final String eA0001 = "eA0001";
+		public static final String eA0002 = "eA0002";
+		public static final String eA0003 = "eA0003";
+		public static final String eA0004 = "eA0004";
 	}
 
 	public class Url {

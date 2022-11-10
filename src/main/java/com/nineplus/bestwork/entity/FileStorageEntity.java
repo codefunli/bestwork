@@ -43,6 +43,9 @@ public class FileStorageEntity {
 
 	@Column(name = "create_date", nullable = true)
 	private Timestamp createDate;
+	
+	@Column(name = "path_file_server")
+	private String pathFileServer;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "post_id")
@@ -53,5 +56,8 @@ public class FileStorageEntity {
 	@JoinColumn(name = "progress_id")
 	@JsonIgnore
 	private ProgressEntity progress;
+	
+	@JoinColumn(name = "post_invoice_id")
+	private long postInvoice;
 
 }
