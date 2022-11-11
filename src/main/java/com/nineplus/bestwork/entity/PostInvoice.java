@@ -1,7 +1,6 @@
 package com.nineplus.bestwork.entity;
 
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -50,7 +49,7 @@ public class PostInvoice {
 	private String comment;
 
 	@CreationTimestamp
-	@Column(name = "create_date", nullable = false, insertable = false, updatable = false)
+	@Column(name = "create_date")
 	private LocalDateTime createDate;
 
 	@UpdateTimestamp
@@ -64,8 +63,8 @@ public class PostInvoice {
 	private String updateBy;
 
 	@Column(name = "airway_bill")
-	private String airwayBill;
+	private String airWayBill;
 	
-	@OneToMany(mappedBy = "postInvoice")
+	@OneToMany(mappedBy = "postInvoiceId")
 	private List<FileStorageEntity> fileStorages;
 }

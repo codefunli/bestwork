@@ -151,7 +151,7 @@ public class ProgressServiceImpl implements IProgressService {
 				FileStorageResDto fileStorageResponseDto = new FileStorageResDto();
 				fileStorageResponseDto.setId(file.getId());
 				fileStorageResponseDto.setName(file.getName());
-				fileStorageResponseDto.setCreateDate(file.getCreateDate());
+				fileStorageResponseDto.setCreateDate(file.getCreateDate().toString());
 				fileStorageResponseDto.setType(file.getType());
 				fileStorageResponseDto.setData(new String(file.getData()));
 				fileStorageResponseDtos.add(fileStorageResponseDto);
@@ -191,7 +191,7 @@ public class ProgressServiceImpl implements IProgressService {
 					fileDto.setName(file.getName());
 					fileDto.setType(file.getType());
 					fileDto.setData(new String(file.getData()));
-					fileDto.setCreateDate(file.getCreateDate());
+					fileDto.setCreateDate(file.getCreateDate().toString());
 					lstFileDto.add(fileDto);
 				}
 				progressDto.setFileStorages(lstFileDto);
@@ -242,7 +242,7 @@ public class ProgressServiceImpl implements IProgressService {
 				fileDto.setName(file.getName());
 				fileDto.setType(file.getType());
 				fileDto.setData(new String(file.getData()));
-				fileDto.setCreateDate(file.getCreateDate());
+				fileDto.setCreateDate(file.getCreateDate().toString());
 				lstfileDto.add(fileDto);
 			}
 			progressDto.setFileStorages(lstfileDto);

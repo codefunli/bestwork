@@ -9,11 +9,11 @@ import com.jcraft.jsch.ChannelSftp;
 public interface SftpFileService {
 	boolean isExistFolder(ChannelSftp channel, String path);
 
-	boolean createFolder(ChannelSftp channel, String path);
+	String createFolder(ChannelSftp channel, String path);
 
 	void createFolderCommonRoot(List<String> folderStrings);
 
-	byte[] downloadFile(String pathFileDownload, int typeFile);
+	byte[] downloadFile(String pathFileDownload);
 
 	byte[] viewFilePdf(String pathFileView);
 

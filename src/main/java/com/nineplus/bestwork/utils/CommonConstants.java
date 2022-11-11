@@ -118,6 +118,7 @@ public class CommonConstants {
 		public static final String SU0004 = "su0004";
 		public static final String SU0005 = "su0005";
 		public static final String sUS0001 = "sUS0001";
+		public static final String sCPN0004 = "sCPN0004";
 
 		public static final String CPN0004 = "CPN0004";
 		public static final String CPN0005 = "CPN0005";
@@ -180,10 +181,21 @@ public class CommonConstants {
 		
 		public static final String sA0001 = "sA0001";
 		public static final String sA0002 = "sA0002";
+		public static final String sA0003 = "sA0003";
+		public static final String sA0004 = "sA0004";
 		public static final String eA0001 = "eA0001";
 		public static final String eA0002 = "eA0002";
 		public static final String eA0003 = "eA0003";
 		public static final String eA0004 = "eA0004";
+		public static final String eA0005 = "eA0005";
+		public static final String eA0006 = "eA0006";
+		
+		public static final String sI0001 = "sI0001";
+		public static final String sI0002 = "sI0002";
+		public static final String eI0001 = "eI0001";
+
+		
+		
 	}
 
 	public class Url {

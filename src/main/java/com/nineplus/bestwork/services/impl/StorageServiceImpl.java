@@ -1,13 +1,12 @@
 package com.nineplus.bestwork.services.impl;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.nineplus.bestwork.dto.FileStorageReqDto;
 import com.nineplus.bestwork.entity.FileStorageEntity;
 import com.nineplus.bestwork.entity.PostEntity;
-import com.nineplus.bestwork.entity.PostInvoice;
 import com.nineplus.bestwork.entity.ProgressEntity;
 import com.nineplus.bestwork.repository.StorageRepository;
 import com.nineplus.bestwork.services.IStorageService;
@@ -34,6 +32,7 @@ public class StorageServiceImpl implements IStorageService {
 	private StorageRepository storageRepository;
 
 	@Override
+	@Transactional
 	public FileStorageEntity storeFilePost(String imageData, PostEntity reqPost) {
 		try {
 			FileStorageEntity image = new FileStorageEntity();
@@ -43,7 +42,7 @@ public class StorageServiceImpl implements IStorageService {
 			image.setName(imageName);
 			String type = getImageType(imageData);
 			image.setType(type);
-			image.setCreateDate(Timestamp.valueOf(LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"))));
+			image.setCreateDate(LocalDateTime.now());
 
 			return storageRepository.save(image);
 		} catch (Exception e) {
@@ -76,6 +75,7 @@ public class StorageServiceImpl implements IStorageService {
 	}
 
 	@Override
+	@Transactional
 	public FileStorageEntity storeFileProgress(FileStorageReqDto file, ProgressEntity progress) {
 		try {
 			FileStorageEntity image = new FileStorageEntity();
@@ -84,7 +84,7 @@ public class StorageServiceImpl implements IStorageService {
 			String generatedFileName = UUID.randomUUID().toString().replace("-", "");
 			image.setName(generatedFileName);
 			image.setType(getImageType(file.getData()));
-			image.setCreateDate(Timestamp.valueOf(LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"))));
+			image.setCreateDate(LocalDateTime.now());
 
 			return storageRepository.save(image);
 		} catch (Exception e) {
@@ -108,16 +108,26 @@ public class StorageServiceImpl implements IStorageService {
 	}
 
 	@Override
+	@Transactional
 	public void storeFilePostInvoice(Long postInvoiceId, String pathOnServer) {
 		try {
 			FileStorageEntity file = new FileStorageEntity();
-			file.setPostInvoice(postInvoiceId);
+			file.setPostInvoiceId(postInvoiceId);
 			file.setPathFileServer(pathOnServer);
-			file.setCreateDate(Timestamp.valueOf(LocalDateTime.now()));
+			file.setName(getFileNameFromPath(pathOnServer));
+			file.setType(getFileTypeFromPath(pathOnServer));
+			file.setCreateDate(LocalDateTime.now());
 			storageRepository.save(file);
 		} catch (Exception e) {
 			e.getMessage();
 		}
 	}
+	
+	private String getFileNameFromPath(String path) {
+		return FilenameUtils.getName(path);
+	}
 
+	private String getFileTypeFromPath(String path) {
+		return FilenameUtils.getExtension(path);
+	}
 }

@@ -20,9 +20,6 @@ public class PostInvoiceReqDto extends BaseDto {
 	@JsonProperty("description")
 	private String description;
 
-	@JsonProperty("airway_bill")
-	private String airway_bill;
-
 	@JsonProperty("comment")
 	private String comment;
 

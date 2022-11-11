@@ -35,30 +35,32 @@ public class SftpFileServiceImpl implements SftpFileService {
 	 */
 	public static final String SEPARATOR = "/";
 
+	public static final String HYPHEN = "-";
+
 	/**
 	 * The Constant ROOT_PATH.
 	 */
-	public static final String ROOT_PATH = "/home/centos/";
+	public static final String ROOT_PATH = "/home/bestwork";
 
 	/**
 	 * The Constant HOST.
 	 */
-	public static final String SFTP_HOST = "localhost";
+	public static final String SFTP_HOST = "125.212.237.162";
 
 	/**
 	 * The Constant PORT.
 	 */
-	public static final int SFTP_PORT = 222;
+	public static final int SFTP_PORT = 22;
 
 	/**
 	 * The Constant USER.
 	 */
-	public static final String SFTP_USER = "centos";
+	public static final String SFTP_USER = "bestwork";
 
 	/**
 	 * The Constant PASSWORD.
 	 */
-	public static final String SFTP_PASSWORD = "centos";
+	public static final String SFTP_PASSWORD = "bestwork";
 
 	private static final int INVOICE_NUMBER = 1;
 
@@ -68,9 +70,9 @@ public class SftpFileServiceImpl implements SftpFileService {
 
 	private static final int EVIDENCE_AFTER_NUMBER = 4;
 
-	public static final String INVOICE_PATH = "invoicePath";
+	public static final String INVOICE_PATH = "invoices";
 
-	public static final String PACKAGE_PATH = "packagePath";
+	public static final String PACKAGE_PATH = "packages";
 
 	public static final String EVIDENCE_BEFORE_PATH = "evidenceBeforePath";
 
@@ -87,10 +89,10 @@ public class SftpFileServiceImpl implements SftpFileService {
 	}
 
 	@Override
-	public boolean createFolder(ChannelSftp channel, String path) {
+	public String createFolder(ChannelSftp channel, String path) {
 		try {
 			channel.mkdir(path);
-			return true;
+			return path;
 		} catch (SftpException ex) {
 			throw new FileHandleException(ex.getMessage(), ex);
 		}
@@ -121,28 +123,18 @@ public class SftpFileServiceImpl implements SftpFileService {
 	}
 
 	@Override
-	public byte[] downloadFile(String pathFileDownload, int typeFile) {
+	public byte[] downloadFile(String pathFileDownload) {
 		byte[] resBytes = null;
 		ChannelSftp channel = null;
 		String fileName = null;
 		Session session = null;
 		try {
 
-			if (getFolderType(typeFile) == FolderType.DEFAULT) {
-				return new byte[0];
-			}
-
 			Pair<Session, ChannelSftp> sftpConnection = this.getConnection();
 
 			session = sftpConnection.getFirst();
 			channel = sftpConnection.getSecond();
-			fileName = FilenameUtils.getName(pathFileDownload);
-
-			String folderName = FilenameUtils.getPath(pathFileDownload);
-			String filePath = new StringBuilder(getParentPath(getFolderType(typeFile))).append(SEPARATOR)
-					.append(folderName).append(fileName).toString();
-
-			resBytes = IOUtils.toByteArray(channel.get(filePath));
+			resBytes = IOUtils.toByteArray(channel.get(pathFileDownload));
 
 			// disconnect to sftp server.
 			disconnect(session, channel);
@@ -222,9 +214,12 @@ public class SftpFileServiceImpl implements SftpFileService {
 	}
 
 	private String upload(MultipartFile mfile, FolderType folderType, String airWayBill) {
-		String absolutePath = null;
 		Session session = null;
 		ChannelSftp channel = null;
+		String pathTemp = null;
+		String pathSever = null;
+		String sftpFileName = null;
+		String finalPath = null;
 
 		// Create folder in sftp server.
 		try {
@@ -236,26 +231,37 @@ public class SftpFileServiceImpl implements SftpFileService {
 
 			String absolutePathInSftpServer = getPathSeverUpload(folderType);
 			if (!isExistFolder(channel, absolutePathInSftpServer)) {
-				this.createFolder(channel, absolutePathInSftpServer);
+				pathTemp = this.createFolder(channel, absolutePathInSftpServer);
+			} else {
+				absolutePathInSftpServer = absolutePathInSftpServer + SEPARATOR + buildSubFolderName(folderType);
+				if (!isExistFolder(channel, absolutePathInSftpServer)) {
+					pathTemp = this.createFolder(channel, absolutePathInSftpServer);
+				} else {
+					pathTemp = absolutePathInSftpServer;
+				}
+			}
+			pathTemp = pathTemp + SEPARATOR + airWayBill;
+			if (!isExistFolder(channel, pathTemp)) {
+				pathTemp = this.createFolder(channel, pathTemp);
 			}
 
-			String fileExtension = FilenameUtils.getExtension(mfile.getOriginalFilename());
-			String sftpPathFile = new StringBuilder(createFileName(folderType, airWayBill)).append('.')
-					.append(fileExtension).toString();
-
-			// pathFileUpload:
-			absolutePath = String.format("%s%s%s", buildSubFolderName(folderType), SEPARATOR, sftpPathFile);
+			// String fileExtension =
+			// FilenameUtils.getExtension(mfile.getOriginalFilename());
+			String fileName = FilenameUtils.getName(mfile.getOriginalFilename());
 
 			// save file.
-			channel.cd(absolutePathInSftpServer);
-			channel.put(mfile.getInputStream(), sftpPathFile);
+			channel.cd(pathTemp);
+			channel.put(mfile.getInputStream(), fileName);
+			finalPath = pathTemp + SEPARATOR + fileName;
 			disconnect(session, channel);
 		} catch (IOException | SftpException e) {
 			disconnect(session, channel);
 			throw new FileHandleException(e.getMessage(), e);
-		} 
+		} finally {
+			disconnect(session, channel);
+		}
 
-		return absolutePath;
+		return finalPath;
 	}
 
 	/**
@@ -324,7 +330,7 @@ public class SftpFileServiceImpl implements SftpFileService {
 	}
 
 	private String getPathSeverUpload(FolderType folderType) {
-		return ROOT_PATH + getParentPath(folderType) + SEPARATOR + buildSubFolderName(folderType);
+		return ROOT_PATH + SEPARATOR + getParentPath(folderType);
 	}
 
 }
