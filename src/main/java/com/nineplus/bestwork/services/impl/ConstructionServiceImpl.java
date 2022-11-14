@@ -147,11 +147,11 @@ public class ConstructionServiceImpl implements IConstructionService {
 	 * @return List<ProjectEntity>
 	 */
 	private List<ProjectEntity> getProjectsBeingInvolvedByCurrentUser(String curUsername) {
-		List<ProjectEntity> createProjectList = projectService.getProjectsBeingCreatedByCurrentUser(curUsername);
+		List<ProjectEntity> creatingProjectList = projectService.getProjectsBeingCreatedByCurrentUser(curUsername);
 		List<ProjectEntity> assignedProjectList = projectService.getProjectsBeingAssignedToCurrentUser(curUsername);
 		Set<ProjectEntity> projectSet = new HashSet<>();
-		if (createProjectList != null)
-			projectSet.addAll(createProjectList);
+		if (creatingProjectList != null)
+			projectSet.addAll(creatingProjectList);
 		if (assignedProjectList != null)
 			projectSet.addAll(assignedProjectList);
 		return new ArrayList<>(projectSet);

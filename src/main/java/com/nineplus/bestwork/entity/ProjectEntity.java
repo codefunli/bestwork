@@ -61,13 +61,13 @@ public class ProjectEntity {
 
 	@Column(name = "start_date", nullable = false)
 	private String startDate;
-	
+
 	@Column(name = "create_by")
 	private String createBy;
-	
+
 	@Column(name = "update_by")
 	private String updateBy;
-	
+
 	@Column(name = "create_date", nullable = false, insertable = false, updatable = false)
 	@CreationTimestamp
 	private LocalDateTime createDate;
@@ -79,13 +79,8 @@ public class ProjectEntity {
 	@ManyToOne
 	@JoinColumn(name = "project_type")
 	private ProjectTypeEntity projectType;
-	
+
 	@OneToMany(mappedBy = "project", cascade = CascadeType.REMOVE)
 	@JsonBackReference
 	private Collection<PostEntity> posts;
-	
-	@OneToMany(mappedBy = "project")
-	@JsonBackReference
-	private Collection<AirWayBill> airWayBills ;
-
 }
