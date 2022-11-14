@@ -82,8 +82,8 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 	}
 
 	@Override
-	public List<AirWayBill> getAllAirWayBill() throws BestWorkBussinessException {
-		return airWayBillRepository.findAll();
+	public List<AirWayBill> getAllAirWayBillByProject(String projectId) throws BestWorkBussinessException {
+		return airWayBillRepository.findByProjectCode(projectId);
 	}
 
 	@Override

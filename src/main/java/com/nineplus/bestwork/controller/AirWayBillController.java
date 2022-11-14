@@ -52,11 +52,11 @@ public class AirWayBillController extends BaseController {
 		return success(CommonConstants.MessageCode.sA0002, airWayBillStatus, null);
 	}
 
-	@GetMapping("/list")
-	public ResponseEntity<? extends Object> getAllAirWayBill() throws BestWorkBussinessException {
+	@GetMapping("/list/by/{projectId}")
+	public ResponseEntity<? extends Object> getAllAirWayBill(@PathVariable String projectId) throws BestWorkBussinessException {
 		List<AirWayBill> listAwb = null;
 		try {
-			listAwb = iAirWayBillService.getAllAirWayBill();
+			listAwb = iAirWayBillService.getAllAirWayBillByProject(projectId);
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}
