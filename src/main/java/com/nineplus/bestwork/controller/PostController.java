@@ -1,8 +1,6 @@
 package com.nineplus.bestwork.controller;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,7 +69,7 @@ public class PostController extends BaseController {
 		post.setDescription(postRequestDto.getDescription());
 		post.setEqBill(postRequestDto.getEqBill());
 		post.setProject(projectService.getProjectById(postRequestDto.getProjectId()).get());
-		post.setCreateDate(Timestamp.valueOf(LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"))));
+		post.setCreateDate(LocalDateTime.now());
 
 		PostEntity createdPost = null;
 		try {
@@ -121,7 +119,7 @@ public class PostController extends BaseController {
 				FileStorageResDto fileStorageResponseDto = new FileStorageResDto();
 				fileStorageResponseDto.setId(file.getId());
 				fileStorageResponseDto.setName(file.getName());
-				fileStorageResponseDto.setCreateDate(file.getCreateDate());
+				fileStorageResponseDto.setCreateDate(file.getCreateDate().toString());
 				fileStorageResponseDto.setType(file.getType());
 				fileStorageResponseDto.setData(new String(file.getData()));
 				fileStorageResponseDtos.add(fileStorageResponseDto);

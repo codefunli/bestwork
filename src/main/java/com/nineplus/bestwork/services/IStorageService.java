@@ -15,8 +15,16 @@ import com.nineplus.bestwork.entity.ProgressEntity;
 
 public interface IStorageService {
 	public FileStorageEntity storeFilePost(String image, PostEntity reqpost);
+
 	public FileStorageEntity storeFileProgress(FileStorageReqDto files, ProgressEntity progress);
+
 	public List<FileStorageEntity> findFilesByPostId(String postId);
+
 	public List<FileStorageEntity> findFilesByProgressId(Long progressId);
+
 	public void deleteFilesByPostId(String postId);
+	
+	public void storeFilePostInvoice(Long postInvoiceId, String pathOnServer);
+
+
 }
