@@ -53,7 +53,7 @@ public class PostServiceImpl implements IPostService {
 					FileStorageResDto fileStorageResponseDto = new FileStorageResDto();
 					fileStorageResponseDto.setId(file.getId());
 					fileStorageResponseDto.setName(file.getName());
-					fileStorageResponseDto.setCreateDate(file.getCreateDate());
+					fileStorageResponseDto.setCreateDate(file.getCreateDate().toString());
 					fileStorageResponseDto.setType(file.getType());
 					fileStorageResponseDto.setData(new String(file.getData()));
 					fileStorageResponseDtos.add(fileStorageResponseDto);
@@ -89,7 +89,7 @@ public class PostServiceImpl implements IPostService {
 				FileStorageResDto fileStorageResponseDto = new FileStorageResDto();
 				fileStorageResponseDto.setId(file.getId());
 				fileStorageResponseDto.setName(file.getName());
-				fileStorageResponseDto.setCreateDate(file.getCreateDate());
+				fileStorageResponseDto.setCreateDate(file.getCreateDate().toString());
 				fileStorageResponseDto.setType(file.getType());
 				fileStorageResponseDto.setData(new String(file.getData()));
 				fileStorageResponseDtos.add(fileStorageResponseDto);

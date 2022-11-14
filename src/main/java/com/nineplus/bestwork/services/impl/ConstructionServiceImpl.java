@@ -239,7 +239,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 				throw new BestWorkBussinessException(CommonConstants.MessageCode.EXS0004,
 						new Object[] { "AWB code " + code });
 			}
-			projectIdSet.add(airWayBill.getProject().getId());
+			projectIdSet.add(airWayBill.getProjectCode());
 		}
 
 		if (projectIdSet.size() > 1) {

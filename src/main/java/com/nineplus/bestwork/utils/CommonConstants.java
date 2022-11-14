@@ -41,7 +41,7 @@ public class CommonConstants {
 		public static final String COMMA = ",";
 		public static final String KC_PASSWORD_DEFAULT = "123456";
 		public static final String ADMIN = "Admin";
-		
+
 		public static final String CONSTRUCTION_NAME = "Construction Name";
 		public static final String AIR_WAY_BILL = "Air Way Bill code";
 	}
@@ -121,6 +121,7 @@ public class CommonConstants {
 		public static final String SU0004 = "su0004";
 		public static final String SU0005 = "su0005";
 		public static final String sUS0001 = "sUS0001";
+		public static final String sCPN0004 = "sCPN0004";
 
 		public static final String CPN0004 = "CPN0004";
 		public static final String CPN0005 = "CPN0005";
@@ -141,7 +142,6 @@ public class CommonConstants {
 		public static final String RLF0002 = "RLF0001";
 		public static final String RLS0003 = "RLS0003";
 		public static final String eR0002 = "eR0002";
-		
 
 		public static final String SPS0001 = "SPS0001";
 		public static final String RLS0004 = "RLS0004";
@@ -174,7 +174,7 @@ public class CommonConstants {
 		public static final String ePu0001 = "ePu0001";
 		public static final String ePu0002 = "ePu0002";
 		public static final String S1X0017 = "s1X0017";
-		
+
 		public static final String SNU0001 = "snu0001";
 		public static final String ENU0001 = "enu0001";
 		public static final String SNU0002 = "snu0002";
@@ -182,12 +182,33 @@ public class CommonConstants {
 		public static final String SNU0003 = "snu0003";
 		public static final String ENU0003 = "enu0003";
 
+		public static final String eF0001 = "eF0001";
+
+		public static final String sA0001 = "sA0001";
+		public static final String sA0002 = "sA0002";
+		public static final String sA0003 = "sA0003";
+		public static final String sA0004 = "sA0004";
+		public static final String eA0001 = "eA0001";
+		public static final String eA0002 = "eA0002";
+		public static final String eA0003 = "eA0003";
+		public static final String eA0004 = "eA0004";
+		public static final String eA0005 = "eA0005";
+		public static final String eA0006 = "eA0006";
+
+		public static final String sI0001 = "sI0001";
+		public static final String sI0002 = "sI0002";
+		public static final String eI0001 = "eI0001";
+
 		public static final String SCS0001 = "scs0001";
 		public static final String ECS0001 = "ecs0001";
 		public static final String SCS0002 = "scs0002";
 		public static final String ECS0002 = "ecs0002";
 		public static final String ECS0003 = "ecs0003";
 		public static final String SCS0003 = "scs0003";
+
+		public static final String ENU0004 = "enu0004";
+		public static final String SNU0005 = "snu0005";
+		public static final String ENU0005 = "enu0005";
 
 	}
 

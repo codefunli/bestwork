@@ -1,6 +1,6 @@
 package com.nineplus.bestwork.entity;
 
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -12,6 +12,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.TypeDef;
 
@@ -44,8 +45,9 @@ public class PostEntity {
 	@Column(name = "eq_bill", nullable = true, columnDefinition = "VARCHAR(100)")
 	private String eqBill;
 
-	@Column(name = "create_date", nullable = true)
-	private Timestamp createDate;
+	@CreationTimestamp
+	@Column(name = "create_date")
+	private LocalDateTime createDate;
 
 	@ManyToOne
 	@JoinColumn(name = "project_id")

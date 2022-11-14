@@ -1,41 +1,52 @@
 package com.nineplus.bestwork.entity;
 
+
 import java.time.LocalDateTime;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.UpdateTimestamp;
 
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Entity(name = "AirWayBill")
-@Table(name = "AIRWAY_BILL")
+@Table(name = "post_invoice")
+@Entity(name = "PostInvoice")
 @Getter
 @Setter
 @NoArgsConstructor
-
-public class AirWayBill {
+@Data
+@EqualsAndHashCode(callSuper = false)
+public class PostInvoice {
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id", unique = true, nullable = false, precision = 19)
 	private long id;
 
-	@Column(name = "code")
-	private String code;
+	@GeneratedValue(generator = "uuid")
+	@GenericGenerator(name = "uuid", strategy = "uuid2")
+	@Column(name = "post_invoice_code")
+	private String postInvoiceCode;
 
-	@Column(name = "note")
-	private String note;
+	@Column(name = "description")
+	private String description;
 
-	@Column(name = "status")
-	private int status;
+	@Column(name = "comment")
+	private String comment;
 
 	@CreationTimestamp
 	@Column(name = "create_date")
@@ -51,7 +62,9 @@ public class AirWayBill {
 	@Column(name = "update_by")
 	private String updateBy;
 
-	@Column(name = "project_code")
-	private String projectCode;
-
+	@Column(name = "airway_bill")
+	private String airWayBill;
+	
+	@OneToMany(mappedBy = "postInvoiceId")
+	private List<FileStorageEntity> fileStorages;
 }

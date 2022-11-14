@@ -2,12 +2,12 @@ package com.nineplus.bestwork.services.impl;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.UUID;
 import java.util.List;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +33,7 @@ public class StorageServiceImpl implements IStorageService {
 	private StorageRepository storageRepository;
 
 	@Override
+	@Transactional
 	public FileStorageEntity storeFilePost(String imageData, PostEntity reqPost) {
 		try {
 			FileStorageEntity image = new FileStorageEntity();
@@ -42,7 +43,7 @@ public class StorageServiceImpl implements IStorageService {
 			image.setName(imageName);
 			String type = getImageType(imageData);
 			image.setType(type);
-			image.setCreateDate(Timestamp.valueOf(LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"))));
+			image.setCreateDate(Timestamp.valueOf(LocalDateTime.now()));
 
 			return storageRepository.save(image);
 		} catch (Exception e) {
@@ -75,6 +76,7 @@ public class StorageServiceImpl implements IStorageService {
 	}
 
 	@Override
+	@Transactional
 	public FileStorageEntity storeFileProgress(FileStorageReqDto file, ProgressEntity progress) {
 		try {
 			FileStorageEntity image = new FileStorageEntity();
@@ -83,7 +85,7 @@ public class StorageServiceImpl implements IStorageService {
 			String generatedFileName = UUID.randomUUID().toString().replace("-", "");
 			image.setName(generatedFileName);
 			image.setType(getImageType(file.getData()));
-			image.setCreateDate(Timestamp.valueOf(LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"))));
+			image.setCreateDate(Timestamp.valueOf(LocalDateTime.now()));
 
 			return storageRepository.save(image);
 		} catch (Exception e) {
@@ -104,5 +106,29 @@ public class StorageServiceImpl implements IStorageService {
 	@Override
 	public void deleteFilesByPostId(String postId) {
 		this.storageRepository.deleteByPostId(postId);
+	}
+
+	@Override
+	@Transactional
+	public void storeFilePostInvoice(Long postInvoiceId, String pathOnServer) {
+		try {
+			FileStorageEntity file = new FileStorageEntity();
+			file.setPostInvoiceId(postInvoiceId);
+			file.setPathFileServer(pathOnServer);
+			file.setName(getFileNameFromPath(pathOnServer));
+			file.setType(getFileTypeFromPath(pathOnServer));
+			file.setCreateDate(Timestamp.valueOf(LocalDateTime.now()));
+			storageRepository.save(file);
+		} catch (Exception e) {
+			e.getMessage();
+		}
+	}
+	
+	private String getFileNameFromPath(String path) {
+		return FilenameUtils.getName(path);
+	}
+
+	private String getFileTypeFromPath(String path) {
+		return FilenameUtils.getExtension(path);
 	}
 }
