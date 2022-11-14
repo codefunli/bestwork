@@ -1,5 +1,7 @@
 package com.nineplus.bestwork.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 /**
@@ -9,23 +11,19 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class NotificationResDto extends BaseDto {
+public class NotificationReqDto extends BaseDto{
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -7019926932215436516L;
+	private static final long serialVersionUID = -2275629593281190005L;
 
-	private long id;
-
+	@JsonProperty("title")
 	private String title;
 
+	@JsonProperty("content")
 	private String content;
 
-	private String createDate;
-
-	private int isRead;
-
+	@JsonProperty("userId")
 	private long userId;
-
 }
