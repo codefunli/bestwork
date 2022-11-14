@@ -66,4 +66,20 @@ public class ConvertResponseUtils {
 		}
 		return columnMapped;
 	}
+
+	public String convertResponseConstruction(String item) {
+		HashMap<String, String> itemConstruction = new HashMap<>();
+		String columnMapped = "";
+		itemConstruction.put("id", "id");
+		itemConstruction.put("name", "name");
+		itemConstruction.put("description", "description");
+		itemConstruction.put("startDate", "start_date");
+		itemConstruction.put("location", "location");
+		itemConstruction.put("createBy", "create_by");
+		itemConstruction.put("status", "status");
+		if (itemConstruction.containsKey(item)) {
+			columnMapped = itemConstruction.get(item);
+		}
+		return columnMapped;
+	}
 }

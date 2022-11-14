@@ -406,4 +406,26 @@ public class ProjectServiceImpl implements IProjectService {
 		}
 
 	}
+	
+	/**
+	 * Function get projects which are created by specific user (username)
+	 * DiepTT
+	 * @param current username
+	 * @return List<ProjectEntity>
+	 */
+	@Override
+	public List<ProjectEntity> getProjectsBeingCreatedByCurrentUser(String curUsername) {
+		return this.projectRepository.findProjectsBeingCreatedByCurrentUser(curUsername);
+	}
+
+	/**
+	 * Function get projects which are assigned to specific user (username)
+	 * DiepTT
+	 * @param current username
+	 * @return List<ProjectEntity>
+	 */
+	@Override
+	public List<ProjectEntity> getProjectsBeingAssignedToCurrentUser(String curUsername) {
+		return this.projectRepository.findProjectsBeingAssignedToCurrentUser(curUsername);
+	}
 }

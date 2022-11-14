@@ -83,5 +83,9 @@ public class ProjectEntity {
 	@OneToMany(mappedBy = "project", cascade = CascadeType.REMOVE)
 	@JsonBackReference
 	private Collection<PostEntity> posts;
+	
+	@OneToMany(mappedBy = "project")
+	@JsonBackReference
+	private Collection<AirWayBill> airWayBills ;
 
 }

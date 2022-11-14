@@ -86,4 +86,17 @@ public interface ProjectRepository extends JpaRepository<ProjectEntity, String> 
 	@Query(value = "select ast.company_id as companyId, tc.company_name as companyName, tus.user_name as userName, ast.user_id as userId, ast.can_view as canView , ast.can_edit as canEdit from T_COMPANY tc join ASSIGN_TASK ast ON tc.id = ast.company_id JOIN PROJECT pr ON ast.project_id = pr.id JOIN T_SYS_APP_USER tus ON tus.id = ast.user_id WHERE ast.project_id = :projectId", nativeQuery = true)
 	List<ProjectAssignRepository> GetCompanyAndRoleUserByProject(String projectId);
 
+	@Query(value = " select * from PROJECT where create_by = :curUsername", nativeQuery = true )
+	List<ProjectEntity> findProjectsBeingCreatedByCurrentUser(String curUsername);
+
+	@Query(value = " select * from PROJECT p "
+			+ " join ASSIGN_TASK ast on ast.project_id = p.id"
+			+ " join T_SYS_APP_USER tsau on tsau.id = ast.user_id "
+			+ " where tsau.user_name = :curUsername"
+			+ " and ( "
+			+ " ast.can_view = 1 or ast.can_edit = 1 ) ", nativeQuery = true )
+	List<ProjectEntity> findProjectsBeingAssignedToCurrentUser(String curUsername);
+
+
+
 }
