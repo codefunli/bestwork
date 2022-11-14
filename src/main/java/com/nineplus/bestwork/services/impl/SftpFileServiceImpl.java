@@ -10,6 +10,9 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,6 +31,8 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
+@Configuration
+@PropertySource("classpath:application.properties")
 public class SftpFileServiceImpl implements SftpFileService {
 
 	/**
@@ -45,22 +50,26 @@ public class SftpFileServiceImpl implements SftpFileService {
 	/**
 	 * The Constant HOST.
 	 */
-	public static final String SFTP_HOST = "125.212.237.162";
+	@Value("${fileServer.host}")
+	private String SFTP_HOST;
 
 	/**
 	 * The Constant PORT.
 	 */
-	public static final int SFTP_PORT = 22;
+	@Value("${fileServer.port}")
+	private int SFTP_PORT;
 
 	/**
 	 * The Constant USER.
 	 */
-	public static final String SFTP_USER = "bestwork";
+	@Value("${fileServer.user}")
+	private String SFTP_USER;
 
 	/**
 	 * The Constant PASSWORD.
 	 */
-	public static final String SFTP_PASSWORD = "bestwork";
+	@Value("${fileServer.password}")
+	private String SFTP_PASSWORD;
 
 	private static final int INVOICE_NUMBER = 1;
 

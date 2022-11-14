@@ -10,7 +10,7 @@ import com.nineplus.bestwork.dto.PostInvoiceResDto;
 import com.nineplus.bestwork.entity.PostInvoice;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 
-public interface IPostInvoiceService {
+public interface IInvoicePostService {
 	PostInvoice savePostInvoice(PostInvoiceReqDto postInvoiceReqDto, String airWayBillCode)
 			throws BestWorkBussinessException;
 

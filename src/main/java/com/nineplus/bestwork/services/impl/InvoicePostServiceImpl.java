@@ -20,7 +20,7 @@ import com.nineplus.bestwork.entity.PostInvoice;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.model.UserAuthDetected;
 import com.nineplus.bestwork.repository.PostInvoiceRepository;
-import com.nineplus.bestwork.services.IPostInvoiceService;
+import com.nineplus.bestwork.services.IInvoicePostService;
 import com.nineplus.bestwork.services.IStorageService;
 import com.nineplus.bestwork.services.SftpFileService;
 import com.nineplus.bestwork.utils.CommonConstants;
@@ -28,7 +28,7 @@ import com.nineplus.bestwork.utils.UserAuthUtils;
 
 @Service
 @Transactional
-public class PostInvoiceServiceImpl implements IPostInvoiceService {
+public class InvoicePostServiceImpl implements IInvoicePostService {
 
 	@Autowired
 	UserAuthUtils userAuthUtils;

@@ -17,15 +17,15 @@ import org.springframework.web.multipart.MultipartFile;
 import com.nineplus.bestwork.dto.PostInvoiceReqDto;
 import com.nineplus.bestwork.dto.PostInvoiceResDto;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
-import com.nineplus.bestwork.services.IPostInvoiceService;
+import com.nineplus.bestwork.services.IInvoicePostService;
 import com.nineplus.bestwork.utils.CommonConstants;
 
 @RestController
 @RequestMapping("/api/v1/invoices")
-public class PostInvoiceController extends BaseController {
+public class InvoicePostController extends BaseController {
 
 	@Autowired
-	IPostInvoiceService iPostInvoiceService;
+	IInvoicePostService iPostInvoiceService;
 
 	@PatchMapping("/update-invoice/{airWayBillCode}")
 	public ResponseEntity<? extends Object> update(@RequestParam("file") List<MultipartFile> mFiles,

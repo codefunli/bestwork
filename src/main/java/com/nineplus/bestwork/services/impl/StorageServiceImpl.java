@@ -1,5 +1,6 @@
 package com.nineplus.bestwork.services.impl;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -42,7 +43,7 @@ public class StorageServiceImpl implements IStorageService {
 			image.setName(imageName);
 			String type = getImageType(imageData);
 			image.setType(type);
-			image.setCreateDate(LocalDateTime.now());
+			image.setCreateDate(Timestamp.valueOf(LocalDateTime.now()));
 
 			return storageRepository.save(image);
 		} catch (Exception e) {
@@ -84,7 +85,7 @@ public class StorageServiceImpl implements IStorageService {
 			String generatedFileName = UUID.randomUUID().toString().replace("-", "");
 			image.setName(generatedFileName);
 			image.setType(getImageType(file.getData()));
-			image.setCreateDate(LocalDateTime.now());
+			image.setCreateDate(Timestamp.valueOf(LocalDateTime.now()));
 
 			return storageRepository.save(image);
 		} catch (Exception e) {
@@ -116,7 +117,7 @@ public class StorageServiceImpl implements IStorageService {
 			file.setPathFileServer(pathOnServer);
 			file.setName(getFileNameFromPath(pathOnServer));
 			file.setType(getFileTypeFromPath(pathOnServer));
-			file.setCreateDate(LocalDateTime.now());
+			file.setCreateDate(Timestamp.valueOf(LocalDateTime.now()));
 			storageRepository.save(file);
 		} catch (Exception e) {
 			e.getMessage();

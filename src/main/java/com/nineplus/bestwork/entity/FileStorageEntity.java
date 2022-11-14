@@ -1,5 +1,6 @@
 	package com.nineplus.bestwork.entity;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 import javax.persistence.Column;
@@ -44,7 +45,7 @@ public class FileStorageEntity {
 
 	@CreationTimestamp
 	@Column(name = "create_date")
-	private LocalDateTime createDate;
+	private Timestamp createDate;
 	
 	@Column(name = "path_file_server")
 	private String pathFileServer;
