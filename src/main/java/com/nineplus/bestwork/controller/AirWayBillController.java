@@ -80,6 +80,5 @@ public class AirWayBillController extends BaseController {
 			return success(CommonConstants.MessageCode.E1X0003, null, null);
 		}
 		return success(CommonConstants.MessageCode.sA0004, airWayBillInfo, null);
-
 	}
 }

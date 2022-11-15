@@ -69,7 +69,7 @@ public class PermissionController extends BaseController {
         } catch (BestWorkBussinessException ex) {
             return failed(ex.getMsgCode(), ex.getParam());
         }
-        return success(CommonConstants.MessageCode.RLS0001, pageSearchDto, null);
+        return success(CommonConstants.MessageCode.PMS0001, pageSearchDto, null);
     }
 
     @DeleteMapping("/{id}")

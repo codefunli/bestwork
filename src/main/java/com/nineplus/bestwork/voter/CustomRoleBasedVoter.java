@@ -22,6 +22,11 @@ import com.nineplus.bestwork.utils.CommonConstants;
 
 public class CustomRoleBasedVoter implements AccessDecisionVoter<FilterInvocation> {
     private SysActionService sysActionService;
+    public static String[] PUBLIC_URL;
+
+    public CustomRoleBasedVoter(String[] PUBLIC_URL_LIST) {
+        PUBLIC_URL = PUBLIC_URL_LIST;
+    }
 
     @Override
     public boolean supports(ConfigAttribute attribute) {
@@ -53,7 +58,16 @@ public class CustomRoleBasedVoter implements AccessDecisionVoter<FilterInvocatio
             if (actionList.stream().anyMatch(sysAction -> {
                 UriTemplate uriTemplate = new UriTemplate(sysAction.getUrl());
                 Map<String, String> parameters = uriTemplate.match(url);
-                return !parameters.isEmpty() && sysAction.getStatus().equals(Status.ACTIVE);
+                boolean isPublicUrl = false;
+                for (String publicUrl : PUBLIC_URL) {
+                    uriTemplate = new UriTemplate(publicUrl);
+                    if (!uriTemplate.match(url).isEmpty()) {
+                        isPublicUrl = true;
+                        break;
+                    }
+                }
+                return ((!parameters.isEmpty() && sysAction.getStatus().equals(Status.ACTIVE))
+                        || url.equals(sysAction.getUrl()) || isPublicUrl);
             })) {
                 return ACCESS_GRANTED;
             }

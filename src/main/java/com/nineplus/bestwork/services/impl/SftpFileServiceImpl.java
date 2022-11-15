@@ -4,23 +4,20 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import com.jcraft.jsch.Session;
 
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpException;
 import com.nineplus.bestwork.exception.FileHandleException;
 import com.nineplus.bestwork.services.SftpFileService;
@@ -135,7 +132,6 @@ public class SftpFileServiceImpl implements SftpFileService {
 	public byte[] downloadFile(String pathFileDownload) {
 		byte[] resBytes = null;
 		ChannelSftp channel = null;
-		String fileName = null;
 		Session session = null;
 		try {
 
@@ -163,23 +159,23 @@ public class SftpFileServiceImpl implements SftpFileService {
 	}
 
 	@Override
-	public String uploadInvoice(MultipartFile file, String airWayBill) {
-		return upload(file, FolderType.INVOICE, airWayBill);
+	public String uploadInvoice(MultipartFile file, String airWayBill, long Id) {
+		return upload(file, FolderType.INVOICE, airWayBill, Id);
 	}
 
 	@Override
-	public String uploadPackage(MultipartFile file, String airWayBill) {
-		return upload(file, FolderType.PACKAGE, airWayBill);
+	public String uploadPackage(MultipartFile file, String airWayBill, long Id) {
+		return upload(file, FolderType.PACKAGE, airWayBill, Id);
 	}
 
 	@Override
-	public String uploadEvidenceBefore(MultipartFile file, String airWayBill) {
-		return upload(file, FolderType.EVIDENCE_BEFORE, airWayBill);
+	public String uploadEvidenceBefore(MultipartFile file, String airWayBill, long Id) {
+		return upload(file, FolderType.EVIDENCE_BEFORE, airWayBill, Id);
 	}
 
 	@Override
-	public String uploadEvidenceAfter(MultipartFile file, String airWayBill) {
-		return upload(file, FolderType.EVIDENCE_AFTER, airWayBill);
+	public String uploadEvidenceAfter(MultipartFile file, String airWayBill, long Id) {
+		return upload(file, FolderType.EVIDENCE_AFTER, airWayBill, Id);
 	}
 
 	/**
@@ -222,12 +218,10 @@ public class SftpFileServiceImpl implements SftpFileService {
 		}
 	}
 
-	private String upload(MultipartFile mfile, FolderType folderType, String airWayBill) {
+	private String upload(MultipartFile mfile, FolderType folderType, String airWayBill, Long Id) {
 		Session session = null;
 		ChannelSftp channel = null;
 		String pathTemp = null;
-		String pathSever = null;
-		String sftpFileName = null;
 		String finalPath = null;
 
 		// Create folder in sftp server.
@@ -254,8 +248,11 @@ public class SftpFileServiceImpl implements SftpFileService {
 				pathTemp = this.createFolder(channel, pathTemp);
 			}
 
-			// String fileExtension =
-			// FilenameUtils.getExtension(mfile.getOriginalFilename());
+			pathTemp = pathTemp + SEPARATOR + Id;
+			if (!isExistFolder(channel, pathTemp)) {
+				pathTemp = this.createFolder(channel, pathTemp);
+			}
+
 			String fileName = FilenameUtils.getName(mfile.getOriginalFilename());
 
 			// save file.
