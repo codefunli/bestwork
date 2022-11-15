@@ -1,7 +1,7 @@
 package com.nineplus.bestwork.filter;
 
 import java.io.IOException;
-import java.util.Date;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.servlet.FilterChain;
@@ -11,6 +11,12 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nineplus.bestwork.dto.PermissionResDto;
+import com.nineplus.bestwork.entity.SysPermissionEntity;
+import com.nineplus.bestwork.exception.BestWorkBussinessException;
+import com.nineplus.bestwork.model.enumtype.Status;
+import com.nineplus.bestwork.services.PermissionService;
 import org.apache.commons.lang3.ObjectUtils;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +55,13 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private PermissionService permissionService;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
     
     @Autowired
     BestWorkBeanUtils bestWorkBeanUtils;
@@ -84,11 +97,13 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
         // set content type as json
         response.setContentType("application/json");
      // set TUser && pecBeanUtils
-        if (userService == null || bestWorkBeanUtils == null) {
+        if (userService == null || bestWorkBeanUtils == null || permissionService == null || objectMapper == null) {
             ServletContext servletContext = request.getServletContext();
             WebApplicationContext webApplicationContext = WebApplicationContextUtils.getWebApplicationContext(servletContext);
             userService = webApplicationContext.getBean(UserService.class);
             bestWorkBeanUtils = webApplicationContext.getBean(BestWorkBeanUtils.class);
+            permissionService = webApplicationContext.getBean(PermissionService.class);
+            objectMapper = webApplicationContext.getBean(ObjectMapper.class);
         }
 
         LoginFailedResDto loginFailedDTO = new LoginFailedResDto();
@@ -116,13 +131,41 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
         Authentication authResult) throws IOException, ServletException {
         // reset login failed
+        if (userService == null || bestWorkBeanUtils == null || permissionService == null || objectMapper == null) {
+            ServletContext servletContext = request.getServletContext();
+            WebApplicationContext webApplicationContext = WebApplicationContextUtils.getWebApplicationContext(servletContext);
+            userService = webApplicationContext.getBean(UserService.class);
+            bestWorkBeanUtils = webApplicationContext.getBean(BestWorkBeanUtils.class);
+            permissionService = webApplicationContext.getBean(PermissionService.class);
+            objectMapper = webApplicationContext.getBean(ObjectMapper.class);
+        }
         User user = (User) authResult.getPrincipal();
+        List<Integer> lstStt = new ArrayList<>();
+        lstStt.add(Status.ACTIVE.getValue());
+        Map<String,Map<Long,List<PermissionResDto>>> mapRespon = new HashMap<>();
+        Map<Long,List<PermissionResDto>> mapPermission = new HashMap<>();
+        List<String> roleList =  user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
+        try {
+            List<SysPermissionEntity> sysPermissionEntities = permissionService.getPermissionsByRole(roleList, lstStt);
+            sysPermissionEntities.forEach(sysPermissionEntity -> {
+                PermissionResDto permissionResDto = objectMapper.convertValue(sysPermissionEntity, PermissionResDto.class);
+                if (mapPermission.containsKey(sysPermissionEntity.getSysMonitor().getId())) {
+                    mapPermission.get(sysPermissionEntity.getSysMonitor().getId()).add(permissionResDto);
+                } else {
+                    List<PermissionResDto> resDtos = new ArrayList<>();
+                    resDtos.add(permissionResDto);
+                    mapPermission.put(sysPermissionEntity.getSysMonitor().getId(), resDtos);
+                }
+            });
+        } catch (BestWorkBussinessException e) {
+            throw new RuntimeException(e);
+        }
         Algorithm algorithm = Algorithm.HMAC256(SECRET_KEY.getBytes());
         String accessToken = JWT.create()
             .withSubject(user.getUsername())
             .withExpiresAt(new Date(System.currentTimeMillis() + JWT_EXPIRATION * 1000))
             .withIssuer(request.getRequestURL().toString())
-            .withClaim(CommonConstants.Authentication.ROLES, user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
+            .withClaim(CommonConstants.Authentication.ROLES, roleList)
             .sign(algorithm);
         String refreshToken = JWT.create()
             .withSubject(user.getUsername())
@@ -139,7 +182,8 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
         refreshCookie.setMaxAge(JWT_EXPIRATION);
         response.addCookie(refreshCookie);
         response.addCookie(accessCookie);
-
+        mapRespon.put("permissions",mapPermission);
+        response.getWriter().write(objectMapper.writeValueAsString(mapRespon));
     }
 
 }
