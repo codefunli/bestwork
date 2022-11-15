@@ -58,4 +58,12 @@ public class SysPermissionEntity {
 	@JoinColumn(name = "role_id")
 	@JsonManagedReference
 	private RoleEntity sysRole;
+
+	public Integer getStatus() {
+		return status.getValue();
+	}
+
+	public void setStatus(Integer status) {
+		this.status = Status.fromValue(status);
+	}
 }

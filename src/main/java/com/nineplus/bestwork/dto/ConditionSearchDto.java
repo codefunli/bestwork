@@ -12,8 +12,8 @@ public class ConditionSearchDto {
     Long id;
     @JsonProperty("name")
     String name;
-    @JsonProperty("roleName")
-    String roleName;
-    @JsonProperty("monitorName")
-    String monitorName;
+    @JsonProperty("roleId")
+    Long roleId;
+    @JsonProperty("monitorId")
+    Long monitorId;
 }
