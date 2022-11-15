@@ -170,26 +170,94 @@ public class ConstructionServiceImpl implements IConstructionService {
 		if (!userAuthDetected.getIsContractor()) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
 		}
+		checkExistConstructionNameWhenCreating(constructionReqDto);
 		validateConstructionInfo(constructionReqDto);
 
-		if (!checkAWBStatus(constructionReqDto.getAwbCodes())) {
-			throw new BestWorkBussinessException(CommonConstants.MessageCode.ECS0003, null);
-		}
 		ConstructionEntity construction = new ConstructionEntity();
+		construction.setCreateBy(curUsername);
+		transferAndSaveConstruction(constructionReqDto, construction);
+	}
+
+	/**
+	 * Private function: transfer from ConstructionReqDto to ConstructionEntity and
+	 * save ConstructionEntity to database
+	 * 
+	 * @param constructionReqDto
+	 * @param construction
+	 */
+	private void transferAndSaveConstruction(ConstructionReqDto constructionReqDto, ConstructionEntity construction) {
 		construction.setName(constructionReqDto.getName());
 		construction.setDescription(constructionReqDto.getDescription());
 		construction.setLocation(constructionReqDto.getLocation());
 		construction.setStartDate(constructionReqDto.getStartDate());
 		construction.setStatus(constructionReqDto.getStatus());
-		construction.setCreateBy(curUsername);
 		List<AirWayBill> airWayBills = new ArrayList<>();
 		for (String code : constructionReqDto.getAwbCodes()) {
 			AirWayBill awb = this.airWayBillService.findByCode(code);
 			airWayBills.add(awb);
 		}
 		construction.setAirWayBills(airWayBills);
-
 		this.constructionRepository.save(construction);
+	}
+
+	/**
+	 * Private function: check the validation of constructionReqDto before creating
+	 * new construction
+	 * 
+	 * @param constructionReqDto
+	 * @throws BestWorkBussinessException
+	 */
+	private void validateConstructionInfo(ConstructionReqDto constructionReqDto) throws BestWorkBussinessException {
+		String constructionName = constructionReqDto.getName();
+		String[] awbCodes = constructionReqDto.getAwbCodes();
+
+		// Check construction name: not blank
+		if (ObjectUtils.isEmpty(constructionName)) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.EMP0001,
+					new Object[] { CommonConstants.Character.CONSTRUCTION_NAME });
+		}
+
+		// Check AWB codes: not blank
+		if (ObjectUtils.isEmpty(awbCodes)) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.EMP0001,
+					new Object[] { CommonConstants.Character.AIR_WAY_BILL });
+		}
+
+		// Check existence of AWB codes
+		Set<ProjectEntity> projectSetContainingAWBs = new HashSet<>();
+		for (String code : awbCodes) {
+			AirWayBill airWayBill = this.airWayBillService.findByCode(code);
+			if (ObjectUtils.isEmpty(airWayBill)) {
+				throw new BestWorkBussinessException(CommonConstants.MessageCode.EXS0004,
+						new Object[] { "AWB code " + code });
+			}
+			Optional<ProjectEntity> projectOpt = this.projectService.getProjectById(airWayBill.getProjectCode());
+			if (projectOpt.isPresent()) {
+				projectSetContainingAWBs.add(projectOpt.get());
+			}
+		}
+
+		// Check if all the allocated AWB codes exist in the same project or not
+		if (projectSetContainingAWBs.size() > 1) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.EXS0005, null);
+		} else if (projectSetContainingAWBs.size() == 0) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.EXS0006, null);
+		}
+
+		// Check if user who is not assigned to a project can not use AWB from that
+		// project
+		UserAuthDetected userAuthRoleReq = this.getUserAuthRoleReq();
+		String curUsername = userAuthRoleReq.getUsername();
+		List<ProjectEntity> involvedProjectList = this.getProjectsBeingInvolvedByCurrentUser(curUsername);
+		if (!involvedProjectList.containsAll(projectSetContainingAWBs)) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.EXS0007, null);
+		}
+
+		// Check if the AWB list for the construction contains at least 1 bill that is
+		// already customs cleared
+		if (!checkAWBStatus(constructionReqDto.getAwbCodes())) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.ECS0003, null);
+		}
 	}
 
 	/**
@@ -210,65 +278,60 @@ public class ConstructionServiceImpl implements IConstructionService {
 	}
 
 	/**
-	 * Private function: check the validation of constructionReqDto before creating
-	 * new construction
+	 * Private function: Check new construction name cannot be the same as existed
+	 * construction's when creating new construction
 	 * 
 	 * @param constructionReqDto
 	 * @throws BestWorkBussinessException
 	 */
-	private void validateConstructionInfo(ConstructionReqDto constructionReqDto) throws BestWorkBussinessException {
-		String constructionName = constructionReqDto.getName();
-		String[] awbCodes = constructionReqDto.getAwbCodes();
-
-		if (ObjectUtils.isEmpty(constructionName)) {
-			throw new BestWorkBussinessException(CommonConstants.MessageCode.EMP0001,
-					new Object[] { CommonConstants.Character.CONSTRUCTION_NAME });
-		}
-
-		if (ObjectUtils.isEmpty(awbCodes)) {
-			throw new BestWorkBussinessException(CommonConstants.MessageCode.EMP0001,
-					new Object[] { CommonConstants.Character.AIR_WAY_BILL });
-		}
-
-		List<AirWayBill> awbList = new ArrayList<>();
-		Set<String> projectIdSet = new HashSet<>();
-		for (String code : awbCodes) {
-			AirWayBill airWayBill = this.airWayBillService.findByCode(code);
-			awbList.add(airWayBill);
-			if (ObjectUtils.isEmpty(airWayBill)) {
-				throw new BestWorkBussinessException(CommonConstants.MessageCode.EXS0004,
-						new Object[] { "AWB code " + code });
-			}
-			projectIdSet.add(airWayBill.getProjectCode());
-		}
-
-		if (projectIdSet.size() > 1) {
-			throw new BestWorkBussinessException(CommonConstants.MessageCode.EXS0005, null);
-		}
-		ConstructionEntity construction = constructionRepository.findByName(constructionName);
-		if (!ObjectUtils.isEmpty(construction)) {
+	private void checkExistConstructionNameWhenCreating(ConstructionReqDto constructionReqDto)
+			throws BestWorkBussinessException {
+		ConstructionEntity existedConstruction = constructionRepository.findByName(constructionReqDto.getName());
+		if (!ObjectUtils.isEmpty(existedConstruction)) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.EXS0003,
 					new Object[] { CommonConstants.Character.CONSTRUCTION_NAME });
 		}
-
 	}
 
 	/**
-	 * Function: get detailed construction by id
+	 * Private function: Check new construction name cannot be the same as existed
+	 * construction's when updating construction
+	 * 
+	 * @param constructionReqDto
+	 * @param curConstruction
+	 * @throws BestWorkBussinessException
+	 */
+	private void checkExistConstructionNameWhenEditing(ConstructionReqDto constructionReqDto,
+			ConstructionEntity curConstruction) throws BestWorkBussinessException {
+		ConstructionEntity existedConstruction = constructionRepository.findByName(constructionReqDto.getName());
+		if (!ObjectUtils.isEmpty(existedConstruction)
+				&& !curConstruction.getName().equals(existedConstruction.getName())) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.EXS0003,
+					new Object[] { CommonConstants.Character.CONSTRUCTION_NAME });
+		}
+	}
+
+	/**
+	 * Function: get detailed construction by construction id and user involved in
+	 * the project
 	 * 
 	 * @param constructionId
 	 * @return ConstructionResDto
+	 * @throws BestWorkBussinessException
 	 */
 	@Override
 	public ConstructionResDto findConstructionById(long constructionId) throws BestWorkBussinessException {
 		UserAuthDetected userAuthRoleReq = this.getUserAuthRoleReq();
-//		if (!userAuthRoleReq.getIsContractor()) {
-//			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
-//		}
+		String curUsername = userAuthRoleReq.getUsername();
+
 		Optional<ConstructionEntity> constructionOpt = constructionRepository.findById(constructionId);
 		if (!constructionOpt.isPresent()) {
 			return null;
 		}
+		if (!checkIfCurrentUserCanViewConstruction(constructionId, curUsername)) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
+		}
+
 		ConstructionResDto constructionResDto = new ConstructionResDto();
 		constructionResDto.setId(constructionId);
 		constructionResDto.setName(constructionOpt.get().getName());
@@ -284,5 +347,87 @@ public class ConstructionServiceImpl implements IConstructionService {
 		constructionResDto.setAwbCodes(awbCodes);
 
 		return constructionResDto;
+	}
+
+	/**
+	 * Private function: get project that contains the current construction
+	 * 
+	 * @param constructionId
+	 * @return ProjectEntity
+	 */
+	private ProjectEntity getProjectContainingCurrentConstruction(long constructionId) {
+		ProjectEntity project = this.projectService.getProjectByConstructionId(constructionId);
+		return project;
+	}
+
+	/**
+	 * Private function: check if a specific user can view a specific construction
+	 * or not
+	 * 
+	 * @param constructionId
+	 * @param username
+	 * @return true/false
+	 */
+	private Boolean checkIfCurrentUserCanViewConstruction(long constructionId, String username) {
+		ProjectEntity currentProject = this.getProjectContainingCurrentConstruction(constructionId);
+		List<ProjectEntity> projectListInvolvedByUser = this.getProjectsBeingInvolvedByCurrentUser(username);
+		if (projectListInvolvedByUser.contains(currentProject)) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Private function: check if a specific user can edit a specific construction
+	 * or not
+	 * 
+	 * @param construction
+	 * @param username
+	 * @return true/false
+	 */
+	private Boolean checkIfCurrentUserCanEditAndDeleteConstruction(ConstructionEntity construction, String username) {
+		if (construction.getCreateBy().equals(username)) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Function: update construction by constructionId
+	 * 
+	 * @param constructionId
+	 * @param constructionReqDto
+	 */
+	@Override
+	public void updateConstruction(long constructionId, ConstructionReqDto constructionReqDto)
+			throws BestWorkBussinessException {
+		UserAuthDetected userAuthRoleReq = this.getUserAuthRoleReq();
+		String curUsername = userAuthRoleReq.getUsername();
+		Optional<ConstructionEntity> constructionOpt = constructionRepository.findById(constructionId);
+		if (!constructionOpt.isPresent()) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
+		}
+		ConstructionEntity curConstruction = constructionOpt.get();
+		if (!checkIfCurrentUserCanEditAndDeleteConstruction(curConstruction, curUsername)) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
+		}
+		checkExistConstructionNameWhenEditing(constructionReqDto, curConstruction);
+		validateConstructionInfo(constructionReqDto);
+		transferAndSaveConstruction(constructionReqDto, curConstruction);
+	}
+
+	@Override
+	public void deleteConstruction(long constructionId) throws BestWorkBussinessException {
+		UserAuthDetected userAuthRoleReq = this.getUserAuthRoleReq();
+		String curUsername = userAuthRoleReq.getUsername();
+		Optional<ConstructionEntity> constructionOpt = constructionRepository.findById(constructionId);
+		if (!constructionOpt.isPresent()) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
+		}
+		ConstructionEntity curConstruction = constructionOpt.get();
+		if (!checkIfCurrentUserCanEditAndDeleteConstruction(curConstruction, curUsername)) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
+		}
+		this.constructionRepository.deleteById(constructionId);
 	}
 }

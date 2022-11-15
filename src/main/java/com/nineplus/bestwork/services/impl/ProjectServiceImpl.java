@@ -517,4 +517,15 @@ public class ProjectServiceImpl implements IProjectService {
 	public List<ProjectEntity> getProjectsBeingAssignedToCurrentUser(String curUsername) {
 		return this.projectRepository.findProjectsBeingAssignedToCurrentUser(curUsername);
 	}
+
+	/**
+	 * Function: get project that contains a specific construction
+	 * DiepTT
+	 * @Param constructionId
+	 * @return ProjectEntity
+	 */
+	@Override
+	public ProjectEntity getProjectByConstructionId(long constructionId) {
+		return this.projectRepository.findByConstructionId(constructionId);
+	}
 }

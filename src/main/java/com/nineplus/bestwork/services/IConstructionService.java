@@ -17,4 +17,8 @@ public interface IConstructionService {
 	void createConstruction(ConstructionReqDto constructionReqDto) throws BestWorkBussinessException;
 
 	ConstructionResDto findConstructionById(long constructionId) throws BestWorkBussinessException;
+
+	void updateConstruction(long constructionId, ConstructionReqDto constructionReqDto) throws BestWorkBussinessException;
+
+	void deleteConstruction(long constructionId) throws BestWorkBussinessException;
 }

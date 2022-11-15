@@ -97,6 +97,13 @@ public interface ProjectRepository extends JpaRepository<ProjectEntity, String> 
 			+ " ast.can_view = 1 or ast.can_edit = 1 ) ", nativeQuery = true )
 	List<ProjectEntity> findProjectsBeingAssignedToCurrentUser(String curUsername);
 
+	@Query(value = "select * from PROJECT p "
+			+ " join AIRWAY_BILL awb on awb.project_code = p.id "
+			+ " join AWB_CONSTRUCTION awbc on awbc.awb_id = awb.id"
+			+ " where awbc.construction_id = :constructionId "
+			+ " group by p.id ", nativeQuery = true )
+	ProjectEntity findByConstructionId(long constructionId);
+
 
 
 }

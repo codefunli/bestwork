@@ -2,7 +2,9 @@ package com.nineplus.bestwork.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -33,8 +35,8 @@ public class ConstructionController extends BaseController {
 	 * Function: get constructions with condition (current user, keyword, pageable)
 	 * 
 	 * @param pageCondition
-	 * @return (ResponseEntity<apiResponseDto>) all constructions of projects that
-	 *         current user being involved (creating or being assigned)
+	 * @return (ResponseEntity<apiResponseDto>) message and list of all constructions of projects that
+	 *         current user being involved (creating or being assigned) if success 
 	 */
 	@PostMapping("/list")
 	public ResponseEntity<? extends Object> getAllConstructions(@RequestBody PageSearchDto pageCondition) {
@@ -66,12 +68,21 @@ public class ConstructionController extends BaseController {
 		return success(CommonConstants.MessageCode.SCS0002, null, null);
 	}
 
+	/**
+	 * Function: get construction by construction id
+	 * @param constructionId
+	 * @return (ResponseEntity<apiResponseDto>) message that getting construction is
+	 *         successful or not and construction details if successful 
+	 */
 	@GetMapping("/detail/{constructionId}")
-	public ResponseEntity<? extends Object> getConstructionById(@PathVariable long constructionId)
-			throws BestWorkBussinessException {
+	public ResponseEntity<? extends Object> getConstructionById(@PathVariable long constructionId) {
 		ConstructionResDto constructionResDto = null;
+		try {
+			constructionResDto = constructionService.findConstructionById(constructionId);
+		} catch (BestWorkBussinessException e) {
+			return failed(e.getMsgCode(), e.getParam());
+		}
 
-		constructionResDto = constructionService.findConstructionById(constructionId);
 		if (constructionResDto == null) {
 			return success(CommonConstants.MessageCode.E1X0003, null, null);
 		} else {
@@ -79,4 +90,36 @@ public class ConstructionController extends BaseController {
 		}
 	}
 
+	/**
+	 * Function: update construction by construction id
+	 * @param constructionId
+	 * @param constructionReqDto
+	 * @return (ResponseEntity<apiResponseDto>) message that updating construction is
+	 *         successful or not
+	 */
+	@PatchMapping("/update/{constructionId}")
+	public ResponseEntity<? extends Object> updateConstruction(@PathVariable long constructionId, @RequestBody ConstructionReqDto constructionReqDto) {
+		try {
+			constructionService.updateConstruction(constructionId, constructionReqDto);
+		} catch (BestWorkBussinessException ex) {
+			return failed(ex.getMsgCode(), ex.getParam());
+		}
+		return success(CommonConstants.MessageCode.SCS0004, null, null);
+	}
+	
+	/**
+	 * Function: delete construction by construction id
+	 * @param constructionId
+	 * @return (ResponseEntity<apiResponseDto>) message that deleting construction is
+	 *         successful or not
+	 */
+	@DeleteMapping("/delete/{constructionId}")
+	public ResponseEntity<? extends Object> deleteConstruction(@PathVariable long constructionId) {
+		try {
+			constructionService.deleteConstruction(constructionId);
+		} catch (BestWorkBussinessException ex) {
+			return failed(ex.getMsgCode(), ex.getParam());
+		}
+		return success(CommonConstants.MessageCode.SCS0005, null, null);
+	}
 }

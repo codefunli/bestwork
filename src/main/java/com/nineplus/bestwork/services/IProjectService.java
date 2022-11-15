@@ -49,4 +49,6 @@ public interface IProjectService {
 
 	public List<ProjectEntity> getProjectsBeingAssignedToCurrentUser(String curUsername);
 
+	public ProjectEntity getProjectByConstructionId(long constructionId);
+
 }
