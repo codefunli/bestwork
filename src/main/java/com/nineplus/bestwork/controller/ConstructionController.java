@@ -1,5 +1,8 @@
 package com.nineplus.bestwork.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -13,11 +16,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.nineplus.bestwork.dto.ConstructionReqDto;
 import com.nineplus.bestwork.dto.ConstructionResDto;
+import com.nineplus.bestwork.dto.ConstructionStatusResDto;
 import com.nineplus.bestwork.dto.PageResDto;
 import com.nineplus.bestwork.dto.PageSearchDto;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.services.IConstructionService;
 import com.nineplus.bestwork.utils.CommonConstants;
+import com.nineplus.bestwork.utils.Enums.ConstructionStatus;
 
 /**
  * 
@@ -35,8 +40,9 @@ public class ConstructionController extends BaseController {
 	 * Function: get constructions with condition (current user, keyword, pageable)
 	 * 
 	 * @param pageCondition
-	 * @return (ResponseEntity<apiResponseDto>) message and list of all constructions of projects that
-	 *         current user being involved (creating or being assigned) if success 
+	 * @return (ResponseEntity<apiResponseDto>) message and list of all
+	 *         constructions of projects that current user being involved (creating
+	 *         or being assigned) if success
 	 */
 	@PostMapping("/list")
 	public ResponseEntity<? extends Object> getAllConstructions(@RequestBody PageSearchDto pageCondition) {
@@ -70,9 +76,10 @@ public class ConstructionController extends BaseController {
 
 	/**
 	 * Function: get construction by construction id
+	 * 
 	 * @param constructionId
 	 * @return (ResponseEntity<apiResponseDto>) message that getting construction is
-	 *         successful or not and construction details if successful 
+	 *         successful or not and construction details if successful
 	 */
 	@GetMapping("/detail/{constructionId}")
 	public ResponseEntity<? extends Object> getConstructionById(@PathVariable long constructionId) {
@@ -92,13 +99,15 @@ public class ConstructionController extends BaseController {
 
 	/**
 	 * Function: update construction by construction id
+	 * 
 	 * @param constructionId
 	 * @param constructionReqDto
-	 * @return (ResponseEntity<apiResponseDto>) message that updating construction is
-	 *         successful or not
+	 * @return (ResponseEntity<apiResponseDto>) message that updating construction
+	 *         is successful or not
 	 */
 	@PatchMapping("/update/{constructionId}")
-	public ResponseEntity<? extends Object> updateConstruction(@PathVariable long constructionId, @RequestBody ConstructionReqDto constructionReqDto) {
+	public ResponseEntity<? extends Object> updateConstruction(@PathVariable long constructionId,
+			@RequestBody ConstructionReqDto constructionReqDto) {
 		try {
 			constructionService.updateConstruction(constructionId, constructionReqDto);
 		} catch (BestWorkBussinessException ex) {
@@ -106,12 +115,13 @@ public class ConstructionController extends BaseController {
 		}
 		return success(CommonConstants.MessageCode.SCS0004, null, null);
 	}
-	
+
 	/**
 	 * Function: delete construction by construction id
+	 * 
 	 * @param constructionId
-	 * @return (ResponseEntity<apiResponseDto>) message that deleting construction is
-	 *         successful or not
+	 * @return (ResponseEntity<apiResponseDto>) message that deleting construction
+	 *         is successful or not
 	 */
 	@DeleteMapping("/delete/{constructionId}")
 	public ResponseEntity<? extends Object> deleteConstruction(@PathVariable long constructionId) {
@@ -121,5 +131,24 @@ public class ConstructionController extends BaseController {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}
 		return success(CommonConstants.MessageCode.SCS0005, null, null);
+	}
+
+	/**
+	 * Function: get list of construction status
+	 * 
+	 * @return (ResponseEntity<apiResponseDto>) message and list of construction
+	 *         status
+	 * @throws BestWorkBussinessException
+	 */
+	@GetMapping("/status")
+	public ResponseEntity<? extends Object> getConstructionStatus() throws BestWorkBussinessException {
+		List<ConstructionStatusResDto> constructionStatus = new ArrayList<>();
+		for (ConstructionStatus status : ConstructionStatus.values()) {
+			ConstructionStatusResDto dto = new ConstructionStatusResDto();
+			dto.setId(status.ordinal());
+			dto.setStatus(status.getValue());
+			constructionStatus.add(dto);
+		}
+		return success(CommonConstants.MessageCode.S1X0015, constructionStatus, null);
 	}
 }
