@@ -46,7 +46,7 @@ public class InvoicePostController extends BaseController {
 	}
 	
 	@GetMapping("/detail/{invoicePostId}")
-	public ResponseEntity<? extends Object> getDetalInvoice(@PathVariable long invoicePostId)
+	public ResponseEntity<? extends Object> getDetailInvoice(@PathVariable long invoicePostId)
 			throws BestWorkBussinessException {
 		PostInvoiceResDto postInvoiceResDto  = null;
 		try {
