@@ -1,7 +1,6 @@
 	package com.nineplus.bestwork.entity;
 
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -51,16 +50,19 @@ public class FileStorageEntity {
 	private String pathFileServer;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "post_id")
+	@JoinColumn(name = "post_id",nullable = true)
 	@JsonIgnore
 	private PostEntity post;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "progress_id")
+	@JoinColumn(name = "progress_id",nullable = true)
 	@JsonIgnore
 	private ProgressEntity progress;
 	
-	@Column(name = "post_invoice_id")
+	@Column(name = "post_invoice_id",nullable = true)
 	private long postInvoiceId;
-
+	
+	@Column(name = "post_package_id",nullable = true)
+	private long packagePostId;
+	
 }

@@ -5,9 +5,9 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.nineplus.bestwork.entity.PostInvoice;
+import com.nineplus.bestwork.entity.PackagePost;
 
 @Repository
-public interface PostInvoiceRepository extends JpaRepository<PostInvoice, Long> {
-	List<PostInvoice> findByAirWayBill(String airWayBill);
+public interface PackagePostRepository extends JpaRepository<PackagePost, Long> {
+	List<PackagePost> findByAirWayBill(String airWayBillCode);
 }

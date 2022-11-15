@@ -20,7 +20,7 @@ public class FileStorageResDto extends BaseDto {
 	 */
 	private static final long serialVersionUID = 9071487189534200767L;
 
-	@JsonProperty("id")
+	@JsonProperty("fileId")
 	private long id;
 
 	@JsonProperty("name")

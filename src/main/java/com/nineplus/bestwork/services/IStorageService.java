@@ -6,6 +6,7 @@ import com.nineplus.bestwork.dto.FileStorageReqDto;
 import com.nineplus.bestwork.entity.FileStorageEntity;
 import com.nineplus.bestwork.entity.PostEntity;
 import com.nineplus.bestwork.entity.ProgressEntity;
+import com.nineplus.bestwork.utils.Enums.FolderType;
 
 /**
  * 
@@ -24,7 +25,6 @@ public interface IStorageService {
 
 	public void deleteFilesByPostId(String postId);
 	
-	public void storeFilePostInvoice(Long postInvoiceId, String pathOnServer);
-
+	public void storeFile(Long Id, FolderType type, String pathOnServer);
 
 }

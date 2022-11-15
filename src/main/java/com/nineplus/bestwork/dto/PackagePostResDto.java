@@ -12,14 +12,15 @@ import lombok.Setter;
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = false)
-public class PostInvoiceResDto extends BaseDto {
+public class PackagePostResDto extends BaseDto {
+
 	
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -2766380575224594531L;
-	
-	@JsonProperty("id")
+	private static final long serialVersionUID = 6721145972241639891L;
+
+	@JsonProperty("packageId")
 	private long id;
 
 	@JsonProperty("description")

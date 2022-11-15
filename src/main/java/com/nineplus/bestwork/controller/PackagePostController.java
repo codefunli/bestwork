@@ -14,65 +14,64 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.nineplus.bestwork.dto.PostInvoiceReqDto;
-import com.nineplus.bestwork.dto.PostInvoiceResDto;
+import com.nineplus.bestwork.dto.PackagePostReqDto;
+import com.nineplus.bestwork.dto.PackagePostResDto;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
-import com.nineplus.bestwork.services.IInvoicePostService;
+import com.nineplus.bestwork.services.IPackagePostService;
 import com.nineplus.bestwork.utils.CommonConstants;
 
 @RestController
-@RequestMapping("/api/v1/invoices")
-public class InvoicePostController extends BaseController {
+@RequestMapping("/api/v1/packages")
+public class PackagePostController extends BaseController {
 
 	@Autowired
-	IInvoicePostService iPostInvoiceService;
+	IPackagePostService iPackagePostService;
 
-	@PatchMapping("/update-invoice/{airWayBillCode}")
+	@PatchMapping("/update-package/{airWayBillCode}")
 	public ResponseEntity<? extends Object> update(@RequestParam("file") List<MultipartFile> mFiles,
-			@RequestParam("invoices-description") String invoiceDes,
-			@RequestParam("invoices-comment") String invoiceCom, @PathVariable String airWayBillCode)
-			throws BestWorkBussinessException {
+			@RequestParam("package-description") String packageDes, @RequestParam("package-comment") String packageCom,
+			@PathVariable String airWayBillCode) throws BestWorkBussinessException {
 		try {
-			PostInvoiceReqDto postInvoiceReqDto = new PostInvoiceReqDto();
-			if (StringUtils.isNotBlank(invoiceDes) || StringUtils.isNotBlank(invoiceCom)) {
-				postInvoiceReqDto.setComment(invoiceCom);
-				postInvoiceReqDto.setDescription(invoiceDes);
+			PackagePostReqDto packagePostReqDto = new PackagePostReqDto();
+			if (StringUtils.isNotBlank(packageDes) || StringUtils.isNotBlank(packageCom)) {
+				packagePostReqDto.setComment(packageCom);
+				packagePostReqDto.setDescription(packageDes);
 			}
-			iPostInvoiceService.updatePostInvoice(mFiles, postInvoiceReqDto, airWayBillCode);
+			iPackagePostService.updatePackagePost(mFiles, packagePostReqDto, airWayBillCode);
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}
-		return success(CommonConstants.MessageCode.sI0001, null, null);
+		return success(CommonConstants.MessageCode.sP0001, null, null);
 	}
 	
-	@GetMapping("/detail/{invoicePostId}")
-	public ResponseEntity<? extends Object> getDetalInvoice(@PathVariable long invoicePostId)
+	@GetMapping("/detail/{packagePostId}")
+	public ResponseEntity<? extends Object> getDetailPackage(@PathVariable long packagePostId)
 			throws BestWorkBussinessException {
-		PostInvoiceResDto postInvoiceResDto  = null;
+		PackagePostResDto packagePostResDto  = null;
 		try {
-			postInvoiceResDto = iPostInvoiceService.getDetailInvoice(invoicePostId);
+			packagePostResDto = iPackagePostService.getDetailPackage(packagePostId);
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}
-		if (ObjectUtils.isEmpty(postInvoiceResDto)) {
+		if (ObjectUtils.isEmpty(packagePostResDto)) {
 			return success(CommonConstants.MessageCode.E1X0003, null, null);
 		}
-		return success(CommonConstants.MessageCode.sI0002, postInvoiceResDto, null);
+		return success(CommonConstants.MessageCode.sP0002, packagePostResDto, null);
 	}
 	
 	@GetMapping("/list/by/{airWayBillId}")
 	public ResponseEntity<? extends Object> getAllPackagePost(@PathVariable String airWayBillId)
 			throws BestWorkBussinessException {
-		List<PostInvoiceResDto> listPostInvoiceResDto  = null;
+		List<PackagePostResDto> listPackagePostResDto  = null;
 		try {
-			listPostInvoiceResDto = iPostInvoiceService.getAllInvoicePost(airWayBillId);
+			listPackagePostResDto = iPackagePostService.getAllPackagePost(airWayBillId);
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}
-		if (ObjectUtils.isEmpty(listPostInvoiceResDto)) {
+		if (ObjectUtils.isEmpty(listPackagePostResDto)) {
 			return success(CommonConstants.MessageCode.E1X0003, null, null);
 		}
-		return success(CommonConstants.MessageCode.sI0003, listPostInvoiceResDto, null);
+		return success(CommonConstants.MessageCode.sP0003, listPackagePostResDto, null);
 	}
-	
+
 }

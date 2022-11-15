@@ -18,6 +18,7 @@ import com.nineplus.bestwork.entity.PostEntity;
 import com.nineplus.bestwork.entity.ProgressEntity;
 import com.nineplus.bestwork.repository.StorageRepository;
 import com.nineplus.bestwork.services.IStorageService;
+import com.nineplus.bestwork.utils.Enums.FolderType;
 
 /**
  * 
@@ -110,10 +111,25 @@ public class StorageServiceImpl implements IStorageService {
 
 	@Override
 	@Transactional
-	public void storeFilePostInvoice(Long postInvoiceId, String pathOnServer) {
+	public void storeFile(Long Id, FolderType type, String pathOnServer) {
 		try {
 			FileStorageEntity file = new FileStorageEntity();
-			file.setPostInvoiceId(postInvoiceId);
+			switch (type) {
+			case INVOICE:
+				file.setPostInvoiceId(Id);
+				break;
+			case PACKAGE:
+				file.setPackagePostId(Id);
+				break;
+			case EVIDENCE_BEFORE:
+				// file.setPackagePostId(Id);
+				break;
+			case EVIDENCE_AFTER:
+				// file.setPackagePostId(Id);
+				break;
+			default:
+				break;
+			}
 			file.setPathFileServer(pathOnServer);
 			file.setName(getFileNameFromPath(pathOnServer));
 			file.setType(getFileTypeFromPath(pathOnServer));
@@ -123,7 +139,7 @@ public class StorageServiceImpl implements IStorageService {
 			e.getMessage();
 		}
 	}
-	
+
 	private String getFileNameFromPath(String path) {
 		return FilenameUtils.getName(path);
 	}
