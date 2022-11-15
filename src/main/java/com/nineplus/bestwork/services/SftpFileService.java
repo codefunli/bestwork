@@ -17,12 +17,12 @@ public interface SftpFileService {
 
 	byte[] viewFilePdf(String pathFileView);
 
-	String uploadInvoice(MultipartFile file, String airWayBill);
+	String uploadInvoice(MultipartFile file, String airWayBill, long invoiceId);
 
-	String uploadPackage(MultipartFile file, String airWayBill);
+	String uploadPackage(MultipartFile file, String airWayBill, long packageId);
 
-	String uploadEvidenceBefore(MultipartFile file, String airWayBill);
+	String uploadEvidenceBefore(MultipartFile file, String airWayBill, long evidenceBeforeId);
 
-	String uploadEvidenceAfter(MultipartFile file, String airWayBill);
+	String uploadEvidenceAfter(MultipartFile file, String airWayBill, long evidenceAfterId);
 
 }

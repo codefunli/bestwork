@@ -1,6 +1,5 @@
 package com.nineplus.bestwork.entity;
 
-
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -13,25 +12,20 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.UpdateTimestamp;
 
-
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Table(name = "post_invoice")
-@Entity(name = "PostInvoice")
+@Table(name = "PACKAGE_POST")
+@Entity(name = "PackagePost")
 @Getter
 @Setter
 @NoArgsConstructor
 @Data
-@EqualsAndHashCode(callSuper = false)
-public class PostInvoice {
-	
+public class PackagePost {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id", unique = true, nullable = false, precision = 19)
@@ -60,6 +54,7 @@ public class PostInvoice {
 	@Column(name = "airway_bill")
 	private String airWayBill;
 	
-	@OneToMany(mappedBy = "postInvoiceId")
+	@OneToMany(mappedBy = "packagePostId")
 	private List<FileStorageEntity> fileStorages;
+
 }
