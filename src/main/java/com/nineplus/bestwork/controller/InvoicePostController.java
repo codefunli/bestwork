@@ -44,11 +44,11 @@ public class InvoicePostController extends BaseController {
 		}
 		return success(CommonConstants.MessageCode.sI0001, null, null);
 	}
-	
+
 	@GetMapping("/detail/{invoicePostId}")
 	public ResponseEntity<? extends Object> getDetailInvoice(@PathVariable long invoicePostId)
 			throws BestWorkBussinessException {
-		PostInvoiceResDto postInvoiceResDto  = null;
+		PostInvoiceResDto postInvoiceResDto = null;
 		try {
 			postInvoiceResDto = iPostInvoiceService.getDetailInvoice(invoicePostId);
 		} catch (BestWorkBussinessException ex) {
@@ -59,11 +59,11 @@ public class InvoicePostController extends BaseController {
 		}
 		return success(CommonConstants.MessageCode.sI0002, postInvoiceResDto, null);
 	}
-	
+
 	@GetMapping("/list/by/{airWayBillId}")
 	public ResponseEntity<? extends Object> getAllPackagePost(@PathVariable String airWayBillId)
 			throws BestWorkBussinessException {
-		List<PostInvoiceResDto> listPostInvoiceResDto  = null;
+		List<PostInvoiceResDto> listPostInvoiceResDto = null;
 		try {
 			listPostInvoiceResDto = iPostInvoiceService.getAllInvoicePost(airWayBillId);
 		} catch (BestWorkBussinessException ex) {
@@ -74,5 +74,20 @@ public class InvoicePostController extends BaseController {
 		}
 		return success(CommonConstants.MessageCode.sI0003, listPostInvoiceResDto, null);
 	}
-	
+
+	@GetMapping("/get-file/by")
+	public ResponseEntity<? extends Object> getFile(@RequestParam(value = "invoicePostId", required = true) Long invoicePostId,
+			@RequestParam(value = "fileId", required = false) Long fileId) throws BestWorkBussinessException {
+		byte[] dataBytesFile = null;
+		try {
+			dataBytesFile = iPostInvoiceService.getFile(invoicePostId, fileId);
+		} catch (BestWorkBussinessException ex) {
+			return failed(ex.getMsgCode(), ex.getParam());
+		}
+		if (ObjectUtils.isEmpty(dataBytesFile)) {
+			return success(CommonConstants.MessageCode.E1X0003, null, null);
+		}
+		return success(CommonConstants.MessageCode.sF0002, dataBytesFile, null);
+	}
+
 }

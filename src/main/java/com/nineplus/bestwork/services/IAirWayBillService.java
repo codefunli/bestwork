@@ -13,4 +13,5 @@ public interface IAirWayBillService {
 	List<AirWayBill> getAllAirWayBillByProject(String projectId) throws BestWorkBussinessException;
 
 	AirWayBillResDto getDetail(String code) throws BestWorkBussinessException;
+
 }

@@ -41,4 +41,7 @@ public class FileStorageResDto extends BaseDto {
 	@JsonProperty("content")
 	private String content;
 
+	@JsonProperty("isChoosen")
+	private boolean isChoosen;
+
 }

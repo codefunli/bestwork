@@ -23,4 +23,6 @@ public interface IInvoicePostService {
 
 	List<PostInvoiceResDto> getAllInvoicePost(String airWayBillId) throws BestWorkBussinessException;
 
+	byte[] getFile(Long postId, Long fileId) throws BestWorkBussinessException;
+
 }
