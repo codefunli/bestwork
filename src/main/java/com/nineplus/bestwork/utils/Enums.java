@@ -35,7 +35,7 @@ public class Enums {
 	}
 
 	public enum ProgressStatus {
-		TODO("Todo"), IN_PROGRESS("In progress"), PENDING("Pending"), REVIEW("Review"), DONE("Done");
+		NOT_YET_START("Not yet start"), IN_PROGRESS("In progress"), PENDING("Pending"), REVIEW("Review"), DONE("Done");
 
 		private String value;
 
@@ -66,7 +66,7 @@ public class Enums {
 	}
 
 	public enum ConstructionStatus {
-		TODO("Todo"), IN_PROGRESS("In progress"), PENDING("Pending"), REVIEW("Review"), DONE("Done");
+		NOT_YET_START("Not yet start"), IN_PROGRESS("In progress"), PENDING("Pending"), REVIEW("Review"), DONE("Done");
 
 		private String value;
 
