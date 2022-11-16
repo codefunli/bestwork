@@ -428,16 +428,13 @@ public class ConstructionServiceImpl implements IConstructionService {
 	public void deleteConstruction(ConstructionListIdDto constructionIds) throws BestWorkBussinessException {
 		UserAuthDetected userAuthRoleReq = this.getUserAuthRoleReq();
 		String curUsername = userAuthRoleReq.getUsername();
-		for (long id : constructionIds.getListId()) {
-			Optional<ConstructionEntity> constructionOpt = constructionRepository.findById(id);
-			if (!constructionOpt.isPresent()) {
-				throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
-			}
-			ConstructionEntity curConstruction = constructionOpt.get();
-			if (!checkIfCurrentUserCanEditAndDeleteConstruction(curConstruction, curUsername)) {
+		long[] ids = constructionIds.getListId();
+		List<ConstructionEntity> constructionList = constructionRepository.findByIds(ids);
+		for (ConstructionEntity construction : constructionList) {
+			if (!checkIfCurrentUserCanEditAndDeleteConstruction(construction, curUsername)) {
 				throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
 			}
-			this.constructionRepository.deleteById(id);
 		}
+		this.constructionRepository.deleteByIds(ids);
 	}
 }
