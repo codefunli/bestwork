@@ -20,7 +20,7 @@ import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpException;
 import com.nineplus.bestwork.exception.FileHandleException;
-import com.nineplus.bestwork.services.SftpFileService;
+import com.nineplus.bestwork.services.ISftpFileService;
 import com.nineplus.bestwork.utils.DateUtils;
 import com.nineplus.bestwork.utils.Enums.FolderType;
 
@@ -30,7 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Configuration
 @PropertySource("classpath:application.properties")
-public class SftpFileServiceImpl implements SftpFileService {
+public class SftpFileServiceImpl implements ISftpFileService {
 
 	/**
 	 * The Constant SEPARATOR.

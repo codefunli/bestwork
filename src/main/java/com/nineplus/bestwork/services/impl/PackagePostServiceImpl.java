@@ -2,7 +2,6 @@ package com.nineplus.bestwork.services.impl;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,7 +21,7 @@ import com.nineplus.bestwork.model.UserAuthDetected;
 import com.nineplus.bestwork.repository.PackagePostRepository;
 import com.nineplus.bestwork.services.IPackagePostService;
 import com.nineplus.bestwork.services.IStorageService;
-import com.nineplus.bestwork.services.SftpFileService;
+import com.nineplus.bestwork.services.ISftpFileService;
 import com.nineplus.bestwork.utils.CommonConstants;
 import com.nineplus.bestwork.utils.Enums.FolderType;
 import com.nineplus.bestwork.utils.UserAuthUtils;
@@ -38,7 +37,7 @@ public class PackagePostServiceImpl implements IPackagePostService {
 	PackagePostRepository packagePostRepository;
 
 	@Autowired
-	SftpFileService sftpFileService;
+	ISftpFileService sftpFileService;
 
 	@Autowired
 	IStorageService iStorageService;
@@ -103,10 +102,6 @@ public class PackagePostServiceImpl implements IPackagePostService {
 				fileStorageResponseDto.setName(file.getName());
 				fileStorageResponseDto.setCreateDate(file.getCreateDate().toString());
 				fileStorageResponseDto.setType(file.getType());
-				String pathServer = file.getPathFileServer();
-				byte[] fileContent = sftpFileService.downloadFile(pathServer);
-				String fileEncoded = Base64.getEncoder().encodeToString(fileContent);
-				fileStorageResponseDto.setContent(fileEncoded);
 				fileStorageResponseDtos.add(fileStorageResponseDto);
 			}
 			packagePostResDto.setFileStorages(fileStorageResponseDtos);
@@ -142,19 +137,28 @@ public class PackagePostServiceImpl implements IPackagePostService {
 					fileStorageResponseDto.setName(file.getName());
 					fileStorageResponseDto.setCreateDate(file.getCreateDate().toString());
 					fileStorageResponseDto.setType(file.getType());
-					String pathServer = file.getPathFileServer();
-					byte[] fileContent = sftpFileService.downloadFile(pathServer);
-					String fileEncoded = Base64.getEncoder().encodeToString(fileContent);
-					fileStorageResponseDto.setContent(fileEncoded);
+					fileStorageResponseDto.setChoosen(file.isChoosen());
 					fileStorageResponseDtos.add(fileStorageResponseDto);
 				}
 				res.setFileStorages(fileStorageResponseDtos);
 				listPackagePostResDto.add(res);
 			}
 			// Sort by newest create date
-			if(ObjectUtils.isNotEmpty(listPackagePostResDto))
-			listPackagePostResDto.sort((o1, o2) -> o2.getCreateDate().compareTo(o1.getCreateDate()));
+			if (ObjectUtils.isNotEmpty(listPackagePostResDto)) {
+				listPackagePostResDto.sort((o1, o2) -> o2.getCreateDate().compareTo(o1.getCreateDate()));
+			}
 		}
 		return listPackagePostResDto;
+	}
+
+	@Override
+	public byte[] getFile(Long packagePostId, Long fileId) throws BestWorkBussinessException {
+		String pathFile = getPathFileToDownload(packagePostId, fileId);
+		byte[] fileContent = sftpFileService.downloadFile(pathFile);
+		return fileContent;
+	}
+	
+	private String getPathFileToDownload(Long postId, Long fileId) {
+		return packagePostRepository.getPathFileServer(postId, fileId);
 	}
 }

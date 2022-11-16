@@ -1,4 +1,4 @@
-	package com.nineplus.bestwork.entity;
+package com.nineplus.bestwork.entity;
 
 import java.sql.Timestamp;
 
@@ -45,24 +45,27 @@ public class FileStorageEntity {
 	@CreationTimestamp
 	@Column(name = "create_date")
 	private Timestamp createDate;
-	
+
 	@Column(name = "path_file_server")
 	private String pathFileServer;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "post_id",nullable = true)
+	@JoinColumn(name = "post_id", nullable = true)
 	@JsonIgnore
 	private PostEntity post;
-	
+
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "progress_id",nullable = true)
+	@JoinColumn(name = "progress_id", nullable = true)
 	@JsonIgnore
 	private ProgressEntity progress;
-	
-	@Column(name = "post_invoice_id",nullable = true)
+
+	@Column(name = "post_invoice_id", nullable = true)
 	private long postInvoiceId;
-	
-	@Column(name = "post_package_id",nullable = true)
+
+	@Column(name = "post_package_id", nullable = true)
 	private long packagePostId;
-	
+
+	@Column(name = "is_choosen")
+	private boolean isChoosen;
+
 }

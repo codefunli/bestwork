@@ -29,7 +29,7 @@ public class PackagePostController extends BaseController {
 
 	@PatchMapping("/update-package/{airWayBillCode}")
 	public ResponseEntity<? extends Object> update(@RequestParam("file") List<MultipartFile> mFiles,
-			@RequestParam("package-description") String packageDes, @RequestParam("package-comment") String packageCom,
+			@RequestParam("packageDescription") String packageDes, @RequestParam("packageComment") String packageCom,
 			@PathVariable String airWayBillCode) throws BestWorkBussinessException {
 		try {
 			PackagePostReqDto packagePostReqDto = new PackagePostReqDto();
@@ -73,5 +73,20 @@ public class PackagePostController extends BaseController {
 		}
 		return success(CommonConstants.MessageCode.sP0003, listPackagePostResDto, null);
 	}
-
+	
+	@GetMapping("/get-file/by")
+	public ResponseEntity<? extends Object> getFile(@RequestParam(value = "packagePostId", required = true) Long packagePostId,
+			@RequestParam(value = "fileId", required = false) Long fileId) throws BestWorkBussinessException {
+		byte[] dataBytesFile = null;
+		try {
+			dataBytesFile = iPackagePostService.getFile(packagePostId, fileId);
+		} catch (BestWorkBussinessException ex) {
+			return failed(ex.getMsgCode(), ex.getParam());
+		}
+		if (ObjectUtils.isEmpty(dataBytesFile)) {
+			return success(CommonConstants.MessageCode.E1X0003, null, null);
+		}
+		return success(CommonConstants.MessageCode.sF0002, dataBytesFile, null);
+	}
+	
 }

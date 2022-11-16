@@ -2,20 +2,26 @@ package com.nineplus.bestwork.services.impl;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.nineplus.bestwork.dto.ChangeStatusFileDto;
 import com.nineplus.bestwork.dto.FileStorageReqDto;
 import com.nineplus.bestwork.entity.FileStorageEntity;
 import com.nineplus.bestwork.entity.PostEntity;
 import com.nineplus.bestwork.entity.ProgressEntity;
+import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.repository.StorageRepository;
 import com.nineplus.bestwork.services.IStorageService;
 import com.nineplus.bestwork.utils.Enums.FolderType;
@@ -32,6 +38,9 @@ public class StorageServiceImpl implements IStorageService {
 
 	@Autowired
 	private StorageRepository storageRepository;
+
+	private final String POST_INVOICE_TYPE = "invoice";
+	private final String POST_PACKAGE_TYPE = "package";
 
 	@Override
 	@Transactional
@@ -146,5 +155,34 @@ public class StorageServiceImpl implements IStorageService {
 
 	private String getFileTypeFromPath(String path) {
 		return FilenameUtils.getExtension(path);
+	}
+
+	@Override
+	public void changeStatusFile(ChangeStatusFileDto changeStatusFileDto) throws BestWorkBussinessException {
+		if (ObjectUtils.isNotEmpty(changeStatusFileDto)) {
+			String postType = changeStatusFileDto.getPostType();
+			long postId = changeStatusFileDto.getPostId();
+			boolean toStatus = changeStatusFileDto.isDestinationStatus();
+			Long[] fileId = changeStatusFileDto.getFileId();
+			List<Long> listFile = Arrays.asList(fileId);
+			if (POST_INVOICE_TYPE.equals(postType)) {
+				storageRepository.changeStatusInvoice(postId, listFile, toStatus);
+			} else if (POST_PACKAGE_TYPE.equals(postType)) {
+				storageRepository.changeStatusInvoice(postId, listFile, toStatus);
+			}
+		}
+	}
+
+	@Override
+	public Map<Long, String> getPathFileToDownLoad(String airWayBillCode, List<Long> listFileId)
+			throws BestWorkBussinessException {
+		Map<Long, String> mapPathFile = new HashMap<>();
+		List<FileStorageEntity> listFile = storageRepository.findAllById(listFileId);
+		if (ObjectUtils.isNotEmpty(listFile)) {
+			for (FileStorageEntity file : listFile) {
+				mapPathFile.put(file.getId(), file.getPathFileServer());
+			}
+		}
+		return null;
 	}
 }
