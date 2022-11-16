@@ -3,7 +3,6 @@ package com.nineplus.bestwork.services;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.web.multipart.MultipartFile;
 
 import com.nineplus.bestwork.dto.PostInvoiceReqDto;
 import com.nineplus.bestwork.dto.PostInvoiceResDto;
@@ -16,7 +15,7 @@ public interface IInvoicePostService {
 
 	Optional<PostInvoice> getPostInvoice(Long postInvoiceId) throws BestWorkBussinessException;
 
-	void updatePostInvoice(List<MultipartFile> mFiles, PostInvoiceReqDto postInvoiceReqDto, String airWayCode)
+	void updatePostInvoice(PostInvoiceReqDto postInvoiceReqDto, String airWayCode)
 			throws BestWorkBussinessException;
 
 	public PostInvoiceResDto getDetailInvoice(Long invoicePostId) throws BestWorkBussinessException;

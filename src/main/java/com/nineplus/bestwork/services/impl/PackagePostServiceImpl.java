@@ -20,8 +20,8 @@ import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.model.UserAuthDetected;
 import com.nineplus.bestwork.repository.PackagePostRepository;
 import com.nineplus.bestwork.services.IPackagePostService;
-import com.nineplus.bestwork.services.IStorageService;
 import com.nineplus.bestwork.services.ISftpFileService;
+import com.nineplus.bestwork.services.IStorageService;
 import com.nineplus.bestwork.utils.CommonConstants;
 import com.nineplus.bestwork.utils.Enums.FolderType;
 import com.nineplus.bestwork.utils.UserAuthUtils;
@@ -63,7 +63,7 @@ public class PackagePostServiceImpl implements IPackagePostService {
 	}
 
 	@Override
-	public void updatePackagePost(List<MultipartFile> mFiles, PackagePostReqDto packagePostReqDto, String airWayCode)
+	public void updatePackagePost(PackagePostReqDto packagePostReqDto, String airWayCode)
 			throws BestWorkBussinessException {
 		PackagePost createPackagePost = null;
 		try {
@@ -71,7 +71,7 @@ public class PackagePostServiceImpl implements IPackagePostService {
 			createPackagePost = this.savePackagePost(packagePostReqDto, airWayCode);
 			long postPackageId = createPackagePost.getId();
 			// Upload file of post invoice into sever
-			for (MultipartFile mFile : mFiles) {
+			for (MultipartFile mFile : packagePostReqDto.getMFiles()) {
 				String pathServer = sftpFileService.uploadPackage(mFile, airWayCode, postPackageId);
 				// Save path file of post invoice
 				iStorageService.storeFile(postPackageId, FolderType.PACKAGE, pathServer);

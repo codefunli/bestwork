@@ -65,7 +65,7 @@ public class InvoicePostServiceImpl implements IInvoicePostService {
 
 	@Override
 	@Transactional
-	public void updatePostInvoice(List<MultipartFile> mFiles, PostInvoiceReqDto postInvoiceReqDto, String airWayCode)
+	public void updatePostInvoice(PostInvoiceReqDto postInvoiceReqDto, String airWayCode)
 			throws BestWorkBussinessException {
 		PostInvoice createPostInvoice = null;
 		try {
@@ -73,7 +73,7 @@ public class InvoicePostServiceImpl implements IInvoicePostService {
 			createPostInvoice = this.savePostInvoice(postInvoiceReqDto, airWayCode);
 			long postInvoiceId = createPostInvoice.getId();
 			// Upload file of post invoice into sever
-			for (MultipartFile mFile : mFiles) {
+			for (MultipartFile mFile : postInvoiceReqDto.getMFiles()) {
 				String pathServer = sftpFileService.uploadInvoice(mFile, airWayCode, postInvoiceId);
 				// Save path file of post invoice
 				iStorageService.storeFile(postInvoiceId, FolderType.INVOICE, pathServer);

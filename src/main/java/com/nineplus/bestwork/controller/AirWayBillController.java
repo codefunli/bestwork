@@ -97,4 +97,20 @@ public class AirWayBillController extends BaseController {
 		}
 		return success(CommonConstants.MessageCode.sF0003, null, null);
 	}
+	
+	@GetMapping("{code}/custom-clearance-doc")
+	public ResponseEntity<? extends Object> getCustomClearanceDoc(@PathVariable String code)
+			throws BestWorkBussinessException {
+		AirWayBillResDto airWayBillInfo = null;
+		try {
+			airWayBillInfo = iAirWayBillService.getDetail(code);
+		} catch (BestWorkBussinessException ex) {
+			return failed(ex.getMsgCode(), ex.getParam());
+		}
+
+		if (ObjectUtils.isEmpty(airWayBillInfo)) {
+			return success(CommonConstants.MessageCode.E1X0003, null, null);
+		}
+		return success(CommonConstants.MessageCode.sA0004, airWayBillInfo, null);
+	}
 }
