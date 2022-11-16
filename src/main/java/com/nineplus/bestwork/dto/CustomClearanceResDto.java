@@ -1,6 +1,8 @@
 package com.nineplus.bestwork.dto;
 
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.EqualsAndHashCode;
@@ -17,13 +19,10 @@ public class CustomClearanceResDto extends BaseDto {/**
 	 */
 	private static final long serialVersionUID = 2836785181757379376L;
 
-	@JsonProperty("code")
-	private String code;
-
 	@JsonProperty("invoicesDoc")
-	private CustomClearanceInvoiceResDto invoicesDoc;
+	private List<CustomClearanceInvoiceFileResDto> invoicesDoc;
 
 	@JsonProperty("packagesDoc")
-	private  CustomClearancePackageResDto packagesDoc;
+	private List<CustomClearancePackageFileResDto> packagesDoc;
 
 }

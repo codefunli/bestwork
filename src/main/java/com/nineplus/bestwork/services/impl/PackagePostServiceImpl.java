@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.nineplus.bestwork.dto.CustomClearancePackageFileResDto;
 import com.nineplus.bestwork.dto.FileStorageResDto;
 import com.nineplus.bestwork.dto.PackagePostReqDto;
 import com.nineplus.bestwork.dto.PackagePostResDto;
@@ -18,6 +19,7 @@ import com.nineplus.bestwork.entity.FileStorageEntity;
 import com.nineplus.bestwork.entity.PackagePost;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.model.UserAuthDetected;
+import com.nineplus.bestwork.repository.PackageFileProjection;
 import com.nineplus.bestwork.repository.PackagePostRepository;
 import com.nineplus.bestwork.services.IPackagePostService;
 import com.nineplus.bestwork.services.ISftpFileService;
@@ -63,7 +65,7 @@ public class PackagePostServiceImpl implements IPackagePostService {
 	}
 
 	@Override
-	public void updatePackagePost(PackagePostReqDto packagePostReqDto, String airWayCode)
+	public void updatePackagePost(List<MultipartFile> mFiles, PackagePostReqDto packagePostReqDto, String airWayCode)
 			throws BestWorkBussinessException {
 		PackagePost createPackagePost = null;
 		try {
@@ -71,7 +73,7 @@ public class PackagePostServiceImpl implements IPackagePostService {
 			createPackagePost = this.savePackagePost(packagePostReqDto, airWayCode);
 			long postPackageId = createPackagePost.getId();
 			// Upload file of post invoice into sever
-			for (MultipartFile mFile : packagePostReqDto.getMFiles()) {
+			for (MultipartFile mFile : mFiles) {
 				String pathServer = sftpFileService.uploadPackage(mFile, airWayCode, postPackageId);
 				// Save path file of post invoice
 				iStorageService.storeFile(postPackageId, FolderType.PACKAGE, pathServer);
@@ -160,5 +162,21 @@ public class PackagePostServiceImpl implements IPackagePostService {
 	
 	private String getPathFileToDownload(Long postId, Long fileId) {
 		return packagePostRepository.getPathFileServer(postId, fileId);
+	}
+
+	@Override
+	public List<CustomClearancePackageFileResDto> getPackageClearance(String code) throws BestWorkBussinessException {
+		List<CustomClearancePackageFileResDto> lst = new ArrayList<>();
+		CustomClearancePackageFileResDto customClearancePackageFileResDto =  null;
+		List<PackageFileProjection> res = packagePostRepository.getClearancePackageInfo(code);
+		for(PackageFileProjection projection : res) {
+			customClearancePackageFileResDto = new CustomClearancePackageFileResDto();
+			customClearancePackageFileResDto.setFileId(projection.getFileId());
+			customClearancePackageFileResDto.setPostPackageId(projection.getPostPackageId());
+			customClearancePackageFileResDto.setName(projection.getName());
+			customClearancePackageFileResDto.setType(projection.getType());
+			lst.add(customClearancePackageFileResDto);
+		}
+		return lst;
 	}
 }

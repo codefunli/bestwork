@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,10 +28,15 @@ public class InvoicePostController extends BaseController {
 	IInvoicePostService iPostInvoiceService;
 
 	@PatchMapping("/update-invoice/{airWayBillCode}")
-	public ResponseEntity<? extends Object> update(@RequestBody PostInvoiceReqDto postInvoiceReqDto, @PathVariable String airWayBillCode)
+	public ResponseEntity<? extends Object> update(@RequestParam("file") List<MultipartFile> mFiles,
+			@RequestParam("invoiceDescription") String invoiceDes, @PathVariable String airWayBillCode)
 			throws BestWorkBussinessException {
 		try {
-			iPostInvoiceService.updatePostInvoice(postInvoiceReqDto, airWayBillCode);
+			PostInvoiceReqDto postInvoiceReqDto = new PostInvoiceReqDto();
+			if (StringUtils.isNotBlank(invoiceDes)) {
+				postInvoiceReqDto.setDescription(invoiceDes);
+			}
+			iPostInvoiceService.updatePostInvoice(mFiles, postInvoiceReqDto, airWayBillCode);
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}

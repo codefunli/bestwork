@@ -1,8 +1,6 @@
 package com.nineplus.bestwork.dto;
 
-import java.util.List;
 
-import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -21,13 +19,8 @@ public class PostInvoiceReqDto extends BaseDto {
 	*/
 	private static final long serialVersionUID = -1468801844948486874L;
 	
-	@JsonProperty("files")
-	List<MultipartFile> mFiles;
-
 	@JsonProperty("description")
 	private String description;
 
-	@JsonProperty("comment")
-	private String comment;
 
 }
