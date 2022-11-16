@@ -29,13 +29,11 @@ public class InvoicePostController extends BaseController {
 
 	@PatchMapping("/update-invoice/{airWayBillCode}")
 	public ResponseEntity<? extends Object> update(@RequestParam("file") List<MultipartFile> mFiles,
-			@RequestParam("invoiceDescription") String invoiceDes,
-			@RequestParam("invoiceComment") String invoiceCom, @PathVariable String airWayBillCode)
+			@RequestParam("invoiceDescription") String invoiceDes, @PathVariable String airWayBillCode)
 			throws BestWorkBussinessException {
 		try {
 			PostInvoiceReqDto postInvoiceReqDto = new PostInvoiceReqDto();
-			if (StringUtils.isNotBlank(invoiceDes) || StringUtils.isNotBlank(invoiceCom)) {
-				postInvoiceReqDto.setComment(invoiceCom);
+			if (StringUtils.isNotBlank(invoiceDes)) {
 				postInvoiceReqDto.setDescription(invoiceDes);
 			}
 			iPostInvoiceService.updatePostInvoice(mFiles, postInvoiceReqDto, airWayBillCode);

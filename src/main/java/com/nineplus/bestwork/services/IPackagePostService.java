@@ -5,6 +5,8 @@ import java.util.Optional;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.nineplus.bestwork.dto.CustomClearanceInvoiceFileResDto;
+import com.nineplus.bestwork.dto.CustomClearancePackageFileResDto;
 import com.nineplus.bestwork.dto.PackagePostReqDto;
 import com.nineplus.bestwork.dto.PackagePostResDto;
 import com.nineplus.bestwork.entity.PackagePost;
@@ -24,4 +26,6 @@ public interface IPackagePostService {
 	List<PackagePostResDto> getAllPackagePost(String airWayBillCode) throws BestWorkBussinessException;
 
 	byte[] getFile(Long packagePostId, Long fileId) throws BestWorkBussinessException;
+
+	List<CustomClearancePackageFileResDto> getPackageClearance(String code) throws BestWorkBussinessException;
 }

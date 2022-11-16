@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.nineplus.bestwork.dto.CustomClearancePackageFileResDto;
 import com.nineplus.bestwork.dto.FileStorageResDto;
 import com.nineplus.bestwork.dto.PackagePostReqDto;
 import com.nineplus.bestwork.dto.PackagePostResDto;
@@ -18,10 +19,11 @@ import com.nineplus.bestwork.entity.FileStorageEntity;
 import com.nineplus.bestwork.entity.PackagePost;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.model.UserAuthDetected;
+import com.nineplus.bestwork.repository.PackageFileProjection;
 import com.nineplus.bestwork.repository.PackagePostRepository;
 import com.nineplus.bestwork.services.IPackagePostService;
-import com.nineplus.bestwork.services.IStorageService;
 import com.nineplus.bestwork.services.ISftpFileService;
+import com.nineplus.bestwork.services.IStorageService;
 import com.nineplus.bestwork.utils.CommonConstants;
 import com.nineplus.bestwork.utils.Enums.FolderType;
 import com.nineplus.bestwork.utils.UserAuthUtils;
@@ -160,5 +162,21 @@ public class PackagePostServiceImpl implements IPackagePostService {
 	
 	private String getPathFileToDownload(Long postId, Long fileId) {
 		return packagePostRepository.getPathFileServer(postId, fileId);
+	}
+
+	@Override
+	public List<CustomClearancePackageFileResDto> getPackageClearance(String code) throws BestWorkBussinessException {
+		List<CustomClearancePackageFileResDto> lst = new ArrayList<>();
+		CustomClearancePackageFileResDto customClearancePackageFileResDto =  null;
+		List<PackageFileProjection> res = packagePostRepository.getClearancePackageInfo(code);
+		for(PackageFileProjection projection : res) {
+			customClearancePackageFileResDto = new CustomClearancePackageFileResDto();
+			customClearancePackageFileResDto.setFileId(projection.getFileId());
+			customClearancePackageFileResDto.setPostPackageId(projection.getPostPackageId());
+			customClearancePackageFileResDto.setName(projection.getName());
+			customClearancePackageFileResDto.setType(projection.getType());
+			lst.add(customClearancePackageFileResDto);
+		}
+		return lst;
 	}
 }
