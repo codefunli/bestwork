@@ -420,9 +420,9 @@ public class ConstructionServiceImpl implements IConstructionService {
 	}
 
 	/**
-	 * Function: delete 1 construction by construction id
+	 * Function: delete constructions by list of construction ids
 	 * 
-	 * @param constructionId
+	 * @param ConstructionListIdDto
 	 */
 	@Override
 	public void deleteConstruction(ConstructionListIdDto constructionIds) throws BestWorkBussinessException {
@@ -435,6 +435,8 @@ public class ConstructionServiceImpl implements IConstructionService {
 				throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
 			}
 		}
-		this.constructionRepository.deleteByIds(ids);
+		if (constructionList != null && !constructionList.contains(null)) {
+			this.constructionRepository.deleteAll(constructionList);
+		}
 	}
 }

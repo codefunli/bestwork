@@ -42,9 +42,5 @@ public interface ConstructionRepository extends JpaRepository<ConstructionEntity
 
 	@Query(value = " select * from CONSTRUCTION where id in :ids", nativeQuery = true)
 	List<ConstructionEntity> findByIds(long[] ids);
-	
-	@Modifying
-	@Query (value = " delete from CONSTRUCTION where id in :ids ")
-	void deleteByIds(long[] ids);
 
 }

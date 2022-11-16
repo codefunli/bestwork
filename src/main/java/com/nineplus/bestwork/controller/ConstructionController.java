@@ -119,9 +119,9 @@ public class ConstructionController extends BaseController {
 	}
 
 	/**
-	 * Function: delete construction by construction id
+	 * Function: delete constructions by list of construction ids
 	 * 
-	 * @param constructionId
+	 * @param ConstructionListIdDto
 	 * @return (ResponseEntity<apiResponseDto>) message that deleting construction
 	 *         is successful or not
 	 */
