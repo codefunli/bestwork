@@ -1,0 +1,17 @@
+package com.nineplus.bestwork.services;
+
+import java.util.List;
+
+import com.nineplus.bestwork.dto.AirWayBillReqDto;
+import com.nineplus.bestwork.dto.AirWayBillResDto;
+import com.nineplus.bestwork.entity.AirWayBill;
+import com.nineplus.bestwork.exception.BestWorkBussinessException;
+
+public interface IAirWayBillService {
+	void saveAirWayBill(AirWayBillReqDto airWayBillReqDto) throws BestWorkBussinessException;
+
+	List<AirWayBill> getAllAirWayBillByProject(String projectId) throws BestWorkBussinessException;
+
+	AirWayBillResDto getDetail(String code) throws BestWorkBussinessException;
+
+}

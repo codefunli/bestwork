@@ -1,4 +1,4 @@
-	package com.nineplus.bestwork.entity;
+package com.nineplus.bestwork.entity;
 
 import java.sql.Timestamp;
 
@@ -13,6 +13,7 @@ import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.TypeDef;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -41,17 +42,30 @@ public class FileStorageEntity {
 	@Column(name = "type", nullable = true, columnDefinition = "varchar(50)")
 	private String type;
 
-	@Column(name = "create_date", nullable = true)
+	@CreationTimestamp
+	@Column(name = "create_date")
 	private Timestamp createDate;
 
+	@Column(name = "path_file_server")
+	private String pathFileServer;
+
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "post_id")
+	@JoinColumn(name = "post_id", nullable = true)
 	@JsonIgnore
 	private PostEntity post;
-	
+
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "progress_id")
+	@JoinColumn(name = "progress_id", nullable = true)
 	@JsonIgnore
 	private ProgressEntity progress;
+
+	@Column(name = "post_invoice_id", nullable = true)
+	private long postInvoiceId;
+
+	@Column(name = "post_package_id", nullable = true)
+	private long packagePostId;
+
+	@Column(name = "is_choosen")
+	private boolean isChoosen;
 
 }
