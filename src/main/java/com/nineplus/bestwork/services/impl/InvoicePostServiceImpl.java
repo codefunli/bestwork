@@ -2,6 +2,7 @@ package com.nineplus.bestwork.services.impl;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -69,6 +70,10 @@ public class InvoicePostServiceImpl implements IInvoicePostService {
 	public void updatePostInvoice(List<MultipartFile> mFiles, PostInvoiceReqDto postInvoiceReqDto, String airWayCode)
 			throws BestWorkBussinessException {
 		PostInvoice createPostInvoice = null;
+		// Validate file
+		if (!sftpFileService.isValidFile(mFiles)) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.eF0002, null);
+		}
 		try {
 			// Save information for post invoice
 			createPostInvoice = this.savePostInvoice(postInvoiceReqDto, airWayCode);
@@ -138,6 +143,12 @@ public class InvoicePostServiceImpl implements IInvoicePostService {
 				fileStorageResponseDto.setName(file.getName());
 				fileStorageResponseDto.setCreateDate(file.getCreateDate().toString());
 				fileStorageResponseDto.setType(file.getType());
+				// return content file if file is image
+				if (Arrays.asList(new String[] { "png", "jpg", "jpeg", "bmp" }).contains(file.getType())) {
+					String pathServer = file.getPathFileServer();
+					byte[] imageContent = sftpFileService.downloadFile(pathServer);
+					fileStorageResponseDto.setContent(imageContent);
+				}
 				fileStorageResponseDtos.add(fileStorageResponseDto);
 			}
 			res.setFileStorages(fileStorageResponseDtos);
@@ -165,9 +176,9 @@ public class InvoicePostServiceImpl implements IInvoicePostService {
 	@Override
 	public List<CustomClearanceInvoiceFileResDto> getInvoiceClearance(String code) {
 		List<CustomClearanceInvoiceFileResDto> lst = new ArrayList<>();
-		CustomClearanceInvoiceFileResDto customClearanceFileResDto =  null;
+		CustomClearanceInvoiceFileResDto customClearanceFileResDto = null;
 		List<InvoiceFileProjection> res = postInvoiceRepository.getClearanceInfo(code);
-		for(InvoiceFileProjection projection : res) {
+		for (InvoiceFileProjection projection : res) {
 			customClearanceFileResDto = new CustomClearanceInvoiceFileResDto();
 			customClearanceFileResDto.setFileId(projection.getFileId());
 			customClearanceFileResDto.setPostInvoiceId(projection.getPostInvoiceId());
@@ -177,4 +188,5 @@ public class InvoicePostServiceImpl implements IInvoicePostService {
 		}
 		return lst;
 	}
+
 }
