@@ -89,7 +89,7 @@ public class UserEntity {
 
 	@Lob
 	@Column(name = "user_avatar")
-	private byte[] userAvatar;
+	private String userAvatarPath;
 
 	@ManyToOne
 	@JoinColumn(name = "role_id")

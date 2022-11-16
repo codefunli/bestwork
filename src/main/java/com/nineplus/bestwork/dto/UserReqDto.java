@@ -3,9 +3,9 @@ package com.nineplus.bestwork.dto;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.nineplus.bestwork.entity.CompanyEntity;
-import com.nineplus.bestwork.entity.RoleEntity;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -50,8 +50,11 @@ public class UserReqDto extends BaseDto {
 	@JsonProperty("role")
 	private long role;
 
+//	@JsonProperty("avatar")
+//	private String avatar;
+
 	@JsonProperty("avatar")
-	private String avatar;
+	private MultipartFile avatar;
 
 	@JsonProperty("updateDate")
 	private String updateDate;

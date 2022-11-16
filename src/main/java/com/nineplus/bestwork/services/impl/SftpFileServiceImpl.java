@@ -76,6 +76,8 @@ public class SftpFileServiceImpl implements ISftpFileService {
 
 	private static final int EVIDENCE_AFTER_NUMBER = 4;
 
+	private static final int USER_AVATAR = 5;
+
 	public static final String INVOICE_PATH = "invoices";
 
 	public static final String PACKAGE_PATH = "packages";
@@ -83,6 +85,8 @@ public class SftpFileServiceImpl implements ISftpFileService {
 	public static final String EVIDENCE_BEFORE_PATH = "evidenceBeforePath";
 
 	public static final String EVIDENCE_AFTER_PATH = "evidenceAfterPath";
+
+	public static final String USER_AVATAR_PATH = "userAvatarPath";
 
 	@Override
 	public boolean isExistFolder(ChannelSftp channel, String path) {
@@ -178,6 +182,11 @@ public class SftpFileServiceImpl implements ISftpFileService {
 		return upload(file, FolderType.EVIDENCE_AFTER, airWayBill, Id);
 	}
 
+	@Override
+	public String uploadUserAvatar(MultipartFile file, long userId) {
+		return uploadUserAvatar(file, FolderType.USER_AVATAR, userId);
+	}
+
 	/**
 	 * Gets the connection.
 	 *
@@ -270,6 +279,53 @@ public class SftpFileServiceImpl implements ISftpFileService {
 		return finalPath;
 	}
 
+	private String uploadUserAvatar(MultipartFile mfile, FolderType folderType, Long userId) {
+		Session session = null;
+		ChannelSftp channel = null;
+		String pathTemp = null;
+		String finalPath = null;
+
+		// Create folder in sftp server.
+		try {
+
+			Pair<Session, ChannelSftp> sftpConnection = this.getConnection();
+
+			session = sftpConnection.getFirst();
+			channel = sftpConnection.getSecond();
+
+			String absolutePathInSftpServer = getPathSeverUpload(folderType);
+			if (!isExistFolder(channel, absolutePathInSftpServer)) {
+				pathTemp = this.createFolder(channel, absolutePathInSftpServer);
+			} else {
+				absolutePathInSftpServer = absolutePathInSftpServer + SEPARATOR + buildSubFolderName(folderType);
+				if (!isExistFolder(channel, absolutePathInSftpServer)) {
+					pathTemp = this.createFolder(channel, absolutePathInSftpServer);
+				} else {
+					pathTemp = absolutePathInSftpServer;
+				}
+			}
+
+			pathTemp = pathTemp + SEPARATOR + userId;
+			if (!isExistFolder(channel, pathTemp)) {
+				pathTemp = this.createFolder(channel, pathTemp);
+			}
+
+			String fileName = FilenameUtils.getName(mfile.getOriginalFilename());
+
+			// save file.
+			channel.cd(pathTemp);
+			channel.put(mfile.getInputStream(), fileName);
+			finalPath = pathTemp + SEPARATOR + fileName;
+			disconnect(session, channel);
+		} catch (IOException | SftpException e) {
+			disconnect(session, channel);
+			throw new FileHandleException(e.getMessage(), e);
+		} finally {
+			disconnect(session, channel);
+		}
+		return finalPath;
+	}
+
 	/**
 	 * create path file upload.
 	 *
@@ -304,6 +360,9 @@ public class SftpFileServiceImpl implements ISftpFileService {
 		case EVIDENCE_AFTER_NUMBER:
 			folderType = FolderType.EVIDENCE_AFTER;
 			break;
+		case USER_AVATAR:
+			folderType = FolderType.USER_AVATAR;
+			break;
 		default:
 			folderType = FolderType.DEFAULT;
 			break;
@@ -327,6 +386,9 @@ public class SftpFileServiceImpl implements ISftpFileService {
 			break;
 		case EVIDENCE_AFTER:
 			res = EVIDENCE_AFTER_PATH;
+			break;
+		case USER_AVATAR:
+			res = USER_AVATAR_PATH;
 			break;
 		default:
 			break;

@@ -1,5 +1,6 @@
 package com.nineplus.bestwork.services;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.nineplus.bestwork.dto.CompanyResDto;
 import com.nineplus.bestwork.dto.CompanyUserReqDto;
@@ -116,6 +118,9 @@ public class UserService implements UserDetailsService {
 
 	@Autowired
 	ModelMapper modelMapper;
+	
+	@Autowired
+	ISftpFileService sftpFileService;
 
 	@Override
 	public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
@@ -187,7 +192,7 @@ public class UserService implements UserDetailsService {
 	}
 
 	@Transactional(rollbackFor = { Exception.class })
-	public UserEntity createUser(UserReqDto userReqDto) throws BestWorkBussinessException {
+	public UserEntity createUser(UserReqDto userReqDto) throws BestWorkBussinessException, IOException {
 
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
 		String createUser = userAuthRoleReq.getUsername();
@@ -225,8 +230,10 @@ public class UserService implements UserDetailsService {
 		user.setCreateBy(createUser);
 		user.setCreateDate(LocalDateTime.now());
 		user.setDeleteFlag(0);
-		if (null != userReqDto.getAvatar()) {
-			user.setUserAvatar(userReqDto.getAvatar().getBytes());
+		MultipartFile avatar = userReqDto.getAvatar();
+		if (avatar != null) {
+			this.sftpFileService.uploadUserAvatar(avatar, user.getId());
+//			user.setUserAvatar(userReqDto.getAvatar().getBytes());
 		}
 		UserEntity createdUser = this.userRepo.save(user);
 		mailStorageService.saveMailRegisterUserCompToSendLater(userReqDto.getEmail(), companyCurrent.getCompanyName(),
@@ -317,7 +324,7 @@ public class UserService implements UserDetailsService {
 				userResDto.setRole(tUser.getRole());
 				userResDto.setId(tUser.getId());
 				userResDto.setIsEnable(tUser.getIsEnable());
-				userResDto.setAvatar(Arrays.toString(tUser.getUserAvatar()));
+//				userResDto.setAvatar(Arrays.toString(tUser.getUserAvatar()));
 				userResDtoList.add(userResDto);
 			}
 		} catch (Exception e) {
@@ -361,7 +368,7 @@ public class UserService implements UserDetailsService {
 	}
 
 	@Transactional(rollbackFor = { Exception.class })
-	public UserEntity editUser(UserReqDto userReqDto, long userId) throws BestWorkBussinessException {
+	public UserEntity editUser(UserReqDto userReqDto, long userId) throws BestWorkBussinessException, IOException {
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
 		if (!userAuthRoleReq.getIsSysAdmin()) {
 			CompanyEntity company = companyRepository.findById(findCompanyIdByUsername(userAuthRoleReq))
@@ -415,9 +422,9 @@ public class UserService implements UserDetailsService {
 		}
 
 		if (null != userReqDto.getAvatar()) {
-			userEntity.setUserAvatar(userReqDto.getAvatar().getBytes());
+//			userEntity.setUserAvatar(userReqDto.getAvatar().getBytes());
 		} else {
-			userEntity.setUserAvatar("".getBytes());
+//			userEntity.setUserAvatar("".getBytes());
 		}
 		userEntity.setUpdateDate(LocalDateTime.now());
 		userRepo.save(userEntity);
@@ -471,8 +478,8 @@ public class UserService implements UserDetailsService {
 			companyRes = modelMapper.map(company, CompanyResDto.class);
 		}
 		UserDetectResDto userResDto = modelMapper.map(user, UserDetectResDto.class);
-		if (user.getUserAvatar() != null) {
-			userResDto.setAvatar(new String(user.getUserAvatar(), StandardCharsets.UTF_8));
+		if (user.getUserAvatarPath() != null) {
+			userResDto.setAvatar(user.getUserAvatarPath());
 
 		}
 		if (companyRes != null) {

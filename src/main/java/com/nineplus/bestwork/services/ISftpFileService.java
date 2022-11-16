@@ -25,4 +25,6 @@ public interface ISftpFileService {
 
 	String uploadEvidenceAfter(MultipartFile file, String airWayBill, long evidenceAfterId);
 
+	String uploadUserAvatar(MultipartFile file, long userId);
+
 }

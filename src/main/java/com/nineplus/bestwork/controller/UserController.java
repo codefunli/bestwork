@@ -1,5 +1,6 @@
 package com.nineplus.bestwork.controller;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
@@ -79,7 +80,8 @@ public class UserController extends BaseController {
 	}
 
 	@PostMapping("/create")
-	public ResponseEntity<?> registerUser(@Valid @RequestBody UserReqDto userReqDto, BindingResult bindingResult) {
+	public ResponseEntity<?> registerUser(@Valid @RequestBody UserReqDto userReqDto, BindingResult bindingResult)
+			throws IOException {
 
 		if (checkExists(userReqDto, bindingResult)) {
 			return failedWithError(CommonConstants.MessageCode.ECU0001, bindingResult.getFieldErrors().toArray(), null);
@@ -127,8 +129,8 @@ public class UserController extends BaseController {
 		for (CompanyEntity tCompany : user.getCompanys()) {
 			userResDto.setCompany(tCompany);
 		}
-		if (null != user.getUserAvatar()) {
-			userResDto.setAvatar(new String(user.getUserAvatar(), StandardCharsets.UTF_8));
+		if (null != user.getUserAvatarPath()) {
+			userResDto.setAvatar(user.getUserAvatarPath());
 		}
 		userResDto.setUpdateDate(user.getUpdateDate().toString());
 		return success(CommonConstants.MessageCode.SCU0002, userResDto, null);
@@ -136,7 +138,7 @@ public class UserController extends BaseController {
 
 	@PutMapping("/update/{id}")
 	public ResponseEntity<?> updateUser(@PathVariable long id, @Valid @RequestBody UserReqDto userReqDto,
-			BindingResult bindingResult) throws BestWorkBussinessException {
+			BindingResult bindingResult) throws BestWorkBussinessException, IOException {
 
 		if (bindingResult.hasErrors()) {
 			return failedWithError(CommonConstants.MessageCode.ECU0001, bindingResult.getFieldErrors().toArray(), null);
