@@ -6,7 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.jcraft.jsch.ChannelSftp;
 
-public interface SftpFileService {
+public interface ISftpFileService {
 	boolean isExistFolder(ChannelSftp channel, String path);
 
 	String createFolder(ChannelSftp channel, String path);

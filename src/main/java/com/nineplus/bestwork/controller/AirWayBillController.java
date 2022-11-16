@@ -16,9 +16,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.nineplus.bestwork.dto.AirWayBillReqDto;
 import com.nineplus.bestwork.dto.AirWayBillResDto;
 import com.nineplus.bestwork.dto.AirWayBillStatusResDto;
+import com.nineplus.bestwork.dto.ChangeStatusFileDto;
 import com.nineplus.bestwork.entity.AirWayBill;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.services.IAirWayBillService;
+import com.nineplus.bestwork.services.IStorageService;
 import com.nineplus.bestwork.utils.CommonConstants;
 import com.nineplus.bestwork.utils.Enums.AirWayBillStatus;
 
@@ -28,6 +30,9 @@ public class AirWayBillController extends BaseController {
 
 	@Autowired
 	IAirWayBillService iAirWayBillService;
+	
+	@Autowired
+	IStorageService iStorageService;
 	
 	@PostMapping("/create")
 	public ResponseEntity<? extends Object> create(@RequestBody AirWayBillReqDto airWayBillReqDto)
@@ -80,5 +85,16 @@ public class AirWayBillController extends BaseController {
 			return success(CommonConstants.MessageCode.E1X0003, null, null);
 		}
 		return success(CommonConstants.MessageCode.sA0004, airWayBillInfo, null);
+	}
+	
+	@PostMapping("/change-status-file")
+	public ResponseEntity<? extends Object> changeStatus(@RequestBody ChangeStatusFileDto changeStatusFileDto)
+			throws BestWorkBussinessException {
+		try {
+			iStorageService.changeStatusFile(changeStatusFileDto);
+		} catch (BestWorkBussinessException ex) {
+			return failed(ex.getMsgCode(), ex.getParam());
+		}
+		return success(CommonConstants.MessageCode.sF0003, null, null);
 	}
 }
