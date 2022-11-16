@@ -29,8 +29,8 @@ public class InvoicePostController extends BaseController {
 
 	@PatchMapping("/update-invoice/{airWayBillCode}")
 	public ResponseEntity<? extends Object> update(@RequestParam("file") List<MultipartFile> mFiles,
-			@RequestParam("invoices-description") String invoiceDes,
-			@RequestParam("invoices-comment") String invoiceCom, @PathVariable String airWayBillCode)
+			@RequestParam("invoiceDescription") String invoiceDes,
+			@RequestParam("invoiceComment") String invoiceCom, @PathVariable String airWayBillCode)
 			throws BestWorkBussinessException {
 		try {
 			PostInvoiceReqDto postInvoiceReqDto = new PostInvoiceReqDto();
