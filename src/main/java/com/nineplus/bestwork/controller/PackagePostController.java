@@ -29,7 +29,7 @@ public class PackagePostController extends BaseController {
 
 	@PatchMapping("/update-package/{airWayBillCode}")
 	public ResponseEntity<? extends Object> update(@RequestParam("file") List<MultipartFile> mFiles,
-			@RequestParam("package-description") String packageDes, @RequestParam("package-comment") String packageCom,
+			@RequestParam("packageDescription") String packageDes, @RequestParam("packageComment") String packageCom,
 			@PathVariable String airWayBillCode) throws BestWorkBussinessException {
 		try {
 			PackagePostReqDto packagePostReqDto = new PackagePostReqDto();
