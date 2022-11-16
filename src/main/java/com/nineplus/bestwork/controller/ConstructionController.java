@@ -14,11 +14,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.nineplus.bestwork.dto.ConstructionListIdDto;
 import com.nineplus.bestwork.dto.ConstructionReqDto;
 import com.nineplus.bestwork.dto.ConstructionResDto;
 import com.nineplus.bestwork.dto.ConstructionStatusResDto;
 import com.nineplus.bestwork.dto.PageResDto;
 import com.nineplus.bestwork.dto.PageSearchDto;
+import com.nineplus.bestwork.dto.UserListIdDto;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.services.IConstructionService;
 import com.nineplus.bestwork.utils.CommonConstants;
@@ -123,15 +125,16 @@ public class ConstructionController extends BaseController {
 	 * @return (ResponseEntity<apiResponseDto>) message that deleting construction
 	 *         is successful or not
 	 */
-	@DeleteMapping("/delete/{constructionId}")
-	public ResponseEntity<? extends Object> deleteConstruction(@PathVariable long constructionId) {
+	@PostMapping("/delete")
+	public ResponseEntity<? extends Object> deleteConstruction(@RequestBody ConstructionListIdDto constructionListId) {
 		try {
-			constructionService.deleteConstruction(constructionId);
+			constructionService.deleteConstruction(constructionListId);
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}
 		return success(CommonConstants.MessageCode.SCS0005, null, null);
 	}
+	
 
 	/**
 	 * Function: get list of construction status

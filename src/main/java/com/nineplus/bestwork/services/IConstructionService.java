@@ -1,5 +1,6 @@
 package com.nineplus.bestwork.services;
 
+import com.nineplus.bestwork.dto.ConstructionListIdDto;
 import com.nineplus.bestwork.dto.ConstructionReqDto;
 import com.nineplus.bestwork.dto.ConstructionResDto;
 import com.nineplus.bestwork.dto.PageResDto;
@@ -20,5 +21,5 @@ public interface IConstructionService {
 
 	void updateConstruction(long constructionId, ConstructionReqDto constructionReqDto) throws BestWorkBussinessException;
 
-	void deleteConstruction(long constructionId) throws BestWorkBussinessException;
+	void deleteConstruction(ConstructionListIdDto constructionListId) throws BestWorkBussinessException;
 }

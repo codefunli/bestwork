@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import com.nineplus.bestwork.dto.ConstructionListIdDto;
 import com.nineplus.bestwork.dto.ConstructionReqDto;
 import com.nineplus.bestwork.dto.ConstructionResDto;
 import com.nineplus.bestwork.dto.PageResDto;
@@ -420,20 +421,23 @@ public class ConstructionServiceImpl implements IConstructionService {
 
 	/**
 	 * Function: delete 1 construction by construction id
+	 * 
 	 * @param constructionId
 	 */
 	@Override
-	public void deleteConstruction(long constructionId) throws BestWorkBussinessException {
+	public void deleteConstruction(ConstructionListIdDto constructionIds) throws BestWorkBussinessException {
 		UserAuthDetected userAuthRoleReq = this.getUserAuthRoleReq();
 		String curUsername = userAuthRoleReq.getUsername();
-		Optional<ConstructionEntity> constructionOpt = constructionRepository.findById(constructionId);
-		if (!constructionOpt.isPresent()) {
-			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
+		for (long id : constructionIds.getListId()) {
+			Optional<ConstructionEntity> constructionOpt = constructionRepository.findById(id);
+			if (!constructionOpt.isPresent()) {
+				throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
+			}
+			ConstructionEntity curConstruction = constructionOpt.get();
+			if (!checkIfCurrentUserCanEditAndDeleteConstruction(curConstruction, curUsername)) {
+				throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
+			}
+			this.constructionRepository.deleteById(id);
 		}
-		ConstructionEntity curConstruction = constructionOpt.get();
-		if (!checkIfCurrentUserCanEditAndDeleteConstruction(curConstruction, curUsername)) {
-			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
-		}
-		this.constructionRepository.deleteById(constructionId);
 	}
 }
