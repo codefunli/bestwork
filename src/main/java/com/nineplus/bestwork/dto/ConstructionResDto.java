@@ -24,6 +24,8 @@ public class ConstructionResDto {
 
 	private String startDate;
 
+	private String endDate;
+
 	private String location;
 
 	private String createBy;

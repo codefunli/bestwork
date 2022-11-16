@@ -41,6 +41,9 @@ public class ConstructionEntity {
 	@Column(name = "start_date", nullable = true)
 	private String startDate;
 
+	@Column(name = "end_date", nullable = true)
+	private String endDate;
+
 	@Column(name = "location", nullable = true)
 	private String location;
 

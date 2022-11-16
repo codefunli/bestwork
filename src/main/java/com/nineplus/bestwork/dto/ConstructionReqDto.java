@@ -18,6 +18,9 @@ public class ConstructionReqDto {
 	@JsonProperty("startDate")
 	private String startDate;
 
+	@JsonProperty("endDate")
+	private String endDate;
+
 	@JsonProperty("location")
 	private String location;
 

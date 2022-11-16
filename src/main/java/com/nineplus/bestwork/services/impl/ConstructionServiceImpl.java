@@ -92,6 +92,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 				dto.setDescription(construction.getDescription());
 				dto.setLocation(construction.getLocation());
 				dto.setStartDate(construction.getStartDate());
+				dto.setEndDate(construction.getEndDate());
 				dto.setStatus(construction.getStatus());
 				dto.setCreateBy(construction.getCreateBy());
 				List<String> awbCodes = new ArrayList<>();
@@ -190,6 +191,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 		construction.setDescription(constructionReqDto.getDescription());
 		construction.setLocation(constructionReqDto.getLocation());
 		construction.setStartDate(constructionReqDto.getStartDate());
+		construction.setEndDate(constructionReqDto.getEndDate());
 		construction.setStatus(constructionReqDto.getStatus());
 		List<AirWayBill> airWayBills = new ArrayList<>();
 		for (String code : constructionReqDto.getAwbCodes()) {
@@ -416,6 +418,10 @@ public class ConstructionServiceImpl implements IConstructionService {
 		transferAndSaveConstruction(constructionReqDto, curConstruction);
 	}
 
+	/**
+	 * Function: delete 1 construction by construction id
+	 * @param constructionId
+	 */
 	@Override
 	public void deleteConstruction(long constructionId) throws BestWorkBussinessException {
 		UserAuthDetected userAuthRoleReq = this.getUserAuthRoleReq();
