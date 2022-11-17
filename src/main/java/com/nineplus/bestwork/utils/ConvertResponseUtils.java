@@ -77,6 +77,7 @@ public class ConvertResponseUtils {
 		itemConstruction.put("location", "location");
 		itemConstruction.put("createBy", "create_by");
 		itemConstruction.put("status", "status");
+		itemConstruction.put("projectCode", "project_code");
 		if (itemConstruction.containsKey(item)) {
 			columnMapped = itemConstruction.get(item);
 		}

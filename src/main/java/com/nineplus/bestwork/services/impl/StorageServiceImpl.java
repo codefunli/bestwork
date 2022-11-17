@@ -136,6 +136,9 @@ public class StorageServiceImpl implements IStorageService {
 			case EVIDENCE_AFTER:
 				// file.setPackagePostId(Id);
 				break;
+			case CONSTRUCTION:
+				file.setConstructionId(Id);
+				break;
 			default:
 				break;
 			}

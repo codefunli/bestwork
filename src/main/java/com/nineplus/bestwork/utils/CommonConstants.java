@@ -134,6 +134,8 @@ public class CommonConstants {
 		public static final String EXS0005 = "EXS0005";
 		public static final String EXS0006 = "EXS0006";
 		public static final String EXS0007 = "EXS0007";
+		public static final String EXS0008 = "EXS0008";
+		public static final String EXS0009 = "EXS0009";
 		public static final String FILE0001 = "FILE0001";
 		public static final String FILE0002 = "FILE0002";
 		public static final String FILE0003 = "FILE0003";
@@ -217,6 +219,8 @@ public class CommonConstants {
 		public static final String SCS0004 = "scs0004";
 		public static final String ECS0004 = "ecs0004";
 		public static final String SCS0005 = "scs0005";
+		public static final String ECS0005 = "ecs0005";
+		public static final String ECS0006 = "ecs0006";
 
 		public static final String ENU0004 = "enu0004";
 		public static final String SNU0005 = "snu0005";

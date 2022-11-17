@@ -13,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.nineplus.bestwork.dto.ConstructionListIdDto;
 import com.nineplus.bestwork.dto.ConstructionReqDto;
@@ -29,10 +30,13 @@ import com.nineplus.bestwork.repository.ConstructionRepository;
 import com.nineplus.bestwork.services.IAirWayBillService;
 import com.nineplus.bestwork.services.IConstructionService;
 import com.nineplus.bestwork.services.IProjectService;
+import com.nineplus.bestwork.services.ISftpFileService;
+import com.nineplus.bestwork.services.IStorageService;
 import com.nineplus.bestwork.utils.CommonConstants;
 import com.nineplus.bestwork.utils.ConvertResponseUtils;
 import com.nineplus.bestwork.utils.Enums.AirWayBillStatus;
 import com.nineplus.bestwork.utils.Enums.ConstructionStatus;
+import com.nineplus.bestwork.utils.Enums.FolderType;
 import com.nineplus.bestwork.utils.UserAuthUtils;
 
 /**
@@ -57,6 +61,12 @@ public class ConstructionServiceImpl implements IConstructionService {
 
 	@Autowired
 	private IProjectService projectService;
+
+	@Autowired
+	private ISftpFileService sftpFileService;
+
+	@Autowired
+	private IStorageService storageService;
 
 	/**
 	 * Function: get page of constructions with condition
@@ -89,13 +99,14 @@ public class ConstructionServiceImpl implements IConstructionService {
 			for (ConstructionEntity construction : pageConstructionsBeingInvolvedByCurrentUser.getContent()) {
 				ConstructionResDto dto = new ConstructionResDto();
 				dto.setId(construction.getId());
-				dto.setName(construction.getName());
+				dto.setConstructionName(construction.getName());
 				dto.setDescription(construction.getDescription());
 				dto.setLocation(construction.getLocation());
 				dto.setStartDate(construction.getStartDate());
 				dto.setEndDate(construction.getEndDate());
 				dto.setStatus(construction.getStatus());
 				dto.setCreateBy(construction.getCreateBy());
+				dto.setProjectCode(construction.getProjectCode());
 				List<String> awbCodes = new ArrayList<>();
 				for (AirWayBill awb : construction.getAirWayBills()) {
 					awbCodes.add(awb.getCode());
@@ -165,7 +176,8 @@ public class ConstructionServiceImpl implements IConstructionService {
 	 * @param constructionReqDto
 	 */
 	@Override
-	public void createConstruction(ConstructionReqDto constructionReqDto) throws BestWorkBussinessException {
+	public void createConstruction(ConstructionReqDto constructionReqDto, List<MultipartFile> drawings)
+			throws BestWorkBussinessException {
 		UserAuthDetected userAuthDetected = this.getUserAuthRoleReq();
 		String curUsername = userAuthDetected.getUsername();
 
@@ -177,7 +189,20 @@ public class ConstructionServiceImpl implements IConstructionService {
 
 		ConstructionEntity construction = new ConstructionEntity();
 		construction.setCreateBy(curUsername);
-		transferAndSaveConstruction(constructionReqDto, construction);
+		transferDtoToConstruction(constructionReqDto, construction);
+		try {
+			construction = this.constructionRepository.save(construction);
+
+			if (!sftpFileService.isValidFile(drawings)) {
+				throw new BestWorkBussinessException(CommonConstants.MessageCode.eF0002, null);
+			}
+			for (MultipartFile file : drawings) {
+				String pathServer = this.sftpFileService.uploadConstructionDrawing(file, construction.getId());
+				storageService.storeFile(construction.getId(), FolderType.CONSTRUCTION, pathServer);
+			}
+		} catch (BestWorkBussinessException ex) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.FILE0002, null);
+		}
 	}
 
 	/**
@@ -187,20 +212,20 @@ public class ConstructionServiceImpl implements IConstructionService {
 	 * @param constructionReqDto
 	 * @param construction
 	 */
-	private void transferAndSaveConstruction(ConstructionReqDto constructionReqDto, ConstructionEntity construction) {
-		construction.setName(constructionReqDto.getName());
+	private void transferDtoToConstruction(ConstructionReqDto constructionReqDto, ConstructionEntity construction) {
+		construction.setName(constructionReqDto.getConstructionName());
 		construction.setDescription(constructionReqDto.getDescription());
 		construction.setLocation(constructionReqDto.getLocation());
 		construction.setStartDate(constructionReqDto.getStartDate());
 		construction.setEndDate(constructionReqDto.getEndDate());
 		construction.setStatus(constructionReqDto.getStatus());
+		construction.setProjectCode(constructionReqDto.getProjectCode());
 		List<AirWayBill> airWayBills = new ArrayList<>();
 		for (String code : constructionReqDto.getAwbCodes()) {
 			AirWayBill awb = this.airWayBillService.findByCode(code);
 			airWayBills.add(awb);
 		}
 		construction.setAirWayBills(airWayBills);
-		this.constructionRepository.save(construction);
 	}
 
 	/**
@@ -211,13 +236,29 @@ public class ConstructionServiceImpl implements IConstructionService {
 	 * @throws BestWorkBussinessException
 	 */
 	private void validateConstructionInfo(ConstructionReqDto constructionReqDto) throws BestWorkBussinessException {
-		String constructionName = constructionReqDto.getName();
+		String constructionName = constructionReqDto.getConstructionName();
 		String[] awbCodes = constructionReqDto.getAwbCodes();
 
 		// Check construction name: not blank
 		if (ObjectUtils.isEmpty(constructionName)) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.EMP0001,
 					new Object[] { CommonConstants.Character.CONSTRUCTION_NAME });
+		}
+
+		// Check if current project (found by project id) exists or not
+		Optional<ProjectEntity> curProjectOpt = this.projectService.getProjectById(constructionReqDto.getProjectCode());
+		if (!curProjectOpt.isPresent()) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.EXS0004,
+					new Object[] { CommonConstants.Character.PROJECT });
+		}
+		ProjectEntity curProject = curProjectOpt.get();
+
+		// Check if current user is involved in current project or not
+		UserAuthDetected userAuthRoleReq = this.getUserAuthRoleReq();
+		String curUsername = userAuthRoleReq.getUsername();
+		List<ProjectEntity> involvedProjectList = this.getProjectsBeingInvolvedByCurrentUser(curUsername);
+		if (!involvedProjectList.contains(curProject)) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.EXS0009, null);
 		}
 
 		// Check AWB codes: not blank
@@ -235,25 +276,20 @@ public class ConstructionServiceImpl implements IConstructionService {
 						new Object[] { "AWB code " + code });
 			}
 			Optional<ProjectEntity> projectOpt = this.projectService.getProjectById(airWayBill.getProjectCode());
-			if (projectOpt.isPresent()) {
-				projectSetContainingAWBs.add(projectOpt.get());
+			if (!projectOpt.isPresent()) {
+				throw new BestWorkBussinessException(CommonConstants.MessageCode.EXS0007,
+						new Object[] { "code " + code });
 			}
+			projectSetContainingAWBs.add(projectOpt.get());
 		}
 
-		// Check if all the allocated AWB codes exist in the same project or not
+		// Check if all the allocated AWB codes exist in current project or not
 		if (projectSetContainingAWBs.size() > 1) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.EXS0005, null);
-		} else if (projectSetContainingAWBs.size() == 0) {
+		} else if (projectSetContainingAWBs.size() == 1 && !projectSetContainingAWBs.contains(curProject)) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.EXS0008, null);
+		} else if (projectSetContainingAWBs.size() == 0 || projectSetContainingAWBs.isEmpty()) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.EXS0006, null);
-		}
-
-		// Check if user who is not assigned to a project can not use AWB from that
-		// project
-		UserAuthDetected userAuthRoleReq = this.getUserAuthRoleReq();
-		String curUsername = userAuthRoleReq.getUsername();
-		List<ProjectEntity> involvedProjectList = this.getProjectsBeingInvolvedByCurrentUser(curUsername);
-		if (!involvedProjectList.containsAll(projectSetContainingAWBs)) {
-			throw new BestWorkBussinessException(CommonConstants.MessageCode.EXS0007, null);
 		}
 
 		// Check if the AWB list for the construction contains at least 1 bill that is
@@ -289,7 +325,8 @@ public class ConstructionServiceImpl implements IConstructionService {
 	 */
 	private void checkExistConstructionNameWhenCreating(ConstructionReqDto constructionReqDto)
 			throws BestWorkBussinessException {
-		ConstructionEntity existedConstruction = constructionRepository.findByName(constructionReqDto.getName());
+		ConstructionEntity existedConstruction = constructionRepository
+				.findByName(constructionReqDto.getConstructionName());
 		if (!ObjectUtils.isEmpty(existedConstruction)) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.EXS0003,
 					new Object[] { CommonConstants.Character.CONSTRUCTION_NAME });
@@ -306,7 +343,8 @@ public class ConstructionServiceImpl implements IConstructionService {
 	 */
 	private void checkExistConstructionNameWhenEditing(ConstructionReqDto constructionReqDto,
 			ConstructionEntity curConstruction) throws BestWorkBussinessException {
-		ConstructionEntity existedConstruction = constructionRepository.findByName(constructionReqDto.getName());
+		ConstructionEntity existedConstruction = constructionRepository
+				.findByName(constructionReqDto.getConstructionName());
 		if (!ObjectUtils.isEmpty(existedConstruction)
 				&& !curConstruction.getName().equals(existedConstruction.getName())) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.EXS0003,
@@ -337,12 +375,13 @@ public class ConstructionServiceImpl implements IConstructionService {
 
 		ConstructionResDto constructionResDto = new ConstructionResDto();
 		constructionResDto.setId(constructionId);
-		constructionResDto.setName(constructionOpt.get().getName());
+		constructionResDto.setConstructionName(constructionOpt.get().getName());
 		constructionResDto.setDescription(constructionOpt.get().getDescription());
 		constructionResDto.setLocation(constructionOpt.get().getLocation());
 		constructionResDto.setStartDate(constructionOpt.get().getStartDate());
 		constructionResDto.setCreateBy(constructionOpt.get().getCreateBy());
 		constructionResDto.setStatus(constructionOpt.get().getStatus());
+		constructionResDto.setProjectCode(constructionOpt.get().getProjectCode());
 		List<String> awbCodes = new ArrayList<>();
 		for (AirWayBill airWayBill : constructionOpt.get().getAirWayBills()) {
 			awbCodes.add(airWayBill.getCode());
@@ -416,7 +455,8 @@ public class ConstructionServiceImpl implements IConstructionService {
 		}
 		checkExistConstructionNameWhenEditing(constructionReqDto, curConstruction);
 		validateConstructionInfo(constructionReqDto);
-		transferAndSaveConstruction(constructionReqDto, curConstruction);
+		transferDtoToConstruction(constructionReqDto, curConstruction);
+		this.constructionRepository.save(curConstruction);
 	}
 
 	/**
@@ -435,8 +475,12 @@ public class ConstructionServiceImpl implements IConstructionService {
 				throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
 			}
 		}
-		if (constructionList != null && !constructionList.contains(null)) {
-			this.constructionRepository.deleteAll(constructionList);
+		if (constructionList == null) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.ECS0005, null);
 		}
+		if (constructionList.contains(null)) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.ECS0006, null);
+		}
+		this.constructionRepository.deleteAll(constructionList);
 	}
 }

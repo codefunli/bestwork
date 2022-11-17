@@ -52,6 +52,9 @@ public class ConstructionEntity {
 
 	@Column(name = "status", nullable = false)
 	private String status;
+	
+	@Column(name = "project_code", nullable = false)
+	private String projectCode;
 
 	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "AWB_CONSTRUCTION", joinColumns = @JoinColumn(name = "construction_id"), inverseJoinColumns = @JoinColumn(name = "awb_id"))

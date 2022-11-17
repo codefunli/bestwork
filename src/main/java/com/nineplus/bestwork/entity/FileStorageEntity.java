@@ -64,6 +64,9 @@ public class FileStorageEntity {
 
 	@Column(name = "post_package_id", nullable = true)
 	private long packagePostId;
+	
+	@Column(name = "construction_id", nullable = true)
+	private long constructionId;
 
 	@Column(name = "is_choosen")
 	private boolean isChoosen;

@@ -2,8 +2,6 @@ package com.nineplus.bestwork.dto;
 
 import java.util.List;
 
-import com.nineplus.bestwork.entity.AirWayBill;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -18,7 +16,7 @@ public class ConstructionResDto {
 
 	private long id;
 
-	private String name;
+	private String constructionName;
 
 	private String description;
 
@@ -31,6 +29,8 @@ public class ConstructionResDto {
 	private String createBy;
 
 	private String status;
+
+	private String projectCode;
 
 	private List<String> awbCodes;
 }

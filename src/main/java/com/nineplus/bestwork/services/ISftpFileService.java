@@ -27,4 +27,6 @@ public interface ISftpFileService {
 	
 	boolean isValidFile(List<MultipartFile> file);
 
+	String uploadConstructionDrawing(MultipartFile file, long constructionId);
+
 }

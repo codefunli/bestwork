@@ -1,5 +1,9 @@
 package com.nineplus.bestwork.services;
 
+import java.util.List;
+
+import org.springframework.web.multipart.MultipartFile;
+
 import com.nineplus.bestwork.dto.ConstructionListIdDto;
 import com.nineplus.bestwork.dto.ConstructionReqDto;
 import com.nineplus.bestwork.dto.ConstructionResDto;
@@ -15,7 +19,7 @@ public interface IConstructionService {
 
 	PageResDto<ConstructionResDto> getPageConstructions(PageSearchDto pageCondition) throws BestWorkBussinessException;
 
-	void createConstruction(ConstructionReqDto constructionReqDto) throws BestWorkBussinessException;
+	void createConstruction(ConstructionReqDto constructionReqDto, List<MultipartFile> drawings) throws BestWorkBussinessException;
 
 	ConstructionResDto findConstructionById(long constructionId) throws BestWorkBussinessException;
 
