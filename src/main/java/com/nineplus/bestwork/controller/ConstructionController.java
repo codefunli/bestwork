@@ -1,18 +1,22 @@
 package com.nineplus.bestwork.controller;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.nineplus.bestwork.dto.ConstructionListIdDto;
 import com.nineplus.bestwork.dto.ConstructionReqDto;
@@ -20,7 +24,6 @@ import com.nineplus.bestwork.dto.ConstructionResDto;
 import com.nineplus.bestwork.dto.ConstructionStatusResDto;
 import com.nineplus.bestwork.dto.PageResDto;
 import com.nineplus.bestwork.dto.PageSearchDto;
-import com.nineplus.bestwork.dto.UserListIdDto;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.services.IConstructionService;
 import com.nineplus.bestwork.utils.CommonConstants;
@@ -67,9 +70,10 @@ public class ConstructionController extends BaseController {
 	 *         successfully or not
 	 */
 	@PostMapping("/create")
-	public ResponseEntity<? extends Object> createConstruction(@RequestBody ConstructionReqDto constructionReqDto) {
+	public ResponseEntity<? extends Object> createConstruction(@RequestPart ConstructionReqDto constructionReqDto,
+			@RequestPart List<MultipartFile> drawings) {
 		try {
-			constructionService.createConstruction(constructionReqDto);
+			constructionService.createConstruction(constructionReqDto, drawings);
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}
@@ -134,7 +138,6 @@ public class ConstructionController extends BaseController {
 		}
 		return success(CommonConstants.MessageCode.SCS0005, null, null);
 	}
-	
 
 	/**
 	 * Function: get list of construction status
