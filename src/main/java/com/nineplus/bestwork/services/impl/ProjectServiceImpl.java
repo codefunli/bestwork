@@ -93,10 +93,10 @@ public class ProjectServiceImpl implements IProjectService {
 		String curUsername = userAuthRoleReq.getUsername();
 		try {
 			Pageable pageable = convertSearch(pageSearchDto);
-			
+
 			List<ProjectEntity> projectList = getProjectsBeingInvolvedByCurrentUser(curUsername);
 			Page<ProjectEntity> projectPage = new PageImpl<ProjectEntity>(projectList, pageable, projectList.size());
-			
+
 //			PageResDto<ProjectResDto> pageResDto = new PageResDto<>();
 //			RPageDto metaData = new RPageDto();
 //			metaData.setNumber(projectPage.getNumber());
@@ -125,7 +125,7 @@ public class ProjectServiceImpl implements IProjectService {
 		} catch (Exception ex) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
 		}
-			
+
 // Former code:
 //			
 //			Page<ProjectEntity> pageProject = null;
@@ -177,7 +177,7 @@ public class ProjectServiceImpl implements IProjectService {
 		return PageRequest.of(Integer.parseInt(pageSearchDto.getPage()), Integer.parseInt(pageSearchDto.getSize()),
 				Sort.by(pageSearchDto.getSortDirection(), mappedColumn));
 	}
-	
+
 	/**
 	 * Private function: get all projects that current user is being involved
 	 * (creating or/and being assigned)
@@ -560,10 +560,10 @@ public class ProjectServiceImpl implements IProjectService {
 		}
 
 	}
-	
+
 	/**
-	 * Function get projects which are created by specific user (username)
-	 * DiepTT
+	 * Function get projects which are created by specific user (username) DiepTT
+	 * 
 	 * @param current username
 	 * @return List<ProjectEntity>
 	 */
@@ -573,8 +573,8 @@ public class ProjectServiceImpl implements IProjectService {
 	}
 
 	/**
-	 * Function get projects which are assigned to specific user (username)
-	 * DiepTT
+	 * Function get projects which are assigned to specific user (username) DiepTT
+	 * 
 	 * @param current username
 	 * @return List<ProjectEntity>
 	 */
@@ -582,4 +582,16 @@ public class ProjectServiceImpl implements IProjectService {
 	public List<ProjectEntity> getProjectsBeingAssignedToCurrentUser(String curUsername) {
 		return this.projectRepository.findProjectsBeingAssignedToCurrentUser(curUsername);
 	}
+
+	/**
+	 * Function: get project that contains a specific construction DiepTT
+	 * 
+	 * @Param constructionId
+	 * @return ProjectEntity
+	 */
+	@Override
+	public ProjectEntity getProjectByConstructionId(long constructionId) {
+		return this.projectRepository.findByConstructionId(constructionId);
+	}
+
 }

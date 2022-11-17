@@ -41,6 +41,9 @@ public class CommonConstants {
 		public static final String COMMA = ",";
 		public static final String KC_PASSWORD_DEFAULT = "123456";
 		public static final String ADMIN = "Admin";
+
+		public static final String CONSTRUCTION_NAME = "Construction Name";
+		public static final String AIR_WAY_BILL = "Air Way Bill code";
 	}
 
 	public class MessageCode {
@@ -126,6 +129,11 @@ public class CommonConstants {
 		public static final String CPN0007 = "CPN0007";
 		public static final String EMP0001 = "EMP0001";
 		public static final String US0002 = "EMP0002";
+		public static final String EXS0003 = "EXS0003";
+		public static final String EXS0004 = "EXS0004";
+		public static final String EXS0005 = "EXS0005";
+		public static final String EXS0006 = "EXS0006";
+		public static final String EXS0007 = "EXS0007";
 		public static final String FILE0001 = "FILE0001";
 		public static final String FILE0002 = "FILE0002";
 		public static final String FILE0003 = "FILE0003";
@@ -200,9 +208,20 @@ public class CommonConstants {
 		public static final String sI0003 = "sI0003";
 		public static final String eI0001 = "eI0001";
 
+		public static final String SCS0001 = "scs0001";
+		public static final String ECS0001 = "ecs0001";
+		public static final String SCS0002 = "scs0002";
+		public static final String ECS0002 = "ecs0002";
+		public static final String ECS0003 = "ecs0003";
+		public static final String SCS0003 = "scs0003";
+		public static final String SCS0004 = "scs0004";
+		public static final String ECS0004 = "ecs0004";
+		public static final String SCS0005 = "scs0005";
+
 		public static final String ENU0004 = "enu0004";
 		public static final String SNU0005 = "snu0005";
 		public static final String ENU0005 = "enu0005";
+
 
 		// For package AWB message
 		public static final String sP0001 = "sP0001";

@@ -25,21 +25,22 @@ public interface ProjectRepository extends JpaRepository<ProjectEntity, String> 
 
 	@Query(value = " select * from PROJECT where " + " (project_name like %:#{#project.keyword}% or "
 			+ " description like %:#{#project.keyword}%) ", nativeQuery = true)
-	Page<ProjectEntity> findProjectForAdminWithoutStatus(@Param("project") PageSearchDto pageSearchDto, Pageable pageable);
+	Page<ProjectEntity> findProjectForAdminWithoutStatus(@Param("project") PageSearchDto pageSearchDto,
+			Pageable pageable);
 
 	// Get project for each company creator
 	@Query(value = " select * from PROJECT where create_by = :userCreated AND"
 			+ " (project_name like %:#{#project.keyword}% or "
 			+ " description like %:#{#project.keyword}%) and status = :#{#project.status} ", nativeQuery = true)
-	Page<ProjectEntity> findProjectForCompanyWithStatus(@Param("project") PageSearchDto pageSearchDto, Pageable pageable,
-			String userCreated);
+	Page<ProjectEntity> findProjectForCompanyWithStatus(@Param("project") PageSearchDto pageSearchDto,
+			Pageable pageable, String userCreated);
 
 	// Get project for each company creator
 	@Query(value = " select * from PROJECT where create_by = :userCreated AND"
 			+ " (project_name like %:#{#project.keyword}% or "
 			+ " description like %:#{#project.keyword}%) ", nativeQuery = true)
-	Page<ProjectEntity> findProjectForCompanyWithoutStatus(@Param("project") PageSearchDto pageSearchDto, Pageable pageable,
-			String userCreated);
+	Page<ProjectEntity> findProjectForCompanyWithoutStatus(@Param("project") PageSearchDto pageSearchDto,
+			Pageable pageable, String userCreated);
 
 	// Get project for user be assign
 	@Query(value = "select prj.id, prj.project_name, prj.description, prj.project_type,"
@@ -86,15 +87,17 @@ public interface ProjectRepository extends JpaRepository<ProjectEntity, String> 
 	@Query(value = "Select ast.company_id as companyId, tc.company_name as companyName, tus.user_name as userName, ast.user_id as userId, ast.can_view as canView , ast.can_edit as canEdit from T_COMPANY tc join ASSIGN_TASK ast ON tc.id = ast.company_id JOIN PROJECT pr ON ast.project_id = pr.id JOIN T_SYS_APP_USER tus ON tus.id = ast.user_id WHERE ast.project_id = :projectId", nativeQuery = true)
 	List<ProjectAssignRepository> GetCompanyAndRoleUserByProject(String projectId);
 
-	@Query(value = " select * from PROJECT where create_by = :curUsername", nativeQuery = true )
+	@Query(value = " select * from PROJECT where create_by = :curUsername", nativeQuery = true)
 	List<ProjectEntity> findProjectsBeingCreatedByCurrentUser(String curUsername);
 
-	@Query(value = " select * from PROJECT p "
-			+ " join ASSIGN_TASK ast on ast.project_id = p.id"
-			+ " join T_SYS_APP_USER tsau on tsau.id = ast.user_id "
-			+ " where tsau.user_name = :curUsername"
-			+ " and ( "
-			+ " ast.can_view = 1 or ast.can_edit = 1 ) ", nativeQuery = true )
+	@Query(value = " select * from PROJECT p " + " join ASSIGN_TASK ast on ast.project_id = p.id"
+			+ " join T_SYS_APP_USER tsau on tsau.id = ast.user_id " + " where tsau.user_name = :curUsername" + " and ( "
+			+ " ast.can_view = 1 or ast.can_edit = 1 ) ", nativeQuery = true)
 	List<ProjectEntity> findProjectsBeingAssignedToCurrentUser(String curUsername);
-	
+
+	@Query(value = "select * from PROJECT p " + " join AIRWAY_BILL awb on awb.project_code = p.id "
+			+ " join AWB_CONSTRUCTION awbc on awbc.awb_id = awb.id" + " where awbc.construction_id = :constructionId "
+			+ " group by p.id ", nativeQuery = true)
+	ProjectEntity findByConstructionId(long constructionId);
+
 }

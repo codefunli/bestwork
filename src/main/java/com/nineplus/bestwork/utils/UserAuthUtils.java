@@ -23,12 +23,18 @@ public class UserAuthUtils {
 		Boolean isSysAdmin = roles.contains(Enums.TRole.SYS_ADMIN.getValue());
 		Boolean isOrgAdmin = roles.contains(Enums.TRole.COMPANY_ADMIN.getValue());
 		Boolean isOrgUser = roles.contains(Enums.TRole.COMPANY_USER.getValue());
+		Boolean isInvestor = roles.contains(Enums.TRole.INVESTOR.getValue());
+		Boolean isSupplier = roles.contains(Enums.TRole.SUPPLIER.getValue());
+		Boolean isContractor = roles.contains(Enums.TRole.CONTRACTOR.getValue());
 
 		UserAuthDetected userAuthDetected = new UserAuthDetected();
 		userAuthDetected.setUsername(userName);
 		userAuthDetected.setIsSysAdmin(isSysAdmin);
 		userAuthDetected.setIsOrgAdmin(isOrgAdmin);
 		userAuthDetected.setIsOrgUser(isOrgUser);
+		userAuthDetected.setIsInvestor(isInvestor);
+		userAuthDetected.setIsSupplier(isSupplier);
+		userAuthDetected.setIsContractor(isContractor);
 		userAuthDetected.setRoles(roles);
 
 		return userAuthDetected;
