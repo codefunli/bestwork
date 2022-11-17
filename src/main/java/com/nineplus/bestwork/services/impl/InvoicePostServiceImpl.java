@@ -2,6 +2,7 @@ package com.nineplus.bestwork.services.impl;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.nineplus.bestwork.dto.CustomClearanceInvoiceFileResDto;
 import com.nineplus.bestwork.dto.FileStorageResDto;
 import com.nineplus.bestwork.dto.PostInvoiceReqDto;
 import com.nineplus.bestwork.dto.PostInvoiceResDto;
@@ -18,6 +20,7 @@ import com.nineplus.bestwork.entity.FileStorageEntity;
 import com.nineplus.bestwork.entity.PostInvoice;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.model.UserAuthDetected;
+import com.nineplus.bestwork.repository.InvoiceFileProjection;
 import com.nineplus.bestwork.repository.PostInvoiceRepository;
 import com.nineplus.bestwork.services.IInvoicePostService;
 import com.nineplus.bestwork.services.ISftpFileService;
@@ -51,7 +54,6 @@ public class InvoicePostServiceImpl implements IInvoicePostService {
 		try {
 			postInvoce.setAirWayBill(airWayBillCode);
 			postInvoce.setDescription(postInvoiceReqDto.getDescription());
-			postInvoce.setComment(postInvoiceReqDto.getComment());
 			postInvoce.setCreateBy(userAuthRoleReq.getUsername());
 			postInvoce.setUpdateBy(userAuthRoleReq.getUsername());
 			postInvoce.setCreateDate(LocalDateTime.now());
@@ -68,6 +70,10 @@ public class InvoicePostServiceImpl implements IInvoicePostService {
 	public void updatePostInvoice(List<MultipartFile> mFiles, PostInvoiceReqDto postInvoiceReqDto, String airWayCode)
 			throws BestWorkBussinessException {
 		PostInvoice createPostInvoice = null;
+		// Validate file
+		if (!sftpFileService.isValidFile(mFiles)) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.eF0002, null);
+		}
 		try {
 			// Save information for post invoice
 			createPostInvoice = this.savePostInvoice(postInvoiceReqDto, airWayCode);
@@ -137,6 +143,12 @@ public class InvoicePostServiceImpl implements IInvoicePostService {
 				fileStorageResponseDto.setName(file.getName());
 				fileStorageResponseDto.setCreateDate(file.getCreateDate().toString());
 				fileStorageResponseDto.setType(file.getType());
+				// return content file if file is image
+				if (Arrays.asList(new String[] { "png", "jpg", "jpeg", "bmp" }).contains(file.getType())) {
+					String pathServer = file.getPathFileServer();
+					byte[] imageContent = sftpFileService.downloadFile(pathServer);
+					fileStorageResponseDto.setContent(imageContent);
+				}
 				fileStorageResponseDtos.add(fileStorageResponseDto);
 			}
 			res.setFileStorages(fileStorageResponseDtos);
@@ -160,4 +172,21 @@ public class InvoicePostServiceImpl implements IInvoicePostService {
 	private String getPathFileToDownload(Long postId, Long fileId) {
 		return postInvoiceRepository.getPathFileServer(postId, fileId);
 	}
+
+	@Override
+	public List<CustomClearanceInvoiceFileResDto> getInvoiceClearance(String code) {
+		List<CustomClearanceInvoiceFileResDto> lst = new ArrayList<>();
+		CustomClearanceInvoiceFileResDto customClearanceFileResDto = null;
+		List<InvoiceFileProjection> res = postInvoiceRepository.getClearanceInfo(code);
+		for (InvoiceFileProjection projection : res) {
+			customClearanceFileResDto = new CustomClearanceInvoiceFileResDto();
+			customClearanceFileResDto.setFileId(projection.getFileId());
+			customClearanceFileResDto.setPostInvoiceId(projection.getPostInvoiceId());
+			customClearanceFileResDto.setName(projection.getName());
+			customClearanceFileResDto.setType(projection.getType());
+			lst.add(customClearanceFileResDto);
+		}
+		return lst;
+	}
+
 }

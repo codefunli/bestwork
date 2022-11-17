@@ -13,13 +13,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.nineplus.bestwork.dto.AirWayBillReqDto;
 import com.nineplus.bestwork.dto.AirWayBillResDto;
-import com.nineplus.bestwork.dto.ChangeStatusFileDto;
+import com.nineplus.bestwork.dto.CustomClearanceInvoiceFileResDto;
+import com.nineplus.bestwork.dto.CustomClearancePackageFileResDto;
+import com.nineplus.bestwork.dto.CustomClearanceResDto;
 import com.nineplus.bestwork.entity.AirWayBill;
 import com.nineplus.bestwork.entity.ProjectEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.model.UserAuthDetected;
 import com.nineplus.bestwork.repository.AirWayBillRepository;
 import com.nineplus.bestwork.services.IAirWayBillService;
+import com.nineplus.bestwork.services.IInvoicePostService;
+import com.nineplus.bestwork.services.IPackagePostService;
 import com.nineplus.bestwork.services.IProjectService;
 import com.nineplus.bestwork.utils.CommonConstants;
 import com.nineplus.bestwork.utils.UserAuthUtils;
@@ -33,6 +37,12 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 
 	@Autowired
 	private IProjectService iProjectService;
+
+	@Autowired
+	private IInvoicePostService iInvoicePostService;
+	
+	@Autowired
+	IPackagePostService iPackagePostService;
 
 	@Autowired
 	UserAuthUtils userAuthUtils;
@@ -99,8 +109,21 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 		if (ObjectUtils.isNotEmpty(airway)) {
 			airWayResDTO = modelMapper.map(airway, AirWayBillResDto.class);
 		}
-
 		return airWayResDTO;
+	}
+
+	@Override
+	public CustomClearanceResDto getCustomClearanceDoc(String code) throws BestWorkBussinessException {
+		CustomClearanceResDto res = new CustomClearanceResDto();
+		List<CustomClearanceInvoiceFileResDto> invoiceInfo = iInvoicePostService.getInvoiceClearance(code);
+		if(ObjectUtils.isNotEmpty(invoiceInfo)) {
+			res.setInvoicesDoc(invoiceInfo);
+		}
+		List<CustomClearancePackageFileResDto> packageInfo = iPackagePostService.getPackageClearance(code);
+		if(ObjectUtils.isNotEmpty(packageInfo)) {
+			res.setPackagesDoc(packageInfo);
+		}
+		return res;
 	}
 
 }

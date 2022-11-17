@@ -29,12 +29,11 @@ public class PackagePostController extends BaseController {
 
 	@PatchMapping("/update-package/{airWayBillCode}")
 	public ResponseEntity<? extends Object> update(@RequestParam("file") List<MultipartFile> mFiles,
-			@RequestParam("packageDescription") String packageDes, @RequestParam("packageComment") String packageCom,
+			@RequestParam("packageDescription") String packageDes,
 			@PathVariable String airWayBillCode) throws BestWorkBussinessException {
 		try {
 			PackagePostReqDto packagePostReqDto = new PackagePostReqDto();
-			if (StringUtils.isNotBlank(packageDes) || StringUtils.isNotBlank(packageCom)) {
-				packagePostReqDto.setComment(packageCom);
+			if (StringUtils.isNotBlank(packageDes)) {
 				packagePostReqDto.setDescription(packageDes);
 			}
 			iPackagePostService.updatePackagePost(mFiles, packagePostReqDto, airWayBillCode);

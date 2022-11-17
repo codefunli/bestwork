@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.nineplus.bestwork.dto.AirWayBillReqDto;
 import com.nineplus.bestwork.dto.AirWayBillResDto;
+import com.nineplus.bestwork.dto.CustomClearanceResDto;
 import com.nineplus.bestwork.entity.AirWayBill;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 
@@ -15,4 +16,7 @@ public interface IAirWayBillService {
 	AirWayBillResDto getDetail(String code) throws BestWorkBussinessException;
 
 	AirWayBill findByCode(String code);
+
+	CustomClearanceResDto getCustomClearanceDoc(String code) throws BestWorkBussinessException;
+
 }
