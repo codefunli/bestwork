@@ -2,19 +2,21 @@ package com.nineplus.bestwork.services.impl;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -88,47 +90,110 @@ public class ProjectServiceImpl implements IProjectService {
 	@Override
 	public PageResDto<ProjectResDto> getProjectPage(PageSearchDto pageSearchDto) throws BestWorkBussinessException {
 		UserAuthDetected userAuthRoleReq = getAuthRoleReq();
-		String userCurrent = userAuthRoleReq.getUsername();
+		String curUsername = userAuthRoleReq.getUsername();
 		try {
-			int pageNumber = NumberUtils.toInt(pageSearchDto.getPage());
-			String mappedColumn = convertResponseUtils.convertResponseProject(pageSearchDto.getSortBy());
-			Pageable pageable = PageRequest.of(pageNumber, Integer.parseInt(pageSearchDto.getSize()),
-					Sort.by(pageSearchDto.getSortDirection(), mappedColumn));
-			Page<ProjectEntity> pageProject = null;
-			int status = pageSearchDto.getStatus();
-
-			if (userAuthRoleReq.getIsSysAdmin()) {
-				if (status >= 0 && status < ProjectStatus.values().length) {
-					pageProject = projectRepository.findProjectForAdminWithStatus(pageSearchDto, pageable);
-				} else {
-					pageProject = projectRepository.findProjectForAdminWithoutStatus(pageSearchDto, pageable);
-				}
-			} else if (userAuthRoleReq.getIsOrgAdmin()) {
-				if (status >= 0 && status < ProjectStatus.values().length) {
-					pageProject = projectRepository.findProjectForCompanyWithStatus(pageSearchDto, pageable,
-							userCurrent);
-				} else {
-					pageProject = projectRepository.findProjectForCompanyWithoutStatus(pageSearchDto, pageable,
-							userCurrent);
-				}
-			} else if (userAuthRoleReq.getIsOrgUser()) {
-				if (status >= 0 && status < ProjectStatus.values().length) {
-					pageProject = projectRepository.findAssignToUserWithStatus(pageSearchDto, pageable, userCurrent);
-				} else {
-					pageProject = projectRepository.findAssignToUserWithOutStatus(pageSearchDto, pageable,
-							userCurrent);
-				}
-			}
-			return responseUtils.convertPageEntityToDTO(pageProject, ProjectResDto.class);
+			Pageable pageable = convertSearch(pageSearchDto);
+			
+			List<ProjectEntity> projectList = getProjectsBeingInvolvedByCurrentUser(curUsername);
+			Page<ProjectEntity> projectPage = new PageImpl<ProjectEntity>(projectList, pageable, projectList.size());
+			
+//			PageResDto<ProjectResDto> pageResDto = new PageResDto<>();
+//			RPageDto metaData = new RPageDto();
+//			metaData.setNumber(projectPage.getNumber());
+//			metaData.setSize(projectPage.getSize());
+//			metaData.setTotalElements(projectPage.getTotalElements());
+//			metaData.setTotalPages(projectPage.getTotalPages());
+//			pageResDto.setMetaData(metaData);
+//
+//			List<ProjectResDto> dtos = new ArrayList<>();
+//			for (ProjectEntity project : projectPage.getContent()) {
+//				ProjectResDto dto = new ProjectResDto();
+//				dto.setId(project.getId());
+//				dto.setProjectName(project.getProjectName());
+//				dto.setDescription(project.getDescription());
+//				dto.setProjectType(project.getProjectType());
+//				dto.setNotificationFlag(project.getNotificationFlag());
+//				dto.setIsPaid(project.getIsPaid());
+//				dto.setStartDate(project.getStartDate());
+//				dto.setStatus(project.getStatus());
+//				dtos.add(dto);
+//			}
+//			pageResDto.setContent(dtos);
+//
+//			return pageResDto;
+			return responseUtils.convertPageEntityToDTO(projectPage, ProjectResDto.class);
 		} catch (Exception ex) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
 		}
+			
+// Former code:
+//			
+//			Page<ProjectEntity> pageProject = null;
+//			int status = pageSearchDto.getStatus();
+//
+//			if (userAuthRoleReq.getIsSysAdmin()) {
+//				if (status >= 0 && status < ProjectStatus.values().length) {
+//					pageProject = projectRepository.findProjectForAdminWithStatus(pageSearchDto, pageable);
+//				} else {
+//					pageProject = projectRepository.findProjectForAdminWithoutStatus(pageSearchDto, pageable);
+//				}
+//			} else if (userAuthRoleReq.getIsOrgAdmin()) {
+//				if (status >= 0 && status < ProjectStatus.values().length) {
+//					pageProject = projectRepository.findProjectForCompanyWithStatus(pageSearchDto, pageable,
+//							userCurrent);
+//				} else {
+//					pageProject = projectRepository.findProjectForCompanyWithoutStatus(pageSearchDto, pageable,
+//							userCurrent);
+//				}
+//			} else if (userAuthRoleReq.getIsOrgUser()) {
+//				if (status >= 0 && status < ProjectStatus.values().length) {
+//					pageProject = projectRepository.findAssignToUserWithStatus(pageSearchDto, pageable, userCurrent);
+//				} else {
+//					pageProject = projectRepository.findAssignToUserWithOutStatus(pageSearchDto, pageable, userCurrent);
+//				}
+//			}
+//			return responseUtils.convertPageEntityToDTO(pageProject, ProjectResDto.class);
+//		} catch (Exception ex) {
+//			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
+//		}
 
 	}
 
 	private UserAuthDetected getAuthRoleReq() throws BestWorkBussinessException {
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
 		return userAuthRoleReq;
+	}
+
+	private Pageable convertSearch(PageSearchDto pageSearchDto) {
+		if (pageSearchDto.getKeyword().equals("")) {
+			pageSearchDto.setKeyword("%%");
+		} else {
+			pageSearchDto.setKeyword("%" + pageSearchDto.getKeyword() + "%");
+		}
+		if (pageSearchDto.getStatus() < 0 || pageSearchDto.getStatus() >= ProjectStatus.values().length) {
+			pageSearchDto.setStatus(-1);
+		}
+		String mappedColumn = convertResponseUtils.convertResponseProject(pageSearchDto.getSortBy());
+		return PageRequest.of(Integer.parseInt(pageSearchDto.getPage()), Integer.parseInt(pageSearchDto.getSize()),
+				Sort.by(pageSearchDto.getSortDirection(), mappedColumn));
+	}
+	
+	/**
+	 * Private function: get all projects that current user is being involved
+	 * (creating or/and being assigned)
+	 * 
+	 * @param curUsername
+	 * @return List<ProjectEntity>
+	 */
+	private List<ProjectEntity> getProjectsBeingInvolvedByCurrentUser(String curUsername) {
+		List<ProjectEntity> creatingProjectList = getProjectsBeingCreatedByCurrentUser(curUsername);
+		List<ProjectEntity> assignedProjectList = getProjectsBeingAssignedToCurrentUser(curUsername);
+		Set<ProjectEntity> projectSet = new HashSet<>();
+		if (creatingProjectList != null)
+			projectSet.addAll(creatingProjectList);
+		if (assignedProjectList != null)
+			projectSet.addAll(assignedProjectList);
+		return new ArrayList<>(projectSet);
 	}
 
 	@Override
@@ -494,5 +559,27 @@ public class ProjectServiceImpl implements IProjectService {
 			projectRepository.save(currentProject);
 		}
 
+	}
+	
+	/**
+	 * Function get projects which are created by specific user (username)
+	 * DiepTT
+	 * @param current username
+	 * @return List<ProjectEntity>
+	 */
+	@Override
+	public List<ProjectEntity> getProjectsBeingCreatedByCurrentUser(String curUsername) {
+		return this.projectRepository.findProjectsBeingCreatedByCurrentUser(curUsername);
+	}
+
+	/**
+	 * Function get projects which are assigned to specific user (username)
+	 * DiepTT
+	 * @param current username
+	 * @return List<ProjectEntity>
+	 */
+	@Override
+	public List<ProjectEntity> getProjectsBeingAssignedToCurrentUser(String curUsername) {
+		return this.projectRepository.findProjectsBeingAssignedToCurrentUser(curUsername);
 	}
 }

@@ -2,7 +2,8 @@ package com.nineplus.bestwork.utils;
 
 public class Enums {
 	public enum TRole {
-		SYS_ADMIN("sysadmin"), COMPANY_ADMIN("companyadmin"), SUB_COMPANY_ADMIN("sub-companyadmin"),COMPANY_USER("companyuser");
+		SYS_ADMIN("sysadmin"), COMPANY_ADMIN("companyadmin"), SUB_COMPANY_ADMIN("sub-companyadmin"),
+		COMPANY_USER("companyuser");
 
 		private String value;
 
@@ -49,7 +50,7 @@ public class Enums {
 	}
 
 	public enum ProjectStatus {
-		NOT_YET_START("Not yet start"), IN_PROGRESS("In progress"), DONE("Done"), PAYMENTING("Paymenting"),
+		NOT_YET_START("Not yet start"), IN_PROGRESS("In progress"), DONE("Done"), NOT_YET_PAID("Not yet paid"),
 		IS_PAID("Paid"), CANCEL("Cancel");
 
 		private String value;
@@ -63,9 +64,10 @@ public class Enums {
 		}
 
 	}
-	
+
 	public enum AirWayBillStatus {
-		NOT_YET_CUSTOMS_CLEARANCES("Not yet customs clearance"), IN_CUSTOMS_CLEARANCES_PROGRESS("In Customs Clearance Progress"), DONE("Done");
+		NOT_YET_CUSTOMS_CLEARANCES("Not yet customs clearance"),
+		IN_CUSTOMS_CLEARANCES_PROGRESS("In Customs Clearance Progress"), DONE("Done");
 
 		private String value;
 
@@ -78,15 +80,11 @@ public class Enums {
 		}
 
 	}
-	
+
 	public enum FolderType {
-			INVOICE,
-			PACKAGE,
-			EVIDENCE_BEFORE,
-			EVIDENCE_AFTER,
-			DEFAULT
+		INVOICE, PACKAGE, EVIDENCE_BEFORE, EVIDENCE_AFTER, DEFAULT
 	}
-	
+
 	public enum Nation {
 		CHINA("China"), VIETNAM("Viet Nam"), LAOS("Laos"), THAILAND("Thailand");
 
