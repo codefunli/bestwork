@@ -22,6 +22,10 @@ public class CommonConstants {
 		public static final String STATUS_SUCCESS = "success";
 
 	}
+	
+	public class Image {
+		public static final String[] IMAGE_EXTENSION = { "png", "jpg", "jpeg", "bmp", "JPEG", "PNG", "JPG", "BMP" } ;
+	}
 
 	public class Character {
 		public static final String USER = "User";
@@ -32,6 +36,9 @@ public class CommonConstants {
 		public static final String USER_NAME = "User Name";
 		public static final String CMPNY_NAME = "Company Name";
 		public static final String PROJECT = "Project";
+		public static final String TYPE_POST_INVOICE = "invoice";
+		public static final String TYPE_POST_PACKAGE = "package";
+		
 
 		public static final String COMPANY = "COMPANY";
 		public static final String USERNAME_OR_EMAIL = "USER or EMAIL";

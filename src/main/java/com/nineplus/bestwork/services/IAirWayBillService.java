@@ -11,12 +11,14 @@ import com.nineplus.bestwork.exception.BestWorkBussinessException;
 public interface IAirWayBillService {
 	void saveAirWayBill(AirWayBillReqDto airWayBillReqDto) throws BestWorkBussinessException;
 
-	List<AirWayBill> getAllAirWayBillByProject(String projectId) throws BestWorkBussinessException;
+	List<AirWayBillResDto> getAllAirWayBillByProject(String projectId) throws BestWorkBussinessException;
 
 	AirWayBillResDto getDetail(String code) throws BestWorkBussinessException;
 
 	AirWayBill findByCode(String code);
 
 	CustomClearanceResDto getCustomClearanceDoc(String code) throws BestWorkBussinessException;
+
+	void downloadZip(String code) throws BestWorkBussinessException;
 
 }

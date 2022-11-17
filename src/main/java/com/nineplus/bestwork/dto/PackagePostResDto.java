@@ -3,6 +3,7 @@ package com.nineplus.bestwork.dto;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.EqualsAndHashCode;
@@ -12,6 +13,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = false)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class PackagePostResDto extends BaseDto {
 
 	
@@ -40,6 +42,10 @@ public class PackagePostResDto extends BaseDto {
 
 	@JsonProperty("updateBy")
 	private String updateBy;
+	
+	@JsonProperty("postType")
+	private String postType;
+	
 
 	@JsonProperty("fileStorages")
 	private List<FileStorageResDto> fileStorages;

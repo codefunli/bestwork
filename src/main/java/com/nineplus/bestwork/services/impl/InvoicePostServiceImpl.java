@@ -106,8 +106,8 @@ public class InvoicePostServiceImpl implements IInvoicePostService {
 			postInvoiceResDto.setDescription(invoice.get().getDescription());
 			postInvoiceResDto.setCreateBy(invoice.get().getCreateBy());
 			postInvoiceResDto.setUpdateBy(invoice.get().getUpdateBy());
-			postInvoiceResDto.setCreateDate(invoice.get().getCreateDate());
-			postInvoiceResDto.setUpdateDate(invoice.get().getUpdateDate());
+			postInvoiceResDto.setCreateDate(invoice.get().getCreateDate().toString());
+			postInvoiceResDto.setUpdateDate(invoice.get().getUpdateDate().toString());
 			List<FileStorageResDto> fileStorageResponseDtos = new ArrayList<>();
 			for (FileStorageEntity file : invoice.get().getFileStorages()) {
 				FileStorageResDto fileStorageResponseDto = new FileStorageResDto();
@@ -134,8 +134,9 @@ public class InvoicePostServiceImpl implements IInvoicePostService {
 			res.setDescription(invoice.getDescription());
 			res.setCreateBy(invoice.getCreateBy());
 			res.setUpdateBy(invoice.getUpdateBy());
-			res.setCreateDate(invoice.getCreateDate());
-			res.setUpdateDate(invoice.getUpdateDate());
+			res.setCreateDate(invoice.getCreateDate().toString());
+			res.setUpdateDate(invoice.getUpdateDate().toString());
+			res.setPostType(CommonConstants.Character.TYPE_POST_INVOICE);
 			List<FileStorageResDto> fileStorageResponseDtos = new ArrayList<>();
 			for (FileStorageEntity file : invoice.getFileStorages()) {
 				FileStorageResDto fileStorageResponseDto = new FileStorageResDto();
@@ -143,10 +144,11 @@ public class InvoicePostServiceImpl implements IInvoicePostService {
 				fileStorageResponseDto.setName(file.getName());
 				fileStorageResponseDto.setCreateDate(file.getCreateDate().toString());
 				fileStorageResponseDto.setType(file.getType());
+				fileStorageResponseDto.setChoosen(file.isChoosen());
 				// return content file if file is image
-				if (Arrays.asList(new String[] { "png", "jpg", "jpeg", "bmp" }).contains(file.getType())) {
+				if (Arrays.asList(new String[] { "png", "jpg", "jpeg", "bmp", "JPEG" }).contains(file.getType())) {
 					String pathServer = file.getPathFileServer();
-					byte[] imageContent = sftpFileService.downloadFile(pathServer);
+					byte[] imageContent = sftpFileService.getFile(pathServer);
 					fileStorageResponseDto.setContent(imageContent);
 				}
 				fileStorageResponseDtos.add(fileStorageResponseDto);
@@ -165,7 +167,7 @@ public class InvoicePostServiceImpl implements IInvoicePostService {
 	@Override
 	public byte[] getFile(Long postId, Long fileId) throws BestWorkBussinessException {
 		String pathFile = getPathFileToDownload(postId, fileId);
-		byte[] fileContent = sftpFileService.downloadFile(pathFile);
+		byte[] fileContent = sftpFileService.getFile(pathFile);
 		return fileContent;
 	}
 
