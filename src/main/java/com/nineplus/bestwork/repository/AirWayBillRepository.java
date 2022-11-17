@@ -10,7 +10,6 @@ import com.nineplus.bestwork.entity.AirWayBill;
 @Repository
 public interface AirWayBillRepository extends JpaRepository<AirWayBill, Long> {
 	AirWayBill findByCode(String code);
-	
-	List <AirWayBill> findByProjectCode(String projectCode);
 
+	List<AirWayBill> findByProjectCode(String projectCode);
 }

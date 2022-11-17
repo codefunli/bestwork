@@ -15,6 +15,8 @@ public interface IAirWayBillService {
 
 	AirWayBillResDto getDetail(String code) throws BestWorkBussinessException;
 
+	AirWayBill findByCode(String code);
+
 	CustomClearanceResDto getCustomClearanceDoc(String code) throws BestWorkBussinessException;
 
 }

@@ -51,6 +51,11 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 	ModelMapper modelMapper;
 
 	@Override
+	public AirWayBill findByCode(String code) {
+		return this.airWayBillRepository.findByCode(code);
+	}
+
+	@Override
 	public void saveAirWayBill(AirWayBillReqDto airWayBillReqDto) throws BestWorkBussinessException {
 		AirWayBill airway = new AirWayBill();
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);

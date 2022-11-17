@@ -45,4 +45,10 @@ public interface IProjectService {
 	
 	List<String> getAllProjectIdByCompany(List<Long> listCompanyId) throws BestWorkBussinessException;
 
+	public List<ProjectEntity> getProjectsBeingCreatedByCurrentUser(String curUsername);
+
+	public List<ProjectEntity> getProjectsBeingAssignedToCurrentUser(String curUsername);
+
+	public ProjectEntity getProjectByConstructionId(long constructionId);
+
 }

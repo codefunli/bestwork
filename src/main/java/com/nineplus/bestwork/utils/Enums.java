@@ -2,7 +2,8 @@ package com.nineplus.bestwork.utils;
 
 public class Enums {
 	public enum TRole {
-		SYS_ADMIN("sysadmin"), COMPANY_ADMIN("companyadmin"), SUB_COMPANY_ADMIN("sub-companyadmin"),COMPANY_USER("companyuser");
+		SYS_ADMIN("sysadmin"), COMPANY_ADMIN("companyadmin"), SUB_COMPANY_ADMIN("sub-companyadmin"),
+		COMPANY_USER("companyuser"), INVESTOR("investor"), SUPPLIER("supplier"), CONTRACTOR("contractor");
 
 		private String value;
 
@@ -34,7 +35,7 @@ public class Enums {
 	}
 
 	public enum ProgressStatus {
-		TODO("Todo"), IN_PROGRESS("In progress"), PENDING("Pending"), REVIEW("Review"), DONE("Done");
+		NOT_YET_START("Not yet start"), IN_PROGRESS("In progress"), PENDING("Pending"), REVIEW("Review"), DONE("Done");
 
 		private String value;
 
@@ -63,9 +64,25 @@ public class Enums {
 		}
 
 	}
-	
+
+	public enum ConstructionStatus {
+		NOT_YET_START("Not yet start"), IN_PROGRESS("In progress"), PENDING("Pending"), REVIEW("Review"), DONE("Done");
+
+		private String value;
+
+		private ConstructionStatus(String value) {
+			this.value = value;
+		}
+
+		public String getValue() {
+			return this.value;
+		}
+
+	}
+
 	public enum AirWayBillStatus {
-		NOT_YET_CUSTOMS_CLEARANCES("Not yet customs clearance"), IN_CUSTOMS_CLEARANCES_PROGRESS("In Customs Clearance Progress"), DONE("Done");
+		NOT_YET_CUSTOMS_CLEARANCES("Not yet customs clearance"),
+		IN_CUSTOMS_CLEARANCES_PROGRESS("In Customs Clearance Progress"), DONE("Done");
 
 		private String value;
 
@@ -78,15 +95,11 @@ public class Enums {
 		}
 
 	}
-	
+
 	public enum FolderType {
-			INVOICE,
-			PACKAGE,
-			EVIDENCE_BEFORE,
-			EVIDENCE_AFTER,
-			DEFAULT
+		INVOICE, PACKAGE, EVIDENCE_BEFORE, EVIDENCE_AFTER, DEFAULT
 	}
-	
+
 	public enum Nation {
 		CHINA("China"), VIETNAM("Viet Nam"), LAOS("Laos"), THAILAND("Thailand");
 
@@ -101,5 +114,4 @@ public class Enums {
 		}
 
 	}
-
 }
