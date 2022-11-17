@@ -39,7 +39,7 @@ public class FileStorageResDto extends BaseDto {
 	private long progressId; 
 	
 	@JsonProperty("content")
-	private String content;
+	private byte[] content;
 
 	@JsonProperty("isChoosen")
 	private boolean isChoosen;

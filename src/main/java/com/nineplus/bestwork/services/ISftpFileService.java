@@ -24,5 +24,7 @@ public interface ISftpFileService {
 	String uploadEvidenceBefore(MultipartFile file, String airWayBill, long evidenceBeforeId);
 
 	String uploadEvidenceAfter(MultipartFile file, String airWayBill, long evidenceAfterId);
+	
+	boolean isValidFile(List<MultipartFile> file);
 
 }

@@ -68,6 +68,9 @@ public class SftpFileServiceImpl implements ISftpFileService {
 	@Value("${fileServer.password}")
 	private String SFTP_PASSWORD;
 
+	@Value("${fileServer.maxSize}")
+	private float MAX_SIZE_FILE;
+
 	private static final int INVOICE_NUMBER = 1;
 
 	private static final int PACKAGE_NUMBER = 2;
@@ -337,6 +340,18 @@ public class SftpFileServiceImpl implements ISftpFileService {
 
 	private String getPathSeverUpload(FolderType folderType) {
 		return ROOT_PATH + SEPARATOR + getParentPath(folderType);
+	}
+
+	@Override
+	public boolean isValidFile(List<MultipartFile> mFiles) {
+		for (MultipartFile file : mFiles) {
+			float fileSizeInMegabytes = file.getSize() / 1_000_000.0f;
+			// file must be < 5MB
+			if (fileSizeInMegabytes >= MAX_SIZE_FILE) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 }

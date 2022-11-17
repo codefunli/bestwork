@@ -17,6 +17,7 @@ import com.nineplus.bestwork.dto.AirWayBillReqDto;
 import com.nineplus.bestwork.dto.AirWayBillResDto;
 import com.nineplus.bestwork.dto.AirWayBillStatusResDto;
 import com.nineplus.bestwork.dto.ChangeStatusFileDto;
+import com.nineplus.bestwork.dto.CustomClearanceResDto;
 import com.nineplus.bestwork.entity.AirWayBill;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.services.IAirWayBillService;
@@ -30,10 +31,10 @@ public class AirWayBillController extends BaseController {
 
 	@Autowired
 	IAirWayBillService iAirWayBillService;
-	
+
 	@Autowired
 	IStorageService iStorageService;
-	
+
 	@PostMapping("/create")
 	public ResponseEntity<? extends Object> create(@RequestBody AirWayBillReqDto airWayBillReqDto)
 			throws BestWorkBussinessException {
@@ -44,7 +45,7 @@ public class AirWayBillController extends BaseController {
 		}
 		return success(CommonConstants.MessageCode.sA0001, null, null);
 	}
-	
+
 	@GetMapping("/status")
 	public ResponseEntity<? extends Object> getAirWayBillStatus() throws BestWorkBussinessException {
 		List<AirWayBillStatusResDto> airWayBillStatus = new ArrayList<>();
@@ -58,7 +59,8 @@ public class AirWayBillController extends BaseController {
 	}
 
 	@GetMapping("/list/by/{projectId}")
-	public ResponseEntity<? extends Object> getAllAirWayBill(@PathVariable String projectId) throws BestWorkBussinessException {
+	public ResponseEntity<? extends Object> getAllAirWayBill(@PathVariable String projectId)
+			throws BestWorkBussinessException {
 		List<AirWayBill> listAwb = null;
 		try {
 			listAwb = iAirWayBillService.getAllAirWayBillByProject(projectId);
@@ -86,7 +88,7 @@ public class AirWayBillController extends BaseController {
 		}
 		return success(CommonConstants.MessageCode.sA0004, airWayBillInfo, null);
 	}
-	
+
 	@PostMapping("/change-status-file")
 	public ResponseEntity<? extends Object> changeStatus(@RequestBody ChangeStatusFileDto changeStatusFileDto)
 			throws BestWorkBussinessException {
@@ -96,5 +98,22 @@ public class AirWayBillController extends BaseController {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}
 		return success(CommonConstants.MessageCode.sF0003, null, null);
+	}
+
+	@GetMapping("{code}/custom-clearance-doc")
+	public ResponseEntity<? extends Object> getCustomClearanceDoc(@PathVariable String code)
+			throws BestWorkBussinessException {
+		CustomClearanceResDto customClearanceResDto = null;
+		try {
+			customClearanceResDto = iAirWayBillService.getCustomClearanceDoc(code);
+		} catch (BestWorkBussinessException ex) {
+			return failed(ex.getMsgCode(), ex.getParam());
+		}
+
+		if (ObjectUtils.isEmpty(customClearanceResDto.getPackagesDoc())
+				&& ObjectUtils.isEmpty(customClearanceResDto.getPackagesDoc())) {
+			return success(CommonConstants.MessageCode.E1X0003, null, null);
+		}
+		return success(CommonConstants.MessageCode.sA0005, customClearanceResDto, null);
 	}
 }
