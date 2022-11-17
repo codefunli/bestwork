@@ -24,6 +24,7 @@ import com.nineplus.bestwork.entity.ProgressEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.repository.StorageRepository;
 import com.nineplus.bestwork.services.IStorageService;
+import com.nineplus.bestwork.utils.CommonConstants;
 import com.nineplus.bestwork.utils.Enums.FolderType;
 
 /**
@@ -165,9 +166,9 @@ public class StorageServiceImpl implements IStorageService {
 			boolean toStatus = changeStatusFileDto.isDestinationStatus();
 			Long[] fileId = changeStatusFileDto.getFileId();
 			List<Long> listFile = Arrays.asList(fileId);
-			if (POST_INVOICE_TYPE.equals(postType)) {
+			if (CommonConstants.Character.TYPE_POST_INVOICE.equals(postType)) {
 				storageRepository.changeStatusInvoice(postId, listFile, toStatus);
-			} else if (POST_PACKAGE_TYPE.equals(postType)) {
+			} else if (CommonConstants.Character.TYPE_POST_PACKAGE.equals(postType)) {
 				storageRepository.changeStatusInvoice(postId, listFile, toStatus);
 			}
 		}

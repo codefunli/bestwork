@@ -1,6 +1,7 @@
 package com.nineplus.bestwork.services.impl;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,7 +26,9 @@ import com.nineplus.bestwork.services.IAirWayBillService;
 import com.nineplus.bestwork.services.IInvoicePostService;
 import com.nineplus.bestwork.services.IPackagePostService;
 import com.nineplus.bestwork.services.IProjectService;
+import com.nineplus.bestwork.services.ISftpFileService;
 import com.nineplus.bestwork.utils.CommonConstants;
+import com.nineplus.bestwork.utils.Enums.AirWayBillStatus;
 import com.nineplus.bestwork.utils.UserAuthUtils;
 
 @Service
@@ -46,6 +49,9 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 
 	@Autowired
 	UserAuthUtils userAuthUtils;
+	
+	@Autowired
+	ISftpFileService iSftpFileService;
 
 	@Autowired
 	ModelMapper modelMapper;
@@ -98,8 +104,16 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 	}
 
 	@Override
-	public List<AirWayBill> getAllAirWayBillByProject(String projectId) throws BestWorkBussinessException {
-		return airWayBillRepository.findByProjectCode(projectId);
+	public List<AirWayBillResDto> getAllAirWayBillByProject(String projectId) throws BestWorkBussinessException {
+		List<AirWayBill> listAwb = airWayBillRepository.findByProjectCode(projectId);
+		List<AirWayBillResDto> listAwbRes =  new ArrayList<>();
+		for (AirWayBill airWayBill : listAwb) {
+			AirWayBillResDto airWayResDTO = new AirWayBillResDto();
+			airWayResDTO = modelMapper.map(airWayBill, AirWayBillResDto.class);
+			airWayResDTO.setStatus(AirWayBillStatus.convertIntToStatus(airWayBill.getStatus()));
+			listAwbRes.add(airWayResDTO);
+		}
+		return listAwbRes;
 	}
 
 	@Override
@@ -126,4 +140,12 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 		return res;
 	}
 
+	@Override
+	public void downloadZip(String code) throws BestWorkBussinessException {
+		List<String> listPathToDownLoad = new ArrayList<>();
+		listPathToDownLoad.add("/home/bestwork/invoices/20221117/AIRWAY00000001/121/Invoice_test.xlsx");
+		listPathToDownLoad.add("/home/bestwork/invoices/20221117/AIRWAY00000004/120/images.jpg");
+		iSftpFileService.downLoadFile(listPathToDownLoad);
+	}
+	
 }

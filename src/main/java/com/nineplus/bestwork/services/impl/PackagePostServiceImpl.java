@@ -44,7 +44,7 @@ public class PackagePostServiceImpl implements IPackagePostService {
 
 	@Autowired
 	IStorageService iStorageService;
-
+	
 	@Override
 	@Transactional
 	public PackagePost savePackagePost(PackagePostReqDto packagePostReqDto, String airWayBillCode)
@@ -100,7 +100,7 @@ public class PackagePostServiceImpl implements IPackagePostService {
 			packagePostResDto.setCreateBy(packagePost.get().getCreateBy());
 			packagePostResDto.setUpdateBy(packagePost.get().getUpdateBy());
 			packagePostResDto.setCreateDate(packagePost.get().getCreateDate());
-			packagePostResDto.setUpdateDate(packagePost.get().getCreateDate());
+			packagePostResDto.setUpdateDate(packagePost.get().getUpdateDate());
 			List<FileStorageResDto> fileStorageResponseDtos = new ArrayList<>();
 			for (FileStorageEntity file : packagePost.get().getFileStorages()) {
 				FileStorageResDto fileStorageResponseDto = new FileStorageResDto();
@@ -136,6 +136,7 @@ public class PackagePostServiceImpl implements IPackagePostService {
 				res.setUpdateBy(packagePost.getUpdateBy());
 				res.setCreateDate(packagePost.getCreateDate());
 				res.setUpdateDate(packagePost.getUpdateDate());
+				res.setPostType(CommonConstants.Character.TYPE_POST_PACKAGE);
 				List<FileStorageResDto> fileStorageResponseDtos = new ArrayList<>();
 				for (FileStorageEntity file : packagePost.getFileStorages()) {
 					FileStorageResDto fileStorageResponseDto = new FileStorageResDto();
@@ -143,13 +144,14 @@ public class PackagePostServiceImpl implements IPackagePostService {
 					fileStorageResponseDto.setName(file.getName());
 					fileStorageResponseDto.setCreateDate(file.getCreateDate().toString());
 					fileStorageResponseDto.setType(file.getType());
+					fileStorageResponseDto.setChoosen(file.isChoosen());
 					// return content file if file is image
-					if (Arrays.asList(new String[] { "png", "jpg", "jpeg", "bmp" }).contains(file.getType())) {
+					if (Arrays.asList(CommonConstants.Image.IMAGE_EXTENSION).contains(file.getType())) {
 						String pathServer = file.getPathFileServer();
-						byte[] imageContent = sftpFileService.downloadFile(pathServer);
+						byte[] imageContent = sftpFileService.getFile(pathServer);
 						fileStorageResponseDto.setContent(imageContent);
 					}
-					fileStorageResponseDto.setChoosen(file.isChoosen());
+					
 					fileStorageResponseDtos.add(fileStorageResponseDto);
 				}
 				res.setFileStorages(fileStorageResponseDtos);
@@ -166,7 +168,7 @@ public class PackagePostServiceImpl implements IPackagePostService {
 	@Override
 	public byte[] getFile(Long packagePostId, Long fileId) throws BestWorkBussinessException {
 		String pathFile = getPathFileToDownload(packagePostId, fileId);
-		byte[] fileContent = sftpFileService.downloadFile(pathFile);
+		byte[] fileContent = sftpFileService.getFile(pathFile);
 		return fileContent;
 	}
 
