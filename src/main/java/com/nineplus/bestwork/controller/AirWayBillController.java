@@ -110,7 +110,7 @@ public class AirWayBillController extends BaseController {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}
 
-		if (ObjectUtils.isEmpty(customClearanceResDto.getPackagesDoc())
+		if (ObjectUtils.isEmpty(customClearanceResDto.getInvoicesDoc())
 				&& ObjectUtils.isEmpty(customClearanceResDto.getPackagesDoc())) {
 			return success(CommonConstants.MessageCode.E1X0003, null, null);
 		}
