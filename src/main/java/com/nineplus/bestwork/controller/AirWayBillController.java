@@ -15,10 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.nineplus.bestwork.dto.AirWayBillReqDto;
 import com.nineplus.bestwork.dto.AirWayBillResDto;
+import com.nineplus.bestwork.dto.AirWayBillStatusReqDto;
 import com.nineplus.bestwork.dto.AirWayBillStatusResDto;
 import com.nineplus.bestwork.dto.ChangeStatusFileDto;
 import com.nineplus.bestwork.dto.CustomClearanceResDto;
-import com.nineplus.bestwork.entity.AirWayBill;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.services.IAirWayBillService;
 import com.nineplus.bestwork.services.IStorageService;
@@ -126,5 +126,18 @@ public class AirWayBillController extends BaseController {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}
 		return success(CommonConstants.MessageCode.sA0001, null, null);
+	}
+	
+	@PostMapping("{code}/change-status")
+	public ResponseEntity<? extends Object> confirmDone(@PathVariable String code, @RequestBody AirWayBillStatusReqDto statusDto )
+			throws BestWorkBussinessException {
+		try {
+			if(ObjectUtils.isNotEmpty(statusDto.getDestinationStatus())) {
+			iAirWayBillService.confirmDone(code, statusDto.getDestinationStatus());
+			}
+		} catch (BestWorkBussinessException ex) {
+			return failed(ex.getMsgCode(), ex.getParam());
+		}
+		return success(CommonConstants.MessageCode.sA0006, null, null);
 	}
 }

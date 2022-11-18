@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,7 +45,7 @@ public class PackagePostServiceImpl implements IPackagePostService {
 
 	@Autowired
 	IStorageService iStorageService;
-	
+
 	@Override
 	@Transactional
 	public PackagePost savePackagePost(PackagePostReqDto packagePostReqDto, String airWayBillCode)
@@ -151,7 +152,7 @@ public class PackagePostServiceImpl implements IPackagePostService {
 						byte[] imageContent = sftpFileService.getFile(pathServer);
 						fileStorageResponseDto.setContent(imageContent);
 					}
-					
+
 					fileStorageResponseDtos.add(fileStorageResponseDto);
 				}
 				res.setFileStorages(fileStorageResponseDtos);
@@ -168,7 +169,10 @@ public class PackagePostServiceImpl implements IPackagePostService {
 	@Override
 	public byte[] getFile(Long packagePostId, Long fileId) throws BestWorkBussinessException {
 		String pathFile = getPathFileToDownload(packagePostId, fileId);
-		byte[] fileContent = sftpFileService.getFile(pathFile);
+		byte[] fileContent = null;
+		if (StringUtils.isNotBlank(pathFile)) {
+			fileContent = sftpFileService.getFile(pathFile);
+		}
 		return fileContent;
 	}
 
