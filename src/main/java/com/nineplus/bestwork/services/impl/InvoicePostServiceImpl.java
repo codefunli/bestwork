@@ -186,6 +186,7 @@ public class InvoicePostServiceImpl implements IInvoicePostService {
 			customClearanceFileResDto.setPostInvoiceId(projection.getPostInvoiceId());
 			customClearanceFileResDto.setName(projection.getName());
 			customClearanceFileResDto.setType(projection.getType());
+			customClearanceFileResDto.setPostType(CommonConstants.Character.TYPE_POST_INVOICE);
 			lst.add(customClearanceFileResDto);
 		}
 		return lst;

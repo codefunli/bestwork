@@ -191,6 +191,7 @@ public class PackagePostServiceImpl implements IPackagePostService {
 			customClearancePackageFileResDto.setPostPackageId(projection.getPostPackageId());
 			customClearancePackageFileResDto.setName(projection.getName());
 			customClearancePackageFileResDto.setType(projection.getType());
+			customClearancePackageFileResDto.setPostType(CommonConstants.Character.TYPE_POST_PACKAGE);
 			lst.add(customClearancePackageFileResDto);
 		}
 		return lst;
