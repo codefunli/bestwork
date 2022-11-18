@@ -45,7 +45,7 @@ public class MonitorController extends BaseController {
         } catch (BestWorkBussinessException ex) {
             return failed(ex.getMsgCode(), ex.getParam());
         }
-        return success(CommonConstants.MessageCode.CPN0001, null, null);
+        return success(CommonConstants.MessageCode.SCM001, null, null);
     }
 
     @PutMapping

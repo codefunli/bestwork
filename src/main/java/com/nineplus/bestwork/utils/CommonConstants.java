@@ -245,6 +245,9 @@ public class CommonConstants {
 		public static final String sP0003 = "sP0003";
 		public static final String eP0001 = "eP0001";
 
+		public static final String EXM001 = "EXM001";
+		public static final String SCM001 = "SCM001";
+
 	}
 
 	public class Url {

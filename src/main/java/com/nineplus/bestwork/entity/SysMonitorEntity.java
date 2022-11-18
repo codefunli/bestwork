@@ -25,8 +25,11 @@ public class SysMonitorEntity {
 	@Column(name = "name", nullable = false, columnDefinition = "varchar(20)")
 	private String name;
 
-	@Column(name = "url", nullable = false, columnDefinition = "varchar(20)")
+	@Column(name = "url", nullable = false, columnDefinition = "varchar(200)")
 	private String url;
+
+	@Column(name = "icon", nullable = false, columnDefinition = "varchar(2000)")
+	private String icon;
 
 	@Column(name = "created_user", nullable = false, columnDefinition = "varchar(20)")
 	private String createdUser;
