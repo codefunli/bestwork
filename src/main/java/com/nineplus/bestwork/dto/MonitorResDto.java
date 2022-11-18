@@ -10,6 +10,6 @@ public class MonitorResDto {
     private Long id;
     @JsonProperty("name")
     private String name;
-    @JsonProperty("url")
-    private String url;
+    @JsonProperty("icon")
+    private String icon;
 }
