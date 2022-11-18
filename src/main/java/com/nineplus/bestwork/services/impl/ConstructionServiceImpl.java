@@ -79,7 +79,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 
 		try {
 			Pageable pageable = convertSearch(pageSearchDto);
-			List<ProjectEntity> projectList = getProjectsBeingInvolvedByCurrentUser(curUsername);
+			List<ProjectEntity> projectList = this.getProjectsBeingInvolvedByCurrentUser(curUsername);
 			List<String> projectIds = new ArrayList<>();
 			for (ProjectEntity project : projectList) {
 				projectIds.add(project.getId());

@@ -52,7 +52,7 @@ public class ConstructionEntity {
 
 	@Column(name = "status", nullable = false)
 	private String status;
-	
+
 	@Column(name = "project_code", nullable = false)
 	private String projectCode;
 
