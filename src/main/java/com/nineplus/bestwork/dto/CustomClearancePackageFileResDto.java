@@ -27,4 +27,7 @@ public class CustomClearancePackageFileResDto extends BaseDto {
 	@JsonProperty("type")
 	private String type;
 
+	@JsonProperty("postType")
+	private String postType;
+
 }
