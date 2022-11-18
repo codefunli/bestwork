@@ -30,4 +30,7 @@ public class CustomClearanceInvoiceFileResDto extends BaseDto {
 
 	@JsonProperty("postType")
 	private String postType;
+	
+	@JsonProperty("content")
+	private byte[] content;
 }

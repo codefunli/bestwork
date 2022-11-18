@@ -168,7 +168,7 @@ public class PackagePostServiceImpl implements IPackagePostService {
 
 	@Override
 	public byte[] getFile(Long packagePostId, Long fileId) throws BestWorkBussinessException {
-		String pathFile = getPathFileToDownload(packagePostId, fileId);
+		String pathFile = this.getPathFileToDownload(packagePostId, fileId);
 		byte[] fileContent = null;
 		if (StringUtils.isNotBlank(pathFile)) {
 			fileContent = sftpFileService.getFile(pathFile);
@@ -176,8 +176,9 @@ public class PackagePostServiceImpl implements IPackagePostService {
 		return fileContent;
 	}
 
-	private String getPathFileToDownload(Long postId, Long fileId) {
-		return packagePostRepository.getPathFileServer(postId, fileId);
+	@Override
+	public String getPathFileToDownload(long packagePostId, long fileId) {
+		return packagePostRepository.getPathFileServer(packagePostId, fileId);
 	}
 
 	@Override
@@ -192,8 +193,15 @@ public class PackagePostServiceImpl implements IPackagePostService {
 			customClearancePackageFileResDto.setName(projection.getName());
 			customClearancePackageFileResDto.setType(projection.getType());
 			customClearancePackageFileResDto.setPostType(CommonConstants.Character.TYPE_POST_PACKAGE);
+			// return content file if file is image
+			if (Arrays.asList(CommonConstants.Image.IMAGE_EXTENSION).contains(projection.getType())) {
+				String pathServer = projection.getPathFileServer();
+				byte[] imageContent = sftpFileService.getFile(pathServer);
+				customClearancePackageFileResDto.setContent(imageContent);
+			}
 			lst.add(customClearancePackageFileResDto);
 		}
 		return lst;
 	}
+
 }

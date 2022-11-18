@@ -26,6 +26,7 @@ public interface IInvoicePostService {
 
 	byte[] getFile(Long postId, Long fileId) throws BestWorkBussinessException;
 
-	List<CustomClearanceInvoiceFileResDto> getInvoiceClearance(String code);
+	List<CustomClearanceInvoiceFileResDto> getInvoiceClearance(String code) throws BestWorkBussinessException;
 
+	String getPathFileToDownload(Long postId, Long fileId) throws BestWorkBussinessException;
 }
