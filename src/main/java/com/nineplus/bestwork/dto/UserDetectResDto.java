@@ -1,6 +1,7 @@
 package com.nineplus.bestwork.dto;
 
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.nineplus.bestwork.entity.CompanyEntity;
@@ -54,4 +55,7 @@ public class UserDetectResDto extends BaseDto {
 
     @JsonProperty("project")
     List<UserWithProjectResDto> roleProject;
+
+    @JsonProperty("permissions")
+    Map<Long, List<PermissionResDto>> permissions;
 }

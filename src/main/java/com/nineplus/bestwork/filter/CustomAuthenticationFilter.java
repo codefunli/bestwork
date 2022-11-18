@@ -143,20 +143,10 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
         List<Integer> lstStt = new ArrayList<>();
         lstStt.add(Status.ACTIVE.getValue());
         Map<String,Map<Long,List<PermissionResDto>>> mapRespon = new HashMap<>();
-        Map<Long,List<PermissionResDto>> mapPermission = new HashMap<>();
+        Map<Long,List<PermissionResDto>> mapPermission;
         List<String> roleList =  user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
         try {
-            List<SysPermissionEntity> sysPermissionEntities = permissionService.getPermissionsByRole(roleList, lstStt);
-            sysPermissionEntities.forEach(sysPermissionEntity -> {
-                PermissionResDto permissionResDto = objectMapper.convertValue(sysPermissionEntity, PermissionResDto.class);
-                if (mapPermission.containsKey(sysPermissionEntity.getSysMonitor().getId())) {
-                    mapPermission.get(sysPermissionEntity.getSysMonitor().getId()).add(permissionResDto);
-                } else {
-                    List<PermissionResDto> resDtos = new ArrayList<>();
-                    resDtos.add(permissionResDto);
-                    mapPermission.put(sysPermissionEntity.getSysMonitor().getId(), resDtos);
-                }
-            });
+            mapPermission = permissionService.getMapPermissions(roleList, lstStt);
         } catch (BestWorkBussinessException e) {
             throw new RuntimeException(e);
         }
