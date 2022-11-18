@@ -13,7 +13,7 @@ public interface ISftpFileService {
 
 	void createFolderCommonRoot(List<String> folderStrings);
 
-	byte[] downloadFile(String pathFileDownload);
+	byte[] getFile(String pathFileDownload);
 
 	byte[] viewFilePdf(String pathFileView);
 
@@ -24,7 +24,9 @@ public interface ISftpFileService {
 	String uploadEvidenceBefore(MultipartFile file, String airWayBill, long evidenceBeforeId);
 
 	String uploadEvidenceAfter(MultipartFile file, String airWayBill, long evidenceAfterId);
-	
+
 	boolean isValidFile(List<MultipartFile> file);
+
+	void downLoadFile(List<String> pathFileDownload);
 
 }

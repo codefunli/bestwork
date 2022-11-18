@@ -61,7 +61,7 @@ public class AirWayBillController extends BaseController {
 	@GetMapping("/list/by/{projectId}")
 	public ResponseEntity<? extends Object> getAllAirWayBill(@PathVariable String projectId)
 			throws BestWorkBussinessException {
-		List<AirWayBill> listAwb = null;
+		List<AirWayBillResDto> listAwb = null;
 		try {
 			listAwb = iAirWayBillService.getAllAirWayBillByProject(projectId);
 		} catch (BestWorkBussinessException ex) {
@@ -100,7 +100,7 @@ public class AirWayBillController extends BaseController {
 		return success(CommonConstants.MessageCode.sF0003, null, null);
 	}
 
-	@GetMapping("{code}/custom-clearance-doc")
+	@GetMapping("{code}/get-custom-clearance-doc")
 	public ResponseEntity<? extends Object> getCustomClearanceDoc(@PathVariable String code)
 			throws BestWorkBussinessException {
 		CustomClearanceResDto customClearanceResDto = null;
@@ -110,10 +110,21 @@ public class AirWayBillController extends BaseController {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}
 
-		if (ObjectUtils.isEmpty(customClearanceResDto.getPackagesDoc())
+		if (ObjectUtils.isEmpty(customClearanceResDto.getInvoicesDoc())
 				&& ObjectUtils.isEmpty(customClearanceResDto.getPackagesDoc())) {
 			return success(CommonConstants.MessageCode.E1X0003, null, null);
 		}
 		return success(CommonConstants.MessageCode.sA0005, customClearanceResDto, null);
+	}
+
+	@GetMapping("{code}/download-clearance-doc")
+	public ResponseEntity<? extends Object> downloadFolder(@PathVariable String code)
+			throws BestWorkBussinessException {
+		try {
+			iAirWayBillService.downloadZip(code);
+		} catch (BestWorkBussinessException ex) {
+			return failed(ex.getMsgCode(), ex.getParam());
+		}
+		return success(CommonConstants.MessageCode.sA0001, null, null);
 	}
 }
