@@ -80,7 +80,7 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 		}
 	}
 
-	public void validateAirWayBill(AirWayBillReqDto airWayBillReqDto) throws BestWorkBussinessException {
+	private void validateAirWayBill(AirWayBillReqDto airWayBillReqDto) throws BestWorkBussinessException {
 		String projectId = airWayBillReqDto.getProjectId();
 		if (StringUtils.isEmpty(projectId)) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.eA0006, null);
@@ -146,6 +146,12 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 		listPathToDownLoad.add("/home/bestwork/invoices/20221117/AIRWAY00000001/121/Invoice_test.xlsx");
 		listPathToDownLoad.add("/home/bestwork/invoices/20221117/AIRWAY00000004/120/images.jpg");
 		iSftpFileService.downLoadFile(listPathToDownLoad);
+	}
+
+	@Override
+	@Transactional
+	public void confirmDone(String code,int destinationStatus) throws BestWorkBussinessException {
+		this.airWayBillRepository.changeStatusToDone(code, destinationStatus);
 	}
 	
 }

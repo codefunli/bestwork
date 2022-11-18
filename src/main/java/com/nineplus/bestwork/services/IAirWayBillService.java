@@ -21,4 +21,6 @@ public interface IAirWayBillService {
 
 	void downloadZip(String code) throws BestWorkBussinessException;
 
+	void confirmDone(String code, int destinationStatus) throws BestWorkBussinessException;
+
 }
