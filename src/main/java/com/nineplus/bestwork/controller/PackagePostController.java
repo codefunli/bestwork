@@ -80,8 +80,11 @@ public class PackagePostController extends BaseController {
 	@GetMapping("/get-file")
 	public ResponseEntity<? extends Object> getFile(@RequestBody PackageFileDownLoadReqDto packageFileDownLoadReqDto) throws BestWorkBussinessException {
 		byte[] dataBytesFile = null;
+		String pathFile = "";
 		try {
 			dataBytesFile = iPackagePostService.getFile(packageFileDownLoadReqDto.getPackagePostId(), packageFileDownLoadReqDto.getFileId());
+			pathFile = iPackagePostService.getPathFileToDownload(packageFileDownLoadReqDto.getPackagePostId(),
+					packageFileDownLoadReqDto.getFileId());
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}
@@ -90,7 +93,7 @@ public class PackagePostController extends BaseController {
 		}
 		return ResponseEntity.ok()
 				// Content-Disposition
-				.header(HttpHeaders.CONTENT_DISPOSITION)
+				.header(HttpHeaders.CONTENT_DISPOSITION, CommonConstants.MediaType.CONTENT_DISPOSITION + pathFile)
 				// Content-Type
 				.contentType(MediaType.parseMediaType(CommonConstants.MediaType.MEDIA_TYPE_STREAM)).body(dataBytesFile);
 	}
@@ -98,8 +101,11 @@ public class PackagePostController extends BaseController {
 	@GetMapping("/view-file-pdf")
 	public ResponseEntity<? extends Object> viewFilePdf(@RequestBody PackageFileDownLoadReqDto packageFileDownLoadReqDto) throws BestWorkBussinessException {
 		byte[] dataBytesFile = null;
+		String pathFile = "";
 		try {
 			dataBytesFile = iPackagePostService.getFile(packageFileDownLoadReqDto.getPackagePostId(), packageFileDownLoadReqDto.getFileId());
+			pathFile = iPackagePostService.getPathFileToDownload(packageFileDownLoadReqDto.getPackagePostId(),
+					packageFileDownLoadReqDto.getFileId());
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}
@@ -108,7 +114,7 @@ public class PackagePostController extends BaseController {
 		}
 		return ResponseEntity.ok()
 				// Content-Disposition
-				.header(HttpHeaders.CONTENT_DISPOSITION)
+				.header(HttpHeaders.CONTENT_DISPOSITION,CommonConstants.MediaType.CONTENT_DISPOSITION + pathFile )
 				// Content-Type
 				.contentType(MediaType.parseMediaType(CommonConstants.MediaType.MEDIA_TYPE_PDF)).body(dataBytesFile);
 	}

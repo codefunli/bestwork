@@ -166,12 +166,13 @@ public class InvoicePostServiceImpl implements IInvoicePostService {
 
 	@Override
 	public byte[] getFile(Long postId, Long fileId) throws BestWorkBussinessException {
-		String pathFile = getPathFileToDownload(postId, fileId);
+		String pathFile = this.getPathFileToDownload(postId, fileId);
 		byte[] fileContent = sftpFileService.getFile(pathFile);
 		return fileContent;
 	}
 
-	private String getPathFileToDownload(Long postId, Long fileId) {
+	@Override
+	public String getPathFileToDownload(Long postId, Long fileId) {
 		return postInvoiceRepository.getPathFileServer(postId, fileId);
 	}
 
@@ -186,6 +187,11 @@ public class InvoicePostServiceImpl implements IInvoicePostService {
 			customClearanceFileResDto.setPostInvoiceId(projection.getPostInvoiceId());
 			customClearanceFileResDto.setName(projection.getName());
 			customClearanceFileResDto.setType(projection.getType());
+			if (Arrays.asList(new String[] { "png", "jpg", "jpeg", "bmp", "JPEG" }).contains(projection.getType())) {
+				String pathServer = projection.getPathFileServer();
+				byte[] imageContent = sftpFileService.getFile(pathServer);
+				customClearanceFileResDto.setContent(imageContent);
+			}
 			customClearanceFileResDto.setPostType(CommonConstants.Character.TYPE_POST_INVOICE);
 			lst.add(customClearanceFileResDto);
 		}

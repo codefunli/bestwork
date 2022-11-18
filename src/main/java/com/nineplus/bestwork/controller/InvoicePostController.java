@@ -81,8 +81,11 @@ public class InvoicePostController extends BaseController {
 	public ResponseEntity<? extends Object> getFile(@RequestBody InvoiceFileDownLoadReqDto invoiceFileDownLoadReqDto)
 			throws BestWorkBussinessException {
 		byte[] dataBytesFile = null;
+		String pathFile = "";
 		try {
 			dataBytesFile = iPostInvoiceService.getFile(invoiceFileDownLoadReqDto.getInvoicePostId(),
+					invoiceFileDownLoadReqDto.getFileId());
+			pathFile = iPostInvoiceService.getPathFileToDownload(invoiceFileDownLoadReqDto.getInvoicePostId(),
 					invoiceFileDownLoadReqDto.getFileId());
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
@@ -92,7 +95,7 @@ public class InvoicePostController extends BaseController {
 		}
 		return ResponseEntity.ok()
 				// Content-Disposition
-				.header(HttpHeaders.CONTENT_DISPOSITION)
+				.header(HttpHeaders.CONTENT_DISPOSITION, CommonConstants.MediaType.CONTENT_DISPOSITION + pathFile)
 				// Content-Type
 				.contentType(MediaType.parseMediaType(CommonConstants.MediaType.MEDIA_TYPE_STREAM)).body(dataBytesFile);
 	}
@@ -101,8 +104,11 @@ public class InvoicePostController extends BaseController {
 	public ResponseEntity<? extends Object> viewFilePdf(
 			@RequestBody InvoiceFileDownLoadReqDto invoiceFileDownLoadReqDto) throws BestWorkBussinessException {
 		byte[] dataBytesFile = null;
+		String pathFile = "";
 		try {
 			dataBytesFile = iPostInvoiceService.getFile(invoiceFileDownLoadReqDto.getInvoicePostId(),
+					invoiceFileDownLoadReqDto.getFileId());
+			pathFile = iPostInvoiceService.getPathFileToDownload(invoiceFileDownLoadReqDto.getInvoicePostId(),
 					invoiceFileDownLoadReqDto.getFileId());
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
@@ -112,7 +118,7 @@ public class InvoicePostController extends BaseController {
 		}
 		return ResponseEntity.ok()
 				// Content-Disposition
-				.header(HttpHeaders.CONTENT_DISPOSITION)
+				.header(HttpHeaders.CONTENT_DISPOSITION, CommonConstants.MediaType.CONTENT_DISPOSITION + pathFile)
 				// Content-Type
 				.contentType(MediaType.parseMediaType(CommonConstants.MediaType.MEDIA_TYPE_PDF)).body(dataBytesFile);
 	}
