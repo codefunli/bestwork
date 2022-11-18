@@ -2,6 +2,10 @@ package com.nineplus.bestwork.services;
 
 import java.util.List;
 
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
+
 import com.nineplus.bestwork.dto.AirWayBillReqDto;
 import com.nineplus.bestwork.dto.AirWayBillResDto;
 import com.nineplus.bestwork.dto.CustomClearanceResDto;
@@ -19,7 +23,7 @@ public interface IAirWayBillService {
 
 	CustomClearanceResDto getCustomClearanceDoc(String code) throws BestWorkBussinessException;
 
-	void downloadZip(String code) throws BestWorkBussinessException;
+	StreamingResponseBody downloadZip(String code, HttpServletResponse response) throws BestWorkBussinessException;
 
 	void confirmDone(String code, int destinationStatus) throws BestWorkBussinessException;
 

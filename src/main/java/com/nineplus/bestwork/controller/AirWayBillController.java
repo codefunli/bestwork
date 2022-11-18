@@ -1,7 +1,12 @@
 package com.nineplus.bestwork.controller;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import com.nineplus.bestwork.dto.AirWayBillReqDto;
 import com.nineplus.bestwork.dto.AirWayBillResDto;
@@ -117,16 +123,6 @@ public class AirWayBillController extends BaseController {
 		return success(CommonConstants.MessageCode.sA0005, customClearanceResDto, null);
 	}
 
-	@GetMapping("{code}/download-clearance-doc")
-	public ResponseEntity<? extends Object> downloadFolder(@PathVariable String code)
-			throws BestWorkBussinessException {
-		try {
-			iAirWayBillService.downloadZip(code);
-		} catch (BestWorkBussinessException ex) {
-			return failed(ex.getMsgCode(), ex.getParam());
-		}
-		return success(CommonConstants.MessageCode.sA0001, null, null);
-	}
 	
 	@PostMapping("{code}/change-status")
 	public ResponseEntity<? extends Object> confirmDone(@PathVariable String code, @RequestBody AirWayBillStatusReqDto statusDto )
@@ -139,5 +135,17 @@ public class AirWayBillController extends BaseController {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}
 		return success(CommonConstants.MessageCode.sA0006, null, null);
+	}
+
+	@GetMapping("{airWayBillCode}/download-clearance-doc")
+	public ResponseEntity<StreamingResponseBody> downloadZip(HttpServletResponse response,
+			@PathVariable String airWayBillCode) throws BestWorkBussinessException {
+		StreamingResponseBody streamResponseBody = iAirWayBillService.downloadZip(airWayBillCode, response);
+		response.setContentType("application/zip");
+		response.setHeader("Content-Disposition", "attachment; filename=example.zip");
+		response.addHeader("Pragma", "no-cache");
+		response.addHeader("Expires", "0");
+
+		return ResponseEntity.ok(streamResponseBody);
 	}
 }
