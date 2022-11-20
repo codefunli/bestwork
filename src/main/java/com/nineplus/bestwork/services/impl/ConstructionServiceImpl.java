@@ -1,6 +1,7 @@
 package com.nineplus.bestwork.services.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -18,20 +19,26 @@ import org.springframework.web.multipart.MultipartFile;
 import com.nineplus.bestwork.dto.ConstructionListIdDto;
 import com.nineplus.bestwork.dto.ConstructionReqDto;
 import com.nineplus.bestwork.dto.ConstructionResDto;
+import com.nineplus.bestwork.dto.FileStorageResDto;
 import com.nineplus.bestwork.dto.PageResDto;
 import com.nineplus.bestwork.dto.PageSearchDto;
 import com.nineplus.bestwork.dto.RPageDto;
 import com.nineplus.bestwork.entity.AirWayBill;
+import com.nineplus.bestwork.entity.AssignTaskEntity;
 import com.nineplus.bestwork.entity.ConstructionEntity;
+import com.nineplus.bestwork.entity.FileStorageEntity;
 import com.nineplus.bestwork.entity.ProjectEntity;
+import com.nineplus.bestwork.entity.UserEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.model.UserAuthDetected;
+import com.nineplus.bestwork.repository.AssignTaskRepository;
 import com.nineplus.bestwork.repository.ConstructionRepository;
 import com.nineplus.bestwork.services.IAirWayBillService;
 import com.nineplus.bestwork.services.IConstructionService;
 import com.nineplus.bestwork.services.IProjectService;
 import com.nineplus.bestwork.services.ISftpFileService;
 import com.nineplus.bestwork.services.IStorageService;
+import com.nineplus.bestwork.services.UserService;
 import com.nineplus.bestwork.utils.CommonConstants;
 import com.nineplus.bestwork.utils.ConvertResponseUtils;
 import com.nineplus.bestwork.utils.Enums.AirWayBillStatus;
@@ -68,6 +75,12 @@ public class ConstructionServiceImpl implements IConstructionService {
 	@Autowired
 	private IStorageService storageService;
 
+	@Autowired
+	private AssignTaskRepository assignTaskRepository;
+
+	@Autowired
+	private UserService userService;
+
 	/**
 	 * Function: get page of constructions with condition
 	 */
@@ -75,43 +88,29 @@ public class ConstructionServiceImpl implements IConstructionService {
 	public PageResDto<ConstructionResDto> getPageConstructions(PageSearchDto pageSearchDto)
 			throws BestWorkBussinessException {
 		UserAuthDetected userAuthRoleReq = this.getUserAuthRoleReq();
-		String curUsername = userAuthRoleReq.getUsername();
 
 		try {
 			Pageable pageable = convertSearch(pageSearchDto);
-			List<ProjectEntity> projectList = this.getProjectsBeingInvolvedByCurrentUser(curUsername);
-			List<String> projectIds = new ArrayList<>();
-			for (ProjectEntity project : projectList) {
-				projectIds.add(project.getId());
+
+			List<ProjectEntity> canViewprjList = getPrjLstByAnyUsername(userAuthRoleReq);
+			List<String> prjIds = new ArrayList<>();
+			for (ProjectEntity project : canViewprjList) {
+				prjIds.add(project.getId());
 			}
-			Page<ConstructionEntity> pageConstructionsBeingInvolvedByCurrentUser = constructionRepository
-					.findConstructionsByProjectIds(projectIds, pageSearchDto, pageable);
+			Page<ConstructionEntity> pageCstrt = constructionRepository.findCstrtByPrjIds(prjIds, pageSearchDto,
+					pageable);
 
 			PageResDto<ConstructionResDto> pageResDto = new PageResDto<>();
 			RPageDto metaData = new RPageDto();
-			metaData.setNumber(pageConstructionsBeingInvolvedByCurrentUser.getNumber());
-			metaData.setSize(pageConstructionsBeingInvolvedByCurrentUser.getSize());
-			metaData.setTotalElements(pageConstructionsBeingInvolvedByCurrentUser.getTotalElements());
-			metaData.setTotalPages(pageConstructionsBeingInvolvedByCurrentUser.getTotalPages());
+			metaData.setNumber(pageCstrt.getNumber());
+			metaData.setSize(pageCstrt.getSize());
+			metaData.setTotalElements(pageCstrt.getTotalElements());
+			metaData.setTotalPages(pageCstrt.getTotalPages());
 			pageResDto.setMetaData(metaData);
 
 			List<ConstructionResDto> constructionResDtos = new ArrayList<>();
-			for (ConstructionEntity construction : pageConstructionsBeingInvolvedByCurrentUser.getContent()) {
-				ConstructionResDto dto = new ConstructionResDto();
-				dto.setId(construction.getId());
-				dto.setConstructionName(construction.getName());
-				dto.setDescription(construction.getDescription());
-				dto.setLocation(construction.getLocation());
-				dto.setStartDate(construction.getStartDate());
-				dto.setEndDate(construction.getEndDate());
-				dto.setStatus(construction.getStatus());
-				dto.setCreateBy(construction.getCreateBy());
-				dto.setProjectCode(construction.getProjectCode());
-				List<String> awbCodes = new ArrayList<>();
-				for (AirWayBill awb : construction.getAirWayBills()) {
-					awbCodes.add(awb.getCode());
-				}
-				dto.setAwbCodes(awbCodes);
+			for (ConstructionEntity construction : pageCstrt.getContent()) {
+				ConstructionResDto dto = this.transferConstructionToResDto(construction);
 				constructionResDtos.add(dto);
 			}
 			pageResDto.setContent(constructionResDtos);
@@ -120,6 +119,19 @@ public class ConstructionServiceImpl implements IConstructionService {
 		} catch (Exception ex) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
 		}
+	}
+
+	private List<ProjectEntity> getPrjLstByAnyUsername(UserAuthDetected userAuthRoleReq) {
+		List<ProjectEntity> canViewprjList = null;
+		String curUsername = userAuthRoleReq.getUsername();
+		if (!userAuthRoleReq.getIsSysAdmin() && !userAuthRoleReq.getIsOrgAdmin()) {
+			canViewprjList = this.getPrjInvolvedByCompUser(curUsername);
+		} else if (userAuthRoleReq.getIsOrgAdmin()) {
+			canViewprjList = this.projectService.getPrj4CompanyAdmin(curUsername);
+		} else if (userAuthRoleReq.getIsSysAdmin()) {
+			canViewprjList = this.projectService.getPrj4SysAdmin(curUsername);
+		}
+		return canViewprjList;
 	}
 
 	/**
@@ -159,14 +171,14 @@ public class ConstructionServiceImpl implements IConstructionService {
 	 * @param curUsername
 	 * @return List<ProjectEntity>
 	 */
-	private List<ProjectEntity> getProjectsBeingInvolvedByCurrentUser(String curUsername) {
-		List<ProjectEntity> creatingProjectList = projectService.getProjectsBeingCreatedByCurrentUser(curUsername);
-		List<ProjectEntity> assignedProjectList = projectService.getProjectsBeingAssignedToCurrentUser(curUsername);
+	private List<ProjectEntity> getPrjInvolvedByCompUser(String curUsername) {
+		List<ProjectEntity> creatingPrjList = projectService.getPrjCreatedByCurUser(curUsername);
+		List<ProjectEntity> assignedPrjList = projectService.getPrAssignedToCurUser(curUsername);
 		Set<ProjectEntity> projectSet = new HashSet<>();
-		if (creatingProjectList != null)
-			projectSet.addAll(creatingProjectList);
-		if (assignedProjectList != null)
-			projectSet.addAll(assignedProjectList);
+		if (creatingPrjList != null)
+			projectSet.addAll(creatingPrjList);
+		if (assignedPrjList != null)
+			projectSet.addAll(assignedPrjList);
 		return new ArrayList<>(projectSet);
 	}
 
@@ -181,10 +193,10 @@ public class ConstructionServiceImpl implements IConstructionService {
 		UserAuthDetected userAuthDetected = this.getUserAuthRoleReq();
 		String curUsername = userAuthDetected.getUsername();
 
-		if (!userAuthDetected.getIsContractor()) {
+		if (!chkCurUserCanCreateCstrt(userAuthDetected, constructionReqDto)) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
 		}
-		checkExistConstructionNameWhenCreating(constructionReqDto);
+		chkExistCstrtNameWhenCreating(constructionReqDto);
 		validateConstructionInfo(constructionReqDto);
 
 		ConstructionEntity construction = new ConstructionEntity();
@@ -213,7 +225,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 	 * @param construction
 	 */
 	private void transferDtoToConstruction(ConstructionReqDto constructionReqDto, ConstructionEntity construction) {
-		construction.setName(constructionReqDto.getConstructionName());
+		construction.setConstructionName(constructionReqDto.getConstructionName());
 		construction.setDescription(constructionReqDto.getDescription());
 		construction.setLocation(constructionReqDto.getLocation());
 		construction.setStartDate(constructionReqDto.getStartDate());
@@ -256,7 +268,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 		// Check if current user is involved in current project or not
 		UserAuthDetected userAuthRoleReq = this.getUserAuthRoleReq();
 		String curUsername = userAuthRoleReq.getUsername();
-		List<ProjectEntity> involvedProjectList = this.getProjectsBeingInvolvedByCurrentUser(curUsername);
+		List<ProjectEntity> involvedProjectList = this.getPrjInvolvedByCompUser(curUsername);
 		if (!involvedProjectList.contains(curProject)) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.EXS0009, null);
 		}
@@ -323,11 +335,10 @@ public class ConstructionServiceImpl implements IConstructionService {
 	 * @param constructionReqDto
 	 * @throws BestWorkBussinessException
 	 */
-	private void checkExistConstructionNameWhenCreating(ConstructionReqDto constructionReqDto)
+	private void chkExistCstrtNameWhenCreating(ConstructionReqDto constructionReqDto)
 			throws BestWorkBussinessException {
-		ConstructionEntity existedConstruction = constructionRepository
-				.findByName(constructionReqDto.getConstructionName());
-		if (!ObjectUtils.isEmpty(existedConstruction)) {
+		ConstructionEntity existedCstrt = constructionRepository.findByName(constructionReqDto.getConstructionName());
+		if (!ObjectUtils.isEmpty(existedCstrt)) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.EXS0003,
 					new Object[] { CommonConstants.Character.CONSTRUCTION_NAME });
 		}
@@ -341,12 +352,11 @@ public class ConstructionServiceImpl implements IConstructionService {
 	 * @param curConstruction
 	 * @throws BestWorkBussinessException
 	 */
-	private void checkExistConstructionNameWhenEditing(ConstructionReqDto constructionReqDto,
-			ConstructionEntity curConstruction) throws BestWorkBussinessException {
-		ConstructionEntity existedConstruction = constructionRepository
-				.findByName(constructionReqDto.getConstructionName());
-		if (!ObjectUtils.isEmpty(existedConstruction)
-				&& !curConstruction.getName().equals(existedConstruction.getName())) {
+	private void chkExistCstrtNameWhenEditing(ConstructionReqDto constructionReqDto, ConstructionEntity curConstruction)
+			throws BestWorkBussinessException {
+		ConstructionEntity existedCstrt = constructionRepository.findByName(constructionReqDto.getConstructionName());
+		if (!ObjectUtils.isEmpty(existedCstrt)
+				&& !curConstruction.getConstructionName().equals(existedCstrt.getConstructionName())) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.EXS0003,
 					new Object[] { CommonConstants.Character.CONSTRUCTION_NAME });
 		}
@@ -363,31 +373,51 @@ public class ConstructionServiceImpl implements IConstructionService {
 	@Override
 	public ConstructionResDto findConstructionById(long constructionId) throws BestWorkBussinessException {
 		UserAuthDetected userAuthRoleReq = this.getUserAuthRoleReq();
-		String curUsername = userAuthRoleReq.getUsername();
-
 		Optional<ConstructionEntity> constructionOpt = constructionRepository.findById(constructionId);
 		if (!constructionOpt.isPresent()) {
 			return null;
 		}
-		if (!checkIfCurrentUserCanViewConstruction(constructionId, curUsername)) {
+		if (!chkCurUserCanViewCstrt(constructionId, userAuthRoleReq)) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
 		}
 
+		ConstructionResDto constructionResDto = transferConstructionToResDto(constructionOpt.get());
+
+		return constructionResDto;
+	}
+
+	private ConstructionResDto transferConstructionToResDto(ConstructionEntity cstrt) {
 		ConstructionResDto constructionResDto = new ConstructionResDto();
-		constructionResDto.setId(constructionId);
-		constructionResDto.setConstructionName(constructionOpt.get().getName());
-		constructionResDto.setDescription(constructionOpt.get().getDescription());
-		constructionResDto.setLocation(constructionOpt.get().getLocation());
-		constructionResDto.setStartDate(constructionOpt.get().getStartDate());
-		constructionResDto.setCreateBy(constructionOpt.get().getCreateBy());
-		constructionResDto.setStatus(constructionOpt.get().getStatus());
-		constructionResDto.setProjectCode(constructionOpt.get().getProjectCode());
+		constructionResDto.setId(cstrt.getId());
+		constructionResDto.setConstructionName(cstrt.getConstructionName());
+		constructionResDto.setDescription(cstrt.getDescription());
+		constructionResDto.setLocation(cstrt.getLocation());
+		constructionResDto.setStartDate(cstrt.getStartDate());
+		constructionResDto.setCreateBy(cstrt.getCreateBy());
+		constructionResDto.setStatus(cstrt.getStatus());
+		constructionResDto.setProjectCode(cstrt.getProjectCode());
 		List<String> awbCodes = new ArrayList<>();
-		for (AirWayBill airWayBill : constructionOpt.get().getAirWayBills()) {
+		for (AirWayBill airWayBill : cstrt.getAirWayBills()) {
 			awbCodes.add(airWayBill.getCode());
 		}
 		constructionResDto.setAwbCodes(awbCodes);
 
+		List<FileStorageResDto> fileStorageResponseDtos = new ArrayList<>();
+		for (FileStorageEntity file : cstrt.getFileStorages()) {
+			FileStorageResDto fileStorageResponseDto = new FileStorageResDto();
+			fileStorageResponseDto.setId(file.getId());
+			fileStorageResponseDto.setName(file.getName());
+			fileStorageResponseDto.setCreateDate(file.getCreateDate().toString());
+			fileStorageResponseDto.setType(file.getType());
+			fileStorageResponseDto.setChoosen(file.isChoosen());
+			if (Arrays.asList(CommonConstants.Image.IMAGE_EXTENSION).contains(file.getType())) {
+				String pathServer = file.getPathFileServer();
+				byte[] imageContent = sftpFileService.getFile(pathServer);
+				fileStorageResponseDto.setContent(imageContent);
+			}
+			fileStorageResponseDtos.add(fileStorageResponseDto);
+		}
+		constructionResDto.setFileStorages(fileStorageResponseDtos);
 		return constructionResDto;
 	}
 
@@ -397,9 +427,20 @@ public class ConstructionServiceImpl implements IConstructionService {
 	 * @param constructionId
 	 * @return ProjectEntity
 	 */
-	private ProjectEntity getProjectContainingCurrentConstruction(long constructionId) {
+	private ProjectEntity getPrjByCurCstrt(long constructionId) {
 		ProjectEntity project = this.projectService.getProjectByConstructionId(constructionId);
 		return project;
+	}
+
+	private Boolean chkCurUserCanCreateCstrt(UserAuthDetected userAuthDetected, ConstructionReqDto cstrtReqDto)
+			throws BestWorkBussinessException {
+		UserEntity curUser = this.userService.findUserByUsername(userAuthDetected.getUsername());
+		AssignTaskEntity curAssign = this.assignTaskRepository.findByProjectIdAndUserId(cstrtReqDto.getProjectCode(),
+				curUser.getId());
+		if (userAuthDetected.getIsContractor() && curAssign.isCanEdit()) {
+			return true;
+		}
+		return false;
 	}
 
 	/**
@@ -407,13 +448,13 @@ public class ConstructionServiceImpl implements IConstructionService {
 	 * or not
 	 * 
 	 * @param constructionId
-	 * @param username
+	 * @param userAuthRoleReq
 	 * @return true/false
 	 */
-	private Boolean checkIfCurrentUserCanViewConstruction(long constructionId, String username) {
-		ProjectEntity currentProject = this.getProjectContainingCurrentConstruction(constructionId);
-		List<ProjectEntity> projectListInvolvedByUser = this.getProjectsBeingInvolvedByCurrentUser(username);
-		if (projectListInvolvedByUser.contains(currentProject)) {
+	private Boolean chkCurUserCanViewCstrt(long constructionId, UserAuthDetected userAuthRoleReq) {
+		ProjectEntity curPrj = this.getPrjByCurCstrt(constructionId);
+		List<ProjectEntity> prjLstCurUserCanView = this.getPrjLstByAnyUsername(userAuthRoleReq);
+		if (prjLstCurUserCanView.contains(curPrj)) {
 			return true;
 		}
 		return false;
@@ -427,7 +468,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 	 * @param username
 	 * @return true/false
 	 */
-	private Boolean checkIfCurrentUserCanEditAndDeleteConstruction(ConstructionEntity construction, String username) {
+	private Boolean chkCurUserCanEditDelCstrt(ConstructionEntity construction, String username) {
 		if (construction.getCreateBy().equals(username)) {
 			return true;
 		}
@@ -441,8 +482,8 @@ public class ConstructionServiceImpl implements IConstructionService {
 	 * @param constructionReqDto
 	 */
 	@Override
-	public void updateConstruction(long constructionId, ConstructionReqDto constructionReqDto)
-			throws BestWorkBussinessException {
+	public void updateConstruction(long constructionId, ConstructionReqDto constructionReqDto,
+			List<MultipartFile> drawings) throws BestWorkBussinessException {
 		UserAuthDetected userAuthRoleReq = this.getUserAuthRoleReq();
 		String curUsername = userAuthRoleReq.getUsername();
 		Optional<ConstructionEntity> constructionOpt = constructionRepository.findById(constructionId);
@@ -450,13 +491,26 @@ public class ConstructionServiceImpl implements IConstructionService {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
 		}
 		ConstructionEntity curConstruction = constructionOpt.get();
-		if (!checkIfCurrentUserCanEditAndDeleteConstruction(curConstruction, curUsername)) {
+		if (!chkCurUserCanEditDelCstrt(curConstruction, curUsername)) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
 		}
-		checkExistConstructionNameWhenEditing(constructionReqDto, curConstruction);
+		chkExistCstrtNameWhenEditing(constructionReqDto, curConstruction);
 		validateConstructionInfo(constructionReqDto);
 		transferDtoToConstruction(constructionReqDto, curConstruction);
-		this.constructionRepository.save(curConstruction);
+
+		try {
+			curConstruction = this.constructionRepository.save(curConstruction);
+
+			if (!sftpFileService.isValidFile(drawings)) {
+				throw new BestWorkBussinessException(CommonConstants.MessageCode.eF0002, null);
+			}
+			for (MultipartFile file : drawings) {
+				String pathServer = this.sftpFileService.uploadConstructionDrawing(file, curConstruction.getId());
+				storageService.storeFile(curConstruction.getId(), FolderType.CONSTRUCTION, pathServer);
+			}
+		} catch (BestWorkBussinessException ex) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.FILE0002, null);
+		}
 	}
 
 	/**
@@ -471,7 +525,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 		long[] ids = constructionIds.getListId();
 		List<ConstructionEntity> constructionList = constructionRepository.findByIds(ids);
 		for (ConstructionEntity construction : constructionList) {
-			if (!checkIfCurrentUserCanEditAndDeleteConstruction(construction, curUsername)) {
+			if (!chkCurUserCanEditDelCstrt(construction, curUsername)) {
 				throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
 			}
 		}

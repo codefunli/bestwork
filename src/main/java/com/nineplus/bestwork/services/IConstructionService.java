@@ -23,7 +23,8 @@ public interface IConstructionService {
 
 	ConstructionResDto findConstructionById(long constructionId) throws BestWorkBussinessException;
 
-	void updateConstruction(long constructionId, ConstructionReqDto constructionReqDto) throws BestWorkBussinessException;
+	void updateConstruction(long constructionId, ConstructionReqDto constructionReqDto,
+			List<MultipartFile> drawings) throws BestWorkBussinessException;
 
 	void deleteConstruction(ConstructionListIdDto constructionListId) throws BestWorkBussinessException;
 }

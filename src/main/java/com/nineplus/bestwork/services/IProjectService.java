@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import com.nineplus.bestwork.dto.AssignTaskReqDto;
@@ -45,10 +46,14 @@ public interface IProjectService {
 	
 	List<String> getAllProjectIdByCompany(List<Long> listCompanyId) throws BestWorkBussinessException;
 
-	public List<ProjectEntity> getProjectsBeingCreatedByCurrentUser(String curUsername);
+	public List<ProjectEntity> getPrjCreatedByCurUser(String curUsername);
 
-	public List<ProjectEntity> getProjectsBeingAssignedToCurrentUser(String curUsername);
+	public List<ProjectEntity> getPrAssignedToCurUser(String curUsername);
 
 	public ProjectEntity getProjectByConstructionId(long constructionId);
+
+	public List<ProjectEntity> getPrj4CompanyAdmin(String curUsername);
+
+	public List<ProjectEntity> getPrj4SysAdmin(String curUsername);
 
 }
