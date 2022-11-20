@@ -1,6 +1,5 @@
 package com.nineplus.bestwork.repository;
 
-
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -19,6 +18,5 @@ public interface AssignTaskRepository extends JpaRepository<AssignTaskEntity, Lo
 	AssignTaskEntity findByProjectIdAndUserId(String projectId, long userId);
 
 	@Query(value = "select p.id as projectId, p.project_name as projectName ,can_view as canView, can_edit as canEdit from ASSIGN_TASK ast JOIN PROJECT p on p.id = ast.project_id JOIN T_SYS_APP_USER u on ast.user_id = u.id where u.id = :userId and u.user_name = :userName", nativeQuery = true)
-	List<UserProjectRepository> findListProjectByUser(long userId, String userName );
-
+	List<UserProjectRepository> findListProjectByUser(long userId, String userName);
 }

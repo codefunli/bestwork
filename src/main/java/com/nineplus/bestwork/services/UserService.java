@@ -498,4 +498,9 @@ public class UserService implements UserDetailsService {
 		return null;
 	}
 
+	public List<UserEntity> findUserAllowUpdPrj(String prjId) {
+		List<UserEntity> userList = this.userRepo.findUserAllwUpdPrj(prjId);
+		return userList;
+	}
+
 }

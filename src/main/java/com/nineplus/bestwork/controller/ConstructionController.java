@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,7 +19,6 @@ import com.nineplus.bestwork.dto.ConstructionResDto;
 import com.nineplus.bestwork.dto.ConstructionStatusResDto;
 import com.nineplus.bestwork.dto.PageResDto;
 import com.nineplus.bestwork.dto.PageSearchDto;
-import com.nineplus.bestwork.dto.UserListIdDto;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.services.IConstructionService;
 import com.nineplus.bestwork.utils.CommonConstants;
@@ -134,7 +132,6 @@ public class ConstructionController extends BaseController {
 		}
 		return success(CommonConstants.MessageCode.SCS0005, null, null);
 	}
-	
 
 	/**
 	 * Function: get list of construction status
