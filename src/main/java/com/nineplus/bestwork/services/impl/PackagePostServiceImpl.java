@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -100,7 +101,7 @@ public class PackagePostServiceImpl implements IPackagePostService {
 			packagePostResDto.setCreateBy(packagePost.get().getCreateBy());
 			packagePostResDto.setUpdateBy(packagePost.get().getUpdateBy());
 			packagePostResDto.setCreateDate(packagePost.get().getCreateDate());
-			packagePostResDto.setUpdateDate(packagePost.get().getCreateDate());
+			packagePostResDto.setUpdateDate(packagePost.get().getUpdateDate());
 			List<FileStorageResDto> fileStorageResponseDtos = new ArrayList<>();
 			for (FileStorageEntity file : packagePost.get().getFileStorages()) {
 				FileStorageResDto fileStorageResponseDto = new FileStorageResDto();
@@ -136,6 +137,7 @@ public class PackagePostServiceImpl implements IPackagePostService {
 				res.setUpdateBy(packagePost.getUpdateBy());
 				res.setCreateDate(packagePost.getCreateDate());
 				res.setUpdateDate(packagePost.getUpdateDate());
+				res.setPostType(CommonConstants.Character.TYPE_POST_PACKAGE);
 				List<FileStorageResDto> fileStorageResponseDtos = new ArrayList<>();
 				for (FileStorageEntity file : packagePost.getFileStorages()) {
 					FileStorageResDto fileStorageResponseDto = new FileStorageResDto();
@@ -143,13 +145,14 @@ public class PackagePostServiceImpl implements IPackagePostService {
 					fileStorageResponseDto.setName(file.getName());
 					fileStorageResponseDto.setCreateDate(file.getCreateDate().toString());
 					fileStorageResponseDto.setType(file.getType());
+					fileStorageResponseDto.setChoosen(file.isChoosen());
 					// return content file if file is image
-					if (Arrays.asList(new String[] { "png", "jpg", "jpeg", "bmp" }).contains(file.getType())) {
+					if (Arrays.asList(CommonConstants.Image.IMAGE_EXTENSION).contains(file.getType())) {
 						String pathServer = file.getPathFileServer();
-						byte[] imageContent = sftpFileService.downloadFile(pathServer);
+						byte[] imageContent = sftpFileService.getFile(pathServer);
 						fileStorageResponseDto.setContent(imageContent);
 					}
-					fileStorageResponseDto.setChoosen(file.isChoosen());
+
 					fileStorageResponseDtos.add(fileStorageResponseDto);
 				}
 				res.setFileStorages(fileStorageResponseDtos);
@@ -165,13 +168,17 @@ public class PackagePostServiceImpl implements IPackagePostService {
 
 	@Override
 	public byte[] getFile(Long packagePostId, Long fileId) throws BestWorkBussinessException {
-		String pathFile = getPathFileToDownload(packagePostId, fileId);
-		byte[] fileContent = sftpFileService.downloadFile(pathFile);
+		String pathFile = this.getPathFileToDownload(packagePostId, fileId);
+		byte[] fileContent = null;
+		if (StringUtils.isNotBlank(pathFile)) {
+			fileContent = sftpFileService.getFile(pathFile);
+		}
 		return fileContent;
 	}
 
-	private String getPathFileToDownload(Long postId, Long fileId) {
-		return packagePostRepository.getPathFileServer(postId, fileId);
+	@Override
+	public String getPathFileToDownload(long packagePostId, long fileId) {
+		return packagePostRepository.getPathFileServer(packagePostId, fileId);
 	}
 
 	@Override
@@ -185,8 +192,16 @@ public class PackagePostServiceImpl implements IPackagePostService {
 			customClearancePackageFileResDto.setPostPackageId(projection.getPostPackageId());
 			customClearancePackageFileResDto.setName(projection.getName());
 			customClearancePackageFileResDto.setType(projection.getType());
+			customClearancePackageFileResDto.setPostType(CommonConstants.Character.TYPE_POST_PACKAGE);
+			// return content file if file is image
+			if (Arrays.asList(CommonConstants.Image.IMAGE_EXTENSION).contains(projection.getType())) {
+				String pathServer = projection.getPathFileServer();
+				byte[] imageContent = sftpFileService.getFile(pathServer);
+				customClearancePackageFileResDto.setContent(imageContent);
+			}
 			lst.add(customClearancePackageFileResDto);
 		}
 		return lst;
 	}
+
 }

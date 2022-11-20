@@ -10,5 +10,7 @@ public interface PackageFileProjection {
 	String getType();
 	
 	String getName();
+	
+	String getPathFileServer();
 
 }

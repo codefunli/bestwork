@@ -61,28 +61,18 @@ public class MonitorService {
 
     @Transactional(rollbackFor = {Exception.class})
     public MonitorResDto addMonitor(MonitorResDto dto) throws BestWorkBussinessException {
-        UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
-        // Only system admin can do this
-        if (!userAuthRoleReq.getIsSysAdmin()) {
-            logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0014, null));
-            throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
-        }
         SysMonitorEntity monitor = null;
         try {
             monitor = monitorRepository.findSysMonitorByName(dto.getName());
             if (!ObjectUtils.isEmpty(monitor)) {
-                logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0014, null));
-                throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
+                logger.error(messageUtils.getMessage(CommonConstants.MessageCode.EXM001, null));
+                throw new BestWorkBussinessException(CommonConstants.MessageCode.EXM001, null);
             }
             monitor = new SysMonitorEntity();
             monitor.setName(dto.getName());
-//            monitor.setUrl(dto.getUrl());
-//            monitor.setShowAdd(Integer.parseInt(dto.getShowAdd()));
-//            monitor.setShowAccess(Integer.parseInt(dto.getShowAccess()));
-//            monitor.setShowDelete(Integer.parseInt(dto.getShowDelete()));
-//            monitor.setShowEdit(Integer.parseInt(dto.getShowEdit()));
+            monitor.setIcon(dto.getIcon());
             monitor.setCreatedDate(new Timestamp(System.currentTimeMillis()));
-//            monitor.setCreatedUser();
+            monitor.setCreatedUser(userAuthUtils.getUserInfoFromReq(false).getUsername());
             monitorRepository.save(monitor);
             return modelMapper.map(monitor, MonitorResDto.class);
         } catch (Exception e) {
@@ -93,12 +83,6 @@ public class MonitorService {
 
     @Transactional(rollbackFor = {Exception.class})
     public MonitorResDto updateMonitor(MonitorResDto dto) throws BestWorkBussinessException {
-        UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
-        // Only system admin can do this
-        if (!userAuthRoleReq.getIsSysAdmin()) {
-            logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0014, null));
-            throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
-        }
         Optional<SysMonitorEntity> checkExist;
         try {
             checkExist = monitorRepository.findById(dto.getId());
@@ -108,13 +92,9 @@ public class MonitorService {
             }
             SysMonitorEntity monitor = checkExist.get();
             monitor.setName(dto.getName());
-//            monitor.setUrl(dto.getUrl());
-//            monitor.setShowAdd(Integer.parseInt(dto.getShowAdd()));
-//            monitor.setShowAccess(Integer.parseInt(dto.getShowAccess()));
-//            monitor.setShowDelete(Integer.parseInt(dto.getShowDelete()));
-//            monitor.setShowEdit(Integer.parseInt(dto.getShowEdit()));
+            monitor.setIcon(dto.getIcon());
             monitor.setUpdatedDate(new Timestamp(System.currentTimeMillis()));
-//            monitor.setCreatedUser();
+            monitor.setUpdatedUser(userAuthUtils.getUserInfoFromReq(false).getUsername());
             monitorRepository.save(monitor);
             return modelMapper.map(monitor, MonitorResDto.class);
         }catch (Exception ex) {
@@ -142,12 +122,6 @@ public class MonitorService {
 
     public void deleteMonitor(Long id) throws BestWorkBussinessException {
         try {
-            UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
-            // Only system admin can do this
-            if (!userAuthRoleReq.getIsSysAdmin()) {
-                logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0014, null));
-                throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
-            }
             Optional<SysMonitorEntity> monitor = monitorRepository.findById(id);
             monitor.ifPresent(sysMonitor -> monitorRepository.delete(sysMonitor));
         } catch (Exception ex) {

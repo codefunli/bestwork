@@ -1,10 +1,14 @@
 package com.nineplus.bestwork.services.impl;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -134,7 +138,7 @@ public class SftpFileServiceImpl implements ISftpFileService {
 	}
 
 	@Override
-	public byte[] downloadFile(String pathFileDownload) {
+	public byte[] getFile(String pathFileDownload) {
 		byte[] resBytes = null;
 		ChannelSftp channel = null;
 		Session session = null;
@@ -220,10 +224,12 @@ public class SftpFileServiceImpl implements ISftpFileService {
 	 */
 	private static void disconnect(Session session, ChannelSftp channel) {
 		if (channel != null) {
+			log.info("Disconect to channel server SFTP");
 			channel.exit();
 		}
 
 		if (session != null) {
+			log.info("Disconect to session server SFTP");
 			session.disconnect();
 		}
 	}
@@ -410,4 +416,29 @@ public class SftpFileServiceImpl implements ISftpFileService {
 		return true;
 	}
 
+	@Override
+	public File downLoadFile(String pathFileDownload) {
+		ChannelSftp channel = null;
+		Session session = null;
+		File tempFile;
+		try {
+
+			Pair<Session, ChannelSftp> sftpConnection = this.getConnection();
+
+			session = sftpConnection.getFirst();
+			channel = sftpConnection.getSecond();
+			tempFile = File.createTempFile("fileTemp",".png");
+			tempFile.deleteOnExit();
+			FileUtils.copyInputStreamToFile(channel.get(pathFileDownload), tempFile);
+			 //resBytes = IOUtils.toByteArray(channel.get(pathFileDownload));
+			// disconnect to sftp server.
+			//disconnect(session, channel);
+		} catch (Exception ex) {
+			disconnect(session, channel);
+			throw new FileHandleException(ex.getMessage(), ex);
+		} finally {
+			disconnect(session, channel);
+		}
+		return tempFile;
+	}
 }

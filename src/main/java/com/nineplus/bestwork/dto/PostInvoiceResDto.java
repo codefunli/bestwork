@@ -1,6 +1,5 @@
 package com.nineplus.bestwork.dto;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -29,16 +28,19 @@ public class PostInvoiceResDto extends BaseDto {
 	private String comment;
 
 	@JsonProperty("createDate")
-	private LocalDateTime createDate;
+	private String createDate;
 
 	@JsonProperty("updateDate")
-	private LocalDateTime updateDate;
+	private String updateDate;
 
 	@JsonProperty("createBy")
 	private String createBy;
 
 	@JsonProperty("updateBy")
 	private String updateBy;
+	
+	@JsonProperty("postType")
+	private String postType;
 
 	@JsonProperty("fileStorages")
 	private List<FileStorageResDto> fileStorages;
