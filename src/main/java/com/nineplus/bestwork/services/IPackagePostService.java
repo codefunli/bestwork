@@ -27,4 +27,7 @@ public interface IPackagePostService {
 	byte[] getFile(Long packagePostId, Long fileId) throws BestWorkBussinessException;
 
 	List<CustomClearancePackageFileResDto> getPackageClearance(String code) throws BestWorkBussinessException;
+
+	String getPathFileToDownload(long packagePostId, long fileId);
+
 }

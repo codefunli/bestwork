@@ -1,9 +1,17 @@
 package com.nineplus.bestwork.services.impl;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -11,6 +19,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import com.nineplus.bestwork.dto.AirWayBillReqDto;
 import com.nineplus.bestwork.dto.AirWayBillResDto;
@@ -31,8 +40,11 @@ import com.nineplus.bestwork.utils.CommonConstants;
 import com.nineplus.bestwork.utils.Enums.AirWayBillStatus;
 import com.nineplus.bestwork.utils.UserAuthUtils;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
 @Transactional
+@Slf4j
 public class AirWayBillServiceImpl implements IAirWayBillService {
 
 	@Autowired
@@ -80,7 +92,7 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 		}
 	}
 
-	public void validateAirWayBill(AirWayBillReqDto airWayBillReqDto) throws BestWorkBussinessException {
+	private void validateAirWayBill(AirWayBillReqDto airWayBillReqDto) throws BestWorkBussinessException {
 		String projectId = airWayBillReqDto.getProjectId();
 		if (StringUtils.isEmpty(projectId)) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.eA0006, null);
@@ -141,11 +153,49 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 	}
 
 	@Override
-	public void downloadZip(String code) throws BestWorkBussinessException {
+	public StreamingResponseBody downloadZip(String code, HttpServletResponse response) throws BestWorkBussinessException {
 		List<String> listPathToDownLoad = new ArrayList<>();
-		listPathToDownLoad.add("/home/bestwork/invoices/20221117/AIRWAY00000001/121/Invoice_test.xlsx");
-		listPathToDownLoad.add("/home/bestwork/invoices/20221117/AIRWAY00000004/120/images.jpg");
-		iSftpFileService.downLoadFile(listPathToDownLoad);
+		listPathToDownLoad.add("/home/bestwork/invoices/20221117/AIRWAY00000001/123/download.png");
+		int BUFFER_SIZE = 1024;
+		StreamingResponseBody streamResponseBody = out -> {
+
+			final ZipOutputStream zipOutputStream = new ZipOutputStream(response.getOutputStream());
+			ZipEntry zipEntry = null;
+			InputStream inputStream = null;
+			File tempFile;
+
+			try {
+				for (String path : listPathToDownLoad) {
+					zipEntry = new ZipEntry(code);
+					tempFile = File.createTempFile("fileTemp",null);
+					tempFile.deleteOnExit();
+					tempFile = iSftpFileService.downLoadFile(path);
+					inputStream = new FileInputStream(tempFile);
+					zipOutputStream.putNextEntry(zipEntry);
+					byte[] bytes = new byte[BUFFER_SIZE];
+					int length;
+					while ((length = inputStream.read(bytes)) >= 0) {
+						zipOutputStream.write(bytes, 0, length);
+					}
+
+				}
+
+			} catch (IOException e) {
+				log.error("Exception while reading and streaming data {} ", e);
+			} finally {
+				if (zipOutputStream != null) {
+					zipOutputStream.close();
+				}
+			}
+
+		};
+		return streamResponseBody;
+	}
+
+	@Override
+	@Transactional
+	public void confirmDone(String code,int destinationStatus) throws BestWorkBussinessException {
+		this.airWayBillRepository.changeStatusToDone(code, destinationStatus);
 	}
 	
 }

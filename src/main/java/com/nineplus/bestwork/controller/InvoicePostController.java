@@ -5,15 +5,19 @@ import java.util.List;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.nineplus.bestwork.dto.InvoiceFileDownLoadReqDto;
 import com.nineplus.bestwork.dto.PostInvoiceReqDto;
 import com.nineplus.bestwork.dto.PostInvoiceResDto;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
@@ -73,19 +77,50 @@ public class InvoicePostController extends BaseController {
 		return success(CommonConstants.MessageCode.sI0003, listPostInvoiceResDto, null);
 	}
 
-	@GetMapping("/get-file/by")
-	public ResponseEntity<? extends Object> getFile(@RequestParam(value = "invoicePostId", required = true) Long invoicePostId,
-			@RequestParam(value = "fileId", required = false) Long fileId) throws BestWorkBussinessException {
+	@GetMapping("/get-file")
+	public ResponseEntity<? extends Object> getFile(@RequestBody InvoiceFileDownLoadReqDto invoiceFileDownLoadReqDto)
+			throws BestWorkBussinessException {
 		byte[] dataBytesFile = null;
+		String pathFile = "";
 		try {
-			dataBytesFile = iPostInvoiceService.getFile(invoicePostId, fileId);
+			dataBytesFile = iPostInvoiceService.getFile(invoiceFileDownLoadReqDto.getInvoicePostId(),
+					invoiceFileDownLoadReqDto.getFileId());
+			pathFile = iPostInvoiceService.getPathFileToDownload(invoiceFileDownLoadReqDto.getInvoicePostId(),
+					invoiceFileDownLoadReqDto.getFileId());
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}
 		if (ObjectUtils.isEmpty(dataBytesFile)) {
 			return success(CommonConstants.MessageCode.E1X0003, null, null);
 		}
-		return success(CommonConstants.MessageCode.sF0002, dataBytesFile, null);
+		return ResponseEntity.ok()
+				// Content-Disposition
+				.header(HttpHeaders.CONTENT_DISPOSITION, CommonConstants.MediaType.CONTENT_DISPOSITION + pathFile)
+				// Content-Type
+				.contentType(MediaType.parseMediaType(CommonConstants.MediaType.MEDIA_TYPE_STREAM)).body(dataBytesFile);
+	}
+
+	@GetMapping("/view-file-pdf")
+	public ResponseEntity<? extends Object> viewFilePdf(
+			@RequestBody InvoiceFileDownLoadReqDto invoiceFileDownLoadReqDto) throws BestWorkBussinessException {
+		byte[] dataBytesFile = null;
+		String pathFile = "";
+		try {
+			dataBytesFile = iPostInvoiceService.getFile(invoiceFileDownLoadReqDto.getInvoicePostId(),
+					invoiceFileDownLoadReqDto.getFileId());
+			pathFile = iPostInvoiceService.getPathFileToDownload(invoiceFileDownLoadReqDto.getInvoicePostId(),
+					invoiceFileDownLoadReqDto.getFileId());
+		} catch (BestWorkBussinessException ex) {
+			return failed(ex.getMsgCode(), ex.getParam());
+		}
+		if (ObjectUtils.isEmpty(dataBytesFile)) {
+			return success(CommonConstants.MessageCode.E1X0003, null, null);
+		}
+		return ResponseEntity.ok()
+				// Content-Disposition
+				.header(HttpHeaders.CONTENT_DISPOSITION, CommonConstants.MediaType.CONTENT_DISPOSITION + pathFile)
+				// Content-Type
+				.contentType(MediaType.parseMediaType(CommonConstants.MediaType.MEDIA_TYPE_PDF)).body(dataBytesFile);
 	}
 
 }

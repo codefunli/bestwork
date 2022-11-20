@@ -1,6 +1,5 @@
 package com.nineplus.bestwork.dto;
 
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.EqualsAndHashCode;
@@ -10,13 +9,13 @@ import lombok.Setter;
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = false)
-public class AirWayBillAllInfoResDto {
-	
+public class AirWayBillStatusReqDto extends BaseDto {
 
-	@JsonProperty("AWB")
-	private AirWayBillResDto airWayBill;
-
-	@JsonProperty("invoices")
-	private PostInvoiceResDto postInvoice;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5019277631020080543L;
+	@JsonProperty("destinationStatus")
+	private int destinationStatus;
 
 }

@@ -1,19 +1,14 @@
 package com.nineplus.bestwork.services.impl;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -366,39 +361,28 @@ public class SftpFileServiceImpl implements ISftpFileService {
 	}
 
 	@Override
-	public void downLoadFile(List<String> listPathFileDownload) {
+	public File downLoadFile(String pathFileDownload) {
 		ChannelSftp channel = null;
 		Session session = null;
+		File tempFile;
 		try {
 
-			String airWayBill = "/AWB0001/";
-			String home = System.getProperty("user.home");
 			Pair<Session, ChannelSftp> sftpConnection = this.getConnection();
 
 			session = sftpConnection.getFirst();
 			channel = sftpConnection.getSecond();
-			for (String pathFile : listPathFileDownload) {
-				String fileName = FilenameUtils.getName(pathFile);
-				byte[] buffer = new byte[1024];
-				BufferedInputStream bis = new BufferedInputStream(channel.get(pathFile));
-				Path path = Files.createDirectories(Paths.get(home + SEPARATOR + "Downloads" + SEPARATOR + airWayBill));
-				File newFile = new File(path + SEPARATOR +  fileName );
-				OutputStream os = new FileOutputStream(newFile);
-				BufferedOutputStream bos = new BufferedOutputStream(os);
-				int readCount;
-				//System.out.println("Getting: " + theLine);
-				while( (readCount = bis.read(buffer)) > 0) {
-				System.out.println("Writing: " );
-				bos.write(buffer, 0, readCount);
-				}
-				bis.close();
-				bos.close();
-			}
+			tempFile = File.createTempFile("fileTemp",".png");
+			tempFile.deleteOnExit();
+			FileUtils.copyInputStreamToFile(channel.get(pathFileDownload), tempFile);
+			 //resBytes = IOUtils.toByteArray(channel.get(pathFileDownload));
 			// disconnect to sftp server.
-			disconnect(session, channel);
+			//disconnect(session, channel);
 		} catch (Exception ex) {
-				disconnect(session, channel);
-				throw new FileHandleException(ex.getMessage(), ex);
-			}
+			disconnect(session, channel);
+			throw new FileHandleException(ex.getMessage(), ex);
+		} finally {
+			disconnect(session, channel);
 		}
+		return tempFile;
+	}
 }

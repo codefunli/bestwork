@@ -20,6 +20,8 @@ public class PermissionResDto {
     private Integer status;
     @JsonProperty("monitorId")
     private Long monitorId;
+    @JsonProperty("monitorName")
+    private String monitorName;
     @JsonProperty("roleId")
     private Long roleId;
 }

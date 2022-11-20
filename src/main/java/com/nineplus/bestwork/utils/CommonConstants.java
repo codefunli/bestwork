@@ -22,9 +22,19 @@ public class CommonConstants {
 		public static final String STATUS_SUCCESS = "success";
 
 	}
-	
+
 	public class Image {
-		public static final String[] IMAGE_EXTENSION = { "png", "jpg", "jpeg", "bmp", "JPEG", "PNG", "JPG", "BMP" } ;
+		public static final String[] IMAGE_EXTENSION = { "png", "jpg", "jpeg", "bmp", "JPEG", "PNG", "JPG", "BMP" };
+	}
+
+	public class MediaType {
+		/** The Constant MEDIA_TYPE_STREAM. */
+		public static final String MEDIA_TYPE_STREAM = "application/octet-stream";
+
+		public static final String MEDIA_TYPE_PDF = "application/pdf";
+
+		/** The Constant CONTENT_DISPOSITION. */
+		public static final String CONTENT_DISPOSITION = "attachment;filename=";
 	}
 
 	public class Character {
@@ -38,7 +48,6 @@ public class CommonConstants {
 		public static final String PROJECT = "Project";
 		public static final String TYPE_POST_INVOICE = "invoice";
 		public static final String TYPE_POST_PACKAGE = "package";
-		
 
 		public static final String COMPANY = "COMPANY";
 		public static final String USERNAME_OR_EMAIL = "USER or EMAIL";
@@ -203,6 +212,7 @@ public class CommonConstants {
 		public static final String sA0003 = "sA0003";
 		public static final String sA0004 = "sA0004";
 		public static final String sA0005 = "sA0005";
+		public static final String sA0006 = "sA0006";
 		public static final String eA0001 = "eA0001";
 		public static final String eA0002 = "eA0002";
 		public static final String eA0003 = "eA0003";
@@ -229,12 +239,14 @@ public class CommonConstants {
 		public static final String SNU0005 = "snu0005";
 		public static final String ENU0005 = "enu0005";
 
-
 		// For package AWB message
 		public static final String sP0001 = "sP0001";
 		public static final String sP0002 = "sP0002";
 		public static final String sP0003 = "sP0003";
 		public static final String eP0001 = "eP0001";
+
+		public static final String EXM001 = "EXM001";
+		public static final String SCM001 = "SCM001";
 
 	}
 

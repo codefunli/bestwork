@@ -1,5 +1,7 @@
 package com.nineplus.bestwork.services;
 
+import java.io.File;
+import java.io.InputStream;
 import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
@@ -27,6 +29,6 @@ public interface ISftpFileService {
 
 	boolean isValidFile(List<MultipartFile> file);
 
-	void downLoadFile(List<String> pathFileDownload);
+	File downLoadFile(String pathFileDownload);
 
 }

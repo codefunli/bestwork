@@ -11,4 +11,6 @@ public interface InvoiceFileProjection {
 	
 	String getName();
 
+	String getPathFileServer();
+
 }
