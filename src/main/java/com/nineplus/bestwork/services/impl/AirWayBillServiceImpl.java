@@ -1,17 +1,9 @@
 package com.nineplus.bestwork.services.impl;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
-
-import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -19,7 +11,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import com.nineplus.bestwork.dto.AirWayBillReqDto;
 import com.nineplus.bestwork.dto.AirWayBillResDto;
@@ -40,11 +31,8 @@ import com.nineplus.bestwork.utils.CommonConstants;
 import com.nineplus.bestwork.utils.Enums.AirWayBillStatus;
 import com.nineplus.bestwork.utils.UserAuthUtils;
 
-import lombok.extern.slf4j.Slf4j;
-
 @Service
 @Transactional
-@Slf4j
 public class AirWayBillServiceImpl implements IAirWayBillService {
 
 	@Autowired
@@ -55,13 +43,13 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 
 	@Autowired
 	private IInvoicePostService iInvoicePostService;
-	
+
 	@Autowired
 	IPackagePostService iPackagePostService;
 
 	@Autowired
 	UserAuthUtils userAuthUtils;
-	
+
 	@Autowired
 	ISftpFileService iSftpFileService;
 
@@ -118,7 +106,7 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 	@Override
 	public List<AirWayBillResDto> getAllAirWayBillByProject(String projectId) throws BestWorkBussinessException {
 		List<AirWayBill> listAwb = airWayBillRepository.findByProjectCode(projectId);
-		List<AirWayBillResDto> listAwbRes =  new ArrayList<>();
+		List<AirWayBillResDto> listAwbRes = new ArrayList<>();
 		for (AirWayBill airWayBill : listAwb) {
 			AirWayBillResDto airWayResDTO = new AirWayBillResDto();
 			airWayResDTO = modelMapper.map(airWayBill, AirWayBillResDto.class);
@@ -142,60 +130,27 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 	public CustomClearanceResDto getCustomClearanceDoc(String code) throws BestWorkBussinessException {
 		CustomClearanceResDto res = new CustomClearanceResDto();
 		List<CustomClearanceInvoiceFileResDto> invoiceInfo = iInvoicePostService.getInvoiceClearance(code);
-		if(ObjectUtils.isNotEmpty(invoiceInfo)) {
+		if (ObjectUtils.isNotEmpty(invoiceInfo)) {
 			res.setInvoicesDoc(invoiceInfo);
 		}
 		List<CustomClearancePackageFileResDto> packageInfo = iPackagePostService.getPackageClearance(code);
-		if(ObjectUtils.isNotEmpty(packageInfo)) {
+		if (ObjectUtils.isNotEmpty(packageInfo)) {
 			res.setPackagesDoc(packageInfo);
 		}
 		return res;
 	}
 
 	@Override
-	public StreamingResponseBody downloadZip(String code, HttpServletResponse response) throws BestWorkBussinessException {
-		List<String> listPathToDownLoad = new ArrayList<>();
-		listPathToDownLoad.add("/home/bestwork/invoices/20221117/AIRWAY00000001/123/download.png");
-		int BUFFER_SIZE = 1024;
-		StreamingResponseBody streamResponseBody = out -> {
-
-			final ZipOutputStream zipOutputStream = new ZipOutputStream(response.getOutputStream());
-			ZipEntry zipEntry = null;
-			InputStream inputStream = null;
-			File tempFile;
-
-			try {
-				for (String path : listPathToDownLoad) {
-					zipEntry = new ZipEntry(code);
-					tempFile = File.createTempFile("fileTemp",null);
-					tempFile.deleteOnExit();
-					tempFile = iSftpFileService.downLoadFile(path);
-					inputStream = new FileInputStream(tempFile);
-					zipOutputStream.putNextEntry(zipEntry);
-					byte[] bytes = new byte[BUFFER_SIZE];
-					int length;
-					while ((length = inputStream.read(bytes)) >= 0) {
-						zipOutputStream.write(bytes, 0, length);
-					}
-
-				}
-
-			} catch (IOException e) {
-				log.error("Exception while reading and streaming data {} ", e);
-			} finally {
-				if (zipOutputStream != null) {
-					zipOutputStream.close();
-				}
-			}
-
-		};
-		return streamResponseBody;
+	public void createZipFolder(String code)
+			throws BestWorkBussinessException {
+		String[] listPathToDownLoad = {"/home/bestwork/invoices/20221117/AIRWAY00000001/123/download.png"};
+		this.iSftpFileService.downloadFileTemp(code, listPathToDownLoad);
 	}
 
 	@Override
 	@Transactional
-	public void confirmDone(String code,int destinationStatus) throws BestWorkBussinessException {
-		this.airWayBillRepository.changeStatusToDone(code, destinationStatus);
+	public void changeStatus(String code, int destinationStatus) throws BestWorkBussinessException {
+		this.airWayBillRepository.changeStatus(code, destinationStatus);
 	}
-	
+
 }

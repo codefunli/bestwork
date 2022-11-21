@@ -1,12 +1,19 @@
 package com.nineplus.bestwork.services.impl;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -371,12 +378,12 @@ public class SftpFileServiceImpl implements ISftpFileService {
 
 			session = sftpConnection.getFirst();
 			channel = sftpConnection.getSecond();
-			tempFile = File.createTempFile("fileTemp",".png");
+			tempFile = File.createTempFile("fileTemp", ".png");
 			tempFile.deleteOnExit();
 			FileUtils.copyInputStreamToFile(channel.get(pathFileDownload), tempFile);
-			 //resBytes = IOUtils.toByteArray(channel.get(pathFileDownload));
+			// resBytes = IOUtils.toByteArray(channel.get(pathFileDownload));
 			// disconnect to sftp server.
-			//disconnect(session, channel);
+			// disconnect(session, channel);
 		} catch (Exception ex) {
 			disconnect(session, channel);
 			throw new FileHandleException(ex.getMessage(), ex);
@@ -384,5 +391,84 @@ public class SftpFileServiceImpl implements ISftpFileService {
 			disconnect(session, channel);
 		}
 		return tempFile;
+	}
+
+	@Override
+	public void createZipFolder(String airWayBillCode, String[] listPathFileDownload) {
+		ChannelSftp channel = null;
+		Session session = null;
+		try {
+			Pair<Session, ChannelSftp> sftpConnection = this.getConnection();
+
+			session = sftpConnection.getFirst();
+			channel = sftpConnection.getSecond();
+			// create a ZipOutputStream object+
+			FileOutputStream fos = new FileOutputStream(airWayBillCode);
+			ZipOutputStream zos = new ZipOutputStream(fos);
+
+			for (int i = 0; i < listPathFileDownload.length; i++) {
+				File srcFile = new File(listPathFileDownload[i]);
+				FileInputStream fis = new FileInputStream(srcFile);
+
+				// Start writing a new file entry
+
+				int length;
+				// create byte buffer
+				byte[] buffer = new byte[1024];
+
+				// read and write the content of the file
+				while ((length = fis.read(buffer)) > 0) {
+					zos.write(buffer, 0, length);
+				}
+				// current file entry is written and current zip entry is closed
+				zos.closeEntry();
+
+				// close the InputStream of the file
+				fis.close();
+
+			}
+			// close the ZipOutputStream
+			zos.close();
+
+		} catch (Exception ex) {
+			disconnect(session, channel);
+			throw new FileHandleException(ex.getMessage(), ex);
+		} finally {
+			disconnect(session, channel);
+		}
+}
+
+	@Override
+	public void downloadFileTemp(String airWayBillCode, String[] listPathFileDownload) {
+		ChannelSftp channel = null;
+		Session session = null;
+		try {
+
+			String temporaryFolder = "resources/temp";
+			Pair<Session, ChannelSftp> sftpConnection = this.getConnection();
+			session = sftpConnection.getFirst();
+			channel = sftpConnection.getSecond();
+			for (String pathFile : listPathFileDownload) {
+				String fileName = FilenameUtils.getName(pathFile);
+				byte[] buffer = new byte[1024];
+				BufferedInputStream bis = new BufferedInputStream(channel.get(pathFile));
+				File newFile = new File(temporaryFolder + SEPARATOR + fileName);
+				OutputStream os = new FileOutputStream(newFile);
+				BufferedOutputStream bos = new BufferedOutputStream(os);
+				int readCount;
+				while( (readCount = bis.read(buffer)) > 0) {
+				System.out.println("Writing: " );
+				bos.write(buffer, 0, readCount);
+				}
+				bis.close();
+				bos.close();
+			}
+			// disconnect to sftp server.
+			disconnect(session, channel);
+		} catch (Exception ex) {
+				disconnect(session, channel);
+				throw new FileHandleException(ex.getMessage(), ex);
+			}
+		
 	}
 }
