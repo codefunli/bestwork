@@ -88,7 +88,7 @@ public class ConstructionController extends BaseController {
 	public ResponseEntity<? extends Object> getConstructionById(@PathVariable long constructionId) {
 		ConstructionResDto constructionResDto = null;
 		try {
-			constructionResDto = constructionService.findConstructionById(constructionId);
+			constructionResDto = constructionService.findCstrtResById(constructionId);
 		} catch (BestWorkBussinessException e) {
 			return failed(e.getMsgCode(), e.getParam());
 		}

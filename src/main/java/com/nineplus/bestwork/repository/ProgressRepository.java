@@ -16,7 +16,7 @@ public interface ProgressRepository extends JpaRepository<ProgressEntity, Long> 
 
 	@Modifying
 	@Query(value = "DELETE from PROGRESS_TRACKING p where p.id in ?1", nativeQuery = true)
-	void deleteProgressWithId(List<Long> ids);
+	void delProgressWithId(List<Long> ids);
 
 	@Query(value = "SELECT p.id FROM PROGRESS_TRACKING p WHERE p.project_id in ?1", nativeQuery = true)
 	List<Long> getAllProgressByProject(List<String> listProjectId);

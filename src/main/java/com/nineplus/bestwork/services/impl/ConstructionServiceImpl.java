@@ -57,7 +57,7 @@ import com.nineplus.bestwork.utils.UserAuthUtils;
 public class ConstructionServiceImpl implements IConstructionService {
 
 	@Autowired
-	private ConstructionRepository constructionRepository;
+	private ConstructionRepository cstrtRepo;
 
 	@Autowired
 	UserAuthUtils userAuthUtils;
@@ -66,7 +66,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 	private ConvertResponseUtils convertResponseUtils;
 
 	@Autowired
-	private IAirWayBillService airWayBillService;
+	private IAirWayBillService awbService;
 
 	@Autowired
 	private IProjectService projectService;
@@ -78,7 +78,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 	private IStorageService storageService;
 
 	@Autowired
-	private AssignTaskRepository assignTaskRepository;
+	private AssignTaskRepository assignTaskRepo;
 
 	@Autowired
 	private UserService userService;
@@ -97,12 +97,12 @@ public class ConstructionServiceImpl implements IConstructionService {
 		try {
 			Pageable pageable = convertSearch(pageSearchDto);
 
-			List<ProjectEntity> canViewprjList = getPrjLstByAnyUsername(userAuthRoleReq);
+			List<ProjectEntity> canViewprjList = projectService.getPrjLstByAnyUsername(userAuthRoleReq);
 			List<String> prjIds = new ArrayList<>();
 			for (ProjectEntity project : canViewprjList) {
 				prjIds.add(project.getId());
 			}
-			Page<ConstructionEntity> pageCstrt = constructionRepository.findCstrtByPrjIds(prjIds, pageSearchDto,
+			Page<ConstructionEntity> pageCstrt = cstrtRepo.findCstrtByPrjIds(prjIds, pageSearchDto,
 					pageable);
 
 			PageResDto<ConstructionResDto> pageResDto = new PageResDto<>();
@@ -115,7 +115,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 
 			List<ConstructionResDto> constructionResDtos = new ArrayList<>();
 			for (ConstructionEntity construction : pageCstrt.getContent()) {
-				ConstructionResDto dto = this.transferConstructionToResDto(construction);
+				ConstructionResDto dto = this.trsferCstrtToResDto(construction);
 				constructionResDtos.add(dto);
 			}
 			pageResDto.setContent(constructionResDtos);
@@ -124,19 +124,6 @@ public class ConstructionServiceImpl implements IConstructionService {
 		} catch (Exception ex) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
 		}
-	}
-
-	private List<ProjectEntity> getPrjLstByAnyUsername(UserAuthDetected userAuthRoleReq) {
-		List<ProjectEntity> canViewprjList = null;
-		String curUsername = userAuthRoleReq.getUsername();
-		if (!userAuthRoleReq.getIsSysAdmin() && !userAuthRoleReq.getIsOrgAdmin()) {
-			canViewprjList = this.getPrjInvolvedByCompUser(curUsername);
-		} else if (userAuthRoleReq.getIsOrgAdmin()) {
-			canViewprjList = this.projectService.getPrj4CompanyAdmin(curUsername);
-		} else if (userAuthRoleReq.getIsSysAdmin()) {
-			canViewprjList = this.projectService.getPrj4SysAdmin(curUsername);
-		}
-		return canViewprjList;
 	}
 
 	/**
@@ -198,17 +185,17 @@ public class ConstructionServiceImpl implements IConstructionService {
 		UserAuthDetected userAuthDetected = this.getUserAuthRoleReq();
 		String curUsername = userAuthDetected.getUsername();
 
-		if (!chkCurUserCanCreateCstrt(userAuthDetected, constructionReqDto)) {
+		if (!chkCurUserCanCreateCstrt(userAuthDetected, constructionReqDto.getProjectCode())) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
 		}
 		chkExistCstrtNameWhenCreating(constructionReqDto);
-		validateConstructionInfo(constructionReqDto);
+		validateCstrtInfo(constructionReqDto);
 
 		ConstructionEntity construction = new ConstructionEntity();
 		construction.setCreateBy(curUsername);
-		transferDtoToConstruction(constructionReqDto, construction);
+		trsferDtoToCstrt(constructionReqDto, construction);
 		try {
-			construction = this.constructionRepository.save(construction);
+			construction = this.cstrtRepo.save(construction);
 
 			if (!sftpFileService.isValidFile(drawings)) {
 				throw new BestWorkBussinessException(CommonConstants.MessageCode.eF0002, null);
@@ -226,20 +213,20 @@ public class ConstructionServiceImpl implements IConstructionService {
 	 * Private function: transfer from ConstructionReqDto to ConstructionEntity and
 	 * save ConstructionEntity to database
 	 * 
-	 * @param constructionReqDto
+	 * @param cstrtReqDto
 	 * @param construction
 	 */
-	private void transferDtoToConstruction(ConstructionReqDto constructionReqDto, ConstructionEntity construction) {
-		construction.setConstructionName(constructionReqDto.getConstructionName());
-		construction.setDescription(constructionReqDto.getDescription());
-		construction.setLocation(constructionReqDto.getLocation());
-		construction.setStartDate(constructionReqDto.getStartDate());
-		construction.setEndDate(constructionReqDto.getEndDate());
-		construction.setStatus(constructionReqDto.getStatus());
-		construction.setProjectCode(constructionReqDto.getProjectCode());
+	private void trsferDtoToCstrt(ConstructionReqDto cstrtReqDto, ConstructionEntity construction) {
+		construction.setConstructionName(cstrtReqDto.getConstructionName());
+		construction.setDescription(cstrtReqDto.getDescription());
+		construction.setLocation(cstrtReqDto.getLocation());
+		construction.setStartDate(cstrtReqDto.getStartDate());
+		construction.setEndDate(cstrtReqDto.getEndDate());
+		construction.setStatus(cstrtReqDto.getStatus());
+		construction.setProjectCode(cstrtReqDto.getProjectCode());
 		List<AirWayBill> airWayBills = new ArrayList<>();
-		for (AirWayBillResDto dto : constructionReqDto.getAwbCodes()) {
-			AirWayBill awb = this.airWayBillService.findByCode(dto.getCode());
+		for (AirWayBillResDto dto : cstrtReqDto.getAwbCodes()) {
+			AirWayBill awb = this.awbService.findByCode(dto.getCode());
 			airWayBills.add(awb);
 		}
 		construction.setAirWayBills(airWayBills);
@@ -249,12 +236,12 @@ public class ConstructionServiceImpl implements IConstructionService {
 	 * Private function: check the validation of constructionReqDto before creating
 	 * new construction
 	 * 
-	 * @param constructionReqDto
+	 * @param cstrtReqDto
 	 * @throws BestWorkBussinessException
 	 */
-	private void validateConstructionInfo(ConstructionReqDto constructionReqDto) throws BestWorkBussinessException {
-		String constructionName = constructionReqDto.getConstructionName();
-		List<AirWayBillResDto> awbCodes = constructionReqDto.getAwbCodes();
+	private void validateCstrtInfo(ConstructionReqDto cstrtReqDto) throws BestWorkBussinessException {
+		String constructionName = cstrtReqDto.getConstructionName();
+		List<AirWayBillResDto> awbCodes = cstrtReqDto.getAwbCodes();
 
 		// Check construction name: not blank
 		if (ObjectUtils.isEmpty(constructionName)) {
@@ -263,7 +250,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 		}
 
 		// Check if current project (found by project id) exists or not
-		Optional<ProjectEntity> curProjectOpt = this.projectService.getProjectById(constructionReqDto.getProjectCode());
+		Optional<ProjectEntity> curProjectOpt = this.projectService.getProjectById(cstrtReqDto.getProjectCode());
 		if (!curProjectOpt.isPresent()) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.EXS0004,
 					new Object[] { CommonConstants.Character.PROJECT });
@@ -285,10 +272,10 @@ public class ConstructionServiceImpl implements IConstructionService {
 		}
 
 		// Check existence of AWB codes
-		Set<ProjectEntity> projectSetContainingAWBs = new HashSet<>();
+		Set<ProjectEntity> prjContainAWBs = new HashSet<>();
 		for (AirWayBillResDto awbResdto : awbCodes) {
 			String code = awbResdto.getCode();
-			AirWayBill airWayBill = this.airWayBillService.findByCode(code);
+			AirWayBill airWayBill = this.awbService.findByCode(code);
 			if (ObjectUtils.isEmpty(airWayBill)) {
 				throw new BestWorkBussinessException(CommonConstants.MessageCode.EXS0004,
 						new Object[] { "AWB code " + code });
@@ -298,21 +285,21 @@ public class ConstructionServiceImpl implements IConstructionService {
 				throw new BestWorkBussinessException(CommonConstants.MessageCode.EXS0007,
 						new Object[] { "code " + code });
 			}
-			projectSetContainingAWBs.add(projectOpt.get());
+			prjContainAWBs.add(projectOpt.get());
 		}
 
 		// Check if all the allocated AWB codes exist in current project or not
-		if (projectSetContainingAWBs.size() > 1) {
+		if (prjContainAWBs.size() > 1) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.EXS0005, null);
-		} else if (projectSetContainingAWBs.size() == 1 && !projectSetContainingAWBs.contains(curProject)) {
+		} else if (prjContainAWBs.size() == 1 && !prjContainAWBs.contains(curProject)) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.EXS0008, null);
-		} else if (projectSetContainingAWBs.size() == 0 || projectSetContainingAWBs.isEmpty()) {
+		} else if (prjContainAWBs.size() == 0 || prjContainAWBs.isEmpty()) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.EXS0006, null);
 		}
 
 		// Check if the AWB list for the construction contains at least 1 bill that is
 		// already customs cleared
-		if (!checkAWBStatus(constructionReqDto.getAwbCodes())) {
+		if (!checkAWBStatus(cstrtReqDto.getAwbCodes())) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.ECS0003, null);
 		}
 	}
@@ -327,7 +314,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 	private Boolean checkAWBStatus(List<AirWayBillResDto> awbCodes) {
 		for (AirWayBillResDto awbResDto : awbCodes) {
 			String code = awbResDto.getCode();
-			AirWayBill airWayBill = this.airWayBillService.findByCode(code);
+			AirWayBill airWayBill = this.awbService.findByCode(code);
 			if (AirWayBillStatus.values()[airWayBill.getStatus()].equals(AirWayBillStatus.DONE)) {
 				return true;
 			}
@@ -344,7 +331,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 	 */
 	private void chkExistCstrtNameWhenCreating(ConstructionReqDto constructionReqDto)
 			throws BestWorkBussinessException {
-		ConstructionEntity existedCstrt = constructionRepository.findByName(constructionReqDto.getConstructionName());
+		ConstructionEntity existedCstrt = cstrtRepo.findByName(constructionReqDto.getConstructionName());
 		if (!ObjectUtils.isEmpty(existedCstrt)) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.EXS0003,
 					new Object[] { CommonConstants.Character.CONSTRUCTION_NAME });
@@ -361,7 +348,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 	 */
 	private void chkExistCstrtNameWhenEditing(ConstructionReqDto constructionReqDto, ConstructionEntity curConstruction)
 			throws BestWorkBussinessException {
-		ConstructionEntity existedCstrt = constructionRepository.findByName(constructionReqDto.getConstructionName());
+		ConstructionEntity existedCstrt = cstrtRepo.findByName(constructionReqDto.getConstructionName());
 		if (!ObjectUtils.isEmpty(existedCstrt)
 				&& !curConstruction.getConstructionName().equals(existedCstrt.getConstructionName())) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.EXS0003,
@@ -378,9 +365,9 @@ public class ConstructionServiceImpl implements IConstructionService {
 	 * @throws BestWorkBussinessException
 	 */
 	@Override
-	public ConstructionResDto findConstructionById(long constructionId) throws BestWorkBussinessException {
+	public ConstructionResDto findCstrtResById(long constructionId) throws BestWorkBussinessException {
 		UserAuthDetected userAuthRoleReq = this.getUserAuthRoleReq();
-		Optional<ConstructionEntity> constructionOpt = constructionRepository.findById(constructionId);
+		Optional<ConstructionEntity> constructionOpt = cstrtRepo.findById(constructionId);
 		if (!constructionOpt.isPresent()) {
 			return null;
 		}
@@ -388,22 +375,22 @@ public class ConstructionServiceImpl implements IConstructionService {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
 		}
 
-		ConstructionResDto constructionResDto = transferConstructionToResDto(constructionOpt.get());
+		ConstructionResDto cstrtResDto = trsferCstrtToResDto(constructionOpt.get());
 
-		return constructionResDto;
+		return cstrtResDto;
 	}
 
-	private ConstructionResDto transferConstructionToResDto(ConstructionEntity cstrt) {
-		ConstructionResDto constructionResDto = new ConstructionResDto();
-		constructionResDto.setId(cstrt.getId());
-		constructionResDto.setConstructionName(cstrt.getConstructionName());
-		constructionResDto.setDescription(cstrt.getDescription());
-		constructionResDto.setLocation(cstrt.getLocation());
-		constructionResDto.setStartDate(cstrt.getStartDate());
-		constructionResDto.setEndDate(cstrt.getEndDate());
-		constructionResDto.setCreateBy(cstrt.getCreateBy());
-		constructionResDto.setStatus(cstrt.getStatus());
-		constructionResDto.setProjectCode(cstrt.getProjectCode());
+	private ConstructionResDto trsferCstrtToResDto(ConstructionEntity cstrt) {
+		ConstructionResDto cstrtResDto = new ConstructionResDto();
+		cstrtResDto.setId(cstrt.getId());
+		cstrtResDto.setConstructionName(cstrt.getConstructionName());
+		cstrtResDto.setDescription(cstrt.getDescription());
+		cstrtResDto.setLocation(cstrt.getLocation());
+		cstrtResDto.setStartDate(cstrt.getStartDate());
+		cstrtResDto.setEndDate(cstrt.getEndDate());
+		cstrtResDto.setCreateBy(cstrt.getCreateBy());
+		cstrtResDto.setStatus(cstrt.getStatus());
+		cstrtResDto.setProjectCode(cstrt.getProjectCode());
 		List<AirWayBillResDto> awbCodes = new ArrayList<>();
 		for (AirWayBill airWayBill : cstrt.getAirWayBills()) {
 			AirWayBillResDto dto = new AirWayBillResDto();
@@ -412,25 +399,25 @@ public class ConstructionServiceImpl implements IConstructionService {
 			awbCodes.add(dto);
 		}
 
-		constructionResDto.setAwbCodes(awbCodes);
+		cstrtResDto.setAwbCodes(awbCodes);
 
-		List<FileStorageResDto> fileStorageResponseDtos = new ArrayList<>();
+		List<FileStorageResDto> fsResDtos = new ArrayList<>();
 		for (FileStorageEntity file : cstrt.getFileStorages()) {
-			FileStorageResDto fileStorageResponseDto = new FileStorageResDto();
-			fileStorageResponseDto.setId(file.getId());
-			fileStorageResponseDto.setName(file.getName());
-			fileStorageResponseDto.setCreateDate(file.getCreateDate().toString());
-			fileStorageResponseDto.setType(file.getType());
-			fileStorageResponseDto.setChoosen(file.isChoosen());
+			FileStorageResDto fsResDto = new FileStorageResDto();
+			fsResDto.setId(file.getId());
+			fsResDto.setName(file.getName());
+			fsResDto.setCreateDate(file.getCreateDate().toString());
+			fsResDto.setType(file.getType());
+			fsResDto.setChoosen(file.isChoosen());
 			if (Arrays.asList(CommonConstants.Image.IMAGE_EXTENSION).contains(file.getType())) {
 				String pathServer = file.getPathFileServer();
 				byte[] imageContent = sftpFileService.getFile(pathServer);
-				fileStorageResponseDto.setContent(imageContent);
+				fsResDto.setContent(imageContent);
 			}
-			fileStorageResponseDtos.add(fileStorageResponseDto);
+			fsResDtos.add(fsResDto);
 		}
-		constructionResDto.setFileStorages(fileStorageResponseDtos);
-		return constructionResDto;
+		cstrtResDto.setFileStorages(fsResDtos);
+		return cstrtResDto;
 	}
 
 	/**
@@ -440,15 +427,20 @@ public class ConstructionServiceImpl implements IConstructionService {
 	 * @return ProjectEntity
 	 */
 	private ProjectEntity getPrjByCurCstrt(long constructionId) {
-		ProjectEntity project = this.projectService.getProjectByConstructionId(constructionId);
+		ProjectEntity project = this.projectService.getPrjByCstrtId(constructionId);
 		return project;
 	}
 
-	private Boolean chkCurUserCanCreateCstrt(UserAuthDetected userAuthDetected, ConstructionReqDto cstrtReqDto)
+	public Boolean chkCurUserCanCreateCstrt(UserAuthDetected userAuthDetected, String prjCode)
 			throws BestWorkBussinessException {
 		UserEntity curUser = this.userService.findUserByUsername(userAuthDetected.getUsername());
-		AssignTaskEntity curAssign = this.assignTaskRepository.findByProjectIdAndUserId(cstrtReqDto.getProjectCode(),
-				curUser.getId());
+		if(curUser == null) {
+			return false;
+		}
+		AssignTaskEntity curAssign = this.assignTaskRepo.findByProjectIdAndUserId(prjCode, curUser.getId());
+		if(curAssign == null) {
+			return false;
+		}
 		if (userAuthDetected.getIsContractor() && curAssign.isCanEdit()) {
 			return true;
 		}
@@ -465,7 +457,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 	 */
 	private Boolean chkCurUserCanViewCstrt(long constructionId, UserAuthDetected userAuthRoleReq) {
 		ProjectEntity curPrj = this.getPrjByCurCstrt(constructionId);
-		List<ProjectEntity> prjLstCurUserCanView = this.getPrjLstByAnyUsername(userAuthRoleReq);
+		List<ProjectEntity> prjLstCurUserCanView = this.projectService.getPrjLstByAnyUsername(userAuthRoleReq);
 		if (prjLstCurUserCanView.contains(curPrj)) {
 			return true;
 		}
@@ -498,7 +490,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 			List<MultipartFile> drawings) throws BestWorkBussinessException {
 		UserAuthDetected userAuthRoleReq = this.getUserAuthRoleReq();
 		String curUsername = userAuthRoleReq.getUsername();
-		Optional<ConstructionEntity> constructionOpt = constructionRepository.findById(constructionId);
+		Optional<ConstructionEntity> constructionOpt = cstrtRepo.findById(constructionId);
 		if (!constructionOpt.isPresent()) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
 		}
@@ -507,11 +499,11 @@ public class ConstructionServiceImpl implements IConstructionService {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
 		}
 		chkExistCstrtNameWhenEditing(constructionReqDto, curConstruction);
-		validateConstructionInfo(constructionReqDto);
-		transferDtoToConstruction(constructionReqDto, curConstruction);
+		validateCstrtInfo(constructionReqDto);
+		trsferDtoToCstrt(constructionReqDto, curConstruction);
 
 		try {
-			curConstruction = this.constructionRepository.save(curConstruction);
+			curConstruction = this.cstrtRepo.save(curConstruction);
 
 			if (!sftpFileService.isValidFile(drawings)) {
 				throw new BestWorkBussinessException(CommonConstants.MessageCode.eF0002, null);
@@ -535,28 +527,33 @@ public class ConstructionServiceImpl implements IConstructionService {
 		UserAuthDetected userAuthRoleReq = this.getUserAuthRoleReq();
 		String curUsername = userAuthRoleReq.getUsername();
 		long[] ids = constructionIds.getListId();
-		List<ConstructionEntity> constructionList = constructionRepository.findByIds(ids);
-		for (ConstructionEntity construction : constructionList) {
+		List<ConstructionEntity> cstrtList = cstrtRepo.findByIds(ids);
+		for (ConstructionEntity construction : cstrtList) {
 			if (!chkCurUserCanEditDelCstrt(construction, curUsername)) {
 				throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
 			}
 		}
-		if (constructionList == null) {
+		if (cstrtList == null) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.ECS0005, null);
 		}
-		if (constructionList.contains(null)) {
+		if (cstrtList.contains(null)) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.ECS0006, null);
 		}
-		this.constructionRepository.deleteAll(constructionList);
+		this.cstrtRepo.deleteAll(cstrtList);
 	}
 
 	@Override
 	public ConstructionEntity findCstrtById(long constructionId) {
-		Optional<ConstructionEntity> cstrtOpt = this.constructionRepository.findById(constructionId);
+		Optional<ConstructionEntity> cstrtOpt = this.cstrtRepo.findById(constructionId);
 		if (!cstrtOpt.isPresent()) {
 			return null;
 		} else {
 			return cstrtOpt.get();
 		}
+	}
+
+	@Override
+	public ConstructionEntity findCstrtByPrgId(Long progressId) {
+		return this.cstrtRepo.findByProgressId(progressId);
 	}
 }

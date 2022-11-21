@@ -25,7 +25,7 @@ public interface IProgressService {
 
 	ProgressResDto getProgressById(Long progressId) throws BestWorkBussinessException;
 
-	List<Long> getAllProgressByProject(List<String> listProjectId) throws BestWorkBussinessException;
+//	List<Long> getAllProgressByProject(List<String> listProjectId) throws BestWorkBussinessException;
 
 	ProgressAndConstructionResDto getProgressByConstruction(String constructionId) throws BestWorkBussinessException;
 }

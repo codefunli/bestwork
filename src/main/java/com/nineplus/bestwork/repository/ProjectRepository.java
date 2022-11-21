@@ -20,7 +20,7 @@ import com.nineplus.bestwork.entity.ProjectEntity;
 public interface ProjectRepository extends JpaRepository<ProjectEntity, String> {
 
 	@Query(value = " select id from PROJECT order by id desc limit 1 ", nativeQuery = true)
-	String getLastProjectIdString();
+	String getLastPrjId();
 
 	@Query(value = " delete from PROJECT where id in :id ", nativeQuery = true)
 	@Modifying
@@ -33,16 +33,16 @@ public interface ProjectRepository extends JpaRepository<ProjectEntity, String> 
 	ProjectEntity findbyProjectId(@Param("id") String id);
 
 	@Query(value = "SELECT prj.id FROM PROJECT prj JOIN ASSIGN_TASK ast ON prj.id = ast.project_id where ast.company_id in ?1 ", nativeQuery = true)
-	List<String> getAllProjectIdByCompany(List<Long> listCompanyId);
+	List<String> getAllPrjIdByComp(List<Long> listCompanyId);
 
 	@Query(value = "Select tc.id as companyId, tc.company_name as companyName, tus.user_name as userName, tus.id as userId, 'false' as canView ,'false' as canEdit from T_SYS_APP_USER tus JOIN T_COMPANY_USER tcu ON tus.id = tcu.user_id JOIN T_COMPANY tc on tcu.company_id = tc.id WHERE tcu.company_id = ?1", nativeQuery = true)
-	List<ProjectAssignRepository> GetCompanyAndRoleUserByCompanyId(Long companyId);
+	List<ProjectAssignRepository> getCompAndRoleUserByCompId(Long companyId);
 
 	@Query(value = "Select tus.user_name as userName, ast.user_id as userId, ast.can_view as canView , ast.can_edit as canEdit from ASSIGN_TASK ast JOIN PROJECT pr ON ast.project_id = pr.id JOIN T_SYS_APP_USER tus ON tus.id = ast.user_id  WHERE ast.company_id = ?1 AND ast.project_id = ?2", nativeQuery = true)
-	List<ProjectAssignRepository> GetCompanyAndRoleUserByCompanyAndProject(Long companyId, String projectId);
+	List<ProjectAssignRepository> getCompAndRoleUserByCompAndPrj(Long companyId, String projectId);
 
 	@Query(value = "Select ast.company_id as companyId, tc.company_name as companyName, tus.user_name as userName, ast.user_id as userId, ast.can_view as canView , ast.can_edit as canEdit from T_COMPANY tc join ASSIGN_TASK ast ON tc.id = ast.company_id JOIN PROJECT pr ON ast.project_id = pr.id JOIN T_SYS_APP_USER tus ON tus.id = ast.user_id WHERE ast.project_id = :projectId", nativeQuery = true)
-	List<ProjectAssignRepository> GetCompanyAndRoleUserByProject(String projectId);
+	List<ProjectAssignRepository> getCompAndRoleUserByPrj(String projectId);
 
 	@Query(value = " select * from PROJECT where create_by = :curUsername", nativeQuery = true)
 	List<ProjectEntity> findPrjCreatedByCurUser(@Param("curUsername") String curUsername);
@@ -102,7 +102,7 @@ public interface ProjectRepository extends JpaRepository<ProjectEntity, String> 
 					+ " or p.`description` like :#{#pageSearchDto.keyword})"
 					+ " and p.`status` like if ( :#{#pageSearchDto.status} = -1, '%%', :#{#pageSearchDto.status})) "
 					+ " group by p.id ")
-	Page<ProjectEntity> getProjectsInvolvedByCurrentUser(@Param("curUsername") String curUsername,
+	Page<ProjectEntity> getPrjInvolvedByCurUser(@Param("curUsername") String curUsername,
 			@Param("pageSearchDto") PageSearchDto pageSearchDto, Pageable pageable);
 
 	@Query(value = " select * from PROJECT p " + " join T_SYS_APP_USER u on p.create_by = u.user_name "

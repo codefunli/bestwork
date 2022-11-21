@@ -14,11 +14,11 @@ import com.nineplus.bestwork.exception.BestWorkBussinessException;
  */
 public interface NotificationService {
 
-	List<NotificationResDto> getAllNotificationsByUser() throws BestWorkBussinessException;
+	List<NotificationResDto> getAllNotifyByUser() throws BestWorkBussinessException;
 
 	Optional<NotificationEntity> findById(long notifId);
 
-	NotificationEntity changeNotificationReadingStatus(NotificationEntity notification)
+	NotificationEntity chgNotifyReadStatus(NotificationEntity notification)
 			throws BestWorkBussinessException;
 
 	void createNotification(NotificationReqDto notificationReqDto) throws BestWorkBussinessException;
