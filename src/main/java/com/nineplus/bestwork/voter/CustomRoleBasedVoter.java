@@ -1,11 +1,16 @@
 package com.nineplus.bestwork.voter;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.servlet.ServletContext;
 
+import com.nineplus.bestwork.entity.SysPermissionEntity;
+import com.nineplus.bestwork.exception.BestWorkBussinessException;
+import com.nineplus.bestwork.services.PermissionService;
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.core.Authentication;
@@ -22,6 +27,8 @@ import com.nineplus.bestwork.utils.CommonConstants;
 
 public class CustomRoleBasedVoter implements AccessDecisionVoter<FilterInvocation> {
     private SysActionService sysActionService;
+
+    private PermissionService permissionService;
     public static String[] PUBLIC_URL;
 
     public CustomRoleBasedVoter(String[] PUBLIC_URL_LIST) {
@@ -42,7 +49,7 @@ public class CustomRoleBasedVoter implements AccessDecisionVoter<FilterInvocatio
 
     @Override
     public int vote(Authentication authentication, FilterInvocation fi, Collection<ConfigAttribute> attributes) {
-        String url = fi.getRequestUrl().split("\\?")[0].split(CommonConstants.ApiPath.BASE_PATH)[1];
+        String url = fi.getRequestUrl().split("\\?")[0];
 //        TO_DO
 //        String controllerPath = url.substring(0, url.indexOf("/", 1) - 1);
         String methodType = fi.getRequest().getMethod();
@@ -50,28 +57,74 @@ public class CustomRoleBasedVoter implements AccessDecisionVoter<FilterInvocatio
             ServletContext servletContext = fi.getRequest().getServletContext();
             WebApplicationContext webApplicationContext = WebApplicationContextUtils.getWebApplicationContext(servletContext);
             sysActionService = webApplicationContext.getBean(SysActionService.class);
+            permissionService = webApplicationContext.getBean(PermissionService.class);
         }
         fi.getHttpRequest().getMethod();
         List<String> roleNames = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
         List<SysActionEntity> actionList = sysActionService.getSysActionBySysRole(roleNames, methodType);
+        SysActionEntity actionCheck = null;
+        UriTemplate uriTemplate;
+        List<Integer> lstStt = new ArrayList<>();
+        lstStt.add(Status.ACTIVE.getValue());
         if (!actionList.isEmpty()) {
-            if (actionList.stream().anyMatch(sysAction -> {
-                UriTemplate uriTemplate = new UriTemplate(sysAction.getUrl());
-                Map<String, String> parameters = uriTemplate.match(url);
-                boolean isPublicUrl = false;
-                for (String publicUrl : PUBLIC_URL) {
-                    uriTemplate = new UriTemplate(publicUrl);
-                    if (!uriTemplate.match(url).isEmpty()) {
-                        isPublicUrl = true;
-                        break;
+            for (SysActionEntity action: actionList) {
+                uriTemplate = new UriTemplate(action.getUrl());
+                if (!uriTemplate.match(url).isEmpty()) {
+                    actionCheck = action;
+                    break;
+                }
+            }
+        }
+        if (actionCheck != null) {
+            try {
+                List<SysPermissionEntity> permissionEntities = permissionService.getPermissionsByRole(roleNames, lstStt, actionCheck.getId());
+                if (!permissionEntities.isEmpty()) {
+                    SysPermissionEntity sysPermission = permissionEntities.get(0);
+                    switch (actionCheck.getActionType()) {
+                        case ADD -> {
+                            if (sysPermission.getCanAdd()) {
+                                return ACCESS_GRANTED;
+                            }
+                            return ACCESS_DENIED;
+                        }
+                        case VIEW -> {
+                            if (sysPermission.getCanAccess()) {
+                                return ACCESS_GRANTED;
+                            }
+                            return ACCESS_DENIED;
+                        }
+                        case EDIT -> {
+                            if (sysPermission.getCanEdit()) {
+                                return ACCESS_GRANTED;
+                            }
+                            return ACCESS_DENIED;
+                        }
+                        case DELETE -> {
+                            if (sysPermission.getCanDelete()) {
+                                return ACCESS_GRANTED;
+                            }
+                            return ACCESS_DENIED;
+                        }
+                        default -> {
+                            return ACCESS_DENIED;
+                        }
                     }
                 }
-                return ((!parameters.isEmpty() && sysAction.getStatus().equals(Status.ACTIVE))
-                        || url.equals(sysAction.getUrl()) || isPublicUrl);
-            })) {
-                return ACCESS_GRANTED;
+            } catch (BestWorkBussinessException e) {
+                throw new RuntimeException(e);
             }
         }
         return ACCESS_DENIED;
+    }
+
+    boolean isWhiteList(String url) {
+        UriTemplate uriTemplate;
+        for (String publicUrl : PUBLIC_URL) {
+            uriTemplate = new UriTemplate(publicUrl);
+            if (!uriTemplate.match(url).isEmpty()) {
+                return true;
+            }
+        }
+        return false;
     }
 }
