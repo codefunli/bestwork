@@ -21,7 +21,7 @@ public interface IAirWayBillService {
 
 	CustomClearanceResDto getCustomClearanceDoc(String code) throws BestWorkBussinessException;
 
-	void createZipFolder(String code) throws BestWorkBussinessException;
+	List<String> createZipFolder(String code) throws BestWorkBussinessException;
 
 	void changeStatus(String code, int destinationStatus) throws BestWorkBussinessException;
 

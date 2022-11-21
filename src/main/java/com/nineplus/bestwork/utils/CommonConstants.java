@@ -32,6 +32,8 @@ public class CommonConstants {
 		public static final String MEDIA_TYPE_STREAM = "application/octet-stream";
 
 		public static final String MEDIA_TYPE_PDF = "application/pdf";
+		
+		public static final String MEDIA_TYPE_ZIP = "application/zip";
 
 		/** The Constant CONTENT_DISPOSITION. */
 		public static final String CONTENT_DISPOSITION = "attachment;filename=";
