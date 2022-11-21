@@ -88,11 +88,6 @@ public class PermissionService {
                 logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0014, null));
                 throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
             }
-//            Converter<String, Integer> classificationConverter =
-//                    ctx -> ctx.getSource() == null ? null : Status.getStatusEnum(ctx.getSource());
-//            modelMapper.typeMap(SysPermissionEntity.class, PermissionResDto.class)
-//                    .addMappings(mapper -> mapper.using(classificationConverter)
-//                            .map(SysPermissionEntity::getStatus, PermissionResDto::setStatus));
             List<PermissionResDto> sysPermissions = dto.getMonitorInfo().stream().map(permissionDto -> {
                         SysPermissionEntity sysPermission = new SysPermissionEntity();
                         SysMonitorEntity sysMonitor = new SysMonitorEntity();
@@ -153,11 +148,12 @@ public class PermissionService {
     }
     public Map<Long, List<PermissionResDto>> getMapPermissions(List<String> roleList, List<Integer> lstStt) throws BestWorkBussinessException {
         Map<Long,List<PermissionResDto>> mapPermission = new HashMap<>();
-        List<SysPermissionEntity> sysPermissionEntities = this.getPermissionsByRole(roleList, lstStt);
+        List<SysPermissionEntity> sysPermissionEntities = this.getPermissionsByRole(roleList, lstStt, null);
         sysPermissionEntities.forEach(sysPermissionEntity -> {
             PermissionResDto permissionResDto = objectMapper.convertValue(sysPermissionEntity, PermissionResDto.class);
             permissionResDto.setMonitorName(sysPermissionEntity.getSysMonitor().getName());
             permissionResDto.setMonitorId(sysPermissionEntity.getSysMonitor().getId());
+            permissionResDto.setRoleId(sysPermissionEntity.getSysRole().getId());
             if (mapPermission.containsKey(sysPermissionEntity.getSysMonitor().getId())) {
                 mapPermission.get(sysPermissionEntity.getSysMonitor().getId()).add(permissionResDto);
             } else {
@@ -168,8 +164,8 @@ public class PermissionService {
         });
         return mapPermission;
     }
-    public List<SysPermissionEntity> getPermissionsByRole(List<String> roleName, List<Integer> lstStt) throws BestWorkBussinessException {
-        return permissionRepository.findAllBySysRole_RoleName(roleName, lstStt);
+    public List<SysPermissionEntity> getPermissionsByRole(List<String> roleName, List<Integer> lstStt, Long actionId) throws BestWorkBussinessException {
+        return permissionRepository.findAllBySysRole_RoleName(roleName, lstStt, actionId);
     }
 
     public PageResDto<PermissionResDto> getPermissions(SearchDto dto) throws BestWorkBussinessException {
