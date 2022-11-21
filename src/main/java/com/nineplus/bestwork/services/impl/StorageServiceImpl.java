@@ -98,6 +98,7 @@ public class StorageServiceImpl implements IStorageService {
 			image.setName(generatedFileName);
 			image.setType(getImageType(file.getData()));
 			image.setCreateDate(Timestamp.valueOf(LocalDateTime.now()));
+			image.setPathFileServer("progress test");
 
 			return storageRepository.save(image);
 		} catch (Exception e) {

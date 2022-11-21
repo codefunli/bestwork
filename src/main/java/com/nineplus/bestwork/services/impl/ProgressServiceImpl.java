@@ -10,15 +10,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.nineplus.bestwork.dto.ConstructionResDto;
 import com.nineplus.bestwork.dto.FileStorageReqDto;
 import com.nineplus.bestwork.dto.FileStorageResDto;
-import com.nineplus.bestwork.dto.ProgressAndProjectResDto;
+import com.nineplus.bestwork.dto.ProgressAndConstructionResDto;
 import com.nineplus.bestwork.dto.ProgressReqDto;
 import com.nineplus.bestwork.dto.ProgressResDto;
-import com.nineplus.bestwork.dto.ProjectResDto;
 import com.nineplus.bestwork.entity.FileStorageEntity;
 import com.nineplus.bestwork.entity.ProgressEntity;
-import com.nineplus.bestwork.entity.ProjectEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.model.UserAuthDetected;
 import com.nineplus.bestwork.repository.ProgressRepository;
@@ -26,7 +25,6 @@ import com.nineplus.bestwork.repository.ProjectRepository;
 import com.nineplus.bestwork.repository.StorageRepository;
 import com.nineplus.bestwork.services.IConstructionService;
 import com.nineplus.bestwork.services.IProgressService;
-import com.nineplus.bestwork.services.IProjectService;
 import com.nineplus.bestwork.services.IStorageService;
 import com.nineplus.bestwork.utils.CommonConstants;
 import com.nineplus.bestwork.utils.DateUtils;
@@ -55,7 +53,6 @@ public class ProgressServiceImpl implements IProgressService {
 
 	@Autowired
 	private IStorageService storageService;
-
 
 	@Autowired
 	private IConstructionService constructionService;
@@ -90,9 +87,8 @@ public class ProgressServiceImpl implements IProgressService {
 			progress.setEndDate(endDt);
 			progress.setCreateDate(LocalDateTime.now());
 			if (!isEdit) {
-			
-//				progress.setProject(projectService.getProjectById(progressReqDto.getProjectId()).get());
-				progress.setConstruction(constructionService.findCstrtById(progressReqDto.getConstructionId()));
+				long constructionId = Long.valueOf(progressReqDto.getConstructionId());
+				progress.setConstruction(constructionService.findCstrtById(constructionId));
 				progress.setCreateBy(createUser);
 			} else {
 				progress.setUpdateBy(createUser);
@@ -135,8 +131,8 @@ public class ProgressServiceImpl implements IProgressService {
 	}
 
 	@Override
-	public List<ProgressResDto> getProgressByProjectId(String projectId) throws BestWorkBussinessException {
-		List<ProgressEntity> progress = progressRepository.findProgressByProjectId(projectId);
+	public List<ProgressResDto> getProgressByConstructionId(Long cstrtId) throws BestWorkBussinessException {
+		List<ProgressEntity> progress = progressRepository.findProgressByCstrtId(cstrtId);
 		List<ProgressResDto> progressDto = new ArrayList<>();
 		for (ProgressEntity pro : progress) {
 			ProgressResDto proDto = new ProgressResDto();
@@ -164,47 +160,6 @@ public class ProgressServiceImpl implements IProgressService {
 			progressDto.add(proDto);
 		}
 		return progressDto;
-	}
-
-	@Override
-	public ProgressAndProjectResDto getProjectAndProgress(String projectId) throws BestWorkBussinessException {
-		ProgressAndProjectResDto dto = new ProgressAndProjectResDto();
-		List<ProgressResDto> lst = new ArrayList<>();
-		ProjectEntity project = projectRepository.findbyProjectId(projectId);
-		List<ProgressEntity> progress = progressRepository.findProgressByProjectId(projectId);
-
-		if (project != null && progress != null) {
-			ProjectResDto projectDto = modelMapper.map(project, ProjectResDto.class);
-			for (ProgressEntity prog : progress) {
-				ProgressResDto progressDto = new ProgressResDto();
-				List<FileStorageResDto> lstFileDto = new ArrayList<>();
-				progressDto.setId(prog.getId());
-				progressDto.setTitle(prog.getTitle());
-				progressDto.setStatus(prog.getStatus());
-				progressDto.setNote(prog.getNote());
-				progressDto.setReport(prog.getReport());
-				progressDto.setCreateBy(prog.getCreateBy());
-				progressDto.setStartDate(prog.getStartDate());
-				progressDto.setEndDate(prog.getEndDate());
-				progressDto.setCreateDate(LocalDateTime.now().toString());
-				List<FileStorageEntity> fileStorages = prog.getFileStorages();
-				for (FileStorageEntity file : fileStorages) {
-					FileStorageResDto fileDto = new FileStorageResDto();
-					fileDto.setProgressId(file.getProgress().getId());
-					fileDto.setId(file.getId());
-					fileDto.setName(file.getName());
-					fileDto.setType(file.getType());
-					fileDto.setData(new String(file.getData()));
-					fileDto.setCreateDate(file.getCreateDate().toString());
-					lstFileDto.add(fileDto);
-				}
-				progressDto.setFileStorages(lstFileDto);
-				lst.add(progressDto);
-			}
-			dto.setProject(projectDto);
-			dto.setProgress(lst);
-		}
-		return dto;
 	}
 
 	@Override
@@ -261,5 +216,44 @@ public class ProgressServiceImpl implements IProgressService {
 			listProgressId = progressRepository.getAllProgressByProject(listProjectId);
 		}
 		return listProgressId;
+	}
+
+	@Override
+	public ProgressAndConstructionResDto getProgressByConstruction(String constructionId)
+			throws BestWorkBussinessException {
+		ProgressAndConstructionResDto dto = new ProgressAndConstructionResDto();
+		List<ProgressEntity> progress = progressRepository.findProgressByCstrtId(Long.valueOf(constructionId));
+		List<ProgressResDto> progressDtoList = new ArrayList<ProgressResDto>();
+		if (progress != null) {
+			for (ProgressEntity prog : progress) {
+				ProgressResDto progressDto = new ProgressResDto();
+				List<FileStorageResDto> lstFileDto = new ArrayList<>();
+				progressDto.setId(prog.getId());
+				progressDto.setTitle(prog.getTitle());
+				progressDto.setStatus(prog.getStatus());
+				progressDto.setNote(prog.getNote());
+				progressDto.setReport(prog.getReport());
+				progressDto.setCreateBy(prog.getCreateBy());
+				progressDto.setStartDate(prog.getStartDate());
+				progressDto.setEndDate(prog.getEndDate());
+				progressDto.setCreateDate(LocalDateTime.now().toString());
+				List<FileStorageEntity> fileStorages = prog.getFileStorages();
+				for (FileStorageEntity file : fileStorages) {
+					FileStorageResDto fileDto = new FileStorageResDto();
+					fileDto.setProgressId(file.getProgress().getId());
+					fileDto.setId(file.getId());
+					fileDto.setName(file.getName());
+					fileDto.setType(file.getType());
+					fileDto.setData(new String(file.getData()));
+					fileDto.setCreateDate(file.getCreateDate().toString());
+					lstFileDto.add(fileDto);
+				}
+				progressDto.setFileStorages(lstFileDto);
+				progressDtoList.add(progressDto);
+			}
+			dto.setConstruction(modelMapper.map(progress.get(0).getConstruction(), ConstructionResDto.class));
+			dto.setProgress(progressDtoList);
+		}
+		return dto;
 	}
 }

@@ -82,7 +82,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 
 	@Autowired
 	private UserService userService;
-	
+
 	@Autowired
 	ModelMapper modelMapper;
 
@@ -400,6 +400,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 		constructionResDto.setDescription(cstrt.getDescription());
 		constructionResDto.setLocation(cstrt.getLocation());
 		constructionResDto.setStartDate(cstrt.getStartDate());
+		constructionResDto.setEndDate(cstrt.getEndDate());
 		constructionResDto.setCreateBy(cstrt.getCreateBy());
 		constructionResDto.setStatus(cstrt.getStatus());
 		constructionResDto.setProjectCode(cstrt.getProjectCode());
@@ -410,7 +411,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 			dto.setStatus(AirWayBillStatus.convertIntToStatus(airWayBill.getStatus()));
 			awbCodes.add(dto);
 		}
-		
+
 		constructionResDto.setAwbCodes(awbCodes);
 
 		List<FileStorageResDto> fileStorageResponseDtos = new ArrayList<>();
@@ -432,7 +433,6 @@ public class ConstructionServiceImpl implements IConstructionService {
 		return constructionResDto;
 	}
 
-	
 	/**
 	 * Private function: get project that contains the current construction
 	 * 

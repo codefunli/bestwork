@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.nineplus.bestwork.dto.ProgressAndProjectResDto;
+import com.nineplus.bestwork.dto.ProgressAndConstructionResDto;
 import com.nineplus.bestwork.dto.ProgressListReqDto;
 import com.nineplus.bestwork.dto.ProgressReqDto;
 import com.nineplus.bestwork.dto.ProgressResDto;
@@ -52,16 +52,27 @@ public class ProgressController extends BaseController {
 		return success(CommonConstants.MessageCode.sPu00002, null, null);
 	}
 
-	@GetMapping("by/project/{projectId}")
-	public ResponseEntity<? extends Object> getAllProgressByCompanyId(@PathVariable String projectId)
-			throws BestWorkBussinessException {
-		ProgressAndProjectResDto progressAndProjectDto = null;
+//	@GetMapping("by/project/{projectId}")
+//	public ResponseEntity<? extends Object> getAllProgressByCompanyId(@PathVariable String projectId)
+//			throws BestWorkBussinessException {
+//		ProgressAndProjectResDto progressAndProjectDto = null;
+//		try {
+//			progressAndProjectDto = progressService.getProjectAndProgress(projectId);
+//		} catch (BestWorkBussinessException ex) {
+//			return failed(ex.getMsgCode(), ex.getParam());
+//		}
+//		return success(CommonConstants.MessageCode.sPu00003, progressAndProjectDto, null);
+//	}
+
+	@GetMapping("/by/construction/{constructionId}")
+	public ResponseEntity<? extends Object> getAllProgressByConstruction(@PathVariable String constructionId) {
+		ProgressAndConstructionResDto progressAndConstructionDto = null;
 		try {
-			progressAndProjectDto = progressService.getProjectAndProgress(projectId);
+			progressAndConstructionDto = progressService.getProgressByConstruction(constructionId);
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}
-		return success(CommonConstants.MessageCode.sPu00003, progressAndProjectDto, null);
+		return success(CommonConstants.MessageCode.sPu00003, progressAndConstructionDto, null);
 	}
 
 	@PostMapping("/delete")
