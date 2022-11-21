@@ -42,13 +42,13 @@ public class PermissionController extends BaseController {
     @GetMapping("/{id}")
     public ResponseEntity<? extends Object> getPermissions(@PathVariable Long id) throws BestWorkBussinessException {
         ResRoleDto role = roleService.getRole(id);
-        Map<Long, List<PermissionResDto>> mapResponse;
+        List<PermissionResDto> mapResponse;
         List<String> roleList = new ArrayList<>();
         roleList.add(role.getName());
         List<Integer> lstStt = new ArrayList<>();
         lstStt.add(Status.ACTIVE.getValue());
         try {
-            mapResponse = permissionService.getMapPermissions(roleList, lstStt);
+            mapResponse = permissionService.getMapPermissions(roleList, lstStt).values().stream().map(permissionResDtos -> permissionResDtos.get(0)).toList();
         } catch (BestWorkBussinessException ex) {
             return failed(ex.getMsgCode(), ex.getParam());
         }
