@@ -17,5 +17,5 @@ public interface AirWayBillRepository extends JpaRepository<AirWayBill, Long> {
 
 	@Modifying
 	@Query(value = "UPDATE AIRWAY_BILL SET status = :destinationStatus WHERE code = :airWayBillCode", nativeQuery = true)
-	void changeStatusToDone(String airWayBillCode, int destinationStatus);
+	void changeStatus(String airWayBillCode, int destinationStatus);
 }
