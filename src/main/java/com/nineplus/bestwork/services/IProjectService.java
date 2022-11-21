@@ -20,8 +20,7 @@ import com.nineplus.bestwork.repository.ProjectAssignRepository;
 
 public interface IProjectService {
 
-	public PageResDto<ProjectResDto> getProjectPage(PageSearchDto pageSearchDto)
-			throws BestWorkBussinessException;
+	public PageResDto<ProjectResDto> getProjectPage(PageSearchDto pageSearchDto) throws BestWorkBussinessException;
 
 	public PageResDto<ProjectResDto> getAllProjectPages(Pageable pageable) throws BestWorkBussinessException;
 
@@ -31,18 +30,22 @@ public interface IProjectService {
 
 	public void saveProject(ProjectTaskReqDto projectTaskDto, ProjectTypeEntity type) throws BestWorkBussinessException;
 
-	public void updateProject(ProjectTaskReqDto projectTaskDto,ProjectTypeEntity projectType, String projectId) throws BestWorkBussinessException;
+	public void updateProject(ProjectTaskReqDto projectTaskDto, ProjectTypeEntity projectType, String projectId)
+			throws BestWorkBussinessException;
 
-	public List<ProjectAssignRepository> getCompanyUserForAssign(AssignTaskReqDto assignTaskReqDto) throws BestWorkBussinessException;
+	public List<ProjectAssignRepository> getCompanyUserForAssign(AssignTaskReqDto assignTaskReqDto)
+			throws BestWorkBussinessException;
 
-	public Map<Long, List<ProjectRoleUserResDto>> getListAssign(AssignTaskReqDto assignTaskReqDto) throws BestWorkBussinessException;
+	public Map<Long, List<ProjectRoleUserResDto>> getListAssign(AssignTaskReqDto assignTaskReqDto)
+			throws BestWorkBussinessException;
 
 	boolean isExistedProjectId(String projectId);
-	
+
 	public ProjectResDto getDetailProject(String projectId) throws BestWorkBussinessException;
 
-	public void changeStatus(String projectId, ProjectStatusReqDto projectStatusReqDto) throws BestWorkBussinessException;
-	
+	public void changeStatus(String projectId, ProjectStatusReqDto projectStatusReqDto)
+			throws BestWorkBussinessException;
+
 	List<String> getAllProjectIdByCompany(List<Long> listCompanyId) throws BestWorkBussinessException;
 
 	public List<ProjectEntity> getProjectsBeingCreatedByCurrentUser(String curUsername);

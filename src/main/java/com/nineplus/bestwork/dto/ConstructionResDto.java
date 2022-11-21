@@ -2,8 +2,6 @@ package com.nineplus.bestwork.dto;
 
 import java.util.List;
 
-import com.nineplus.bestwork.entity.AirWayBill;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
