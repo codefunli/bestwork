@@ -44,7 +44,7 @@ public class ConstructionResDto {
 	private String projectCode;
 
 	@JsonProperty("awbCodes")
-	private List<String> awbCodes;
+	private List<AirWayBillResDto> awbCodes;
 
 	@JsonProperty("fileStorages")
 	private List<FileStorageResDto> fileStorages;

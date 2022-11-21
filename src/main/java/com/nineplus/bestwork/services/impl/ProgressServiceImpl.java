@@ -56,8 +56,6 @@ public class ProgressServiceImpl implements IProgressService {
 	@Autowired
 	private IStorageService storageService;
 
-	@Autowired
-	private IProjectService projectService;
 
 	@Autowired
 	private IConstructionService constructionService;
@@ -92,8 +90,7 @@ public class ProgressServiceImpl implements IProgressService {
 			progress.setEndDate(endDt);
 			progress.setCreateDate(LocalDateTime.now());
 			if (!isEdit) {
-
-/////				
+			
 //				progress.setProject(projectService.getProjectById(progressReqDto.getProjectId()).get());
 				progress.setConstruction(constructionService.findCstrtById(progressReqDto.getConstructionId()));
 				progress.setCreateBy(createUser);

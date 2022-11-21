@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.apache.commons.lang3.ObjectUtils;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,6 +17,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.nineplus.bestwork.dto.AirWayBillResDto;
 import com.nineplus.bestwork.dto.ConstructionListIdDto;
 import com.nineplus.bestwork.dto.ConstructionReqDto;
 import com.nineplus.bestwork.dto.ConstructionResDto;
@@ -80,6 +82,9 @@ public class ConstructionServiceImpl implements IConstructionService {
 
 	@Autowired
 	private UserService userService;
+	
+	@Autowired
+	ModelMapper modelMapper;
 
 	/**
 	 * Function: get page of constructions with condition
@@ -233,8 +238,8 @@ public class ConstructionServiceImpl implements IConstructionService {
 		construction.setStatus(constructionReqDto.getStatus());
 		construction.setProjectCode(constructionReqDto.getProjectCode());
 		List<AirWayBill> airWayBills = new ArrayList<>();
-		for (String code : constructionReqDto.getAwbCodes()) {
-			AirWayBill awb = this.airWayBillService.findByCode(code);
+		for (AirWayBillResDto dto : constructionReqDto.getAwbCodes()) {
+			AirWayBill awb = this.airWayBillService.findByCode(dto.getCode());
 			airWayBills.add(awb);
 		}
 		construction.setAirWayBills(airWayBills);
@@ -249,7 +254,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 	 */
 	private void validateConstructionInfo(ConstructionReqDto constructionReqDto) throws BestWorkBussinessException {
 		String constructionName = constructionReqDto.getConstructionName();
-		String[] awbCodes = constructionReqDto.getAwbCodes();
+		List<AirWayBillResDto> awbCodes = constructionReqDto.getAwbCodes();
 
 		// Check construction name: not blank
 		if (ObjectUtils.isEmpty(constructionName)) {
@@ -281,7 +286,8 @@ public class ConstructionServiceImpl implements IConstructionService {
 
 		// Check existence of AWB codes
 		Set<ProjectEntity> projectSetContainingAWBs = new HashSet<>();
-		for (String code : awbCodes) {
+		for (AirWayBillResDto awbResdto : awbCodes) {
+			String code = awbResdto.getCode();
 			AirWayBill airWayBill = this.airWayBillService.findByCode(code);
 			if (ObjectUtils.isEmpty(airWayBill)) {
 				throw new BestWorkBussinessException(CommonConstants.MessageCode.EXS0004,
@@ -318,8 +324,9 @@ public class ConstructionServiceImpl implements IConstructionService {
 	 * @param awbCodes
 	 * @return true/false
 	 */
-	private Boolean checkAWBStatus(String[] awbCodes) {
-		for (String code : awbCodes) {
+	private Boolean checkAWBStatus(List<AirWayBillResDto> awbCodes) {
+		for (AirWayBillResDto awbResDto : awbCodes) {
+			String code = awbResDto.getCode();
 			AirWayBill airWayBill = this.airWayBillService.findByCode(code);
 			if (AirWayBillStatus.values()[airWayBill.getStatus()].equals(AirWayBillStatus.DONE)) {
 				return true;
@@ -396,10 +403,14 @@ public class ConstructionServiceImpl implements IConstructionService {
 		constructionResDto.setCreateBy(cstrt.getCreateBy());
 		constructionResDto.setStatus(cstrt.getStatus());
 		constructionResDto.setProjectCode(cstrt.getProjectCode());
-		List<String> awbCodes = new ArrayList<>();
+		List<AirWayBillResDto> awbCodes = new ArrayList<>();
 		for (AirWayBill airWayBill : cstrt.getAirWayBills()) {
-			awbCodes.add(airWayBill.getCode());
+			AirWayBillResDto dto = new AirWayBillResDto();
+			dto = modelMapper.map(airWayBill, AirWayBillResDto.class);
+			dto.setStatus(AirWayBillStatus.convertIntToStatus(airWayBill.getStatus()));
+			awbCodes.add(dto);
 		}
+		
 		constructionResDto.setAwbCodes(awbCodes);
 
 		List<FileStorageResDto> fileStorageResponseDtos = new ArrayList<>();
@@ -421,6 +432,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 		return constructionResDto;
 	}
 
+	
 	/**
 	 * Private function: get project that contains the current construction
 	 * 
