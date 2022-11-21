@@ -39,6 +39,8 @@ public interface IProjectService {
 	public Map<Long, List<ProjectRoleUserResDto>> getListAssign(AssignTaskReqDto assignTaskReqDto)
 			throws BestWorkBussinessException;
 
+	boolean isExistedProjectId(String projectId);
+
 	public ProjectResDto getDetailProject(String projectId) throws BestWorkBussinessException;
 
 	public void changeStatus(String projectId, ProjectStatusReqDto projectStatusReqDto)

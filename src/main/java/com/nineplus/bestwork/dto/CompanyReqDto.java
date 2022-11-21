@@ -30,6 +30,9 @@ public class CompanyReqDto extends BaseDto {
 	@JsonProperty("taxNo")
 	private String taxNo;
 
+	@JsonProperty("nation")
+	private String nation;
+	
 	@JsonProperty("city")
 	private String city;
 

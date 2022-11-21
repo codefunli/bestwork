@@ -31,5 +31,9 @@ public interface ISftpFileService {
 	String uploadConstructionDrawing(MultipartFile file, long constructionId);
 
 	File downLoadFile(String pathFileDownload);
+	
+	void createZipFolder(String airWayBillCode, String[] listPathFileDownload);
+
+	void downloadFileTemp(String airWayBillCode, String[] listPathFileDownload);
 
 }

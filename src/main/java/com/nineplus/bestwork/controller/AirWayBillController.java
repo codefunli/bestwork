@@ -129,7 +129,7 @@ public class AirWayBillController extends BaseController {
 			throws BestWorkBussinessException {
 		try {
 			if(ObjectUtils.isNotEmpty(statusDto.getDestinationStatus())) {
-			iAirWayBillService.confirmDone(code, statusDto.getDestinationStatus());
+			iAirWayBillService.changeStatus(code, statusDto.getDestinationStatus());
 			}
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
@@ -138,14 +138,14 @@ public class AirWayBillController extends BaseController {
 	}
 
 	@GetMapping("{airWayBillCode}/download-clearance-doc")
-	public ResponseEntity<StreamingResponseBody> downloadZip(HttpServletResponse response,
+	public ResponseEntity<? extends Object> downloadZip(HttpServletResponse response,
 			@PathVariable String airWayBillCode) throws BestWorkBussinessException {
-		StreamingResponseBody streamResponseBody = iAirWayBillService.downloadZip(airWayBillCode, response);
-		response.setContentType("application/zip");
-		response.setHeader("Content-Disposition", "attachment; filename=example.zip");
-		response.addHeader("Pragma", "no-cache");
-		response.addHeader("Expires", "0");
-
-		return ResponseEntity.ok(streamResponseBody);
+		try {
+			iAirWayBillService.createZipFolder(airWayBillCode);
+		} catch (BestWorkBussinessException ex) {
+			return failed(ex.getMsgCode(), ex.getParam());
+		}
+		return success(CommonConstants.MessageCode.sA0006, null, null);
+		
 	}
 }

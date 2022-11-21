@@ -93,10 +93,12 @@ public class ProjectServiceImpl implements IProjectService {
 				prjPage = this.projectRepository.getProjectsInvolvedByCurrentUser(curUsername, pageSearchDto, pageable);
 			} else if (userAuthRoleReq.getIsOrgAdmin()) {
 				// Projects of company admin user
+
 				prjPage = this.projectRepository.getPrjPageByOrgAdmin(curUsername, pageSearchDto, pageable);
 			} else if (userAuthRoleReq.getIsSysAdmin()) {
 				// Projects of supper admin user (contain projects of company admin user)
 				prjPage = this.projectRepository.getPrjPageBySysAdmin(curUsername, pageSearchDto, pageable);
+
 			}
 
 			return responseUtils.convertPageEntityToDTO(prjPage, ProjectResDto.class);
@@ -133,9 +135,11 @@ public class ProjectServiceImpl implements IProjectService {
 	 */
 	private List<ProjectEntity> getProjectsBeingInvolvedByCurrentUser(String curUsername) {
 		// Get projects that created by current user
+
 		List<ProjectEntity> creatingProjectList = getPrjCreatedByCurUser(curUsername);
 		// Get projects that assigned to current user
 		List<ProjectEntity> assignedProjectList = getPrAssignedToCurUser(curUsername);
+
 		Set<ProjectEntity> projectSet = new HashSet<>();
 		if (creatingProjectList != null)
 			projectSet.addAll(creatingProjectList);
@@ -442,6 +446,14 @@ public class ProjectServiceImpl implements IProjectService {
 		return lstResult;
 	}
 
+	public boolean isExistedProjectId(String projectId) {
+		Optional<ProjectEntity> project = null;
+		project = projectRepository.findById(projectId);
+		if (project.isPresent()) {
+			return true;
+		}
+		return false;
+	}
 
 	@Override
 	public ProjectResDto getDetailProject(String projectId) throws BestWorkBussinessException {

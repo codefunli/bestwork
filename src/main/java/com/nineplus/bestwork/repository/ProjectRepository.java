@@ -63,6 +63,7 @@ public interface ProjectRepository extends JpaRepository<ProjectEntity, String> 
 			+ " or p.`description` like :#{#pageSearchDto.keyword})"
 			+ " and p.`status` like if ( :#{#pageSearchDto.status} = -1, '%%', :#{#pageSearchDto.status})) "
 			+ " group by p.id ", nativeQuery = true, countQuery = " select * from PROJECT p join T_SYS_APP_USER u on p.create_by = u.user_name "
+
 					+ " where (u.create_by = :curUsername or p.create_by = :curUsername) "
 					+ " and ((p.`project_name` like :#{#pageSearchDto.keyword}"
 					+ " or p.`description` like :#{#pageSearchDto.keyword})"
@@ -78,6 +79,7 @@ public interface ProjectRepository extends JpaRepository<ProjectEntity, String> 
 			+ " or p.`description` like :#{#pageSearchDto.keyword})"
 			+ " and p.`status` like if ( :#{#pageSearchDto.status} = -1, '%%', :#{#pageSearchDto.status})) "
 			+ " group by p.id ", nativeQuery = true, countQuery = " select * from PROJECT p join T_SYS_APP_USER u on p.create_by = u.user_name "
+
 					+ "where u.create_by in (select user.user_name from T_SYS_APP_USER user where user.create_by = :curUsername) "
 					+ " and ((p.`project_name` like :#{#pageSearchDto.keyword}"
 					+ " or p.`description` like :#{#pageSearchDto.keyword})"
