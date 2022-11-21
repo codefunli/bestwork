@@ -49,6 +49,9 @@ public class CompanyEntity implements Serializable {
 	@Column(name = "tax_no")
 	private String taxNo;
 
+	@Column(name = "nation")
+	private String nation;
+	
 	@Column(name = "province_city")
 	private String city;
 
