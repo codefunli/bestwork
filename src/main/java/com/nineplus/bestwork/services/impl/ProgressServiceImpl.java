@@ -24,6 +24,7 @@ import com.nineplus.bestwork.model.UserAuthDetected;
 import com.nineplus.bestwork.repository.ProgressRepository;
 import com.nineplus.bestwork.repository.ProjectRepository;
 import com.nineplus.bestwork.repository.StorageRepository;
+import com.nineplus.bestwork.services.IConstructionService;
 import com.nineplus.bestwork.services.IProgressService;
 import com.nineplus.bestwork.services.IProjectService;
 import com.nineplus.bestwork.services.IStorageService;
@@ -58,6 +59,9 @@ public class ProgressServiceImpl implements IProgressService {
 	@Autowired
 	private IProjectService projectService;
 
+	@Autowired
+	private IConstructionService constructionService;
+
 	@Override
 	public void registProgress(ProgressReqDto progressReqDto) throws BestWorkBussinessException {
 		this.saveProgress(progressReqDto, null, false);
@@ -88,7 +92,10 @@ public class ProgressServiceImpl implements IProgressService {
 			progress.setEndDate(endDt);
 			progress.setCreateDate(LocalDateTime.now());
 			if (!isEdit) {
-				progress.setProject(projectService.getProjectById(progressReqDto.getProjectId()).get());
+
+/////				
+//				progress.setProject(projectService.getProjectById(progressReqDto.getProjectId()).get());
+				progress.setConstruction(constructionService.findCstrtById(progressReqDto.getConstructionId()));
 				progress.setCreateBy(createUser);
 			} else {
 				progress.setUpdateBy(createUser);

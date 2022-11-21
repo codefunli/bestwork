@@ -238,6 +238,7 @@ public class CommonConstants {
 		public static final String SCS0005 = "scs0005";
 		public static final String ECS0005 = "ecs0005";
 		public static final String ECS0006 = "ecs0006";
+		public static final String ECS0007 = "ecs0007";
 
 		public static final String ENU0004 = "enu0004";
 		public static final String SNU0005 = "snu0005";

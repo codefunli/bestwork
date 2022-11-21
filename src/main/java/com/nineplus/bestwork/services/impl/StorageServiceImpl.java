@@ -75,9 +75,10 @@ public class StorageServiceImpl implements IStorageService {
 	}
 
 	private String getImageName(PostEntity reqPost) {
-		String projectName = reqPost.getProject().getProjectName();
+//		String projectName = reqPost.getProject().getProjectName();
+		String constructionName = reqPost.getConstruction().getConstructionName();
 		String description = reqPost.getDescription();
-		String imageName = projectName + ": " + description;
+		String imageName = constructionName + ": " + description;
 		if (imageName.length() <= 40) {
 			return imageName;
 		} else {

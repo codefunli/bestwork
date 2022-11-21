@@ -442,14 +442,6 @@ public class ProjectServiceImpl implements IProjectService {
 		return lstResult;
 	}
 
-	public boolean isExistedProjectId(String projectId) {
-		Optional<ProjectEntity> project = null;
-		project = projectRepository.findById(projectId);
-		if (project.isPresent()) {
-			return true;
-		}
-		return false;
-	}
 
 	@Override
 	public ProjectResDto getDetailProject(String projectId) throws BestWorkBussinessException {

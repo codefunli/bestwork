@@ -537,4 +537,14 @@ public class ConstructionServiceImpl implements IConstructionService {
 		}
 		this.constructionRepository.deleteAll(constructionList);
 	}
+
+	@Override
+	public ConstructionEntity findCstrtById(long constructionId) {
+		Optional<ConstructionEntity> cstrtOpt = this.constructionRepository.findById(constructionId);
+		if (!cstrtOpt.isPresent()) {
+			return null;
+		} else {
+			return cstrtOpt.get();
+		}
+	}
 }
