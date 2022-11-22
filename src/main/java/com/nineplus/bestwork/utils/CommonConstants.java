@@ -32,6 +32,8 @@ public class CommonConstants {
 		public static final String MEDIA_TYPE_STREAM = "application/octet-stream";
 
 		public static final String MEDIA_TYPE_PDF = "application/pdf";
+		
+		public static final String MEDIA_TYPE_ZIP = "application/zip";
 
 		/** The Constant CONTENT_DISPOSITION. */
 		public static final String CONTENT_DISPOSITION = "attachment;filename=";
@@ -203,6 +205,7 @@ public class CommonConstants {
 
 		public static final String eF0001 = "eF0001";
 		public static final String eF0002 = "eF0002";
+		public static final String eF0003 = "eF0003";
 		public static final String sF0001 = "sF0001";
 		public static final String sF0002 = "sF0002";
 		public static final String sF0003 = "sF0003";
