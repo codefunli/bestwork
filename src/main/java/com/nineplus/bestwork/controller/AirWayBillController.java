@@ -6,12 +6,15 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -147,38 +150,46 @@ public class AirWayBillController extends BaseController {
 	public ResponseEntity<? extends Object> downloadZip(HttpServletResponse response,
 			@PathVariable String airWayBillCode) throws BestWorkBussinessException {
 		List<String> listFile = iAirWayBillService.createZipFolder(airWayBillCode);
-		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		ZipOutputStream zipOutputStream = new ZipOutputStream(bos);
-		ArrayList<File> files = new ArrayList<>();
-		for (String path : listFile) {
-			files.add(new File(path));
-		}
-		// package files
-		for (File file : files) {
-			// new zip entry and copying inputstream with file to zipOutputStream, after all
-			// close stream
+		if (ObjectUtils.isEmpty(listFile)) {
+			return success(CommonConstants.MessageCode.E1X0003, null, null);
+		} else {
+			String pathFolder = "";
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			ZipOutputStream zipOutputStream = new ZipOutputStream(bos);
+			ArrayList<File> files = new ArrayList<>();
+			for (String path : listFile) {
+				files.add(new File(path));
+			}
+			// package files
+			for (File file : files) {
+				pathFolder = FilenameUtils.getFullPathNoEndSeparator(file.getAbsolutePath());
+				try {
+					zipOutputStream.putNextEntry(new ZipEntry(file.getName()));
+					FileInputStream fileInputStream = new FileInputStream(file);
+
+					IOUtils.copy(fileInputStream, zipOutputStream);
+
+					fileInputStream.close();
+					zipOutputStream.closeEntry();
+
+					// delete temporary file
+					file.delete();
+				} catch (Exception e) {
+					throw new BestWorkBussinessException(airWayBillCode, null);
+				}
+			}
 			try {
-				zipOutputStream.putNextEntry(new ZipEntry(file.getName()));
-				FileInputStream fileInputStream = new FileInputStream(file);
-
-				IOUtils.copy(fileInputStream, zipOutputStream);
-
-				fileInputStream.close();
-				zipOutputStream.closeEntry();
-				file.delete();
-			} catch (Exception e) {
+				// Delete folder temporary
+				FileUtils.deleteDirectory(new File(pathFolder));
+				zipOutputStream.close();
+			} catch (IOException e) {
 				throw new BestWorkBussinessException(airWayBillCode, null);
 			}
-		}
-		try {
-			zipOutputStream.close();
-		} catch (IOException e) {
-			throw new BestWorkBussinessException(airWayBillCode, null);
-		}
 
-		return ResponseEntity.ok()
-				.header(HttpHeaders.CONTENT_DISPOSITION,
-						CommonConstants.MediaType.CONTENT_DISPOSITION + airWayBillCode + ZIP_EXTENSION)
-				.body(new ByteArrayInputStream(bos.toByteArray()).readAllBytes());
+			return ResponseEntity.ok()
+					.header(HttpHeaders.CONTENT_DISPOSITION,
+							CommonConstants.MediaType.CONTENT_DISPOSITION + airWayBillCode + ZIP_EXTENSION)
+					.body(Arrays.toString(new ByteArrayInputStream(bos.toByteArray()).readAllBytes()));
+		}
 	}
 }
