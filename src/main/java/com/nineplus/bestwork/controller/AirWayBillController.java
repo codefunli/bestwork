@@ -1,7 +1,9 @@
 package com.nineplus.bestwork.controller;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -9,7 +11,6 @@ import java.util.zip.ZipOutputStream;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -20,7 +21,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import com.nineplus.bestwork.dto.AirWayBillReqDto;
 import com.nineplus.bestwork.dto.AirWayBillResDto;
@@ -141,31 +141,45 @@ public class AirWayBillController extends BaseController {
 		return success(CommonConstants.MessageCode.sA0006, null, null);
 	}
 
-	@GetMapping(value = "{airWayBillCode}/download-clearance-doc", produces = "application/zip")
-	public ResponseEntity<StreamingResponseBody> downloadZip(HttpServletResponse response,
+	@PostMapping(value = "{airWayBillCode}/download-clearance-doc")
+	public ResponseEntity<? extends Object> downloadZip(HttpServletResponse response,
 			@PathVariable String airWayBillCode) throws BestWorkBussinessException {
 		List<String> listFile = iAirWayBillService.createZipFolder(airWayBillCode);
-		return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
-				CommonConstants.MediaType.CONTENT_DISPOSITION + airWayBillCode + ZIP_EXTENSION).body(out -> {
-					var zipOutputStream = new ZipOutputStream(out);
-					ArrayList<File> files = new ArrayList<>();
-					for (String path : listFile) {
-						files.add(new File(path));
-					}
-					// package files
-					for (File file : files) {
-						// new zip entry and copying inputstream with file to zipOutputStream, after all
-						// closing streams
-						zipOutputStream.putNextEntry(new ZipEntry(file.getName()));
-						FileInputStream fileInputStream = new FileInputStream(file);
+		byte[] dataBytesFile = null;
 
-						IOUtils.copy(fileInputStream, zipOutputStream);
+		try {
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			ZipOutputStream zos = new ZipOutputStream(baos);
+			for (String path : listFile) {
+				File srcFile = new File(path);
+				FileInputStream fis = new FileInputStream(srcFile);
+				// Start writing a new file entry
+				zos.putNextEntry(new ZipEntry(srcFile.getName()));
 
-						fileInputStream.close();
-						zipOutputStream.closeEntry();
-						file.delete();
-					}
-					zipOutputStream.close();
-				});
+				int length;
+				// create byte buffer
+				byte[] buffer = new byte[1024];
+
+				// read and write the content of the file
+				while ((length = fis.read(buffer)) > 0) {
+					zos.write(buffer, 0, length);
+				}
+				// current file entry is written and current zip entry is closed
+				zos.closeEntry();
+
+				// close the InputStream of the file
+				baos.close();
+				fis.close();
+				srcFile.delete();
+			}
+			dataBytesFile = baos.toByteArray();
+			zos.close();
+		} catch (Exception e) {
+			throw new BestWorkBussinessException(e.getMessage(), null);
+		}
+		return ResponseEntity.ok()
+				.header(HttpHeaders.CONTENT_DISPOSITION,
+						CommonConstants.MediaType.CONTENT_DISPOSITION + airWayBillCode + ZIP_EXTENSION)
+				.body(dataBytesFile);
 	}
 }

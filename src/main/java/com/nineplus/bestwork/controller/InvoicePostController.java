@@ -1,5 +1,6 @@
 package com.nineplus.bestwork.controller;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang3.ObjectUtils;
@@ -11,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -100,7 +102,7 @@ public class InvoicePostController extends BaseController {
 				.contentType(MediaType.parseMediaType(CommonConstants.MediaType.MEDIA_TYPE_STREAM)).body(dataBytesFile);
 	}
 
-	@GetMapping("/view-file-pdf")
+	@PostMapping("/view-file-pdf")
 	public ResponseEntity<? extends Object> viewFilePdf(
 			@RequestBody InvoiceFileDownLoadReqDto invoiceFileDownLoadReqDto) throws BestWorkBussinessException {
 		byte[] dataBytesFile = null;
@@ -120,7 +122,7 @@ public class InvoicePostController extends BaseController {
 				// Content-Disposition
 				.header(HttpHeaders.CONTENT_DISPOSITION, CommonConstants.MediaType.CONTENT_DISPOSITION + pathFile)
 				// Content-Type
-				.contentType(MediaType.parseMediaType(CommonConstants.MediaType.MEDIA_TYPE_PDF)).body(dataBytesFile);
+				.contentType(MediaType.parseMediaType(CommonConstants.MediaType.MEDIA_TYPE_PDF)).body(Arrays.toString(dataBytesFile));
 	}
 
 }
