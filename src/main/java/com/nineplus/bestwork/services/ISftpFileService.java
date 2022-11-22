@@ -34,6 +34,6 @@ public interface ISftpFileService {
 	
 	void createZipFolder(String airWayBillCode, String[] listPathFileDownload);
 
-	void downloadFileTemp(String airWayBillCode, String[] listPathFileDownload);
+	List<String> downloadFileTemp(String airWayBillCode, List<String> listPathFileDownload);
 
 }

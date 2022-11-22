@@ -22,6 +22,10 @@ import com.nineplus.bestwork.entity.ProjectEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.model.UserAuthDetected;
 import com.nineplus.bestwork.repository.AirWayBillRepository;
+import com.nineplus.bestwork.repository.InvoiceFileProjection;
+import com.nineplus.bestwork.repository.PackageFileProjection;
+import com.nineplus.bestwork.repository.PackagePostRepository;
+import com.nineplus.bestwork.repository.PostInvoiceRepository;
 import com.nineplus.bestwork.services.IAirWayBillService;
 import com.nineplus.bestwork.services.IInvoicePostService;
 import com.nineplus.bestwork.services.IPackagePostService;
@@ -52,6 +56,12 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 
 	@Autowired
 	ISftpFileService iSftpFileService;
+	
+	@Autowired
+	PostInvoiceRepository postInvoiceRepository;
+	
+	@Autowired
+	PackagePostRepository packagePostRepository;
 
 	@Autowired
 	ModelMapper modelMapper;
@@ -141,10 +151,23 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 	}
 
 	@Override
-	public void createZipFolder(String code)
+	public List<String> createZipFolder(String code)
 			throws BestWorkBussinessException {
-		String[] listPathToDownLoad = {"/home/bestwork/invoices/20221117/AIRWAY00000001/123/download.png"};
-		this.iSftpFileService.downloadFileTemp(code, listPathToDownLoad);
+		List<String> listPathToDownLoad = new ArrayList<>();
+		List<InvoiceFileProjection> invoiceInfo = postInvoiceRepository.getClearanceInfo(code);
+		List<PackageFileProjection> packageInfo = packagePostRepository.getClearancePackageInfo(code);
+		
+		if(ObjectUtils.isNotEmpty(invoiceInfo)) {
+			for (InvoiceFileProjection invoice : invoiceInfo) {
+				listPathToDownLoad.add(invoice.getPathFileServer());
+			}
+		}
+		if(ObjectUtils.isNotEmpty(packageInfo)) {
+			for (PackageFileProjection pack : packageInfo) {
+				listPathToDownLoad.add(pack.getPathFileServer());
+			}
+		}
+		 return this.iSftpFileService.downloadFileTemp(code, listPathToDownLoad);
 	}
 
 	@Override
@@ -152,5 +175,5 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 	public void changeStatus(String code, int destinationStatus) throws BestWorkBussinessException {
 		this.airWayBillRepository.changeStatus(code, destinationStatus);
 	}
-
+	
 }

@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipOutputStream;
 
@@ -49,6 +50,10 @@ public class SftpFileServiceImpl implements ISftpFileService {
 	public static final String SEPARATOR = "/";
 
 	public static final String HYPHEN = "-";
+
+	public static final String INVOICE_NAME_PREFIX = "(inv)";
+
+	public static final String PACKAGE_NAME_PREFIX = "(pac)";
 
 	/**
 	 * The Constant ROOT_PATH.
@@ -492,39 +497,47 @@ public class SftpFileServiceImpl implements ISftpFileService {
 		} finally {
 			disconnect(session, channel);
 		}
-}
+	}
 
 	@Override
-	public void downloadFileTemp(String airWayBillCode, String[] listPathFileDownload) {
+	public List<String> downloadFileTemp(String airWayBillCode, List<String> listPathFileDownload) {
 		ChannelSftp channel = null;
 		Session session = null;
+		List<String> listPathFile = new ArrayList<>();
 		try {
-
-			String temporaryFolder = "resources/temp";
+			String temporaryFolder = "src/main/resources/temp";
 			Pair<Session, ChannelSftp> sftpConnection = this.getConnection();
 			session = sftpConnection.getFirst();
 			channel = sftpConnection.getSecond();
 			for (String pathFile : listPathFileDownload) {
 				String fileName = FilenameUtils.getName(pathFile);
+				if (pathFile.contains("/invoices")) {
+					fileName = INVOICE_NAME_PREFIX + fileName;
+				} else if (pathFile.contains("/packages")) {
+					fileName = PACKAGE_NAME_PREFIX + fileName;
+				}
 				byte[] buffer = new byte[1024];
 				BufferedInputStream bis = new BufferedInputStream(channel.get(pathFile));
-				File newFile = new File(temporaryFolder + SEPARATOR + fileName);
+				Path path = Files.createDirectories(Paths.get(temporaryFolder + SEPARATOR + airWayBillCode));
+				String pathFileSever = path + SEPARATOR + fileName;
+				File newFile = new File(pathFileSever);
+				listPathFile.add(pathFileSever);
 				OutputStream os = new FileOutputStream(newFile);
 				BufferedOutputStream bos = new BufferedOutputStream(os);
 				int readCount;
-				while( (readCount = bis.read(buffer)) > 0) {
-				System.out.println("Writing: " );
-				bos.write(buffer, 0, readCount);
+				while ((readCount = bis.read(buffer)) > 0) {
+					bos.write(buffer, 0, readCount);
 				}
 				bis.close();
 				bos.close();
+
 			}
 			// disconnect to sftp server.
 			disconnect(session, channel);
 		} catch (Exception ex) {
-				disconnect(session, channel);
-				throw new FileHandleException(ex.getMessage(), ex);
-			}
-		
+			disconnect(session, channel);
+			throw new FileHandleException(ex.getMessage(), ex);
+		}
+		return listPathFile;
 	}
 }
