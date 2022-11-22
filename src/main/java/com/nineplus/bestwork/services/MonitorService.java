@@ -1,6 +1,7 @@
 package com.nineplus.bestwork.services;
 
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.lang3.ObjectUtils;
@@ -50,10 +51,10 @@ public class MonitorService {
     @Autowired
     private PageUtils responseUtils;
 
-    public MonitorResDto getMonitor(Long id) throws BestWorkBussinessException {
-        Optional<SysMonitorEntity> monitor = monitorRepository.findById(id);
-        if (monitor.isPresent()) {
-            return modelMapper.map(monitor.get(), MonitorResDto.class);
+    public List<MonitorResDto> getMonitors(Long id) throws BestWorkBussinessException {
+        List<SysMonitorEntity> monitors = monitorRepository.findAllMonitorByRoleId(id);
+        if (!monitors.isEmpty()) {
+            return (List<MonitorResDto>) modelMapper.map(monitors, List.class);
         }
         throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
 

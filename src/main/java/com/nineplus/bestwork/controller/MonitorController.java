@@ -18,6 +18,8 @@ import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.services.MonitorService;
 import com.nineplus.bestwork.utils.CommonConstants;
 
+import java.util.List;
+
 @PropertySource("classpath:application.properties")
 @RequestMapping(value = CommonConstants.ApiPath.BASE_PATH+"/monitor")
 @RestController
@@ -27,14 +29,14 @@ public class MonitorController extends BaseController {
     MonitorService monitorService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<? extends Object> getMonitor(@PathVariable Long id) {
-        MonitorResDto dto = null;
+    public ResponseEntity<? extends Object> getMonitors(@PathVariable Long id) {
+        List<MonitorResDto> dtos = null;
         try {
-            dto = monitorService.getMonitor(id);
+            dtos = monitorService.getMonitors(id);
         } catch (BestWorkBussinessException ex) {
             return failed(ex.getMsgCode(), ex.getParam());
         }
-        return success(CommonConstants.MessageCode.RLS0001, dto, null);
+        return success(CommonConstants.MessageCode.RLS0001, dtos, null);
 
     }
 
