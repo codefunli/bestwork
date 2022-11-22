@@ -274,7 +274,7 @@ public class ProjectServiceImpl implements IProjectService {
 				if (user == null) {
 					throw new BestWorkBussinessException(CommonConstants.MessageCode.ECU0005, null);
 				}
-				if(userList.get(i).isCanEdit() || userList.get(i).isCanView()) {
+				if (userList.get(i).isCanEdit() || userList.get(i).isCanView()) {
 					AssignTaskEntity assignTask = new AssignTaskEntity();
 					assignTask.setCompanyId(projectAssignReqDto.getCompanyId());
 					assignTask.setProjectId(generateProjectId);
@@ -461,7 +461,7 @@ public class ProjectServiceImpl implements IProjectService {
 		String curUsername = userAuthRoleReq.getUsername();
 
 		ProjectEntity project = projectRepository.findbyProjectId(projectId);
-		if (project == null ) {
+		if (project == null) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.S1X0002, null);
 		}
 		List<ProjectEntity> involvedPrjList = this.getPrjInvolvedByCurUser(curUsername);
