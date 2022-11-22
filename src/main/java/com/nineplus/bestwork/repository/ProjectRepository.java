@@ -47,40 +47,49 @@ public interface ProjectRepository extends JpaRepository<ProjectEntity, String> 
 	@Query(value = " select * from PROJECT where create_by = :curUsername", nativeQuery = true)
 	List<ProjectEntity> findPrjCreatedByCurUser(@Param("curUsername") String curUsername);
 
-	@Query(value = " select * from PROJECT p " + " join ASSIGN_TASK ast on ast.project_id = p.id"
+	@Query(value = " select p.* from PROJECT p " + " join ASSIGN_TASK ast on ast.project_id = p.id"
 			+ " join T_SYS_APP_USER tsau on tsau.id = ast.user_id " + " where tsau.user_name = :curUsername" + " and ( "
 			+ " ast.can_view = 1 or ast.can_edit = 1 ) ", nativeQuery = true)
 	List<ProjectEntity> findPrjAssignedToCurUser(@Param("curUsername") String curUsername);
 
-	@Query(value = "select * from PROJECT p " + " join AIRWAY_BILL awb on awb.project_code = p.id "
+	@Query(value = "select p.* from PROJECT p " + " join AIRWAY_BILL awb on awb.project_code = p.id "
 			+ " join AWB_CONSTRUCTION awbc on awbc.awb_id = awb.id" + " where awbc.construction_id = :constructionId "
 			+ " group by p.id ", nativeQuery = true)
 	ProjectEntity findByConstructionId(@Param("constructionId") long constructionId);
 
-	@Query(value = " select * from PROJECT p join T_SYS_APP_USER u on p.create_by = u.user_name "
+	@Query(value = " select * from (select p.* from PROJECT p join T_SYS_APP_USER u on p.create_by = u.user_name "
 			+ " where (u.create_by = :curUsername or p.create_by = :curUsername) "
-			+ " and ((p.`project_name` like :#{#pageSearchDto.keyword}"
-			+ " or p.`description` like :#{#pageSearchDto.keyword})"
-			+ " and p.`status` like if ( :#{#pageSearchDto.status} = -1, '%%', :#{#pageSearchDto.status})) "
-			+ " group by p.id ", nativeQuery = true, countQuery = " select * from PROJECT p join T_SYS_APP_USER u on p.create_by = u.user_name "
-
+			+ " union "
+			+ " select p.* from PROJECT p join ASSIGN_TASK ast on ast.project_id = p.id "
+			+ "	join T_SYS_APP_USER tsau on tsau.id = ast.user_id "
+			+ " where tsau.user_name = :curUsername and (ast.can_view = 1 or ast.can_edit = 1)) as PRJ"
+			+ " where ((PRJ.`project_name` like :#{#pageSearchDto.keyword}"
+			+ " or PRJ.`description` like :#{#pageSearchDto.keyword})"
+			+ " and PRJ.`status` like if ( :#{#pageSearchDto.status} = -1, '%%', :#{#pageSearchDto.status})) "
+			+ " group by PRJ.id ", nativeQuery = true, 
+			countQuery = " select * from (select p.* from PROJECT p join T_SYS_APP_USER u on p.create_by = u.user_name "
 					+ " where (u.create_by = :curUsername or p.create_by = :curUsername) "
-					+ " and ((p.`project_name` like :#{#pageSearchDto.keyword}"
-					+ " or p.`description` like :#{#pageSearchDto.keyword})"
-					+ " and p.`status` like if ( :#{#pageSearchDto.status} = -1, '%%', :#{#pageSearchDto.status})) "
-					+ " group by p.id ")
+					+ " union "
+					+ " select p.* from PROJECT p join ASSIGN_TASK ast on ast.project_id = p.id "
+					+ "	join T_SYS_APP_USER tsau on tsau.id = ast.user_id "
+					+ " where tsau.user_name = :curUsername and (ast.can_view = 1 or ast.can_edit = 1)) as PRJ"
+					+ " where ((PRJ.`project_name` like :#{#pageSearchDto.keyword}"
+					+ " or PRJ.`description` like :#{#pageSearchDto.keyword})"
+					+ " and PRJ.`status` like if ( :#{#pageSearchDto.status} = -1, '%%', :#{#pageSearchDto.status})) "
+					+ " group by PRJ.id ")
 	Page<ProjectEntity> getPrjPageByOrgAdmin(@Param("curUsername") String curUsername,
 			@Param("pageSearchDto") PageSearchDto pageSearchDto, Pageable pageable);
 
-	@Query(value = " select * from PROJECT p join T_SYS_APP_USER u on p.create_by = u.user_name "
+	@Query(value = " select p.* from PROJECT p join T_SYS_APP_USER u on p.create_by = u.user_name "
 			+ " where (u.create_by in (select user.user_name from T_SYS_APP_USER user where user.create_by = :curUsername) "
 			+ " or p.create_by in (select user.user_name from T_SYS_APP_USER user where user.create_by = :curUsername))"
 			+ " and ((p.`project_name` like :#{#pageSearchDto.keyword}"
 			+ " or p.`description` like :#{#pageSearchDto.keyword})"
 			+ " and p.`status` like if ( :#{#pageSearchDto.status} = -1, '%%', :#{#pageSearchDto.status})) "
-			+ " group by p.id ", nativeQuery = true, countQuery = " select * from PROJECT p join T_SYS_APP_USER u on p.create_by = u.user_name "
-
-					+ "where u.create_by in (select user.user_name from T_SYS_APP_USER user where user.create_by = :curUsername) "
+			+ " group by p.id ", nativeQuery = true,
+			countQuery = " select p.* from PROJECT p join T_SYS_APP_USER u on p.create_by = u.user_name "
+					+ " where (u.create_by in (select user.user_name from T_SYS_APP_USER user where user.create_by = :curUsername) "
+					+ " or p.create_by in (select user.user_name from T_SYS_APP_USER user where user.create_by = :curUsername))"
 					+ " and ((p.`project_name` like :#{#pageSearchDto.keyword}"
 					+ " or p.`description` like :#{#pageSearchDto.keyword})"
 					+ " and p.`status` like if ( :#{#pageSearchDto.status} = -1, '%%', :#{#pageSearchDto.status})) "
@@ -88,29 +97,32 @@ public interface ProjectRepository extends JpaRepository<ProjectEntity, String> 
 	Page<ProjectEntity> getPrjPageBySysAdmin(@Param("curUsername") String curUsername,
 			@Param("pageSearchDto") PageSearchDto pageSearchDto, Pageable pageable);
 
-	@Query(value = " select * from PROJECT p " + " join ASSIGN_TASK ast on ast.project_id = p.id"
-			+ " join T_SYS_APP_USER tsau on tsau.id = ast.user_id "
-			+ " where (p.create_by = :curUsername or (tsau.user_name = :curUsername and (ast.can_view = 1 or ast.can_edit = 1))) "
-			+ " and ((p.`project_name` like :#{#pageSearchDto.keyword}"
-			+ " or p.`description` like :#{#pageSearchDto.keyword})"
-			+ " and p.`status` like if ( :#{#pageSearchDto.status} = -1, '%%', :#{#pageSearchDto.status})) "
-			+ " group by p.id ", nativeQuery = true, countQuery = " select * from PROJECT p "
-					+ " join ASSIGN_TASK ast on ast.project_id = p.id"
-					+ " join T_SYS_APP_USER tsau on tsau.id = ast.user_id "
-					+ " where (p.create_by = :curUsername or (tsau.user_name = :curUsername and (ast.can_view = 1 or ast.can_edit = 1))) "
-					+ " and ((p.`project_name` like :#{#pageSearchDto.keyword}"
-					+ " or p.`description` like :#{#pageSearchDto.keyword})"
-					+ " and p.`status` like if ( :#{#pageSearchDto.status} = -1, '%%', :#{#pageSearchDto.status})) "
-					+ " group by p.id ")
+
+	@Query(value = " select * from (select p.* from PROJECT p where p.create_by = :curUsername " + "  union "
+			+ "  select p.* from PROJECT p join ASSIGN_TASK ast on ast.project_id = p.id "
+			+ "  join T_SYS_APP_USER tsau on tsau.id = ast.user_id "
+			+ "  where tsau.user_name = :curUsername and (ast.can_view = 1 or ast.can_edit = 1)) as PRJ "
+			+ "  where (PRJ.`project_name` like :#{#pageSearchDto.keyword} "
+			+ "  or PRJ.`description` like  :#{#pageSearchDto.keyword} "
+			+ "  and PRJ.`status` like if ( :#{#pageSearchDto.status} = -1, '%%', :#{#pageSearchDto.status}))"
+			+ "  group by PRJ.id  ", nativeQuery = true,
+			countQuery = " select * from (select p.* from PROJECT p where p.create_by = :curUsername " + "  union "
+					+ "  select p.* from PROJECT p join ASSIGN_TASK ast on ast.project_id = p.id "
+					+ "  join T_SYS_APP_USER tsau on tsau.id = ast.user_id "
+					+ "  where tsau.user_name = :curUsername and (ast.can_view = 1 or ast.can_edit = 1)) as PRJ "
+					+ "  where (PRJ.`project_name` like :#{#pageSearchDto.keyword} "
+					+ "  or PRJ.`description` like  :#{#pageSearchDto.keyword} "
+					+ "  and PRJ.`status` like if ( :#{#pageSearchDto.status} = -1, '%%', :#{#pageSearchDto.status}))"
+					+ "  group by PRJ.id  ")
 	Page<ProjectEntity> getPrjInvolvedByCurUser(@Param("curUsername") String curUsername,
 			@Param("pageSearchDto") PageSearchDto pageSearchDto, Pageable pageable);
 
-	@Query(value = " select * from PROJECT p " + " join T_SYS_APP_USER u on p.create_by = u.user_name "
+	@Query(value = " select p.* from PROJECT p " + " join T_SYS_APP_USER u on p.create_by = u.user_name "
 			+ " where (u.create_by = :curUsername or p.create_by = :curUsername) "
 			+ " group by p.id ", nativeQuery = true)
 	List<ProjectEntity> getPrjLstByOrgAdminUsername(String curUsername);
 
-	@Query(value = " select * from PROJECT p " + " join T_SYS_APP_USER u on p.create_by = u.user_name "
+	@Query(value = " select p.* from PROJECT p " + " join T_SYS_APP_USER u on p.create_by = u.user_name "
 			+ " where (u.create_by in (select user.user_name from T_SYS_APP_USER user where user.create_by = :curUsername) "
 			+ " or p.create_by in (select user.user_name from T_SYS_APP_USER user where user.create_by = :curUsername))"
 			+ " group by p.id ", nativeQuery = true)

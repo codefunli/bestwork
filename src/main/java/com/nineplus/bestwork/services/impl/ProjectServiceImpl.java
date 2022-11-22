@@ -93,7 +93,6 @@ public class ProjectServiceImpl implements IProjectService {
 				prjPage = this.projectRepository.getPrjInvolvedByCurUser(curUsername, pageSearchDto, pageable);
 			} else if (userAuthRoleReq.getIsOrgAdmin()) {
 				// Projects of company admin user
-
 				prjPage = this.projectRepository.getPrjPageByOrgAdmin(curUsername, pageSearchDto, pageable);
 			} else if (userAuthRoleReq.getIsSysAdmin()) {
 				// Projects of supper admin user (contain projects of company admin user)
@@ -272,7 +271,10 @@ public class ProjectServiceImpl implements IProjectService {
 
 			for (int i = 0; i < userList.size(); i++) {
 				UserEntity user = userService.findUserByUserId(userList.get(i).getUserId());
-				if (user != null) {
+				if (user == null) {
+					throw new BestWorkBussinessException(CommonConstants.MessageCode.ECU0005, null);
+				}
+				if(userList.get(i).isCanEdit() || userList.get(i).isCanView()) {
 					AssignTaskEntity assignTask = new AssignTaskEntity();
 					assignTask.setCompanyId(projectAssignReqDto.getCompanyId());
 					assignTask.setProjectId(generateProjectId);
@@ -280,33 +282,15 @@ public class ProjectServiceImpl implements IProjectService {
 					assignTask.setCanView(userList.get(i).isCanView());
 					assignTask.setCanEdit(userList.get(i).isCanEdit());
 					assignTasklist.add(assignTask);
-				} else {
-					throw new BestWorkBussinessException(CommonConstants.MessageCode.ECU0005, null);
 				}
 			}
 			assignTaskRepository.saveAll(assignTasklist);
 
 			for (ProjectRoleUserReqDto user : userList) {
-				sendNotification(generateProjectId, user);
+				sendNotify(generateProjectId, user);
 			}
 		} catch (Exception ex) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.S1X0005, null);
-		}
-	}
-
-	private void sendNotification(String generateProjectId, ProjectRoleUserReqDto user)
-			throws BestWorkBussinessException {
-		UserAuthDetected userAuthRoleReq = getAuthRoleReq();
-		String curUsername = userAuthRoleReq.getUsername();
-		String projectName = projectRepository.findbyProjectId(generateProjectId).getProjectName();
-
-		if (user.isCanEdit() || user.isCanView()) {
-			NotificationReqDto notifyReqDto = new NotificationReqDto();
-			notifyReqDto.setTitle("Assignment to project " + projectName);
-			notifyReqDto.setContent(
-					curUsername + " has assigned you to the project as " + (user.isCanEdit() ? "editor" : "viewer"));
-			notifyReqDto.setUserId(user.getUserId());
-			notifyService.createNotification(notifyReqDto);
 		}
 	}
 
@@ -375,7 +359,7 @@ public class ProjectServiceImpl implements IProjectService {
 								} else if (((originalAssignTask.isCanEdit() != userList.get(i).isCanEdit())
 										|| (originalAssignTask.isCanView() != userList.get(i).isCanView()))
 										&& (!userList.get(i).isCanEdit() && !userList.get(i).isCanView())) {
-									sendNotificationUpdateProjectRemoveAssigning(projectId, userList.get(i));
+									sendRemoveAssignNotify(projectId, userList.get(i));
 								}
 							} else {
 								AssignTaskEntity assignTaskNew = new AssignTaskEntity();
@@ -385,7 +369,7 @@ public class ProjectServiceImpl implements IProjectService {
 								assignTaskNew.setCanView(userList.get(i).isCanView());
 								assignTaskNew.setCanEdit(userList.get(i).isCanEdit());
 								assignTaskRepository.save(assignTaskNew);
-								sendNotification(projectId, userList.get(i));
+								sendNotify(projectId, userList.get(i));
 							}
 
 						} else {
@@ -409,6 +393,21 @@ public class ProjectServiceImpl implements IProjectService {
 		return false;
 	}
 
+	private void sendNotify(String generatePrjId, ProjectRoleUserReqDto user) throws BestWorkBussinessException {
+		UserAuthDetected userAuthRoleReq = getAuthRoleReq();
+		String curUsername = userAuthRoleReq.getUsername();
+		String projectName = projectRepository.findbyProjectId(generatePrjId).getProjectName();
+
+		if (user.isCanEdit() || user.isCanView()) {
+			NotificationReqDto notifyReqDto = new NotificationReqDto();
+			notifyReqDto.setTitle("Assignment to project " + projectName);
+			notifyReqDto.setContent(
+					curUsername + " has assigned you to the project as " + (user.isCanEdit() ? "editor" : "viewer"));
+			notifyReqDto.setUserId(user.getUserId());
+			notifyService.createNotification(notifyReqDto);
+		}
+	}
+
 	private void sendChgAssignNotify(String projectId, ProjectRoleUserReqDto user) throws BestWorkBussinessException {
 		UserAuthDetected userAuthRoleReq = getAuthRoleReq();
 		String curUsername = userAuthRoleReq.getUsername();
@@ -422,17 +421,17 @@ public class ProjectServiceImpl implements IProjectService {
 		notifyService.createNotification(notificationReqDto);
 	}
 
-	private void sendNotificationUpdateProjectRemoveAssigning(String projectId, ProjectRoleUserReqDto user)
+	private void sendRemoveAssignNotify(String projectId, ProjectRoleUserReqDto user)
 			throws BestWorkBussinessException {
 		UserAuthDetected userAuthRoleReq = getAuthRoleReq();
 		String curUsername = userAuthRoleReq.getUsername();
 		String projectName = projectRepository.findbyProjectId(projectId).getProjectName();
 
-		NotificationReqDto notificationReqDto = new NotificationReqDto();
-		notificationReqDto.setTitle("Remove assignment on project " + projectName);
-		notificationReqDto.setContent("Your assignment on the project has been removed by " + curUsername);
-		notificationReqDto.setUserId(user.getUserId());
-		notifyService.createNotification(notificationReqDto);
+		NotificationReqDto notifyReqDto = new NotificationReqDto();
+		notifyReqDto.setTitle("Remove assignment on project " + projectName);
+		notifyReqDto.setContent("Your assignment on the project has been removed by " + curUsername);
+		notifyReqDto.setUserId(user.getUserId());
+		notifyService.createNotification(notifyReqDto);
 	}
 
 	@Override
@@ -462,6 +461,9 @@ public class ProjectServiceImpl implements IProjectService {
 		String curUsername = userAuthRoleReq.getUsername();
 
 		ProjectEntity project = projectRepository.findbyProjectId(projectId);
+		if (project == null ) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.S1X0002, null);
+		}
 		List<ProjectEntity> involvedPrjList = this.getPrjInvolvedByCurUser(curUsername);
 		if (!involvedPrjList.contains(project)) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
