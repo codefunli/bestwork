@@ -11,6 +11,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import lombok.Data;
@@ -32,8 +33,8 @@ public class ConstructionEntity {
 	@Column(name = "id", unique = true)
 	private long id;
 
-	@Column(name = "name", nullable = false)
-	private String name;
+	@Column(name = "construction_name", nullable = false)
+	private String constructionName;
 
 	@Column(name = "description", nullable = true)
 	private String description;
@@ -53,7 +54,14 @@ public class ConstructionEntity {
 	@Column(name = "status", nullable = false)
 	private String status;
 
+	@Column(name = "project_code", nullable = false)
+	private String projectCode;
+
 	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "AWB_CONSTRUCTION", joinColumns = @JoinColumn(name = "construction_id"), inverseJoinColumns = @JoinColumn(name = "awb_id"))
 	List<AirWayBill> airWayBills;
+
+	@OneToMany(mappedBy = "constructionId")
+	private List<FileStorageEntity> fileStorages;
+
 }

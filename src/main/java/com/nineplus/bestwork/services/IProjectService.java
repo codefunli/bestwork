@@ -16,6 +16,7 @@ import com.nineplus.bestwork.dto.ProjectTaskReqDto;
 import com.nineplus.bestwork.entity.ProjectEntity;
 import com.nineplus.bestwork.entity.ProjectTypeEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
+import com.nineplus.bestwork.model.UserAuthDetected;
 import com.nineplus.bestwork.repository.ProjectAssignRepository;
 
 public interface IProjectService {
@@ -48,10 +49,16 @@ public interface IProjectService {
 
 	List<String> getAllProjectIdByCompany(List<Long> listCompanyId) throws BestWorkBussinessException;
 
-	public List<ProjectEntity> getProjectsBeingCreatedByCurrentUser(String curUsername);
+	public List<ProjectEntity> getPrjCreatedByCurUser(String curUsername);
 
-	public List<ProjectEntity> getProjectsBeingAssignedToCurrentUser(String curUsername);
+	public List<ProjectEntity> getPrAssignedToCurUser(String curUsername);
 
-	public ProjectEntity getProjectByConstructionId(long constructionId);
+	public ProjectEntity getPrjByCstrtId(long constructionId);
+
+	public List<ProjectEntity> getPrj4CompanyAdmin(String curUsername);
+
+	public List<ProjectEntity> getPrj4SysAdmin(String curUsername);
+	
+	public List<ProjectEntity> getPrjLstByAnyUsername(UserAuthDetected userAuthRoleReq);
 
 }

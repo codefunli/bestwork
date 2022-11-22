@@ -13,8 +13,8 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper = false)
 public class ProgressReqDto {
 	
-	@JsonProperty("projectId")
-	private String projectId;
+	@JsonProperty("constructionId")
+	private long constructionId;
 
 	@JsonProperty("title")
 	private String title;

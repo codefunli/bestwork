@@ -28,6 +28,8 @@ public interface ISftpFileService {
 
 	boolean isValidFile(List<MultipartFile> file);
 
+	String uploadConstructionDrawing(MultipartFile file, long constructionId);
+
 	File downLoadFile(String pathFileDownload);
 	
 	void createZipFolder(String airWayBillCode, String[] listPathFileDownload);

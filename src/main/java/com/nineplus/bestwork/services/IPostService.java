@@ -2,6 +2,9 @@ package com.nineplus.bestwork.services;
 
 import java.util.List;
 
+import org.springframework.validation.BindingResult;
+
+import com.nineplus.bestwork.dto.PostReqDto;
 import com.nineplus.bestwork.dto.PostResDto;
 import com.nineplus.bestwork.entity.PostEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
@@ -13,7 +16,7 @@ import com.nineplus.bestwork.exception.BestWorkBussinessException;
  */
 public interface IPostService {
 
-	PostEntity savePost(PostEntity post) throws BestWorkBussinessException;
+	PostEntity savePost(PostReqDto postReqDto, BindingResult bindingResult) throws BestWorkBussinessException;
 
 	List<PostResDto> getAllPosts() throws BestWorkBussinessException;
 
@@ -22,7 +25,7 @@ public interface IPostService {
 	PostEntity getPostByPostIdAndProjectId(String postId, String projectId) throws BestWorkBussinessException;
 
 	PostEntity updatePost(PostEntity post) throws BestWorkBussinessException;
-	
+
 	List<String> getAllPostIdByProject(List<String> listProjectId) throws BestWorkBussinessException;
-	
+
 }

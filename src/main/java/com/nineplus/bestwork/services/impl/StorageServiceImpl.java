@@ -75,9 +75,10 @@ public class StorageServiceImpl implements IStorageService {
 	}
 
 	private String getImageName(PostEntity reqPost) {
-		String projectName = reqPost.getProject().getProjectName();
+//		String projectName = reqPost.getProject().getProjectName();
+		String constructionName = reqPost.getConstruction().getConstructionName();
 		String description = reqPost.getDescription();
-		String imageName = projectName + ": " + description;
+		String imageName = constructionName + ": " + description;
 		if (imageName.length() <= 40) {
 			return imageName;
 		} else {
@@ -97,6 +98,7 @@ public class StorageServiceImpl implements IStorageService {
 			image.setName(generatedFileName);
 			image.setType(getImageType(file.getData()));
 			image.setCreateDate(Timestamp.valueOf(LocalDateTime.now()));
+			image.setPathFileServer("progress test");
 
 			return storageRepository.save(image);
 		} catch (Exception e) {
@@ -136,6 +138,9 @@ public class StorageServiceImpl implements IStorageService {
 				break;
 			case EVIDENCE_AFTER:
 				// file.setPackagePostId(Id);
+				break;
+			case CONSTRUCTION:
+				file.setConstructionId(Id);
 				break;
 			default:
 				break;

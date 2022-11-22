@@ -49,10 +49,15 @@ public class PostEntity {
 	@Column(name = "create_date")
 	private LocalDateTime createDate;
 
+//	@ManyToOne
+//	@JoinColumn(name = "project_id")
+//	@JsonIgnore
+//	private ProjectEntity project;
+	
 	@ManyToOne
-	@JoinColumn(name = "project_id")
+	@JoinColumn(name = "construction_id")
 	@JsonIgnore
-	private ProjectEntity project;
+	private ConstructionEntity construction;
 
 	@OneToMany(mappedBy = "post")
 	private List<FileStorageEntity> fileStorages;

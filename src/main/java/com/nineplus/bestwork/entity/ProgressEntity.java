@@ -56,10 +56,15 @@ public class ProgressEntity {
 	@Column(name = "update_date")
 	LocalDateTime updateDate;
 
+//	@ManyToOne
+//	@JoinColumn(name = "project_id")
+//	@JsonIgnore
+//	private ProjectEntity project;
+	
 	@ManyToOne
-	@JoinColumn(name = "project_id")
+	@JoinColumn(name = "construction_id")
 	@JsonIgnore
-	private ProjectEntity project;
+	private ConstructionEntity construction;
 
 	@OneToMany(mappedBy = "progress")
 	private List<FileStorageEntity> fileStorages;

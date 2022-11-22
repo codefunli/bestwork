@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.nineplus.bestwork.dto.ProgressAndProjectResDto;
+import com.nineplus.bestwork.dto.ProgressAndConstructionResDto;
 import com.nineplus.bestwork.dto.ProgressListReqDto;
 import com.nineplus.bestwork.dto.ProgressReqDto;
 import com.nineplus.bestwork.dto.ProgressResDto;
@@ -52,16 +53,18 @@ public class ProgressController extends BaseController {
 		return success(CommonConstants.MessageCode.sPu00002, null, null);
 	}
 
-	@GetMapping("by/project/{projectId}")
-	public ResponseEntity<? extends Object> getAllProgressByCompanyId(@PathVariable String projectId)
-			throws BestWorkBussinessException {
-		ProgressAndProjectResDto progressAndProjectDto = null;
+	@GetMapping("/by/construction/{constructionId}")
+	public ResponseEntity<? extends Object> getAllProgressByConstruction(@PathVariable String constructionId) {
+		ProgressAndConstructionResDto progressAndConstructionDto = null;
 		try {
-			progressAndProjectDto = progressService.getProjectAndProgress(projectId);
+			progressAndConstructionDto = progressService.getProgressByConstruction(constructionId);
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}
-		return success(CommonConstants.MessageCode.sPu00003, progressAndProjectDto, null);
+		if(ObjectUtils.isEmpty(progressAndConstructionDto)) {
+			return success(CommonConstants.MessageCode.E1X0003, progressAndConstructionDto, null);
+		}
+		return success(CommonConstants.MessageCode.sPu00003, progressAndConstructionDto, null);
 	}
 
 	@PostMapping("/delete")

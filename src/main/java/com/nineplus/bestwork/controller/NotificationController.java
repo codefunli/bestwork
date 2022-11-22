@@ -37,7 +37,7 @@ public class NotificationController extends BaseController {
 		List<NotificationResDto> notificationList = null;
 
 		try {
-			notificationList = notificationService.getAllNotificationsByUser();
+			notificationList = notificationService.getAllNotifyByUser();
 		} catch (BestWorkBussinessException e) {
 			return failed(e.getMsgCode(), e.getParam());
 		}
@@ -53,7 +53,7 @@ public class NotificationController extends BaseController {
 		}
 		NotificationEntity notification = notificationOpt.get();
 		try {
-			notification = notificationService.changeNotificationReadingStatus(notification);
+			notification = notificationService.chgNotifyReadStatus(notification);
 		} catch (BestWorkBussinessException e) {
 			return failed(e.getMsgCode(), e.getParam());
 		}

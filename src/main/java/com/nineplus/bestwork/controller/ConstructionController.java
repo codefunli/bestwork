@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.nineplus.bestwork.dto.ConstructionListIdDto;
 import com.nineplus.bestwork.dto.ConstructionReqDto;
@@ -65,9 +67,10 @@ public class ConstructionController extends BaseController {
 	 *         successfully or not
 	 */
 	@PostMapping("/create")
-	public ResponseEntity<? extends Object> createConstruction(@RequestBody ConstructionReqDto constructionReqDto) {
+	public ResponseEntity<? extends Object> createConstruction(@RequestPart ConstructionReqDto constructionReqDto,
+			@RequestPart List<MultipartFile> drawings) {
 		try {
-			constructionService.createConstruction(constructionReqDto);
+			constructionService.createConstruction(constructionReqDto, drawings);
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}
@@ -85,7 +88,7 @@ public class ConstructionController extends BaseController {
 	public ResponseEntity<? extends Object> getConstructionById(@PathVariable long constructionId) {
 		ConstructionResDto constructionResDto = null;
 		try {
-			constructionResDto = constructionService.findConstructionById(constructionId);
+			constructionResDto = constructionService.findCstrtResById(constructionId);
 		} catch (BestWorkBussinessException e) {
 			return failed(e.getMsgCode(), e.getParam());
 		}
@@ -107,9 +110,9 @@ public class ConstructionController extends BaseController {
 	 */
 	@PatchMapping("/update/{constructionId}")
 	public ResponseEntity<? extends Object> updateConstruction(@PathVariable long constructionId,
-			@RequestBody ConstructionReqDto constructionReqDto) {
+			@RequestPart ConstructionReqDto constructionReqDto, @RequestPart List<MultipartFile> drawings) {
 		try {
-			constructionService.updateConstruction(constructionId, constructionReqDto);
+			constructionService.updateConstruction(constructionId, constructionReqDto, drawings);
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}

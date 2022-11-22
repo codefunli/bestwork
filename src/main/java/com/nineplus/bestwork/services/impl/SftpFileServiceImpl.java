@@ -103,6 +103,8 @@ public class SftpFileServiceImpl implements ISftpFileService {
 
 	public static final String EVIDENCE_AFTER_PATH = "evidenceAfterPath";
 
+	public static final String CONSTRUCTION_PATH = "constructionPath";
+
 	@Override
 	public boolean isExistFolder(ChannelSftp channel, String path) {
 		try {
@@ -195,6 +197,11 @@ public class SftpFileServiceImpl implements ISftpFileService {
 	@Override
 	public String uploadEvidenceAfter(MultipartFile file, String airWayBill, long Id) {
 		return upload(file, FolderType.EVIDENCE_AFTER, airWayBill, Id);
+	}
+
+	@Override
+	public String uploadConstructionDrawing(MultipartFile file, long constructionId) {
+		return uploadDrawing(file, FolderType.CONSTRUCTION, constructionId);
 	}
 
 	/**
@@ -291,6 +298,52 @@ public class SftpFileServiceImpl implements ISftpFileService {
 		return finalPath;
 	}
 
+	private String uploadDrawing(MultipartFile mfile, FolderType folderType, Long constructionId) {
+		Session session = null;
+		ChannelSftp channel = null;
+		String pathTemp = null;
+		String finalPath = null;
+
+		// Create folder in sftp server.
+		try {
+
+			Pair<Session, ChannelSftp> sftpConnection = this.getConnection();
+
+			session = sftpConnection.getFirst();
+			channel = sftpConnection.getSecond();
+
+			String absolutePathInSftpServer = getPathSeverUpload(folderType);
+			if (!isExistFolder(channel, absolutePathInSftpServer)) {
+				pathTemp = this.createFolder(channel, absolutePathInSftpServer);
+			} else {
+				absolutePathInSftpServer = absolutePathInSftpServer + SEPARATOR + buildSubFolderName(folderType);
+				if (!isExistFolder(channel, absolutePathInSftpServer)) {
+					pathTemp = this.createFolder(channel, absolutePathInSftpServer);
+				} else {
+					pathTemp = absolutePathInSftpServer;
+				}
+			}
+
+			pathTemp = pathTemp + SEPARATOR + constructionId;
+			if (!isExistFolder(channel, pathTemp)) {
+				pathTemp = this.createFolder(channel, pathTemp);
+			}
+			String fileName = FilenameUtils.getName(mfile.getOriginalFilename());
+
+			// save file.
+			channel.cd(pathTemp);
+			channel.put(mfile.getInputStream(), fileName);
+			finalPath = pathTemp + SEPARATOR + fileName;
+			disconnect(session, channel);
+		} catch (IOException | SftpException e) {
+			disconnect(session, channel);
+			throw new FileHandleException(e.getMessage(), e);
+		} finally {
+			disconnect(session, channel);
+		}
+		return finalPath;
+	}
+
 	/**
 	 * create path file upload.
 	 *
@@ -348,6 +401,9 @@ public class SftpFileServiceImpl implements ISftpFileService {
 			break;
 		case EVIDENCE_AFTER:
 			res = EVIDENCE_AFTER_PATH;
+			break;
+		case CONSTRUCTION:
+			res = CONSTRUCTION_PATH;
 			break;
 		default:
 			break;

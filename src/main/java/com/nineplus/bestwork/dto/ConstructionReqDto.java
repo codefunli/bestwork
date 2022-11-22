@@ -1,5 +1,7 @@
 package com.nineplus.bestwork.dto;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
@@ -9,8 +11,8 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode
 public class ConstructionReqDto {
 
-	@JsonProperty("name")
-	private String name;
+	@JsonProperty("constructionName")
+	private String constructionName;
 
 	@JsonProperty("description")
 	private String description;
@@ -26,7 +28,10 @@ public class ConstructionReqDto {
 
 	@JsonProperty("status")
 	private String status;
+	
+	@JsonProperty("projectCode")
+	private String projectCode;
 
 	@JsonProperty("awbCodes")
-	private String[] awbCodes;
+	private List<AirWayBillResDto> awbCodes;
 }
