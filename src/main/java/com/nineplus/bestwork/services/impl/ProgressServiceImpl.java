@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -251,25 +252,18 @@ public class ProgressServiceImpl implements IProgressService {
 		return progressDto;
 	}
 
-//	@Override
-//	public List<Long> getAllProgressByProject(List<String> listProjectId) {
-//		List<Long> listProgressId = null;
-//		if (listProjectId != null) {
-//			listProgressId = progressRepository.getAllProgressByProject(listProjectId);
-//		}
-//		return listProgressId;
-//	}
-
 	@Override
 	public ProgressAndConstructionResDto getProgressByConstruction(String constructionId)
 			throws BestWorkBussinessException {
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
 		this.chkCurUserCanViewPrg(userAuthRoleReq, Long.valueOf(constructionId));
 
-		ProgressAndConstructionResDto dto = new ProgressAndConstructionResDto();
-		List<ProgressEntity> progress = progressRepo.findProgressByCstrtId(Long.valueOf(constructionId));
-		List<ProgressResDto> progressDtoList = new ArrayList<ProgressResDto>();
-		if (progress != null) {
+		ProgressAndConstructionResDto dto = null;
+		List<ProgressEntity> progress = null;
+		progress = progressRepo.findProgressByCstrtId(Long.valueOf(constructionId));
+		if (ObjectUtils.isNotEmpty(progress)) {
+			dto = new ProgressAndConstructionResDto();
+			List<ProgressResDto> progressDtoList = new ArrayList<ProgressResDto>();
 			for (ProgressEntity prog : progress) {
 				ProgressResDto progressDto = new ProgressResDto();
 				List<FileStorageResDto> lstFileDto = new ArrayList<>();

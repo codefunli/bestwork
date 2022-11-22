@@ -102,8 +102,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 			for (ProjectEntity project : canViewprjList) {
 				prjIds.add(project.getId());
 			}
-			Page<ConstructionEntity> pageCstrt = cstrtRepo.findCstrtByPrjIds(prjIds, pageSearchDto,
-					pageable);
+			Page<ConstructionEntity> pageCstrt = cstrtRepo.findCstrtByPrjIds(prjIds, pageSearchDto, pageable);
 
 			PageResDto<ConstructionResDto> pageResDto = new PageResDto<>();
 			RPageDto metaData = new RPageDto();
@@ -434,11 +433,11 @@ public class ConstructionServiceImpl implements IConstructionService {
 	public Boolean chkCurUserCanCreateCstrt(UserAuthDetected userAuthDetected, String prjCode)
 			throws BestWorkBussinessException {
 		UserEntity curUser = this.userService.findUserByUsername(userAuthDetected.getUsername());
-		if(curUser == null) {
+		if (curUser == null) {
 			return false;
 		}
 		AssignTaskEntity curAssign = this.assignTaskRepo.findByProjectIdAndUserId(prjCode, curUser.getId());
-		if(curAssign == null) {
+		if (curAssign == null) {
 			return false;
 		}
 		if (userAuthDetected.getIsContractor() && curAssign.isCanEdit()) {
@@ -527,14 +526,18 @@ public class ConstructionServiceImpl implements IConstructionService {
 		UserAuthDetected userAuthRoleReq = this.getUserAuthRoleReq();
 		String curUsername = userAuthRoleReq.getUsername();
 		long[] ids = constructionIds.getListId();
-		List<ConstructionEntity> cstrtList = cstrtRepo.findByIds(ids);
+		List<ConstructionEntity> cstrtList = new ArrayList<>();
+		for (long id : ids) {
+			Optional<ConstructionEntity> cstrtOpt = cstrtRepo.findById(id);
+			if (!cstrtOpt.isPresent()) {
+				throw new BestWorkBussinessException(CommonConstants.MessageCode.ECS0007, null);
+			}
+			cstrtList.add(cstrtOpt.get());
+		}
 		for (ConstructionEntity construction : cstrtList) {
 			if (!chkCurUserCanEditDelCstrt(construction, curUsername)) {
 				throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
 			}
-		}
-		if (cstrtList == null) {
-			throw new BestWorkBussinessException(CommonConstants.MessageCode.ECS0005, null);
 		}
 		if (cstrtList.contains(null)) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.ECS0006, null);

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -52,18 +53,6 @@ public class ProgressController extends BaseController {
 		return success(CommonConstants.MessageCode.sPu00002, null, null);
 	}
 
-//	@GetMapping("by/project/{projectId}")
-//	public ResponseEntity<? extends Object> getAllProgressByCompanyId(@PathVariable String projectId)
-//			throws BestWorkBussinessException {
-//		ProgressAndProjectResDto progressAndProjectDto = null;
-//		try {
-//			progressAndProjectDto = progressService.getProjectAndProgress(projectId);
-//		} catch (BestWorkBussinessException ex) {
-//			return failed(ex.getMsgCode(), ex.getParam());
-//		}
-//		return success(CommonConstants.MessageCode.sPu00003, progressAndProjectDto, null);
-//	}
-
 	@GetMapping("/by/construction/{constructionId}")
 	public ResponseEntity<? extends Object> getAllProgressByConstruction(@PathVariable String constructionId) {
 		ProgressAndConstructionResDto progressAndConstructionDto = null;
@@ -71,6 +60,9 @@ public class ProgressController extends BaseController {
 			progressAndConstructionDto = progressService.getProgressByConstruction(constructionId);
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
+		}
+		if(ObjectUtils.isEmpty(progressAndConstructionDto)) {
+			return success(CommonConstants.MessageCode.E1X0003, progressAndConstructionDto, null);
 		}
 		return success(CommonConstants.MessageCode.sPu00003, progressAndConstructionDto, null);
 	}
