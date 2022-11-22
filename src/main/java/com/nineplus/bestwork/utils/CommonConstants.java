@@ -225,10 +225,14 @@ public class CommonConstants {
 		public static final String eA0005 = "eA0005";
 		public static final String eA0006 = "eA0006";
 
+		//for invoice post
 		public static final String sI0001 = "sI0001";
 		public static final String sI0002 = "sI0002";
+		public static final String eI0003 = "eI0003";
+		public static final String eI0004 = "eI0004";
 		public static final String sI0003 = "sI0003";
 		public static final String eI0001 = "eI0001";
+		public static final String sI0004 = "sI0004";
 
 		public static final String SCS0001 = "scs0001";
 		public static final String ECS0001 = "ecs0001";
@@ -252,6 +256,8 @@ public class CommonConstants {
 		public static final String sP0002 = "sP0002";
 		public static final String sP0003 = "sP0003";
 		public static final String eP0001 = "eP0001";
+		public static final String eP0003 = "eP0003";
+		public static final String eP0004 = "eP0004";
 
 		public static final String EXM001 = "EXM001";
 		public static final String SCM001 = "SCM001";

@@ -17,6 +17,7 @@ import com.nineplus.bestwork.dto.CustomClearancePackageFileResDto;
 import com.nineplus.bestwork.dto.FileStorageResDto;
 import com.nineplus.bestwork.dto.PackagePostReqDto;
 import com.nineplus.bestwork.dto.PackagePostResDto;
+import com.nineplus.bestwork.dto.PostCommentReqDto;
 import com.nineplus.bestwork.entity.FileStorageEntity;
 import com.nineplus.bestwork.entity.PackagePost;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
@@ -204,4 +205,26 @@ public class PackagePostServiceImpl implements IPackagePostService {
 		return lst;
 	}
 
+	@Override
+	@Transactional
+	public PackagePost pushComment(Long postPackageId, PostCommentReqDto postCommentRequestDto)
+			throws BestWorkBussinessException {
+		PackagePost currentPost = null;
+		try {
+			if (ObjectUtils.isNotEmpty(postPackageId) && ObjectUtils.isNotEmpty(postCommentRequestDto)) {
+				// Check exist post invoice with air way bill in DB
+				currentPost = this.packagePostRepository.findByIdAndAirWayBill(postPackageId,
+						postCommentRequestDto.getAirWayBillCode());
+				if (ObjectUtils.isEmpty(currentPost)) {
+					throw new BestWorkBussinessException(CommonConstants.MessageCode.eP0003, null);
+				}
+				// Set comment
+				currentPost.setComment(postCommentRequestDto.getComment());
+				this.packagePostRepository.save(currentPost);
+			}
+		} catch (Exception e) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.eP0004, null);
+		}
+		return currentPost;
+	}
 }
