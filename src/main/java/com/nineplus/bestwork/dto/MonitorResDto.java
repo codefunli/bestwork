@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
 
+import java.sql.Timestamp;
+
 @Data
 public class MonitorResDto {
     @JsonProperty("id")
@@ -12,4 +14,9 @@ public class MonitorResDto {
     private String name;
     @JsonProperty("icon")
     private String icon;
+    private String url;
+    private String createdUser;
+    private Timestamp createdDate;
+    private String updatedUser;
+    private Timestamp updatedDate;
 }

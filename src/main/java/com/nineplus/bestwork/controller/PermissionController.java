@@ -3,6 +3,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.nineplus.bestwork.dto.*;
 import com.nineplus.bestwork.entity.RoleEntity;
@@ -42,13 +43,14 @@ public class PermissionController extends BaseController {
     @GetMapping("/{id}")
     public ResponseEntity<? extends Object> getPermissions(@PathVariable Long id) throws BestWorkBussinessException {
         ResRoleDto role = roleService.getRole(id);
-        List<PermissionResDto> mapResponse;
+        List<PermissionResDto> mapResponse = new ArrayList<>();
         List<String> roleList = new ArrayList<>();
         roleList.add(role.getName());
         List<Integer> lstStt = new ArrayList<>();
         lstStt.add(Status.ACTIVE.getValue());
         try {
-            mapResponse = permissionService.getMapPermissions(roleList, lstStt).values().stream().map(permissionResDtos -> permissionResDtos.get(0)).toList();
+            mapResponse = permissionService.getMapPermissions(roleList, lstStt).values().stream()
+                    .flatMap(List :: stream).collect(Collectors.toList());
         } catch (BestWorkBussinessException ex) {
             return failed(ex.getMsgCode(), ex.getParam());
         }

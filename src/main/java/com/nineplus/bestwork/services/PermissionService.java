@@ -109,15 +109,6 @@ public class PermissionService {
                                         (userAuthUtils.getUserInfoFromReq(false).getUsername());
                                 sysPermission.setCreatedDate(new Timestamp(System.currentTimeMillis()));
                             }
-                            if (sysMonitor.getId() != null) {
-                                sysMonitor.setUpdatedUser
-                                        (userAuthUtils.getUserInfoFromReq(false).getUsername());
-                                sysMonitor.setUpdatedDate(new Timestamp(System.currentTimeMillis()));
-                            } else {
-                                sysMonitor.setCreatedUser
-                                        (userAuthUtils.getUserInfoFromReq(false).getUsername());
-                                sysMonitor.setCreatedDate(new Timestamp(System.currentTimeMillis()));
-                            }
                         } catch (BestWorkBussinessException e) {
                             throw new RuntimeException(e);
                         }
