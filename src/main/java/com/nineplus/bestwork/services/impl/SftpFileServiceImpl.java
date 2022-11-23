@@ -13,6 +13,7 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.zip.ZipOutputStream;
 
@@ -33,6 +34,7 @@ import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpException;
 import com.nineplus.bestwork.exception.FileHandleException;
 import com.nineplus.bestwork.services.ISftpFileService;
+import com.nineplus.bestwork.utils.CommonConstants;
 import com.nineplus.bestwork.utils.DateUtils;
 import com.nineplus.bestwork.utils.Enums.FolderType;
 
@@ -99,9 +101,9 @@ public class SftpFileServiceImpl implements ISftpFileService {
 
 	public static final String PACKAGE_PATH = "packages";
 
-	public static final String EVIDENCE_BEFORE_PATH = "evidenceBeforePath";
+	public static final String EVIDENCE_BEFORE_PATH = "evidenceBefore";
 
-	public static final String EVIDENCE_AFTER_PATH = "evidenceAfterPath";
+	public static final String EVIDENCE_AFTER_PATH = "evidenceAfter";
 
 	public static final String CONSTRUCTION_PATH = "constructionPath";
 
@@ -539,5 +541,17 @@ public class SftpFileServiceImpl implements ISftpFileService {
 			throw new FileHandleException(ex.getMessage(), ex);
 		}
 		return listPathFile;
+	}
+
+	@Override
+	public boolean isImageFile(List<MultipartFile> mFiles) {
+		for (MultipartFile file : mFiles) {
+			// file must be < 5MB
+			String fileExtensions = FilenameUtils.getExtension(file.getOriginalFilename());
+			if (Arrays.asList(CommonConstants.Image.IMAGE_EXTENSION).contains(fileExtensions.trim())) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

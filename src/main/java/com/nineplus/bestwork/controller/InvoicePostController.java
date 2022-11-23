@@ -71,7 +71,6 @@ public class InvoicePostController extends BaseController {
 			throws BestWorkBussinessException {
 		List<PostInvoiceResDto> listPostInvoiceResDto = null;
 		try {
-			// LinhHD
 			listPostInvoiceResDto = iPostInvoiceService.getAllInvoicePost(airWayBillId);
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
