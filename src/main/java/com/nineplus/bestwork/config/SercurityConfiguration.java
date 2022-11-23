@@ -51,7 +51,7 @@ import java.util.List;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SercurityConfiguration implements EnvironmentAware {
 
-    public static String PUBLIC_URL[] = {"/api/v1/auth/**","/login"};
+    public static String PUBLIC_URL[] = {"/api/v1/auth/**","/login","/logout"};
     public static String IGNORE_URL[] = {};
     @Value("${allow.origins}")
     private String allowOrigins;

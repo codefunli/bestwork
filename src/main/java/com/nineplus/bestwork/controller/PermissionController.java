@@ -30,7 +30,7 @@ public class PermissionController extends BaseController {
     RoleService roleService;
 
     @PostMapping
-    public ResponseEntity<? extends Object> updatePermission(@RequestBody RegPermissionDto dto) {
+    public ResponseEntity<? extends Object> updatePermission(@RequestBody List<RegPermissionDto> dto) {
         List<PermissionResDto> resPermissionDto;
         try {
             resPermissionDto = permissionService.updatePermissions(dto);
