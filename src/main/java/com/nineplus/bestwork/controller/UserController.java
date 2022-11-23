@@ -180,10 +180,10 @@ public class UserController extends BaseController {
 
 	@GetMapping("/detect-infor")
 	public ResponseEntity<? extends Object> detectUserLogin(HttpServletRequest request, HttpServletResponse response) {
-		Cookie accessCookie = tokenUtils.getCookieFromRequest(request, CommonConstants.Authentication.ACCESS_COOKIE);
-		if (accessCookie != null) {
+		String accessToken = tokenUtils.getTokenFromRequest(request, CommonConstants.Authentication.ACCESS_TOKEN);
+		if (accessToken != null) {
 			try {
-				String username = tokenUtils.getUserNameFromCookie(accessCookie);
+				String username = tokenUtils.getUserNameFromToken(accessToken);
 				UserDetectResDto userDetect = userService.detectUser(username);
 				return userDetect != null ? success(CommonConstants.MessageCode.sUS0001, userDetect, null)
 						: failed(CommonConstants.MessageCode.E1X0003, null);

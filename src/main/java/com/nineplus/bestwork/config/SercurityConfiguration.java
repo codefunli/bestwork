@@ -97,9 +97,7 @@ public class SercurityConfiguration implements EnvironmentAware {
                         response.setStatus(HttpStatus.OK.value());
                         ;
                     }
-                }).logoutRequestMatcher(new AntPathRequestMatcher("/logout")).clearAuthentication(true)
-                .deleteCookies(CommonConstants.Authentication.ACCESS_COOKIE)
-                .deleteCookies(CommonConstants.Authentication.REFRESH_COOKIE);
+                }).logoutRequestMatcher(new AntPathRequestMatcher("/logout")).clearAuthentication(true);
         return http.build();
     }
 

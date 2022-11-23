@@ -2,8 +2,8 @@ package com.nineplus.bestwork.utils;
 
 public class CommonConstants {
 	public class Authentication {
-		public static final String ACCESS_COOKIE = "access_cookie";
-		public static final String REFRESH_COOKIE = "refresh_cookie";
+		public static final String ACCESS_TOKEN = "access_token";
+		public static final String REFRESH_TOKEN = "refresh_token";
 		public static final String PREFIX_TOKEN = "prefix";
 		public static final String ROLES = "roles";
 		public static final String USERNAME = "username";
