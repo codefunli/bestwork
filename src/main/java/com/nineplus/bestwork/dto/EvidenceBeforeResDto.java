@@ -8,6 +8,11 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * 
+ * @author TuanNA
+ *
+ */
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = false)

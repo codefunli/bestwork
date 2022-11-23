@@ -28,6 +28,11 @@ import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.services.IInvoicePostService;
 import com.nineplus.bestwork.utils.CommonConstants;
 
+/**
+ * 
+ * @author TuanNA
+ *
+ */
 @RestController
 @RequestMapping("/api/v1/invoices")
 public class InvoicePostController extends BaseController {

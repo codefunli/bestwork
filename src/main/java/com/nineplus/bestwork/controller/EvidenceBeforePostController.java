@@ -22,6 +22,11 @@ import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.services.IEvidenBeforePostService;
 import com.nineplus.bestwork.utils.CommonConstants;
 
+/**
+ * 
+ * @author TuanNA
+ *
+ */
 @RestController
 @RequestMapping("/api/v1/evidence-before-post")
 public class EvidenceBeforePostController extends BaseController {

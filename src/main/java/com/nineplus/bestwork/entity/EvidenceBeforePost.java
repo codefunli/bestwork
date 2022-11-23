@@ -19,6 +19,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * 
+ * @author TuanNA
+ *
+ */
 @Table(name = "EVIDENCE_BEFORE_POST")
 @Entity(name = "EvidenceBeforePost")
 @Getter

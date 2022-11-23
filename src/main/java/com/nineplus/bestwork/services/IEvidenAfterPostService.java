@@ -12,7 +12,11 @@ import com.nineplus.bestwork.dto.PostCommentReqDto;
 import com.nineplus.bestwork.entity.EvidenceAfterPost;
 import com.nineplus.bestwork.entity.EvidenceBeforePost;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
-
+/**
+ * 
+ * @author TuanNA
+ *
+ */
 public interface IEvidenAfterPostService {
 
 	void updateEvidenceAfter(EvidenceAfterReqDto evidenceAfterReqDto, List<MultipartFile> mFiles)

@@ -7,7 +7,11 @@ import org.springframework.stereotype.Repository;
 
 import com.nineplus.bestwork.entity.EvidenceBeforePost;
 
-
+/**
+ * 
+ * @author TuanNA
+ *
+ */
 @Repository
 public interface EvidenceBeforePostRepository extends JpaRepository<EvidenceBeforePost, Long> {
 

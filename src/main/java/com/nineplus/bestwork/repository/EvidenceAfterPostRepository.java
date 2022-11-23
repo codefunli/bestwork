@@ -7,7 +7,11 @@ import org.springframework.stereotype.Repository;
 
 import com.nineplus.bestwork.entity.EvidenceAfterPost;
 
-
+/**
+ * 
+ * @author TuanNA
+ *
+ */
 @Repository
 public interface EvidenceAfterPostRepository extends JpaRepository<EvidenceAfterPost, Long> {
 
