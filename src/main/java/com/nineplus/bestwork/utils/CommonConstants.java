@@ -32,7 +32,7 @@ public class CommonConstants {
 		public static final String MEDIA_TYPE_STREAM = "application/octet-stream";
 
 		public static final String MEDIA_TYPE_PDF = "application/pdf";
-		
+
 		public static final String MEDIA_TYPE_ZIP = "application/zip";
 
 		/** The Constant CONTENT_DISPOSITION. */
@@ -208,6 +208,7 @@ public class CommonConstants {
 		public static final String eF0001 = "eF0001";
 		public static final String eF0002 = "eF0002";
 		public static final String eF0003 = "eF0003";
+		public static final String eF0004 = "eF0004";
 		public static final String sF0001 = "sF0001";
 		public static final String sF0002 = "sF0002";
 		public static final String sF0003 = "sF0003";
@@ -225,10 +226,14 @@ public class CommonConstants {
 		public static final String eA0005 = "eA0005";
 		public static final String eA0006 = "eA0006";
 
+		// for invoice post
 		public static final String sI0001 = "sI0001";
 		public static final String sI0002 = "sI0002";
+		public static final String eI0003 = "eI0003";
+		public static final String eI0004 = "eI0004";
 		public static final String sI0003 = "sI0003";
 		public static final String eI0001 = "eI0001";
+		public static final String sI0004 = "sI0004";
 
 		public static final String SCS0001 = "scs0001";
 		public static final String ECS0001 = "ecs0001";
@@ -252,9 +257,27 @@ public class CommonConstants {
 		public static final String sP0002 = "sP0002";
 		public static final String sP0003 = "sP0003";
 		public static final String eP0001 = "eP0001";
+		public static final String eP0003 = "eP0003";
+		public static final String eP0004 = "eP0004";
 
 		public static final String EXM001 = "EXM001";
 		public static final String SCM001 = "SCM001";
+
+		// For evidence before
+		public static final String eEB0001 = "eEB0001";
+		public static final String eEB0002 = "eEB0002";
+		public static final String eEB0003 = "eEB0003";
+		public static final String sEB0001 = "sEB0001";
+		public static final String sEB0002 = "sEB0002";
+		public static final String sEB0003 = "sEB0003";
+
+		// For evidence after
+		public static final String eEA0001 = "eEA0001";
+		public static final String eEA0002 = "eEA0002";
+		public static final String eEA0003 = "eEA0003";
+		public static final String sEA0001 = "sEA0001";
+		public static final String sEA0002 = "sEA0002";
+		public static final String sEA0003 = "sEA0003";
 
 	}
 

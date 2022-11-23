@@ -6,18 +6,24 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * 
+ * @author TuanNA
+ *
+ */
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = false)
-public class PostCommentReqDto extends BaseDto {
+public class EvidenceBeforeReqDto extends BaseDto {
+
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 5245229871548232443L;
-
+	private static final long serialVersionUID = -8950939805008081581L;
 	@JsonProperty("airWayBillCode")
 	private String airWayBillCode;
 
-	@JsonProperty("comment")
-	private String comment;
+	@JsonProperty("description")
+	private String description;
+
 }

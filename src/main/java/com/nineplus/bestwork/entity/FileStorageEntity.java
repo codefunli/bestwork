@@ -62,6 +62,12 @@ public class FileStorageEntity {
 
 	@Column(name = "construction_id", nullable = true)
 	private long constructionId;
+	
+	@Column(name = "evidence_before_post_id", nullable = true)
+	private long evidenceBeforePostId;
+	
+	@Column(name = "post_evidence_after_id", nullable = true)
+	private long evidenceAfterPostId;
 
 	@Column(name = "progress_id", nullable = true)
 	private long progressId;

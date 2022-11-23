@@ -3,6 +3,7 @@ package com.nineplus.bestwork.services;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -81,7 +82,20 @@ public class PermissionService {
         }
     }
 
-    public List<PermissionResDto> updatePermissions(RegPermissionDto dto) throws BestWorkBussinessException {
+    public List<PermissionResDto> updatePermissions(List<RegPermissionDto> dtos) throws BestWorkBussinessException {
+        List<PermissionResDto> resDtos = new ArrayList<>();
+        dtos.forEach(regPermissionDto -> {
+            try {
+                resDtos.addAll(this.updatePermissionsByRole(regPermissionDto));
+            } catch (BestWorkBussinessException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        return resDtos;
+    }
+
+
+    public List<PermissionResDto> updatePermissionsByRole(RegPermissionDto dto) throws BestWorkBussinessException {
         try {
             Optional<RoleEntity> role = sysRoleRepository.findById(dto.getRoleId());
             if (role.isEmpty()) {
@@ -108,15 +122,6 @@ public class PermissionService {
                                 sysPermission.setCreatedUser
                                         (userAuthUtils.getUserInfoFromReq(false).getUsername());
                                 sysPermission.setCreatedDate(new Timestamp(System.currentTimeMillis()));
-                            }
-                            if (sysMonitor.getId() != null) {
-                                sysMonitor.setUpdatedUser
-                                        (userAuthUtils.getUserInfoFromReq(false).getUsername());
-                                sysMonitor.setUpdatedDate(new Timestamp(System.currentTimeMillis()));
-                            } else {
-                                sysMonitor.setCreatedUser
-                                        (userAuthUtils.getUserInfoFromReq(false).getUsername());
-                                sysMonitor.setCreatedDate(new Timestamp(System.currentTimeMillis()));
                             }
                         } catch (BestWorkBussinessException e) {
                             throw new RuntimeException(e);

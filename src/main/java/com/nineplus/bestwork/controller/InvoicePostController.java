@@ -20,12 +20,19 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.nineplus.bestwork.dto.InvoiceFileDownLoadReqDto;
+import com.nineplus.bestwork.dto.PostCommentReqDto;
 import com.nineplus.bestwork.dto.PostInvoiceReqDto;
 import com.nineplus.bestwork.dto.PostInvoiceResDto;
+import com.nineplus.bestwork.entity.PostInvoice;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.services.IInvoicePostService;
 import com.nineplus.bestwork.utils.CommonConstants;
 
+/**
+ * 
+ * @author TuanNA
+ *
+ */
 @RestController
 @RequestMapping("/api/v1/invoices")
 public class InvoicePostController extends BaseController {
@@ -69,7 +76,6 @@ public class InvoicePostController extends BaseController {
 			throws BestWorkBussinessException {
 		List<PostInvoiceResDto> listPostInvoiceResDto = null;
 		try {
-			// LinhHD
 			listPostInvoiceResDto = iPostInvoiceService.getAllInvoicePost(airWayBillId);
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
@@ -123,7 +129,20 @@ public class InvoicePostController extends BaseController {
 				// Content-Disposition
 				.header(HttpHeaders.CONTENT_DISPOSITION, CommonConstants.MediaType.CONTENT_DISPOSITION + pathFile)
 				// Content-Type
-				.contentType(MediaType.parseMediaType(CommonConstants.MediaType.MEDIA_TYPE_PDF)).body(Arrays.toString(dataBytesFile));
+				.contentType(MediaType.parseMediaType(CommonConstants.MediaType.MEDIA_TYPE_PDF))
+				.body(Arrays.toString(dataBytesFile));
+	}
+
+	@PatchMapping("/{postInvoiceId}/comment")
+	public ResponseEntity<? extends Object> addComment(@PathVariable Long postInvoiceId,
+			@RequestBody PostCommentReqDto postCommentRequestDto) throws BestWorkBussinessException {
+		PostInvoice postInvoice =  null;
+		try {
+			postInvoice = iPostInvoiceService.pushComment(postInvoiceId, postCommentRequestDto);
+		} catch (BestWorkBussinessException ex) {
+			return failed(ex.getMsgCode(), ex.getParam());
+		}
+		return success(CommonConstants.MessageCode.sI0004, postInvoice, null);
 	}
 
 }

@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.nineplus.bestwork.dto.CustomClearanceInvoiceFileResDto;
 import com.nineplus.bestwork.dto.FileStorageResDto;
+import com.nineplus.bestwork.dto.PostCommentReqDto;
 import com.nineplus.bestwork.dto.PostInvoiceReqDto;
 import com.nineplus.bestwork.dto.PostInvoiceResDto;
 import com.nineplus.bestwork.entity.FileStorageEntity;
@@ -196,6 +197,29 @@ public class InvoicePostServiceImpl implements IInvoicePostService {
 			lst.add(customClearanceFileResDto);
 		}
 		return lst;
+	}
+
+	@Override
+	@Transactional
+	public PostInvoice pushComment(Long postInvoiceId, PostCommentReqDto postCommentRequestDto)
+			throws BestWorkBussinessException {
+		PostInvoice currentPost = null;
+		try {
+			if (ObjectUtils.isNotEmpty(postInvoiceId) && ObjectUtils.isNotEmpty(postCommentRequestDto)) {
+				// Check exist post invoice with air way bill in DB
+				currentPost = this.postInvoiceRepository.findByIdAndAirWayBill(postInvoiceId,
+						postCommentRequestDto.getAirWayBillCode());
+				if (ObjectUtils.isEmpty(currentPost)) {
+					throw new BestWorkBussinessException(CommonConstants.MessageCode.eI0003, null);
+				}
+				//Set comment
+				currentPost.setComment(postCommentRequestDto.getComment());
+				this.postInvoiceRepository.save(currentPost);
+			}
+		} catch (Exception e) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.eI0004, null);
+		}
+		return currentPost;
 	}
 
 }

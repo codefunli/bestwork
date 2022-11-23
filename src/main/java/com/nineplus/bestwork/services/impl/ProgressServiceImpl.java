@@ -34,6 +34,11 @@ import com.nineplus.bestwork.utils.DateUtils;
 import com.nineplus.bestwork.utils.Enums.FolderType;
 import com.nineplus.bestwork.utils.UserAuthUtils;
 
+/**
+ * 
+ * @author TuanNA
+ *
+ */
 @Service
 @Transactional
 public class ProgressServiceImpl implements IProgressService {

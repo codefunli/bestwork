@@ -12,6 +12,8 @@ import com.nineplus.bestwork.entity.PostInvoice;
 public interface PostInvoiceRepository extends JpaRepository<PostInvoice, Long> {
 	List<PostInvoice> findByAirWayBill(String airWayBill);
 
+	PostInvoice findByIdAndAirWayBill(Long postInvoiceId, String airWayBill);
+
 	@Query(value = "SELECT path_file_server FROM FILE_STORAGE WHERE id = :fileId AND post_invoice_id = :invoicePostId", nativeQuery = true)
 	String getPathFileServer(long invoicePostId, long fileId);
 
