@@ -51,8 +51,8 @@ public interface ProjectRepository extends JpaRepository<ProjectEntity, String> 
 			+ " ast.can_view = 1 or ast.can_edit = 1 ) ", nativeQuery = true)
 	List<ProjectEntity> findPrjAssignedToCurUser(@Param("curUsername") String curUsername);
 
-	@Query(value = "select p.* from PROJECT p " + " join AIRWAY_BILL awb on awb.project_code = p.id "
-			+ " join AWB_CONSTRUCTION awbc on awbc.awb_id = awb.id" + " where awbc.construction_id = :constructionId "
+	@Query(value = "select p.* from PROJECT p " + " join CONSTRUCTION c on c.project_code = p.id "
+			+ " where c.id = :constructionId "
 			+ " group by p.id ", nativeQuery = true)
 	ProjectEntity findByConstructionId(@Param("constructionId") long constructionId);
 

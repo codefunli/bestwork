@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,10 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.nineplus.bestwork.dto.ChangeStatusFileDto;
-import com.nineplus.bestwork.dto.FileStorageReqDto;
 import com.nineplus.bestwork.entity.FileStorageEntity;
 import com.nineplus.bestwork.entity.PostEntity;
-import com.nineplus.bestwork.entity.ProgressEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.repository.StorageRepository;
 import com.nineplus.bestwork.services.IStorageService;
@@ -134,10 +131,10 @@ public class StorageServiceImpl implements IStorageService {
 				file.setPackagePostId(id);
 				break;
 			case EVIDENCE_BEFORE:
-				file.setEvidenceBeforePostId(Id);
+				file.setEvidenceBeforePostId(id);
 				break;
 			case EVIDENCE_AFTER:
-				file.setEvidenceAfterPostId(Id);
+				file.setEvidenceAfterPostId(id);
 				break;
 			case CONSTRUCTION:
 				file.setConstructionId(id);
