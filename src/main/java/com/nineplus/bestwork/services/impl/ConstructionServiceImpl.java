@@ -15,8 +15,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.nineplus.bestwork.dto.AirWayBillReqDto;
 import com.nineplus.bestwork.dto.AirWayBillResDto;
 import com.nineplus.bestwork.dto.ConstructionListIdDto;
 import com.nineplus.bestwork.dto.ConstructionReqDto;
@@ -179,6 +181,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 	 * @param constructionReqDto
 	 */
 	@Override
+	@Transactional
 	public void createConstruction(ConstructionReqDto constructionReqDto, List<MultipartFile> drawings)
 			throws BestWorkBussinessException {
 		UserAuthDetected userAuthDetected = this.getUserAuthRoleReq();
@@ -224,7 +227,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 		construction.setStatus(cstrtReqDto.getStatus());
 		construction.setProjectCode(cstrtReqDto.getProjectCode());
 		List<AirWayBill> airWayBills = new ArrayList<>();
-		for (AirWayBillResDto dto : cstrtReqDto.getAwbCodes()) {
+		for (AirWayBillReqDto dto : cstrtReqDto.getAwbCodes()) {
 			AirWayBill awb = this.awbService.findByCode(dto.getCode());
 			airWayBills.add(awb);
 		}
@@ -240,7 +243,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 	 */
 	private void validateCstrtInfo(ConstructionReqDto cstrtReqDto) throws BestWorkBussinessException {
 		String constructionName = cstrtReqDto.getConstructionName();
-		List<AirWayBillResDto> awbCodes = cstrtReqDto.getAwbCodes();
+		List<AirWayBillReqDto> awbCodes = cstrtReqDto.getAwbCodes();
 
 		// Check construction name: not blank
 		if (ObjectUtils.isEmpty(constructionName)) {
@@ -272,7 +275,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 
 		// Check existence of AWB codes
 		Set<ProjectEntity> prjContainAWBs = new HashSet<>();
-		for (AirWayBillResDto awbResdto : awbCodes) {
+		for (AirWayBillReqDto awbResdto : awbCodes) {
 			String code = awbResdto.getCode();
 			AirWayBill airWayBill = this.awbService.findByCode(code);
 			if (ObjectUtils.isEmpty(airWayBill)) {
@@ -310,8 +313,8 @@ public class ConstructionServiceImpl implements IConstructionService {
 	 * @param awbCodes
 	 * @return true/false
 	 */
-	private Boolean checkAWBStatus(List<AirWayBillResDto> awbCodes) {
-		for (AirWayBillResDto awbResDto : awbCodes) {
+	private Boolean checkAWBStatus(List<AirWayBillReqDto> awbCodes) {
+		for (AirWayBillReqDto awbResDto : awbCodes) {
 			String code = awbResDto.getCode();
 			AirWayBill airWayBill = this.awbService.findByCode(code);
 			if (AirWayBillStatus.values()[airWayBill.getStatus()].equals(AirWayBillStatus.DONE)) {
@@ -485,6 +488,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 	 * @param constructionReqDto
 	 */
 	@Override
+	@Transactional
 	public void updateConstruction(long constructionId, ConstructionReqDto constructionReqDto,
 			List<MultipartFile> drawings) throws BestWorkBussinessException {
 		UserAuthDetected userAuthRoleReq = this.getUserAuthRoleReq();
@@ -522,6 +526,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 	 * @param ConstructionListIdDto
 	 */
 	@Override
+	@Transactional
 	public void deleteConstruction(ConstructionListIdDto constructionIds) throws BestWorkBussinessException {
 		UserAuthDetected userAuthRoleReq = this.getUserAuthRoleReq();
 		String curUsername = userAuthRoleReq.getUsername();

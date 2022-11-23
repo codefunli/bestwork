@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.nineplus.bestwork.dto.NotificationReqDto;
 import com.nineplus.bestwork.dto.NotificationResDto;
@@ -96,7 +97,7 @@ public class NotificationServiceImpl implements NotificationService {
 	 * @throws BestWorkBussinessException
 	 */
 	@Override
-	public NotificationEntity chgNotifyReadStatus(NotificationEntity notification)
+	public NotificationEntity sendNotifyChgReadStatus(NotificationEntity notification)
 			throws BestWorkBussinessException {
 		notification.setIsRead(1);
 		return this.notifyRepository.save(notification);
@@ -109,6 +110,7 @@ public class NotificationServiceImpl implements NotificationService {
 	 * @throws BestWorkBussinessException
 	 */
 	@Override
+	@Transactional
 	public void createNotification(NotificationReqDto notifyReqDto) throws BestWorkBussinessException {
 		UserEntity user = userService.findUserByUserId(notifyReqDto.getUserId());
 		if (user != null) {

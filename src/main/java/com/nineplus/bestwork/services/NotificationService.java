@@ -18,7 +18,7 @@ public interface NotificationService {
 
 	Optional<NotificationEntity> findById(long notifId);
 
-	NotificationEntity chgNotifyReadStatus(NotificationEntity notification)
+	NotificationEntity sendNotifyChgReadStatus(NotificationEntity notification)
 			throws BestWorkBussinessException;
 
 	void createNotification(NotificationReqDto notificationReqDto) throws BestWorkBussinessException;

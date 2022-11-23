@@ -87,25 +87,25 @@ public class StorageServiceImpl implements IStorageService {
 
 	}
 
-	@Override
-	@Transactional
-	public FileStorageEntity storeFileProgress(FileStorageReqDto file, ProgressEntity progress) {
-		try {
-			FileStorageEntity image = new FileStorageEntity();
-			image.setData(file.getData().getBytes());
-			image.setProgress(progress);
-			String generatedFileName = UUID.randomUUID().toString().replace("-", "");
-			image.setName(generatedFileName);
-			image.setType(getImageType(file.getData()));
-			image.setCreateDate(Timestamp.valueOf(LocalDateTime.now()));
-			image.setPathFileServer("progress test");
-
-			return storageRepository.save(image);
-		} catch (Exception e) {
-			e.getMessage();
-			return null;
-		}
-	}
+//	@Override
+//	@Transactional
+//	public FileStorageEntity storeFileProgress(FileStorageReqDto file, ProgressEntity progress) {
+//		try {
+//			FileStorageEntity image = new FileStorageEntity();
+//			image.setData(file.getData().getBytes());
+//			image.setProgress(progress);
+//			String generatedFileName = UUID.randomUUID().toString().replace("-", "");
+//			image.setName(generatedFileName);
+//			image.setType(getImageType(file.getData()));
+//			image.setCreateDate(Timestamp.valueOf(LocalDateTime.now()));
+//			image.setPathFileServer("progress test");
+//
+//			return storageRepository.save(image);
+//		} catch (Exception e) {
+//			e.getMessage();
+//			return null;
+//		}
+//	}
 
 	public List<FileStorageEntity> findFilesByPostId(String postId) {
 		return this.storageRepository.findAllByPostId(postId);
@@ -123,15 +123,15 @@ public class StorageServiceImpl implements IStorageService {
 
 	@Override
 	@Transactional
-	public void storeFile(Long Id, FolderType type, String pathOnServer) {
+	public void storeFile(Long id, FolderType type, String pathOnServer) {
 		try {
 			FileStorageEntity file = new FileStorageEntity();
 			switch (type) {
 			case INVOICE:
-				file.setPostInvoiceId(Id);
+				file.setPostInvoiceId(id);
 				break;
 			case PACKAGE:
-				file.setPackagePostId(Id);
+				file.setPackagePostId(id);
 				break;
 			case EVIDENCE_BEFORE:
 				// file.setPackagePostId(Id);
@@ -140,7 +140,10 @@ public class StorageServiceImpl implements IStorageService {
 				// file.setPackagePostId(Id);
 				break;
 			case CONSTRUCTION:
-				file.setConstructionId(Id);
+				file.setConstructionId(id);
+				break;
+			case PROGRESS:
+				file.setProgressId(id);
 				break;
 			default:
 				break;

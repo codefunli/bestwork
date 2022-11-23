@@ -16,7 +16,6 @@ import com.nineplus.bestwork.dto.PageSearchDto;
 import com.nineplus.bestwork.entity.ProjectEntity;
 
 @Repository
-@Transactional
 public interface ProjectRepository extends JpaRepository<ProjectEntity, String> {
 
 	@Query(value = " select id from PROJECT order by id desc limit 1 ", nativeQuery = true)
@@ -66,7 +65,7 @@ public interface ProjectRepository extends JpaRepository<ProjectEntity, String> 
 			+ " where ((PRJ.`project_name` like :#{#pageSearchDto.keyword}"
 			+ " or PRJ.`description` like :#{#pageSearchDto.keyword})"
 			+ " and PRJ.`status` like if ( :#{#pageSearchDto.status} = -1, '%%', :#{#pageSearchDto.status})) "
-			+ " group by PRJ.id ", nativeQuery = true, 
+			, nativeQuery = true, 
 			countQuery = " select * from (select p.* from PROJECT p join T_SYS_APP_USER u on p.create_by = u.user_name "
 					+ " where (u.create_by = :curUsername or p.create_by = :curUsername) "
 					+ " union "
@@ -75,8 +74,7 @@ public interface ProjectRepository extends JpaRepository<ProjectEntity, String> 
 					+ " where tsau.user_name = :curUsername and (ast.can_view = 1 or ast.can_edit = 1)) as PRJ"
 					+ " where ((PRJ.`project_name` like :#{#pageSearchDto.keyword}"
 					+ " or PRJ.`description` like :#{#pageSearchDto.keyword})"
-					+ " and PRJ.`status` like if ( :#{#pageSearchDto.status} = -1, '%%', :#{#pageSearchDto.status})) "
-					+ " group by PRJ.id ")
+					+ " and PRJ.`status` like if ( :#{#pageSearchDto.status} = -1, '%%', :#{#pageSearchDto.status})) ")
 	Page<ProjectEntity> getPrjPageByOrgAdmin(@Param("curUsername") String curUsername,
 			@Param("pageSearchDto") PageSearchDto pageSearchDto, Pageable pageable);
 
@@ -105,21 +103,25 @@ public interface ProjectRepository extends JpaRepository<ProjectEntity, String> 
 			+ "  where (PRJ.`project_name` like :#{#pageSearchDto.keyword} "
 			+ "  or PRJ.`description` like  :#{#pageSearchDto.keyword} "
 			+ "  and PRJ.`status` like if ( :#{#pageSearchDto.status} = -1, '%%', :#{#pageSearchDto.status}))"
-			+ "  group by PRJ.id  ", nativeQuery = true,
+			, nativeQuery = true,
 			countQuery = " select * from (select p.* from PROJECT p where p.create_by = :curUsername " + "  union "
 					+ "  select p.* from PROJECT p join ASSIGN_TASK ast on ast.project_id = p.id "
 					+ "  join T_SYS_APP_USER tsau on tsau.id = ast.user_id "
 					+ "  where tsau.user_name = :curUsername and (ast.can_view = 1 or ast.can_edit = 1)) as PRJ "
 					+ "  where (PRJ.`project_name` like :#{#pageSearchDto.keyword} "
 					+ "  or PRJ.`description` like  :#{#pageSearchDto.keyword} "
-					+ "  and PRJ.`status` like if ( :#{#pageSearchDto.status} = -1, '%%', :#{#pageSearchDto.status}))"
-					+ "  group by PRJ.id  ")
+					+ "  and PRJ.`status` like if ( :#{#pageSearchDto.status} = -1, '%%', :#{#pageSearchDto.status}))")
 	Page<ProjectEntity> getPrjInvolvedByCurUser(@Param("curUsername") String curUsername,
 			@Param("pageSearchDto") PageSearchDto pageSearchDto, Pageable pageable);
 
-	@Query(value = " select p.* from PROJECT p " + " join T_SYS_APP_USER u on p.create_by = u.user_name "
+	
+	@Query(value =  " select * from (select p.* from PROJECT p join T_SYS_APP_USER u on p.create_by = u.user_name "
 			+ " where (u.create_by = :curUsername or p.create_by = :curUsername) "
-			+ " group by p.id ", nativeQuery = true)
+			+ " union "
+			+ " select p.* from PROJECT p join ASSIGN_TASK ast on ast.project_id = p.id "
+			+ "	join T_SYS_APP_USER tsau on tsau.id = ast.user_id "
+			+ " where tsau.user_name = :curUsername and (ast.can_view = 1 or ast.can_edit = 1)) as PRJ"
+			, nativeQuery = true)
 	List<ProjectEntity> getPrjLstByOrgAdminUsername(String curUsername);
 
 	@Query(value = " select p.* from PROJECT p " + " join T_SYS_APP_USER u on p.create_by = u.user_name "

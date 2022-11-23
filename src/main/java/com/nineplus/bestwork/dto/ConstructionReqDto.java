@@ -33,5 +33,5 @@ public class ConstructionReqDto {
 	private String projectCode;
 
 	@JsonProperty("awbCodes")
-	private List<AirWayBillResDto> awbCodes;
+	private List<AirWayBillReqDto> awbCodes;
 }
