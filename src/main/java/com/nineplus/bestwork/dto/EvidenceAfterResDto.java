@@ -8,17 +8,22 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * 
+ * @author TuanNA
+ *
+ */
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = false)
-public class PostInvoiceResDto extends BaseDto {
+public class EvidenceAfterResDto extends BaseDto {
 	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -2766380575224594531L;
 	
-	@JsonProperty("invoiceId")
+	@JsonProperty("evidenceBeforeId")
 	private long id;
 
 	@JsonProperty("description")
@@ -38,9 +43,6 @@ public class PostInvoiceResDto extends BaseDto {
 
 	@JsonProperty("updateBy")
 	private String updateBy;
-	
-	@JsonProperty("postType")
-	private String postType;
 
 	@JsonProperty("fileStorages")
 	private List<FileStorageResDto> fileStorages;

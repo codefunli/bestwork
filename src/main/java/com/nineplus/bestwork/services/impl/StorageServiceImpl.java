@@ -134,10 +134,10 @@ public class StorageServiceImpl implements IStorageService {
 				file.setPackagePostId(Id);
 				break;
 			case EVIDENCE_BEFORE:
-				// file.setPackagePostId(Id);
+				file.setEvidenceBeforePostId(Id);
 				break;
 			case EVIDENCE_AFTER:
-				// file.setPackagePostId(Id);
+				file.setEvidenceAfterPostId(Id);
 				break;
 			case CONSTRUCTION:
 				file.setConstructionId(Id);
