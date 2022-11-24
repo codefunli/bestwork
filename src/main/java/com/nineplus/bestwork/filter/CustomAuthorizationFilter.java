@@ -14,10 +14,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.ObjectUtils;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.header.Header;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -128,6 +131,9 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 	private void addTokenToHeader(HttpServletResponse response, String accessToken, String refreshToken){
 		response.setHeader(CommonConstants.Authentication.REFRESH_TOKEN,refreshToken);
 		response.setHeader(CommonConstants.Authentication.ACCESS_TOKEN,accessToken);
+		response.setHeader("Access-Control-Allow-Headers", CommonConstants.Authentication.REFRESH_TOKEN + "," +
+				CommonConstants.Authentication.ACCESS_TOKEN + ", x-xsrf-token, Access-Control-Allow-Headers, Origin, Accept, X-Requested-With, " +
+				"Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
 	}
 
 }
