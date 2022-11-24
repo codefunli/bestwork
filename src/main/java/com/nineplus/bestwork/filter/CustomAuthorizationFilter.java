@@ -63,35 +63,22 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
+		String accessToken = request.getHeader(CommonConstants.Authentication.ACCESS_TOKEN);
+		String refreshToken = request.getHeader(CommonConstants.Authentication.REFRESH_TOKEN);
 		if (userService == null) {
 			ServletContext servletContext = request.getServletContext();
 			WebApplicationContext webApplicationContext = WebApplicationContextUtils.getWebApplicationContext(servletContext);
 			userService = webApplicationContext.getBean(UserService.class);
 		}
 		if (isPublicUrl(request.getServletPath())) {
-			filterChain.doFilter(request, response);
+			this.addTokenToHeader(response, accessToken, refreshToken);
 		} else {
-			Cookie[] requestCookie = request.getCookies();
-			Cookie accessCookie = null;
-			Cookie refreshCookie = null;
-			if (requestCookie != null) {
-				for (Cookie cookie : requestCookie) {
-					if (cookie.getName().equals(CommonConstants.Authentication.ACCESS_COOKIE)) {
-						accessCookie = cookie;
-					}
-					if (cookie.getName().equals(CommonConstants.Authentication.REFRESH_COOKIE)) {
-						refreshCookie = cookie;
-					}
-
-				}
-			}
-			if (accessCookie != null && request.getHeader(CommonConstants.Authentication.PREFIX_TOKEN) != null
+			if (accessToken != null && request.getHeader(CommonConstants.Authentication.PREFIX_TOKEN) != null
 					&& request.getHeader(CommonConstants.Authentication.PREFIX_TOKEN).startsWith(PREFIX_TOKEN)) {
 				try {
-					String token = accessCookie.getValue();
 					Algorithm algorithm = Algorithm.HMAC256(SECRET_KEY.getBytes());
 					JWTVerifier verifier = JWT.require(algorithm).build();
-					DecodedJWT decodedJWT = verifier.verify(token);
+					DecodedJWT decodedJWT = verifier.verify(accessToken);
 					String username = decodedJWT.getSubject();
 					UserEntity user = userService.getUserByUsername(username);
 					if (ObjectUtils.isEmpty(user) || userService.isBlocked(user.getLoginFailedNum())) {
@@ -105,45 +92,42 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 					UsernamePasswordAuthenticationToken authenToken = new UsernamePasswordAuthenticationToken(username,
 							null, authorities);
 					SecurityContextHolder.getContext().setAuthentication(authenToken);
-					filterChain.doFilter(request, response);
+					this.addTokenToHeader(response, accessToken, refreshToken);
 				} catch (Exception exception) {
 					response.setHeader("error", exception.getMessage());
 					response.sendError(HttpStatus.FORBIDDEN.value());
 				}
-			} else if (refreshCookie != null
+			} else if (refreshToken != null
 					&& request.getHeader(CommonConstants.Authentication.PREFIX_TOKEN).startsWith(PREFIX_TOKEN)) {
 				try {
-					String token = refreshCookie.getValue();
 					Algorithm algorithm = Algorithm.HMAC256(SECRET_KEY.getBytes());
 					JWTVerifier verifier = JWT.require(algorithm).build();
-					DecodedJWT decodedJWT = verifier.verify(token);
+					DecodedJWT decodedJWT = verifier.verify(refreshToken);
 					String username = decodedJWT.getSubject();
 					UserEntity user = userService.getUserByUsername(username);
 					if (ObjectUtils.isEmpty(user) || userService.isBlocked(user.getLoginFailedNum())) {
 						throw new Exception();
 					}
-					String accessToken = JWT.create().withSubject(user.getUserName())
-							.withExpiresAt(new Date(System.currentTimeMillis() + JWT_EXPIRATION * 1000))
+					String newAccessToken = JWT.create().withSubject(user.getUserName())
+							.withExpiresAt(new Date(System.currentTimeMillis() + JWT_EXPIRATION * 1000L))
 							.withIssuer(request.getRequestURL().toString())
 							.withClaim(CommonConstants.Authentication.ROLES,
 									new SimpleGrantedAuthority(user.getRole().getRoleName()).getAuthority())
 							.sign(algorithm);
-					Cookie accessCookieN = new Cookie(CommonConstants.Authentication.ACCESS_COOKIE, accessToken);
-					accessCookieN.setHttpOnly(true);
-					accessCookieN.setSecure(false);
-					accessCookieN.setMaxAge(JWT_EXPIRATION * 1000);
-					response.addCookie(refreshCookie);
-					response.addCookie(accessCookieN);
+					this.addTokenToHeader(response, newAccessToken, refreshToken);
 					response.addHeader(CommonConstants.Authentication.PREFIX_TOKEN, PREFIX_TOKEN);
 				} catch (Exception exception) {
 					response.setHeader("error", exception.getMessage());
 					response.sendError(HttpStatus.FORBIDDEN.value());
 				}
-			} else {
-				filterChain.doFilter(request, response);
 			}
 		}
+		filterChain.doFilter(request, response);
+	}
 
+	private void addTokenToHeader(HttpServletResponse response, String accessToken, String refreshToken){
+		response.setHeader(CommonConstants.Authentication.REFRESH_TOKEN,refreshToken);
+		response.setHeader(CommonConstants.Authentication.ACCESS_TOKEN,accessToken);
 	}
 
 }
