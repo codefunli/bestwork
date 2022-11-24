@@ -131,7 +131,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 	private void addTokenToHeader(HttpServletResponse response, String accessToken, String refreshToken){
 		response.setHeader(CommonConstants.Authentication.REFRESH_TOKEN,refreshToken);
 		response.setHeader(CommonConstants.Authentication.ACCESS_TOKEN,accessToken);
-		response.setHeader("Access-Control-Allow-Headers", CommonConstants.Authentication.REFRESH_TOKEN + "," +
+		response.setHeader("Access-Control-Expose-Headers", CommonConstants.Authentication.REFRESH_TOKEN + "," +
 				CommonConstants.Authentication.ACCESS_TOKEN + ", x-xsrf-token, Access-Control-Allow-Headers, Origin, Accept, X-Requested-With, " +
 				"Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
 	}
