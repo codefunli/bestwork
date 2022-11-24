@@ -54,6 +54,7 @@ import com.nineplus.bestwork.repository.UserRepository;
 import com.nineplus.bestwork.services.impl.ScheduleServiceImpl;
 import com.nineplus.bestwork.utils.CommonConstants;
 import com.nineplus.bestwork.utils.ConvertResponseUtils;
+import com.nineplus.bestwork.utils.Enums.TRole;
 import com.nineplus.bestwork.utils.MessageUtils;
 import com.nineplus.bestwork.utils.PageUtils;
 import com.nineplus.bestwork.utils.UserAuthUtils;
@@ -375,7 +376,7 @@ public class UserService implements UserDetailsService {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.ECU0003, null);
 		}
 
-		if (userReqDto.getRole() == 1) {
+		if (userReqDto.getRole() <= 1 || userReqDto.getRole() > TRole.values().length) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.ECU0003, null);
 		}
 
@@ -393,7 +394,10 @@ public class UserService implements UserDetailsService {
 			userEntity.setCompanys(user.getCompanys());
 		}
 		userEntity.setId(userId);
-		userEntity.setUserName(userReqDto.getUserName());
+		if (!userReqDto.getUserName().equals(user.getUserName())) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.ECU0007, null);
+		}
+		userEntity.setUserName(user.getUserName());
 		if (null != userReqDto.getPassword()) {
 			userEntity.setPassword(encoder.encode(userReqDto.getPassword()));
 		} else {

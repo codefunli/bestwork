@@ -152,6 +152,7 @@ public class CommonConstants {
 		public static final String ECU0004 = "ecu0004";
 		public static final String ECU0005 = "ecu0005";
 		public static final String ECU0006 = "ecu0006";
+		public static final String ECU0007 = "ecu0007";
 
 		public static final String SPOST0001 = "sPost0001";
 		public static final String EPOST0001 = "ePost0001";
