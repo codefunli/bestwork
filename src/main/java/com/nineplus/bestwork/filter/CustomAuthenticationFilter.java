@@ -163,7 +163,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
             .sign(algorithm);
         response.setHeader(CommonConstants.Authentication.ACCESS_TOKEN,accessToken);
         response.setHeader(CommonConstants.Authentication.REFRESH_TOKEN, refreshToken);
-        response.setHeader("Access-Control-Allow-Headers", CommonConstants.Authentication.REFRESH_TOKEN + "," +
+        response.setHeader("Access-Control-Expose-Headers", CommonConstants.Authentication.REFRESH_TOKEN + "," +
                 CommonConstants.Authentication.ACCESS_TOKEN + ", x-xsrf-token, Access-Control-Allow-Headers, Origin, Accept, X-Requested-With, " +
                 "Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
         mapRespon.put("permissions",mapPermission);
