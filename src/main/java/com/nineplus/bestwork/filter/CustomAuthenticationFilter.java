@@ -13,7 +13,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nineplus.bestwork.dto.PermissionResDto;
-import com.nineplus.bestwork.entity.SysPermissionEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.model.enumtype.Status;
 import com.nineplus.bestwork.services.PermissionService;
@@ -162,16 +161,11 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
             .withExpiresAt(new Date(System.currentTimeMillis() + JWT_EXPIRATION * 1000))
             .withIssuer(request.getRequestURL().toString())
             .sign(algorithm);
-        Cookie accessCookie = new Cookie(CommonConstants.Authentication.ACCESS_COOKIE, accessToken);
-        accessCookie.setHttpOnly(true);
-        accessCookie.setSecure(false);
-        accessCookie.setMaxAge(JWT_EXPIRATION);
-        Cookie refreshCookie = new Cookie(CommonConstants.Authentication.REFRESH_COOKIE, refreshToken);
-        refreshCookie.setHttpOnly(true);
-        refreshCookie.setSecure(false);
-        refreshCookie.setMaxAge(JWT_EXPIRATION);
-        response.addCookie(refreshCookie);
-        response.addCookie(accessCookie);
+        response.setHeader(CommonConstants.Authentication.ACCESS_TOKEN,accessToken);
+        response.setHeader(CommonConstants.Authentication.REFRESH_TOKEN, refreshToken);
+        response.setHeader("Access-Control-Expose-Headers", CommonConstants.Authentication.REFRESH_TOKEN + "," +
+                CommonConstants.Authentication.ACCESS_TOKEN + ", x-xsrf-token, Access-Control-Allow-Headers, Origin, Accept, X-Requested-With, " +
+                "Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
         mapRespon.put("permissions",mapPermission);
         response.getWriter().write(objectMapper.writeValueAsString(mapRespon));
     }
