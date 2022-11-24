@@ -51,7 +51,7 @@ import java.util.List;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SercurityConfiguration implements EnvironmentAware {
 
-    public static String PUBLIC_URL[] = {"/api/v1/auth/**","/login"};
+    public static String PUBLIC_URL[] = {"/api/v1/auth/**","/login","/logout"};
     public static String IGNORE_URL[] = {};
     @Value("${allow.origins}")
     private String allowOrigins;
@@ -97,9 +97,7 @@ public class SercurityConfiguration implements EnvironmentAware {
                         response.setStatus(HttpStatus.OK.value());
                         ;
                     }
-                }).logoutRequestMatcher(new AntPathRequestMatcher("/logout")).clearAuthentication(true)
-                .deleteCookies(CommonConstants.Authentication.ACCESS_COOKIE)
-                .deleteCookies(CommonConstants.Authentication.REFRESH_COOKIE);
+                }).logoutRequestMatcher(new AntPathRequestMatcher("/logout")).clearAuthentication(true);
         return http.build();
     }
 

@@ -1,5 +1,9 @@
 package com.nineplus.bestwork.dto;
 
+import java.util.List;
+
+import org.springframework.web.multipart.MultipartFile;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.EqualsAndHashCode;
@@ -16,6 +20,8 @@ public class PackagePostReqDto extends BaseDto {
 	 * 
 	 */
 	private static final long serialVersionUID = -5373302457283153662L;
+	@JsonProperty("files")
+	List<MultipartFile> mFiles;
 
 	@JsonProperty("description")
 	private String description;

@@ -1,7 +1,10 @@
 package com.nineplus.bestwork.dto;
 
+
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,6 +16,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = false)
 public class FileStorageResDto extends BaseDto {
 
 	/**
@@ -39,7 +43,7 @@ public class FileStorageResDto extends BaseDto {
 	private long progressId; 
 	
 	@JsonProperty("content")
-	private String content;
+	private byte[] content;
 
 	@JsonProperty("isChoosen")
 	private boolean isChoosen;

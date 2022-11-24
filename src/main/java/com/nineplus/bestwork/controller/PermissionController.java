@@ -1,21 +1,19 @@
 package com.nineplus.bestwork.controller;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
+import com.nineplus.bestwork.dto.*;
+import com.nineplus.bestwork.entity.RoleEntity;
+import com.nineplus.bestwork.model.enumtype.Status;
+import com.nineplus.bestwork.services.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import com.nineplus.bestwork.dto.PageResDto;
-import com.nineplus.bestwork.dto.RegPermissionDto;
-import com.nineplus.bestwork.dto.PermissionResDto;
-import com.nineplus.bestwork.dto.SearchDto;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.services.PermissionService;
 import com.nineplus.bestwork.utils.CommonConstants;
@@ -28,30 +26,11 @@ public class PermissionController extends BaseController {
     @Autowired
     PermissionService permissionService;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<? extends Object> getPermission(@PathVariable Long id) {
-        PermissionResDto dto = null;
-        try {
-            dto = permissionService.getPermission(id);
-        } catch (BestWorkBussinessException ex) {
-            return failed(ex.getMsgCode(), ex.getParam());
-        }
-        return success(CommonConstants.MessageCode.RLS0001, dto, null);
-
-    }
-
-//    @PostMapping
-//    public ResponseEntity<? extends Object> addPermission(@RequestBody ResPermissionDto dto) {
-//        try {
-//            permissionService.addPermission(dto);
-//        } catch (BestWorkBussinessException ex) {
-//            return failed(ex.getMsgCode(), ex.getParam());
-//        }
-//        return success(CommonConstants.MessageCode.CPN0001, null, null);
-//    }
+    @Autowired
+    RoleService roleService;
 
     @PostMapping
-    public ResponseEntity<? extends Object> updatePermission(@RequestBody RegPermissionDto dto) {
+    public ResponseEntity<? extends Object> updatePermission(@RequestBody List<RegPermissionDto> dto) {
         List<PermissionResDto> resPermissionDto;
         try {
             resPermissionDto = permissionService.updatePermissions(dto);
@@ -61,15 +40,21 @@ public class PermissionController extends BaseController {
         return success(CommonConstants.MessageCode.RLS0003, resPermissionDto, null);
     }
 
-    @PostMapping("/search")
-    public ResponseEntity<? extends Object> getPermissions(@RequestBody SearchDto dto) {
-        PageResDto<PermissionResDto> pageSearchDto = null;
+    @GetMapping("/{id}")
+    public ResponseEntity<? extends Object> getPermissions(@PathVariable Long id) throws BestWorkBussinessException {
+        ResRoleDto role = roleService.getRole(id);
+        List<PermissionResDto> mapResponse = new ArrayList<>();
+        List<String> roleList = new ArrayList<>();
+        roleList.add(role.getName());
+        List<Integer> lstStt = new ArrayList<>();
+        lstStt.add(Status.ACTIVE.getValue());
         try {
-            pageSearchDto = permissionService.getPermissions(dto);
+            mapResponse = permissionService.getMapPermissions(roleList, lstStt).values().stream()
+                    .flatMap(List :: stream).collect(Collectors.toList());
         } catch (BestWorkBussinessException ex) {
             return failed(ex.getMsgCode(), ex.getParam());
         }
-        return success(CommonConstants.MessageCode.PMS0001, pageSearchDto, null);
+        return success(CommonConstants.MessageCode.PMS0001, mapResponse, null);
     }
 
     @DeleteMapping("/{id}")

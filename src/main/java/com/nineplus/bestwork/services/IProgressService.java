@@ -2,8 +2,9 @@ package com.nineplus.bestwork.services;
 
 import java.util.List;
 
+import org.springframework.web.multipart.MultipartFile;
 
-import com.nineplus.bestwork.dto.ProgressAndProjectResDto;
+import com.nineplus.bestwork.dto.ProgressAndConstructionResDto;
 import com.nineplus.bestwork.dto.ProgressReqDto;
 import com.nineplus.bestwork.dto.ProgressResDto;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
@@ -14,17 +15,14 @@ import com.nineplus.bestwork.exception.BestWorkBussinessException;
  *
  */
 public interface IProgressService {
-	void registProgress(ProgressReqDto progressReqDto) throws BestWorkBussinessException;
-	
-	void updateProgress(ProgressReqDto progressReqDto, Long progressId) throws BestWorkBussinessException;
+	void registProgress(ProgressReqDto progressReqDto, List<MultipartFile> files) throws BestWorkBussinessException;
 
-	List<ProgressResDto> getProgressByProjectId(String projectId) throws BestWorkBussinessException;
+	void updateProgress(ProgressReqDto progressReqDto,
+			List<MultipartFile> files, Long progressId) throws BestWorkBussinessException;
 
-	ProgressAndProjectResDto getProjectAndProgress(String projectId) throws BestWorkBussinessException;
-	
 	void deleteProgressList(List<Long> ids) throws BestWorkBussinessException;
 
 	ProgressResDto getProgressById(Long progressId) throws BestWorkBussinessException;
-	
-	List<Long> getAllProgressByProject(List<String> listProjectId) throws BestWorkBussinessException;
+
+	List<ProgressResDto> getProgressByConstruction(String constructionId) throws BestWorkBussinessException;
 }

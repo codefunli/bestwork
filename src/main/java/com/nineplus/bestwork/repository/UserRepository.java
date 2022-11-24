@@ -73,4 +73,9 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
 
 	@Query(value = " select * from T_SYS_APP_USER where user_name = ?1 ", nativeQuery = true)
 	UserEntity findUserByUserName(String username);
+
+	@Query(value = " select * from T_SYS_APP_USER u"
+			+ " join ASSIGN_TASK t on t.user_id = u.id "
+			+ " where t.project_id = :prjId and t.can_edit = 1 ", nativeQuery =  true)
+	List<UserEntity> findUserAllwUpdPrj(String prjId);
 }

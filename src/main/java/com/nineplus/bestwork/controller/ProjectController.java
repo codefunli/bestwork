@@ -92,7 +92,8 @@ public class ProjectController extends BaseController {
 		try {
 			this.projectService.deleteProjectById(projectDeleteByIdDto.getId());
 		} catch (BestWorkBussinessException ex) {
-			return failed(CommonConstants.MessageCode.S1X0012, ex.getParam());
+			return failed(ex.getMsgCode(), ex.getParam());
+//			return failed(CommonConstants.MessageCode.S1X0012, ex.getParam());
 		}
 		return success(CommonConstants.MessageCode.S1X0011, null, null);
 	}

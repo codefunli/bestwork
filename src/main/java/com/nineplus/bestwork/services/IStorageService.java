@@ -20,7 +20,7 @@ import com.nineplus.bestwork.utils.Enums.FolderType;
 public interface IStorageService {
 	public FileStorageEntity storeFilePost(String image, PostEntity reqpost);
 
-	public FileStorageEntity storeFileProgress(FileStorageReqDto files, ProgressEntity progress);
+//	public FileStorageEntity storeFileProgress(FileStorageReqDto files, ProgressEntity progress);
 
 	public List<FileStorageEntity> findFilesByPostId(String postId);
 

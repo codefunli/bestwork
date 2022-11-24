@@ -13,7 +13,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nineplus.bestwork.dto.PermissionResDto;
-import com.nineplus.bestwork.entity.SysPermissionEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.model.enumtype.Status;
 import com.nineplus.bestwork.services.PermissionService;
@@ -143,20 +142,10 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
         List<Integer> lstStt = new ArrayList<>();
         lstStt.add(Status.ACTIVE.getValue());
         Map<String,Map<Long,List<PermissionResDto>>> mapRespon = new HashMap<>();
-        Map<Long,List<PermissionResDto>> mapPermission = new HashMap<>();
+        Map<Long,List<PermissionResDto>> mapPermission;
         List<String> roleList =  user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
         try {
-            List<SysPermissionEntity> sysPermissionEntities = permissionService.getPermissionsByRole(roleList, lstStt);
-            sysPermissionEntities.forEach(sysPermissionEntity -> {
-                PermissionResDto permissionResDto = objectMapper.convertValue(sysPermissionEntity, PermissionResDto.class);
-                if (mapPermission.containsKey(sysPermissionEntity.getSysMonitor().getId())) {
-                    mapPermission.get(sysPermissionEntity.getSysMonitor().getId()).add(permissionResDto);
-                } else {
-                    List<PermissionResDto> resDtos = new ArrayList<>();
-                    resDtos.add(permissionResDto);
-                    mapPermission.put(sysPermissionEntity.getSysMonitor().getId(), resDtos);
-                }
-            });
+            mapPermission = permissionService.getMapPermissions(roleList, lstStt);
         } catch (BestWorkBussinessException e) {
             throw new RuntimeException(e);
         }
@@ -172,16 +161,11 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
             .withExpiresAt(new Date(System.currentTimeMillis() + JWT_EXPIRATION * 1000))
             .withIssuer(request.getRequestURL().toString())
             .sign(algorithm);
-        Cookie accessCookie = new Cookie(CommonConstants.Authentication.ACCESS_COOKIE, accessToken);
-        accessCookie.setHttpOnly(true);
-        accessCookie.setSecure(false);
-        accessCookie.setMaxAge(JWT_EXPIRATION);
-        Cookie refreshCookie = new Cookie(CommonConstants.Authentication.REFRESH_COOKIE, refreshToken);
-        refreshCookie.setHttpOnly(true);
-        refreshCookie.setSecure(false);
-        refreshCookie.setMaxAge(JWT_EXPIRATION);
-        response.addCookie(refreshCookie);
-        response.addCookie(accessCookie);
+        response.setHeader(CommonConstants.Authentication.ACCESS_TOKEN,accessToken);
+        response.setHeader(CommonConstants.Authentication.REFRESH_TOKEN, refreshToken);
+        response.setHeader("Access-Control-Expose-Headers", CommonConstants.Authentication.REFRESH_TOKEN + "," +
+                CommonConstants.Authentication.ACCESS_TOKEN + ", x-xsrf-token, Access-Control-Allow-Headers, Origin, Accept, X-Requested-With, " +
+                "Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
         mapRespon.put("permissions",mapPermission);
         response.getWriter().write(objectMapper.writeValueAsString(mapRespon));
     }

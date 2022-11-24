@@ -1,10 +1,23 @@
 package com.nineplus.bestwork.services.impl;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.zip.ZipOutputStream;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +34,7 @@ import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpException;
 import com.nineplus.bestwork.exception.FileHandleException;
 import com.nineplus.bestwork.services.ISftpFileService;
+import com.nineplus.bestwork.utils.CommonConstants;
 import com.nineplus.bestwork.utils.DateUtils;
 import com.nineplus.bestwork.utils.Enums.FolderType;
 
@@ -38,6 +52,10 @@ public class SftpFileServiceImpl implements ISftpFileService {
 	public static final String SEPARATOR = "/";
 
 	public static final String HYPHEN = "-";
+
+	public static final String INVOICE_NAME_PREFIX = "(inv)";
+
+	public static final String PACKAGE_NAME_PREFIX = "(pac)";
 
 	/**
 	 * The Constant ROOT_PATH.
@@ -68,6 +86,9 @@ public class SftpFileServiceImpl implements ISftpFileService {
 	@Value("${fileServer.password}")
 	private String SFTP_PASSWORD;
 
+	@Value("${fileServer.maxSize}")
+	private float MAX_SIZE_FILE;
+
 	private static final int INVOICE_NUMBER = 1;
 
 	private static final int PACKAGE_NUMBER = 2;
@@ -80,9 +101,13 @@ public class SftpFileServiceImpl implements ISftpFileService {
 
 	public static final String PACKAGE_PATH = "packages";
 
-	public static final String EVIDENCE_BEFORE_PATH = "evidenceBeforePath";
+	public static final String EVIDENCE_BEFORE_PATH = "evidenceBefore";
 
-	public static final String EVIDENCE_AFTER_PATH = "evidenceAfterPath";
+	public static final String EVIDENCE_AFTER_PATH = "evidenceAfter";
+
+	public static final String CONSTRUCTION_PATH = "constructions";
+
+	public static final String PROGRESS_PATH = "progress";
 
 	@Override
 	public boolean isExistFolder(ChannelSftp channel, String path) {
@@ -129,7 +154,7 @@ public class SftpFileServiceImpl implements ISftpFileService {
 	}
 
 	@Override
-	public byte[] downloadFile(String pathFileDownload) {
+	public byte[] getFile(String pathFileDownload) {
 		byte[] resBytes = null;
 		ChannelSftp channel = null;
 		Session session = null;
@@ -178,6 +203,16 @@ public class SftpFileServiceImpl implements ISftpFileService {
 		return upload(file, FolderType.EVIDENCE_AFTER, airWayBill, Id);
 	}
 
+	@Override
+	public String uploadConstructionDrawing(MultipartFile file, long constructionId) {
+		return uploadImage(file, FolderType.CONSTRUCTION, constructionId);
+	}
+	
+	@Override
+	public String uploadProgressImage(MultipartFile file, long progressId) {
+		return uploadImage(file, FolderType.PROGRESS, progressId);
+	}
+
 	/**
 	 * Gets the connection.
 	 *
@@ -210,10 +245,12 @@ public class SftpFileServiceImpl implements ISftpFileService {
 	 */
 	private static void disconnect(Session session, ChannelSftp channel) {
 		if (channel != null) {
+			log.info("Disconect to channel server SFTP");
 			channel.exit();
 		}
 
 		if (session != null) {
+			log.info("Disconect to session server SFTP");
 			session.disconnect();
 		}
 	}
@@ -267,6 +304,52 @@ public class SftpFileServiceImpl implements ISftpFileService {
 			disconnect(session, channel);
 		}
 
+		return finalPath;
+	}
+
+	private String uploadImage(MultipartFile mfile, FolderType folderType, Long objId) {
+		Session session = null;
+		ChannelSftp channel = null;
+		String pathTemp = null;
+		String finalPath = null;
+
+		// Create folder in sftp server.
+		try {
+
+			Pair<Session, ChannelSftp> sftpConnection = this.getConnection();
+
+			session = sftpConnection.getFirst();
+			channel = sftpConnection.getSecond();
+
+			String absolutePathInSftpServer = getPathSeverUpload(folderType);
+			if (!isExistFolder(channel, absolutePathInSftpServer)) {
+				pathTemp = this.createFolder(channel, absolutePathInSftpServer);
+			} else {
+				absolutePathInSftpServer = absolutePathInSftpServer + SEPARATOR + buildSubFolderName(folderType);
+				if (!isExistFolder(channel, absolutePathInSftpServer)) {
+					pathTemp = this.createFolder(channel, absolutePathInSftpServer);
+				} else {
+					pathTemp = absolutePathInSftpServer;
+				}
+			}
+
+			pathTemp = pathTemp + SEPARATOR + objId;
+			if (!isExistFolder(channel, pathTemp)) {
+				pathTemp = this.createFolder(channel, pathTemp);
+			}
+			String fileName = FilenameUtils.getName(mfile.getOriginalFilename());
+
+			// save file.
+			channel.cd(pathTemp);
+			channel.put(mfile.getInputStream(), fileName);
+			finalPath = pathTemp + SEPARATOR + fileName;
+			disconnect(session, channel);
+		} catch (IOException | SftpException e) {
+			disconnect(session, channel);
+			throw new FileHandleException(e.getMessage(), e);
+		} finally {
+			disconnect(session, channel);
+		}
 		return finalPath;
 	}
 
@@ -328,6 +411,12 @@ public class SftpFileServiceImpl implements ISftpFileService {
 		case EVIDENCE_AFTER:
 			res = EVIDENCE_AFTER_PATH;
 			break;
+		case CONSTRUCTION:
+			res = CONSTRUCTION_PATH;
+			break;
+		case PROGRESS:
+			res = PROGRESS_PATH;
+			break;
 		default:
 			break;
 		}
@@ -339,4 +428,140 @@ public class SftpFileServiceImpl implements ISftpFileService {
 		return ROOT_PATH + SEPARATOR + getParentPath(folderType);
 	}
 
+	@Override
+	public boolean isValidFile(List<MultipartFile> mFiles) {
+		for (MultipartFile file : mFiles) {
+			float fileSizeInMegabytes = file.getSize() / 1_000_000.0f;
+			// file must be < 5MB
+			if (fileSizeInMegabytes >= MAX_SIZE_FILE) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	@Override
+	public File downLoadFile(String pathFileDownload) {
+		ChannelSftp channel = null;
+		Session session = null;
+		File tempFile;
+		try {
+
+			Pair<Session, ChannelSftp> sftpConnection = this.getConnection();
+
+			session = sftpConnection.getFirst();
+			channel = sftpConnection.getSecond();
+			tempFile = File.createTempFile("fileTemp", ".png");
+			tempFile.deleteOnExit();
+			FileUtils.copyInputStreamToFile(channel.get(pathFileDownload), tempFile);
+			// resBytes = IOUtils.toByteArray(channel.get(pathFileDownload));
+			// disconnect to sftp server.
+			// disconnect(session, channel);
+		} catch (Exception ex) {
+			disconnect(session, channel);
+			throw new FileHandleException(ex.getMessage(), ex);
+		} finally {
+			disconnect(session, channel);
+		}
+		return tempFile;
+	}
+
+	@Override
+	public void createZipFolder(String airWayBillCode, String[] listPathFileDownload) {
+		ChannelSftp channel = null;
+		Session session = null;
+		try {
+			Pair<Session, ChannelSftp> sftpConnection = this.getConnection();
+
+			session = sftpConnection.getFirst();
+			channel = sftpConnection.getSecond();
+			// create a ZipOutputStream object+
+			FileOutputStream fos = new FileOutputStream(airWayBillCode);
+			ZipOutputStream zos = new ZipOutputStream(fos);
+
+			for (int i = 0; i < listPathFileDownload.length; i++) {
+				File srcFile = new File(listPathFileDownload[i]);
+				FileInputStream fis = new FileInputStream(srcFile);
+
+				// Start writing a new file entry
+
+				int length;
+				// create byte buffer
+				byte[] buffer = new byte[1024];
+
+				// read and write the content of the file
+				while ((length = fis.read(buffer)) > 0) {
+					zos.write(buffer, 0, length);
+				}
+				// current file entry is written and current zip entry is closed
+				zos.closeEntry();
+
+				// close the InputStream of the file
+				fis.close();
+
+			}
+			// close the ZipOutputStream
+			zos.close();
+
+		} catch (Exception ex) {
+			disconnect(session, channel);
+			throw new FileHandleException(ex.getMessage(), ex);
+		} finally {
+			disconnect(session, channel);
+		}
+	}
+
+	@Override
+	public List<String> downloadFileTemp(String airWayBillCode, List<String> listPathFileDownload) {
+		ChannelSftp channel = null;
+		Session session = null;
+		List<String> listPathFile = new ArrayList<>();
+		try {
+			String temporaryFolder = "src/main/resources/temp";
+			Pair<Session, ChannelSftp> sftpConnection = this.getConnection();
+			session = sftpConnection.getFirst();
+			channel = sftpConnection.getSecond();
+			for (String pathFile : listPathFileDownload) {
+				String fileName = FilenameUtils.getName(pathFile);
+				if (pathFile.contains("/invoices")) {
+					fileName = INVOICE_NAME_PREFIX + fileName;
+				} else if (pathFile.contains("/packages")) {
+					fileName = PACKAGE_NAME_PREFIX + fileName;
+				}
+				byte[] buffer = new byte[1024];
+				BufferedInputStream bis = new BufferedInputStream(channel.get(pathFile));
+				Path path = Files.createDirectories(Paths.get(temporaryFolder + SEPARATOR + airWayBillCode));
+				String pathFileSever = path + SEPARATOR + fileName;
+				File newFile = new File(pathFileSever);
+				listPathFile.add(pathFileSever);
+				OutputStream os = new FileOutputStream(newFile);
+				BufferedOutputStream bos = new BufferedOutputStream(os);
+				int readCount;
+				while ((readCount = bis.read(buffer)) > 0) {
+					bos.write(buffer, 0, readCount);
+				}
+				bis.close();
+				bos.close();
+
+			}
+			// disconnect to sftp server.
+			disconnect(session, channel);
+		} catch (Exception ex) {
+			disconnect(session, channel);
+			throw new FileHandleException(ex.getMessage(), ex);
+		}
+		return listPathFile;
+	}
+
+	@Override
+	public boolean isImageFile(List<MultipartFile> mFiles) {
+		for (MultipartFile file : mFiles) {
+			// file must be < 5MB
+			String fileExtensions = FilenameUtils.getExtension(file.getOriginalFilename());
+			if (Arrays.asList(CommonConstants.Image.IMAGE_EXTENSION).contains(fileExtensions.trim())) {
+				return true;
+			}
+		}
+		return false;
+	}
 }

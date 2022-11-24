@@ -21,6 +21,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
+
 public class AirWayBill {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,7 +50,7 @@ public class AirWayBill {
 
 	@Column(name = "update_by")
 	private String updateBy;
-	
+
 	@Column(name = "project_code")
 	private String projectCode;
 

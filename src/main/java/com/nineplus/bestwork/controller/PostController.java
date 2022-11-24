@@ -1,6 +1,5 @@
 package com.nineplus.bestwork.controller;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,7 +26,6 @@ import com.nineplus.bestwork.entity.FileStorageEntity;
 import com.nineplus.bestwork.entity.PostEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.services.IPostService;
-import com.nineplus.bestwork.services.IProjectService;
 import com.nineplus.bestwork.services.IStorageService;
 import com.nineplus.bestwork.utils.CommonConstants;
 import com.nineplus.bestwork.utils.UserAuthUtils;
@@ -43,9 +41,6 @@ import com.nineplus.bestwork.utils.UserAuthUtils;
 public class PostController extends BaseController {
 
 	@Autowired
-	private IProjectService projectService;
-
-	@Autowired
 	private IPostService postService;
 
 	@Autowired
@@ -58,22 +53,9 @@ public class PostController extends BaseController {
 	public ResponseEntity<? extends Object> createPost(@Valid @RequestBody PostReqDto postRequestDto,
 			BindingResult bindingResult) throws BestWorkBussinessException {
 
-		if (!projectService.isExistedProjectId(postRequestDto.getProjectId())) {
-			return failed(CommonConstants.MessageCode.S1X0002, null);
-		}
-
-		if (bindingResult.hasErrors()) {
-			return failedWithError(CommonConstants.MessageCode.S1X0005, bindingResult.getFieldErrors().toArray(), null);
-		}
-		PostEntity post = new PostEntity();
-		post.setDescription(postRequestDto.getDescription());
-		post.setEqBill(postRequestDto.getEqBill());
-		post.setProject(projectService.getProjectById(postRequestDto.getProjectId()).get());
-		post.setCreateDate(LocalDateTime.now());
-
 		PostEntity createdPost = null;
 		try {
-			createdPost = this.postService.savePost(post);
+			createdPost = this.postService.savePost(postRequestDto, bindingResult);
 			for (String imageData : postRequestDto.getImages()) {
 				this.storageService.storeFilePost(imageData, createdPost);
 			}
@@ -109,7 +91,7 @@ public class PostController extends BaseController {
 				return failed(CommonConstants.MessageCode.EPOST0001, null);
 			}
 			postResponseDto.setId(postId);
-			postResponseDto.setProject(post.getProject());
+			postResponseDto.setConstruction(post.getConstruction());
 			postResponseDto.setDescription(post.getDescription());
 			postResponseDto.setEqBill(post.getEqBill());
 			postResponseDto.setCreateDate(post.getCreateDate().toString());

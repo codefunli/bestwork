@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,13 +16,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.nineplus.bestwork.dto.ChangeStatusFileDto;
-import com.nineplus.bestwork.dto.FileStorageReqDto;
 import com.nineplus.bestwork.entity.FileStorageEntity;
 import com.nineplus.bestwork.entity.PostEntity;
-import com.nineplus.bestwork.entity.ProgressEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.repository.StorageRepository;
 import com.nineplus.bestwork.services.IStorageService;
+import com.nineplus.bestwork.utils.CommonConstants;
 import com.nineplus.bestwork.utils.Enums.FolderType;
 
 /**
@@ -74,9 +72,10 @@ public class StorageServiceImpl implements IStorageService {
 	}
 
 	private String getImageName(PostEntity reqPost) {
-		String projectName = reqPost.getProject().getProjectName();
+//		String projectName = reqPost.getProject().getProjectName();
+		String constructionName = reqPost.getConstruction().getConstructionName();
 		String description = reqPost.getDescription();
-		String imageName = projectName + ": " + description;
+		String imageName = constructionName + ": " + description;
 		if (imageName.length() <= 40) {
 			return imageName;
 		} else {
@@ -85,24 +84,25 @@ public class StorageServiceImpl implements IStorageService {
 
 	}
 
-	@Override
-	@Transactional
-	public FileStorageEntity storeFileProgress(FileStorageReqDto file, ProgressEntity progress) {
-		try {
-			FileStorageEntity image = new FileStorageEntity();
-			image.setData(file.getData().getBytes());
-			image.setProgress(progress);
-			String generatedFileName = UUID.randomUUID().toString().replace("-", "");
-			image.setName(generatedFileName);
-			image.setType(getImageType(file.getData()));
-			image.setCreateDate(Timestamp.valueOf(LocalDateTime.now()));
-
-			return storageRepository.save(image);
-		} catch (Exception e) {
-			e.getMessage();
-			return null;
-		}
-	}
+//	@Override
+//	@Transactional
+//	public FileStorageEntity storeFileProgress(FileStorageReqDto file, ProgressEntity progress) {
+//		try {
+//			FileStorageEntity image = new FileStorageEntity();
+//			image.setData(file.getData().getBytes());
+//			image.setProgress(progress);
+//			String generatedFileName = UUID.randomUUID().toString().replace("-", "");
+//			image.setName(generatedFileName);
+//			image.setType(getImageType(file.getData()));
+//			image.setCreateDate(Timestamp.valueOf(LocalDateTime.now()));
+//			image.setPathFileServer("progress test");
+//
+//			return storageRepository.save(image);
+//		} catch (Exception e) {
+//			e.getMessage();
+//			return null;
+//		}
+//	}
 
 	public List<FileStorageEntity> findFilesByPostId(String postId) {
 		return this.storageRepository.findAllByPostId(postId);
@@ -120,21 +120,27 @@ public class StorageServiceImpl implements IStorageService {
 
 	@Override
 	@Transactional
-	public void storeFile(Long Id, FolderType type, String pathOnServer) {
+	public void storeFile(Long id, FolderType type, String pathOnServer) {
 		try {
 			FileStorageEntity file = new FileStorageEntity();
 			switch (type) {
 			case INVOICE:
-				file.setPostInvoiceId(Id);
+				file.setPostInvoiceId(id);
 				break;
 			case PACKAGE:
-				file.setPackagePostId(Id);
+				file.setPackagePostId(id);
 				break;
 			case EVIDENCE_BEFORE:
-				// file.setPackagePostId(Id);
+				file.setEvidenceBeforePostId(id);
 				break;
 			case EVIDENCE_AFTER:
-				// file.setPackagePostId(Id);
+				file.setEvidenceAfterPostId(id);
+				break;
+			case CONSTRUCTION:
+				file.setConstructionId(id);
+				break;
+			case PROGRESS:
+				file.setProgressId(id);
 				break;
 			default:
 				break;
@@ -165,10 +171,10 @@ public class StorageServiceImpl implements IStorageService {
 			boolean toStatus = changeStatusFileDto.isDestinationStatus();
 			Long[] fileId = changeStatusFileDto.getFileId();
 			List<Long> listFile = Arrays.asList(fileId);
-			if (POST_INVOICE_TYPE.equals(postType)) {
+			if (CommonConstants.Character.TYPE_POST_INVOICE.equals(postType)) {
 				storageRepository.changeStatusInvoice(postId, listFile, toStatus);
-			} else if (POST_PACKAGE_TYPE.equals(postType)) {
-				storageRepository.changeStatusInvoice(postId, listFile, toStatus);
+			} else if (CommonConstants.Character.TYPE_POST_PACKAGE.equals(postType)) {
+				storageRepository.changeStatusPackage(postId, listFile, toStatus);
 			}
 		}
 	}

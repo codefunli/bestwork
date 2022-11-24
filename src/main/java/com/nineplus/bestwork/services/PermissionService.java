@@ -1,10 +1,11 @@
 package com.nineplus.bestwork.services;
 
 import java.sql.Timestamp;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
@@ -62,6 +63,9 @@ public class PermissionService {
     @Autowired
     private PageUtils responseUtils;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     public void deletePermission(Long id) throws BestWorkBussinessException {
         try {
             UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
@@ -78,18 +82,26 @@ public class PermissionService {
         }
     }
 
-    public List<PermissionResDto> updatePermissions(RegPermissionDto dto) throws BestWorkBussinessException {
+    public List<PermissionResDto> updatePermissions(List<RegPermissionDto> dtos) throws BestWorkBussinessException {
+        List<PermissionResDto> resDtos = new ArrayList<>();
+        dtos.forEach(regPermissionDto -> {
+            try {
+                resDtos.addAll(this.updatePermissionsByRole(regPermissionDto));
+            } catch (BestWorkBussinessException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        return resDtos;
+    }
+
+
+    public List<PermissionResDto> updatePermissionsByRole(RegPermissionDto dto) throws BestWorkBussinessException {
         try {
             Optional<RoleEntity> role = sysRoleRepository.findById(dto.getRoleId());
             if (role.isEmpty()) {
                 logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0014, null));
                 throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
             }
-//            Converter<String, Integer> classificationConverter =
-//                    ctx -> ctx.getSource() == null ? null : Status.getStatusEnum(ctx.getSource());
-//            modelMapper.typeMap(SysPermissionEntity.class, PermissionResDto.class)
-//                    .addMappings(mapper -> mapper.using(classificationConverter)
-//                            .map(SysPermissionEntity::getStatus, PermissionResDto::setStatus));
             List<PermissionResDto> sysPermissions = dto.getMonitorInfo().stream().map(permissionDto -> {
                         SysPermissionEntity sysPermission = new SysPermissionEntity();
                         SysMonitorEntity sysMonitor = new SysMonitorEntity();
@@ -110,15 +122,6 @@ public class PermissionService {
                                 sysPermission.setCreatedUser
                                         (userAuthUtils.getUserInfoFromReq(false).getUsername());
                                 sysPermission.setCreatedDate(new Timestamp(System.currentTimeMillis()));
-                            }
-                            if (sysMonitor.getId() != null) {
-                                sysMonitor.setUpdatedUser
-                                        (userAuthUtils.getUserInfoFromReq(false).getUsername());
-                                sysMonitor.setUpdatedDate(new Timestamp(System.currentTimeMillis()));
-                            } else {
-                                sysMonitor.setCreatedUser
-                                        (userAuthUtils.getUserInfoFromReq(false).getUsername());
-                                sysMonitor.setCreatedDate(new Timestamp(System.currentTimeMillis()));
                             }
                         } catch (BestWorkBussinessException e) {
                             throw new RuntimeException(e);
@@ -147,11 +150,27 @@ public class PermissionService {
             return modelMapper.map(sysPermission.get(), PermissionResDto.class);
         }
         throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
-
     }
-
-    public List<SysPermissionEntity> getPermissionsByRole(List<String> roleName, List<Integer> lstStt) throws BestWorkBussinessException {
-        return permissionRepository.findAllBySysRole_RoleName(roleName, lstStt);
+    public Map<Long, List<PermissionResDto>> getMapPermissions(List<String> roleList, List<Integer> lstStt) throws BestWorkBussinessException {
+        Map<Long,List<PermissionResDto>> mapPermission = new HashMap<>();
+        List<SysPermissionEntity> sysPermissionEntities = this.getPermissionsByRole(roleList, lstStt, null);
+        sysPermissionEntities.forEach(sysPermissionEntity -> {
+            PermissionResDto permissionResDto = objectMapper.convertValue(sysPermissionEntity, PermissionResDto.class);
+            permissionResDto.setMonitorName(sysPermissionEntity.getSysMonitor().getName());
+            permissionResDto.setMonitorId(sysPermissionEntity.getSysMonitor().getId());
+            permissionResDto.setRoleId(sysPermissionEntity.getSysRole().getId());
+            if (mapPermission.containsKey(sysPermissionEntity.getSysMonitor().getId())) {
+                mapPermission.get(sysPermissionEntity.getSysMonitor().getId()).add(permissionResDto);
+            } else {
+                List<PermissionResDto> resDtos = new ArrayList<>();
+                resDtos.add(permissionResDto);
+                mapPermission.put(sysPermissionEntity.getSysMonitor().getId(), resDtos);
+            }
+        });
+        return mapPermission;
+    }
+    public List<SysPermissionEntity> getPermissionsByRole(List<String> roleName, List<Integer> lstStt, Long actionId) throws BestWorkBussinessException {
+        return permissionRepository.findAllBySysRole_RoleName(roleName, lstStt, actionId);
     }
 
     public PageResDto<PermissionResDto> getPermissions(SearchDto dto) throws BestWorkBussinessException {

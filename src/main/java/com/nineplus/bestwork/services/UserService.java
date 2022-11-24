@@ -2,15 +2,11 @@ package com.nineplus.bestwork.services;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import com.nineplus.bestwork.dto.*;
+import com.nineplus.bestwork.model.enumtype.Status;
 import org.apache.commons.lang3.ObjectUtils;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
@@ -30,17 +26,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.nineplus.bestwork.dto.CompanyResDto;
-import com.nineplus.bestwork.dto.CompanyUserReqDto;
-import com.nineplus.bestwork.dto.PageResDto;
-import com.nineplus.bestwork.dto.PageSearchUserDto;
-import com.nineplus.bestwork.dto.RPageDto;
-import com.nineplus.bestwork.dto.UserCompanyReqDto;
-import com.nineplus.bestwork.dto.UserDetectResDto;
-import com.nineplus.bestwork.dto.UserListIdDto;
-import com.nineplus.bestwork.dto.UserReqDto;
-import com.nineplus.bestwork.dto.UserResDto;
-import com.nineplus.bestwork.dto.UserWithProjectResDto;
 import com.nineplus.bestwork.entity.CompanyEntity;
 import com.nineplus.bestwork.entity.RoleEntity;
 import com.nineplus.bestwork.entity.UserEntity;
@@ -69,6 +54,9 @@ public class UserService implements UserDetailsService {
 
 	@Autowired
 	UserRepository userRepo;
+
+	@Autowired
+	PermissionService permissionService;
 
 	public void saveUser(UserEntity user) {
 		userRepo.save(user);
@@ -451,7 +439,7 @@ public class UserService implements UserDetailsService {
 		}
 	}
 
-	public UserDetectResDto detectUser(String username) {
+	public UserDetectResDto detectUser(String username) throws BestWorkBussinessException {
 		UserEntity user = this.getUserByUsername(username);
 		long userId = 0;
 		if (user != null) {
@@ -485,6 +473,12 @@ public class UserService implements UserDetailsService {
 		if (listAssignDto != null) {
 			userResDto.setRoleProject(listAssignDto);
 		}
+		List<String> roleList = new ArrayList<>();
+		roleList.add(user.getRole().getRoleName());
+		List<Integer> lstStt = new ArrayList<>();
+		lstStt.add(Status.ACTIVE.getValue());
+		Map<Long, List<PermissionResDto>> permissions = permissionService.getMapPermissions(roleList, lstStt);
+		userResDto.setPermissions(permissions);
 		return userResDto;
 	}
 
@@ -500,6 +494,11 @@ public class UserService implements UserDetailsService {
 			return userOpt.get();
 		}
 		return null;
+	}
+
+	public List<UserEntity> findUserAllowUpdPrj(String prjId) {
+		List<UserEntity> userList = this.userRepo.findUserAllwUpdPrj(prjId);
+		return userList;
 	}
 
 }

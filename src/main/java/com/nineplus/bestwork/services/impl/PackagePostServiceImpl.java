@@ -2,26 +2,31 @@ package com.nineplus.bestwork.services.impl;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.nineplus.bestwork.dto.CustomClearancePackageFileResDto;
 import com.nineplus.bestwork.dto.FileStorageResDto;
 import com.nineplus.bestwork.dto.PackagePostReqDto;
 import com.nineplus.bestwork.dto.PackagePostResDto;
+import com.nineplus.bestwork.dto.PostCommentReqDto;
 import com.nineplus.bestwork.entity.FileStorageEntity;
 import com.nineplus.bestwork.entity.PackagePost;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.model.UserAuthDetected;
+import com.nineplus.bestwork.repository.PackageFileProjection;
 import com.nineplus.bestwork.repository.PackagePostRepository;
 import com.nineplus.bestwork.services.IPackagePostService;
-import com.nineplus.bestwork.services.IStorageService;
 import com.nineplus.bestwork.services.ISftpFileService;
+import com.nineplus.bestwork.services.IStorageService;
 import com.nineplus.bestwork.utils.CommonConstants;
 import com.nineplus.bestwork.utils.Enums.FolderType;
 import com.nineplus.bestwork.utils.UserAuthUtils;
@@ -66,6 +71,9 @@ public class PackagePostServiceImpl implements IPackagePostService {
 	public void updatePackagePost(List<MultipartFile> mFiles, PackagePostReqDto packagePostReqDto, String airWayCode)
 			throws BestWorkBussinessException {
 		PackagePost createPackagePost = null;
+		if (!sftpFileService.isValidFile(mFiles)) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.eF0002, null);
+		}
 		try {
 			// Save information for post invoice
 			createPackagePost = this.savePackagePost(packagePostReqDto, airWayCode);
@@ -94,7 +102,7 @@ public class PackagePostServiceImpl implements IPackagePostService {
 			packagePostResDto.setCreateBy(packagePost.get().getCreateBy());
 			packagePostResDto.setUpdateBy(packagePost.get().getUpdateBy());
 			packagePostResDto.setCreateDate(packagePost.get().getCreateDate());
-			packagePostResDto.setUpdateDate(packagePost.get().getCreateDate());
+			packagePostResDto.setUpdateDate(packagePost.get().getUpdateDate());
 			List<FileStorageResDto> fileStorageResponseDtos = new ArrayList<>();
 			for (FileStorageEntity file : packagePost.get().getFileStorages()) {
 				FileStorageResDto fileStorageResponseDto = new FileStorageResDto();
@@ -130,6 +138,7 @@ public class PackagePostServiceImpl implements IPackagePostService {
 				res.setUpdateBy(packagePost.getUpdateBy());
 				res.setCreateDate(packagePost.getCreateDate());
 				res.setUpdateDate(packagePost.getUpdateDate());
+				res.setPostType(CommonConstants.Character.TYPE_POST_PACKAGE);
 				List<FileStorageResDto> fileStorageResponseDtos = new ArrayList<>();
 				for (FileStorageEntity file : packagePost.getFileStorages()) {
 					FileStorageResDto fileStorageResponseDto = new FileStorageResDto();
@@ -138,6 +147,13 @@ public class PackagePostServiceImpl implements IPackagePostService {
 					fileStorageResponseDto.setCreateDate(file.getCreateDate().toString());
 					fileStorageResponseDto.setType(file.getType());
 					fileStorageResponseDto.setChoosen(file.isChoosen());
+					// return content file if file is image
+					if (Arrays.asList(CommonConstants.Image.IMAGE_EXTENSION).contains(file.getType())) {
+						String pathServer = file.getPathFileServer();
+						byte[] imageContent = sftpFileService.getFile(pathServer);
+						fileStorageResponseDto.setContent(imageContent);
+					}
+
 					fileStorageResponseDtos.add(fileStorageResponseDto);
 				}
 				res.setFileStorages(fileStorageResponseDtos);
@@ -153,12 +169,62 @@ public class PackagePostServiceImpl implements IPackagePostService {
 
 	@Override
 	public byte[] getFile(Long packagePostId, Long fileId) throws BestWorkBussinessException {
-		String pathFile = getPathFileToDownload(packagePostId, fileId);
-		byte[] fileContent = sftpFileService.downloadFile(pathFile);
+		String pathFile = this.getPathFileToDownload(packagePostId, fileId);
+		byte[] fileContent = null;
+		if (StringUtils.isNotBlank(pathFile)) {
+			fileContent = sftpFileService.getFile(pathFile);
+		}
 		return fileContent;
 	}
-	
-	private String getPathFileToDownload(Long postId, Long fileId) {
-		return packagePostRepository.getPathFileServer(postId, fileId);
+
+	@Override
+	public String getPathFileToDownload(long packagePostId, long fileId) {
+		return packagePostRepository.getPathFileServer(packagePostId, fileId);
+	}
+
+	@Override
+	public List<CustomClearancePackageFileResDto> getPackageClearance(String code) throws BestWorkBussinessException {
+		List<CustomClearancePackageFileResDto> lst = new ArrayList<>();
+		CustomClearancePackageFileResDto customClearancePackageFileResDto = null;
+		List<PackageFileProjection> res = packagePostRepository.getClearancePackageInfo(code);
+		for (PackageFileProjection projection : res) {
+			customClearancePackageFileResDto = new CustomClearancePackageFileResDto();
+			customClearancePackageFileResDto.setFileId(projection.getFileId());
+			customClearancePackageFileResDto.setPostPackageId(projection.getPostPackageId());
+			customClearancePackageFileResDto.setName(projection.getName());
+			customClearancePackageFileResDto.setType(projection.getType());
+			customClearancePackageFileResDto.setPostType(CommonConstants.Character.TYPE_POST_PACKAGE);
+			// return content file if file is image
+			if (Arrays.asList(CommonConstants.Image.IMAGE_EXTENSION).contains(projection.getType())) {
+				String pathServer = projection.getPathFileServer();
+				byte[] imageContent = sftpFileService.getFile(pathServer);
+				customClearancePackageFileResDto.setContent(imageContent);
+			}
+			lst.add(customClearancePackageFileResDto);
+		}
+		return lst;
+	}
+
+	@Override
+	@Transactional
+	public PackagePost pushComment(Long postPackageId, PostCommentReqDto postCommentRequestDto)
+			throws BestWorkBussinessException {
+		PackagePost currentPost = null;
+		try {
+			if (ObjectUtils.isNotEmpty(postPackageId) && ObjectUtils.isNotEmpty(postCommentRequestDto)) {
+				// Check exist post invoice with air way bill in DB
+				currentPost = this.packagePostRepository.findByIdAndAirWayBill(postPackageId,
+						postCommentRequestDto.getAirWayBillCode());
+				if (ObjectUtils.isEmpty(currentPost)) {
+					throw new BestWorkBussinessException(CommonConstants.MessageCode.eP0003, null);
+				}
+				// Set comment
+				currentPost.setComment(postCommentRequestDto.getComment());
+				this.packagePostRepository.save(currentPost);
+			}
+		} catch (Exception e) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.eP0004, null);
+		}
+		return currentPost;
 	}
 }

@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.nineplus.bestwork.dto.NotificationReqDto;
 import com.nineplus.bestwork.dto.NotificationResDto;
@@ -29,7 +30,7 @@ import com.nineplus.bestwork.utils.UserAuthUtils;
 public class NotificationServiceImpl implements NotificationService {
 
 	@Autowired
-	private NotificationRepository notificationRepository;
+	private NotificationRepository notifyRepository;
 
 	@Autowired
 	private UserAuthUtils userAuthUtils;
@@ -44,12 +45,12 @@ public class NotificationServiceImpl implements NotificationService {
 	 * @throws BestWorkBussinessException
 	 */
 	@Override
-	public List<NotificationResDto> getAllNotificationsByUser() throws BestWorkBussinessException {
+	public List<NotificationResDto> getAllNotifyByUser() throws BestWorkBussinessException {
 		String username = getLoggedInUsername();
 		UserEntity currentUser = userService.findUserByUsername(username);
 		List<NotificationResDto> dtoList = new ArrayList<>();
-		List<NotificationEntity> notificationList = notificationRepository.findAllByUser(currentUser.getId());
-		for (NotificationEntity noti : notificationList) {
+		List<NotificationEntity> notifyList = notifyRepository.findAllByUser(currentUser.getId());
+		for (NotificationEntity noti : notifyList) {
 			NotificationResDto dto = new NotificationResDto();
 			dto.setId(noti.getId());
 			dto.setTitle(noti.getTitle());
@@ -78,13 +79,13 @@ public class NotificationServiceImpl implements NotificationService {
 
 	/**
 	 * @author DiepTT
-	 * @param notifId (notification id)
+	 * @param notifyId (notification id)
 	 * @return Optional<NotificationEntity>
 	 * @throws none
 	 */
 	@Override
-	public Optional<NotificationEntity> findById(long notifId) {
-		return this.notificationRepository.findById(notifId);
+	public Optional<NotificationEntity> findById(long notifyId) {
+		return this.notifyRepository.findById(notifyId);
 	}
 
 
@@ -96,10 +97,10 @@ public class NotificationServiceImpl implements NotificationService {
 	 * @throws BestWorkBussinessException
 	 */
 	@Override
-	public NotificationEntity changeNotificationReadingStatus(NotificationEntity notification)
+	public NotificationEntity sendNotifyChgReadStatus(NotificationEntity notification)
 			throws BestWorkBussinessException {
 		notification.setIsRead(1);
-		return this.notificationRepository.save(notification);
+		return this.notifyRepository.save(notification);
 	}
 
 	/**
@@ -109,17 +110,18 @@ public class NotificationServiceImpl implements NotificationService {
 	 * @throws BestWorkBussinessException
 	 */
 	@Override
-	public void createNotification(NotificationReqDto notificationReqDto) throws BestWorkBussinessException {
-		UserEntity user = userService.findUserByUserId(notificationReqDto.getUserId());
+	@Transactional
+	public void createNotification(NotificationReqDto notifyReqDto) throws BestWorkBussinessException {
+		UserEntity user = userService.findUserByUserId(notifyReqDto.getUserId());
 		if (user != null) {
 			NotificationEntity notification = new NotificationEntity();
-			notification.setTitle(notificationReqDto.getTitle());
-			notification.setContent(notificationReqDto.getContent());
+			notification.setTitle(notifyReqDto.getTitle());
+			notification.setContent(notifyReqDto.getContent());
 			notification.setCreateDate(LocalDateTime.now());
 			notification.setIsRead(0);
 			notification.setCreateBy(getLoggedInUsername());
 			notification.setUser(user);
-			notificationRepository.save(notification);
+			notifyRepository.save(notification);
 		} else {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.ECU0005, null);
 		}

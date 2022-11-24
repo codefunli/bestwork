@@ -17,7 +17,9 @@ public interface PermissionRepository extends JpaRepository<SysPermissionEntity,
     Page<SysPermissionEntity> findAllBySysRole_IdAndSysMonitor_Id
             (Long role_id,Long monitorId, Pageable pageable);
 
-    @Query(value = "SELECT * FROM sys_permission t JOIN t_sys_app_role tr on t.role_id = tr.id WHERE tr.name in :lstName AND t.status in :lstStt ",nativeQuery = true)
-    List<SysPermissionEntity> findAllBySysRole_RoleName(@Param("lstName") List<String> lstName, @Param("lstStt") List<Integer> lstStt);
+    @Query(value = "SELECT distinct t.* FROM sys_permission t JOIN t_sys_app_role tr on t.role_id = tr.id"
+            + " JOIN SYS_MONITOR sm ON t.monitor_id = sm.id LEFT JOIN SYS_ACTION sa ON sm.id = sa.monitor_id" +
+            " WHERE tr.name in :lstName AND t.status in :lstStt AND (:actionId is null OR sa.id = :actionId) ", nativeQuery = true)
+    List<SysPermissionEntity> findAllBySysRole_RoleName(@Param("lstName") List<String> lstName, @Param("lstStt") List<Integer> lstStt, @Param("actionId") Long actionId);
 
 }

@@ -54,16 +54,23 @@ public class FileStorageEntity {
 	@JsonIgnore
 	private PostEntity post;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "progress_id", nullable = true)
-	@JsonIgnore
-	private ProgressEntity progress;
-
 	@Column(name = "post_invoice_id", nullable = true)
 	private long postInvoiceId;
 
 	@Column(name = "post_package_id", nullable = true)
 	private long packagePostId;
+
+	@Column(name = "construction_id", nullable = true)
+	private long constructionId;
+	
+	@Column(name = "evidence_before_post_id", nullable = true)
+	private long evidenceBeforePostId;
+	
+	@Column(name = "post_evidence_after_id", nullable = true)
+	private long evidenceAfterPostId;
+
+	@Column(name = "progress_id", nullable = true)
+	private long progressId;
 
 	@Column(name = "is_choosen")
 	private boolean isChoosen;

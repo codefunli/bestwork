@@ -60,9 +60,27 @@ public class ConvertResponseUtils {
 		itemProject.put("isPaid", "is_paid");
 		itemProject.put("createDate", "create_date");
 		itemProject.put("updateDate", "update_date");
+		itemProject.put("startDate", "start_date");
 		itemProject.put("projectType", "project_type");
 		if (itemProject.containsKey(item)) {
 			columnMapped = itemProject.get(item);
+		}
+		return columnMapped;
+	}
+
+	public String convertResponseConstruction(String item) {
+		HashMap<String, String> itemConstruction = new HashMap<>();
+		String columnMapped = "";
+		itemConstruction.put("id", "id");
+		itemConstruction.put("name", "name");
+		itemConstruction.put("description", "description");
+		itemConstruction.put("startDate", "start_date");
+		itemConstruction.put("location", "location");
+		itemConstruction.put("createBy", "create_by");
+		itemConstruction.put("status", "status");
+		itemConstruction.put("projectCode", "project_code");
+		if (itemConstruction.containsKey(item)) {
+			columnMapped = itemConstruction.get(item);
 		}
 		return columnMapped;
 	}

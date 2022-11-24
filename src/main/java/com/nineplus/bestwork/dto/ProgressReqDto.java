@@ -1,7 +1,5 @@
 package com.nineplus.bestwork.dto;
 
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
@@ -13,8 +11,8 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper = false)
 public class ProgressReqDto {
 	
-	@JsonProperty("projectId")
-	private String projectId;
+	@JsonProperty("constructionId")
+	private long constructionId;
 
 	@JsonProperty("title")
 	private String title;
@@ -34,6 +32,6 @@ public class ProgressReqDto {
 	@JsonProperty("note")
 	private String note;
 
-	@JsonProperty("fileStorages")
-	private List<FileStorageReqDto> fileStorages;
+//	@JsonProperty("fileStorages")
+//	private List<FileStorageReqDto> fileStorages;
 }

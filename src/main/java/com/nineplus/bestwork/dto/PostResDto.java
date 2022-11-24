@@ -3,6 +3,7 @@ package com.nineplus.bestwork.dto;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.nineplus.bestwork.entity.ConstructionEntity;
 import com.nineplus.bestwork.entity.ProjectEntity;
 
 import lombok.Data;
@@ -36,8 +37,11 @@ public class PostResDto extends BaseDto{
 	@JsonProperty("comment")
 	private String comment;
 	
-	@JsonProperty("project")
-	private ProjectEntity project;
+//	@JsonProperty("project")
+//	private ProjectEntity project;
+
+	@JsonProperty("construction")
+	private ConstructionEntity construction;
 	
 	@JsonProperty("fileStorages")
 	private List<FileStorageResDto> fileStorages;
