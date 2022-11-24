@@ -16,7 +16,6 @@ import com.nineplus.bestwork.dto.PageSearchDto;
 import com.nineplus.bestwork.entity.ProjectEntity;
 
 @Repository
-@Transactional
 public interface ProjectRepository extends JpaRepository<ProjectEntity, String> {
 
 	@Query(value = " select id from PROJECT order by id desc limit 1 ", nativeQuery = true)
@@ -52,8 +51,8 @@ public interface ProjectRepository extends JpaRepository<ProjectEntity, String> 
 			+ " ast.can_view = 1 or ast.can_edit = 1 ) ", nativeQuery = true)
 	List<ProjectEntity> findPrjAssignedToCurUser(@Param("curUsername") String curUsername);
 
-	@Query(value = "select p.* from PROJECT p " + " join AIRWAY_BILL awb on awb.project_code = p.id "
-			+ " join AWB_CONSTRUCTION awbc on awbc.awb_id = awb.id" + " where awbc.construction_id = :constructionId "
+	@Query(value = "select p.* from PROJECT p " + " join CONSTRUCTION c on c.project_code = p.id "
+			+ " where c.id = :constructionId "
 			+ " group by p.id ", nativeQuery = true)
 	ProjectEntity findByConstructionId(@Param("constructionId") long constructionId);
 
@@ -115,9 +114,14 @@ public interface ProjectRepository extends JpaRepository<ProjectEntity, String> 
 	Page<ProjectEntity> getPrjInvolvedByCurUser(@Param("curUsername") String curUsername,
 			@Param("pageSearchDto") PageSearchDto pageSearchDto, Pageable pageable);
 
-	@Query(value = " select p.* from PROJECT p " + " join T_SYS_APP_USER u on p.create_by = u.user_name "
+	
+	@Query(value =  " select * from (select p.* from PROJECT p join T_SYS_APP_USER u on p.create_by = u.user_name "
 			+ " where (u.create_by = :curUsername or p.create_by = :curUsername) "
-			+ " group by p.id ", nativeQuery = true)
+			+ " union "
+			+ " select p.* from PROJECT p join ASSIGN_TASK ast on ast.project_id = p.id "
+			+ "	join T_SYS_APP_USER tsau on tsau.id = ast.user_id "
+			+ " where tsau.user_name = :curUsername and (ast.can_view = 1 or ast.can_edit = 1)) as PRJ"
+			, nativeQuery = true)
 	List<ProjectEntity> getPrjLstByOrgAdminUsername(String curUsername);
 
 	@Query(value = " select p.* from PROJECT p " + " join T_SYS_APP_USER u on p.create_by = u.user_name "

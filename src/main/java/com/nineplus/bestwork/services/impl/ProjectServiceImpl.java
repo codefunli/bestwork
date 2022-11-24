@@ -190,6 +190,7 @@ public class ProjectServiceImpl implements IProjectService {
 	}
 
 	@Override
+	@Transactional
 	public void deleteProjectById(List<String> listProjectId) throws BestWorkBussinessException {
 		UserAuthDetected userAuthRoleReq = getAuthRoleReq();
 		String curUsername = userAuthRoleReq.getUsername();
@@ -211,6 +212,7 @@ public class ProjectServiceImpl implements IProjectService {
 	}
 
 	@Override
+	@Transactional
 	public void saveProject(ProjectTaskReqDto projectTaskDto, ProjectTypeEntity projectType)
 			throws BestWorkBussinessException {
 		UserAuthDetected userAuthRoleReq = getAuthRoleReq();
@@ -218,21 +220,19 @@ public class ProjectServiceImpl implements IProjectService {
 		if (!userAuthRoleReq.getIsOrgAdmin() && !userAuthRoleReq.getIsInvestor()) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
 		}
-		String generateProjectId = "";
+		String generatedPrjId = "";
 
 		// User can create new project
 		if (projectTaskDto.getProject() != null && projectTaskDto.getRoleData() == null) {
-			generateProjectId = this.setProjectId();
-			// Validate project information
+			generatedPrjId = this.setProjectId();
 			this.validateProject(projectTaskDto.getProject(), false);
-			registNewProject(projectTaskDto.getProject(), projectType, generateProjectId);
+			registNewProject(projectTaskDto.getProject(), projectType, generatedPrjId);
 		} else if (projectTaskDto.getRoleData() != null) {
-			generateProjectId = this.setProjectId();
-			// Validate project information
+			generatedPrjId = this.setProjectId();
 			this.validateProject(projectTaskDto.getProject(), false);
-			registNewProject(projectTaskDto.getProject(), projectType, generateProjectId);
+			registNewProject(projectTaskDto.getProject(), projectType, generatedPrjId);
 			for (int i = 0; i < projectTaskDto.getRoleData().size(); i++)
-				registAssign(projectTaskDto.getRoleData().get(i), projectType, generateProjectId);
+				registAssign(projectTaskDto.getRoleData().get(i), projectType, generatedPrjId);
 		}
 	}
 
@@ -241,9 +241,6 @@ public class ProjectServiceImpl implements IProjectService {
 			throws BestWorkBussinessException {
 		ProjectEntity projectRegist = new ProjectEntity();
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
-		if (!userAuthRoleReq.getIsOrgAdmin() && !userAuthRoleReq.getIsInvestor()) {
-			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
-		}
 		try {
 			projectRegist.setId(generateProjectId);
 			projectRegist.setProjectName(projectReqDto.getProjectName());
@@ -267,27 +264,21 @@ public class ProjectServiceImpl implements IProjectService {
 			String generateProjectId) throws BestWorkBussinessException {
 		try {
 			List<ProjectRoleUserReqDto> userList = projectAssignReqDto.getUserList();
-			List<AssignTaskEntity> assignTasklist = new ArrayList<>();
-
-			for (int i = 0; i < userList.size(); i++) {
-				UserEntity user = userService.findUserByUserId(userList.get(i).getUserId());
+			for (ProjectRoleUserReqDto dto : userList) {
+				UserEntity user = userService.findUserByUserId(dto.getUserId());
 				if (user == null) {
 					throw new BestWorkBussinessException(CommonConstants.MessageCode.ECU0005, null);
 				}
-				if (userList.get(i).isCanEdit() || userList.get(i).isCanView()) {
+				if (dto.isCanEdit() || dto.isCanView()) {
 					AssignTaskEntity assignTask = new AssignTaskEntity();
 					assignTask.setCompanyId(projectAssignReqDto.getCompanyId());
 					assignTask.setProjectId(generateProjectId);
-					assignTask.setUserId(userList.get(i).getUserId());
-					assignTask.setCanView(userList.get(i).isCanView());
-					assignTask.setCanEdit(userList.get(i).isCanEdit());
-					assignTasklist.add(assignTask);
+					assignTask.setUserId(dto.getUserId());
+					assignTask.setCanView(dto.isCanView());
+					assignTask.setCanEdit(dto.isCanEdit());
+					assignTaskRepository.save(assignTask);
+					this.sendNotify(generateProjectId, dto);
 				}
-			}
-			assignTaskRepository.saveAll(assignTasklist);
-
-			for (ProjectRoleUserReqDto user : userList) {
-				sendNotify(generateProjectId, user);
 			}
 		} catch (Exception ex) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.S1X0005, null);
@@ -310,10 +301,10 @@ public class ProjectServiceImpl implements IProjectService {
 				throw new BestWorkBussinessException(CommonConstants.MessageCode.S1X0013, new Object[] { project });
 			}
 		}
-
 	}
 
 	@Override
+	@Transactional
 	public void updateProject(ProjectTaskReqDto projectTaskDto, ProjectTypeEntity projectType, String projectId)
 			throws BestWorkBussinessException {
 		ProjectEntity curPrj = null;
@@ -329,7 +320,7 @@ public class ProjectServiceImpl implements IProjectService {
 		// Only user creating project can edit project info and create/change/remove
 		// assignment other user
 		// (Other users (who are assigned as editor) can only create/update/... Material
-		// Supplies )
+		// Supplies, Constructions, ... )
 		if (userAuthRoleReq.getIsSysAdmin() || curUser == null || !chkPrjCrtByCurUser(curPrj, curUsername)) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
 		}
@@ -339,39 +330,38 @@ public class ProjectServiceImpl implements IProjectService {
 				Long companyId = projectTaskDto.getRoleData().get(j).getCompanyId();
 				List<ProjectRoleUserReqDto> userList = projectTaskDto.getRoleData().get(j).getUserList();
 				AssignTaskEntity assignTask = null;
-				AssignTaskEntity originalAssignTask = new AssignTaskEntity();
+				AssignTaskEntity originAssign = new AssignTaskEntity();
 				try {
 					updateProject(curPrj, projectTaskDto.getProject(), projectType);
-					for (int i = 0; i < userList.size(); i++) {
-						UserEntity user = userService.findUserByUserId(userList.get(i).getUserId());
+					for (ProjectRoleUserReqDto userDto : userList) {
+						UserEntity user = userService.findUserByUserId(userDto.getUserId());
 						if (user != null) {
-							assignTask = assignTaskRepository.findbyCondition(userList.get(i).getUserId(), companyId,
+							assignTask = assignTaskRepository.findbyCondition(userDto.getUserId(), companyId,
 									projectId);
 							if (assignTask != null) {
-								BeanUtils.copyProperties(assignTask, originalAssignTask);
-								assignTask.setCanView(userList.get(i).isCanView());
-								assignTask.setCanEdit(userList.get(i).isCanEdit());
+								BeanUtils.copyProperties(assignTask, originAssign);
+								assignTask.setCanView(userDto.isCanView());
+								assignTask.setCanEdit(userDto.isCanEdit());
 								assignTaskRepository.save(assignTask);
-								if (((originalAssignTask.isCanEdit() != userList.get(i).isCanEdit())
-										|| (originalAssignTask.isCanView() != userList.get(i).isCanView()))
-										&& (userList.get(i).isCanEdit() || userList.get(i).isCanView())) {
-									sendChgAssignNotify(projectId, userList.get(i));
-								} else if (((originalAssignTask.isCanEdit() != userList.get(i).isCanEdit())
-										|| (originalAssignTask.isCanView() != userList.get(i).isCanView()))
-										&& (!userList.get(i).isCanEdit() && !userList.get(i).isCanView())) {
-									sendRemoveAssignNotify(projectId, userList.get(i));
+								if (((originAssign.isCanEdit() != userDto.isCanEdit())
+										|| (originAssign.isCanView() != userDto.isCanView()))
+										&& (userDto.isCanEdit() || userDto.isCanView())) {
+									sendChgAssignNotify(projectId, userDto);
+								} else if (((originAssign.isCanEdit() != userDto.isCanEdit())
+										|| (originAssign.isCanView() != userDto.isCanView()))
+										&& (!userDto.isCanEdit() && !userDto.isCanView())) {
+									sendRemoveAssignNotify(projectId, userDto);
 								}
 							} else {
 								AssignTaskEntity assignTaskNew = new AssignTaskEntity();
 								assignTaskNew.setCompanyId(companyId);
 								assignTaskNew.setProjectId(projectId);
-								assignTaskNew.setUserId(userList.get(i).getUserId());
-								assignTaskNew.setCanView(userList.get(i).isCanView());
-								assignTaskNew.setCanEdit(userList.get(i).isCanEdit());
+								assignTaskNew.setUserId(userDto.getUserId());
+								assignTaskNew.setCanView(userDto.isCanView());
+								assignTaskNew.setCanEdit(userDto.isCanEdit());
 								assignTaskRepository.save(assignTaskNew);
-								sendNotify(projectId, userList.get(i));
+								sendNotify(projectId, userDto);
 							}
-
 						} else {
 							throw new BestWorkBussinessException(CommonConstants.MessageCode.ECU0005, null);
 						}
@@ -437,10 +427,13 @@ public class ProjectServiceImpl implements IProjectService {
 	@Override
 	public List<ProjectAssignRepository> getCompanyUserForAssign(AssignTaskReqDto assignTaskReqDto)
 			throws BestWorkBussinessException {
+		UserAuthDetected userAuthRoleReq = getAuthRoleReq();
+		String curUsername = userAuthRoleReq.getUsername();
 		List<ProjectAssignRepository> lstResult = null;
 		if (StringUtils.isNotBlank(assignTaskReqDto.getCompanyId())) {
 			long companyId = Long.parseLong(assignTaskReqDto.getCompanyId());
 			lstResult = projectRepository.getCompAndRoleUserByCompId(companyId);
+			lstResult.removeIf(x -> curUsername.equals(x.getUserName()));
 		}
 		return lstResult;
 	}
@@ -488,20 +481,23 @@ public class ProjectServiceImpl implements IProjectService {
 	@Override
 	public Map<Long, List<ProjectRoleUserResDto>> getListAssign(AssignTaskReqDto assignTaskReqDto)
 			throws BestWorkBussinessException {
+		UserAuthDetected userAuthRoleReq = getAuthRoleReq();
+		String curUsername = userAuthRoleReq.getUsername();
 		List<ProjectAssignRepository> listRole = null;
 		if (StringUtils.isNotBlank(assignTaskReqDto.getProjectId())) {
 			listRole = projectRepository.getCompAndRoleUserByPrj(assignTaskReqDto.getProjectId());
+//			listRole.removeIf(x -> x.getUserName().equals(curUsername));
 		}
 
 		Map<Long, List<ProjectRoleUserResDto>> resultList = listRole.stream()
 				.map(listR -> new ProjectRoleUserResDto(listR.getCompanyId(), listR.getUserId(), listR.getUserName(),
 						listR.getCanView(), listR.getCanEdit()))
 				.collect(Collectors.groupingBy(ProjectRoleUserResDto::getCompanyId, Collectors.toList()));
-
 		return resultList;
 	}
 
 	@Override
+	@Transactional
 	public void changeStatus(String projectId, ProjectStatusReqDto projectStatusReqDto)
 			throws BestWorkBussinessException {
 		UserAuthDetected userAuthRoleReq = getAuthRoleReq();

@@ -12,7 +12,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.nineplus.bestwork.dto.ProgressAndConstructionResDto;
 import com.nineplus.bestwork.dto.ProgressListReqDto;
@@ -32,10 +34,10 @@ public class ProgressController extends BaseController {
 	private IProgressService progressService;
 
 	@PostMapping("/create")
-	public ResponseEntity<? extends Object> createProgress(@RequestBody ProgressReqDto progressReqDto)
-			throws BestWorkBussinessException {
+	public ResponseEntity<? extends Object> createProgress(@RequestPart ProgressReqDto progressReqDto,
+			@RequestPart List<MultipartFile> files) throws BestWorkBussinessException {
 		try {
-			progressService.registProgress(progressReqDto);
+			progressService.registProgress(progressReqDto, files);
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}
@@ -43,10 +45,10 @@ public class ProgressController extends BaseController {
 	}
 
 	@PostMapping("/update/{progressId}")
-	public ResponseEntity<? extends Object> updateProgress(@RequestBody ProgressReqDto progressReqDto,
-			@PathVariable long progressId) throws BestWorkBussinessException {
+	public ResponseEntity<? extends Object> updateProgress(@RequestPart ProgressReqDto progressReqDto,
+			@RequestPart List<MultipartFile> files, @PathVariable long progressId) throws BestWorkBussinessException {
 		try {
-			progressService.updateProgress(progressReqDto, progressId);
+			progressService.updateProgress(progressReqDto, files, progressId);
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}
@@ -55,16 +57,16 @@ public class ProgressController extends BaseController {
 
 	@GetMapping("/by/construction/{constructionId}")
 	public ResponseEntity<? extends Object> getAllProgressByConstruction(@PathVariable String constructionId) {
-		ProgressAndConstructionResDto progressAndConstructionDto = null;
+		List<ProgressResDto> progressDtoList = null;
 		try {
-			progressAndConstructionDto = progressService.getProgressByConstruction(constructionId);
+			progressDtoList = progressService.getProgressByConstruction(constructionId);
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}
-		if(ObjectUtils.isEmpty(progressAndConstructionDto)) {
-			return success(CommonConstants.MessageCode.E1X0003, progressAndConstructionDto, null);
+		if (ObjectUtils.isEmpty(progressDtoList)) {
+			return success(CommonConstants.MessageCode.E1X0003, progressDtoList, null);
 		}
-		return success(CommonConstants.MessageCode.sPu00003, progressAndConstructionDto, null);
+		return success(CommonConstants.MessageCode.sPu00003, progressDtoList, null);
 	}
 
 	@PostMapping("/delete")

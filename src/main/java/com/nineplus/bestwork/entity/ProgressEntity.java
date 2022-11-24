@@ -43,30 +43,25 @@ public class ProgressEntity {
 
 	@Column(name = "note")
 	private String note;
-	
+
 	@Column(name = "create_by")
 	private String createBy;
 
 	@Column(name = "update_by")
 	private String updateBy;
-	
+
 	@Column(name = "create_date")
 	LocalDateTime createDate;
 
 	@Column(name = "update_date")
 	LocalDateTime updateDate;
 
-//	@ManyToOne
-//	@JoinColumn(name = "project_id")
-//	@JsonIgnore
-//	private ProjectEntity project;
-	
 	@ManyToOne
 	@JoinColumn(name = "construction_id")
 	@JsonIgnore
 	private ConstructionEntity construction;
 
-	@OneToMany(mappedBy = "progress")
+	@OneToMany(mappedBy = "progressId")
 	private List<FileStorageEntity> fileStorages;
 
 }

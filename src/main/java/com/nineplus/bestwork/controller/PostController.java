@@ -25,7 +25,6 @@ import com.nineplus.bestwork.dto.PostResDto;
 import com.nineplus.bestwork.entity.FileStorageEntity;
 import com.nineplus.bestwork.entity.PostEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
-import com.nineplus.bestwork.services.IConstructionService;
 import com.nineplus.bestwork.services.IPostService;
 import com.nineplus.bestwork.services.IStorageService;
 import com.nineplus.bestwork.utils.CommonConstants;
@@ -46,9 +45,6 @@ public class PostController extends BaseController {
 
 	@Autowired
 	private IStorageService storageService;
-
-	@Autowired
-	private IConstructionService constructionService;
 
 	@Autowired
 	UserAuthUtils userAuthUtils;

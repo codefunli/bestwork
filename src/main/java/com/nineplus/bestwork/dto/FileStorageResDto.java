@@ -2,8 +2,6 @@ package com.nineplus.bestwork.dto;
 
 
 
-import java.io.ByteArrayOutputStream;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.EqualsAndHashCode;

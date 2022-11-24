@@ -105,7 +105,9 @@ public class SftpFileServiceImpl implements ISftpFileService {
 
 	public static final String EVIDENCE_AFTER_PATH = "evidenceAfter";
 
-	public static final String CONSTRUCTION_PATH = "constructionPath";
+	public static final String CONSTRUCTION_PATH = "constructions";
+
+	public static final String PROGRESS_PATH = "progress";
 
 	@Override
 	public boolean isExistFolder(ChannelSftp channel, String path) {
@@ -203,7 +205,12 @@ public class SftpFileServiceImpl implements ISftpFileService {
 
 	@Override
 	public String uploadConstructionDrawing(MultipartFile file, long constructionId) {
-		return uploadDrawing(file, FolderType.CONSTRUCTION, constructionId);
+		return uploadImage(file, FolderType.CONSTRUCTION, constructionId);
+	}
+	
+	@Override
+	public String uploadProgressImage(MultipartFile file, long progressId) {
+		return uploadImage(file, FolderType.PROGRESS, progressId);
 	}
 
 	/**
@@ -300,7 +307,7 @@ public class SftpFileServiceImpl implements ISftpFileService {
 		return finalPath;
 	}
 
-	private String uploadDrawing(MultipartFile mfile, FolderType folderType, Long constructionId) {
+	private String uploadImage(MultipartFile mfile, FolderType folderType, Long objId) {
 		Session session = null;
 		ChannelSftp channel = null;
 		String pathTemp = null;
@@ -326,7 +333,7 @@ public class SftpFileServiceImpl implements ISftpFileService {
 				}
 			}
 
-			pathTemp = pathTemp + SEPARATOR + constructionId;
+			pathTemp = pathTemp + SEPARATOR + objId;
 			if (!isExistFolder(channel, pathTemp)) {
 				pathTemp = this.createFolder(channel, pathTemp);
 			}
@@ -406,6 +413,9 @@ public class SftpFileServiceImpl implements ISftpFileService {
 			break;
 		case CONSTRUCTION:
 			res = CONSTRUCTION_PATH;
+			break;
+		case PROGRESS:
+			res = PROGRESS_PATH;
 			break;
 		default:
 			break;
