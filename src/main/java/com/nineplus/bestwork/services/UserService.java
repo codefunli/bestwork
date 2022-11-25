@@ -143,9 +143,9 @@ public class UserService implements UserDetailsService {
 			dto.setUserName(user.getUserName());
 			dto.setEmail(user.getEmail());
 			dto.setRole(user.getRole());
-			dto.setIsEnable(countUserLoginFailedBlocked);
+			dto.setCountLoginFailed(String.valueOf(countUserLoginFailedBlocked));
 			dto.setRole(user.getRole());
-			dto.setIsEnable(user.getIsEnable());
+			dto.setEnable(user.isEnable());
 			dto.setTelNo(user.getTelNo());
 			dto.setFirstName(user.getFirstName());
 			dto.setLastName(user.getLastName());
@@ -161,7 +161,7 @@ public class UserService implements UserDetailsService {
 		companyUser.add(tCompany);
 		newUser.setEmail(newUserCompany.getEmail());
 		newUser.setUserName(newUserCompany.getUserName());
-		newUser.setIsEnable(newUserCompany.getEnabled());
+		newUser.setEnable(newUserCompany.isEnabled());
 		newUser.setFirstName(newUserCompany.getFirstName());
 		newUser.setLastName(newUserCompany.getLastName());
 		newUser.setLoginFailedNum(0);
@@ -197,6 +197,9 @@ public class UserService implements UserDetailsService {
 	public UserEntity createUser(UserReqDto userReqDto) throws BestWorkBussinessException {
 
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
+		if (!(userAuthRoleReq.getIsOrgAdmin() || userAuthRoleReq.getIsSysAdmin())) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
+		}
 		String createUser = userAuthRoleReq.getUsername();
 		RoleEntity role = new RoleEntity();
 		if (ObjectUtils.isNotEmpty(userReqDto.getRole())) {
@@ -226,7 +229,7 @@ public class UserService implements UserDetailsService {
 		user.setLastName(userReqDto.getLastName());
 		user.setEmail(userReqDto.getEmail());
 		user.setTelNo(userReqDto.getTelNo());
-		user.setIsEnable(userReqDto.getEnabled());
+		user.setEnable(userReqDto.isEnabled());
 		user.setLoginFailedNum(0);
 		user.setRole(role);
 		user.setCreateBy(createUser);
@@ -323,7 +326,7 @@ public class UserService implements UserDetailsService {
 				userResDto.setTelNo(tUser.getTelNo());
 				userResDto.setRole(tUser.getRole());
 				userResDto.setId(tUser.getId());
-				userResDto.setIsEnable(tUser.getIsEnable());
+				userResDto.setEnable(tUser.isEnable());
 				userResDto.setAvatar(Arrays.toString(tUser.getUserAvatar()));
 				userResDtoList.add(userResDto);
 			}
@@ -413,7 +416,7 @@ public class UserService implements UserDetailsService {
 		userEntity.setLastName(userReqDto.getLastName());
 		userEntity.setEmail(userReqDto.getEmail());
 		userEntity.setTelNo(userReqDto.getTelNo());
-		userEntity.setIsEnable(userReqDto.getEnabled());
+		userEntity.setEnable(userReqDto.isEnabled());
 		userEntity.setLoginFailedNum(0);
 		if (ObjectUtils.isNotEmpty(userReqDto.getRole())) {
 			RoleEntity roleCurrent = roleRepository.findRole(userReqDto.getRole());

@@ -40,7 +40,7 @@ public class UserReqDto extends BaseDto {
 	private String telNo;
 
 	@JsonProperty("enabled")
-	private int enabled;
+	private boolean enabled;
 
 	@JsonProperty("role")
 	private long role;

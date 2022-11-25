@@ -59,7 +59,7 @@ public class UserEntity {
 	private String email;
 
 	@Column(name = "enable", nullable = false)
-	private int isEnable;
+	private boolean isEnable;
 
 	@CreationTimestamp
 	@Column(name = "create_date", nullable = false, insertable = false, updatable = false)
