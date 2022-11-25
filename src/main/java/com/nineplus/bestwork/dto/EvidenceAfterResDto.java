@@ -23,7 +23,7 @@ public class EvidenceAfterResDto extends BaseDto {
 	 */
 	private static final long serialVersionUID = -2766380575224594531L;
 	
-	@JsonProperty("evidenceBeforeId")
+	@JsonProperty("evidenceAfterId")
 	private long id;
 
 	@JsonProperty("description")
