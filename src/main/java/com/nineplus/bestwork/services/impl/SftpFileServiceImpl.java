@@ -207,7 +207,7 @@ public class SftpFileServiceImpl implements ISftpFileService {
 	public String uploadConstructionDrawing(MultipartFile file, long constructionId) {
 		return uploadImage(file, FolderType.CONSTRUCTION, constructionId);
 	}
-	
+
 	@Override
 	public String uploadProgressImage(MultipartFile file, long progressId) {
 		return uploadImage(file, FolderType.PROGRESS, progressId);
@@ -563,5 +563,26 @@ public class SftpFileServiceImpl implements ISftpFileService {
 			}
 		}
 		return false;
+	}
+
+	@Override
+	public boolean removeFile(String pathFileServer) {
+		ChannelSftp channel = null;
+		Session session = null;
+		try {
+			Pair<Session, ChannelSftp> sftpConnection = this.getConnection();
+			session = sftpConnection.getFirst();
+			channel = sftpConnection.getSecond();
+			//Check exist path on sever
+			if (!isExistFolder(channel, pathFileServer)) {
+				return false;
+			}
+			channel.rm(pathFileServer);
+		} catch (SftpException ex) {
+			throw new FileHandleException(ex.getMessage(), ex);
+		} finally {
+			disconnect(session, channel);
+		}
+		return true;
 	}
 }

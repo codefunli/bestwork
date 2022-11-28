@@ -82,7 +82,7 @@ public class Enums {
 
 	public enum AirWayBillStatus {
 		NOT_YET_CUSTOMS_CLEARANCES(0,"Not yet customs clearance"),
-		IN_CUSTOMS_CLEARANCES_PROGRESS(1,"In Customs Clearance Progress"), DONE(2,"Done");
+		IN_CUSTOMS_CLEARANCES_PROGRESS(1,"In Customs Clearance Progress"), DONE(2,"Done"), CANCEL(3,"Cancel");
 
 		private String value;
 		
