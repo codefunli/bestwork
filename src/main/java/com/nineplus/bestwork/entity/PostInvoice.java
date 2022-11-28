@@ -21,7 +21,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Table(name = "post_invoice")
+@Table(name = "POST_INVOICE")
 @Entity(name = "PostInvoice")
 @Getter
 @Setter

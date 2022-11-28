@@ -2,11 +2,16 @@ package com.nineplus.bestwork.services;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.nineplus.bestwork.dto.*;
-import com.nineplus.bestwork.model.enumtype.Status;
 import org.apache.commons.lang3.ObjectUtils;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
@@ -26,11 +31,24 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.nineplus.bestwork.dto.CompanyResDto;
+import com.nineplus.bestwork.dto.CompanyUserReqDto;
+import com.nineplus.bestwork.dto.PageResDto;
+import com.nineplus.bestwork.dto.PageSearchUserDto;
+import com.nineplus.bestwork.dto.PermissionResDto;
+import com.nineplus.bestwork.dto.RPageDto;
+import com.nineplus.bestwork.dto.UserCompanyReqDto;
+import com.nineplus.bestwork.dto.UserDetectResDto;
+import com.nineplus.bestwork.dto.UserListIdDto;
+import com.nineplus.bestwork.dto.UserReqDto;
+import com.nineplus.bestwork.dto.UserResDto;
+import com.nineplus.bestwork.dto.UserWithProjectResDto;
 import com.nineplus.bestwork.entity.CompanyEntity;
 import com.nineplus.bestwork.entity.RoleEntity;
 import com.nineplus.bestwork.entity.UserEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.model.UserAuthDetected;
+import com.nineplus.bestwork.model.enumtype.Status;
 import com.nineplus.bestwork.repository.AssignTaskRepository;
 import com.nineplus.bestwork.repository.CompanyRepository;
 import com.nineplus.bestwork.repository.RoleRepository;
@@ -39,6 +57,7 @@ import com.nineplus.bestwork.repository.UserRepository;
 import com.nineplus.bestwork.services.impl.ScheduleServiceImpl;
 import com.nineplus.bestwork.utils.CommonConstants;
 import com.nineplus.bestwork.utils.ConvertResponseUtils;
+import com.nineplus.bestwork.utils.Enums.TRole;
 import com.nineplus.bestwork.utils.MessageUtils;
 import com.nineplus.bestwork.utils.PageUtils;
 import com.nineplus.bestwork.utils.UserAuthUtils;
@@ -124,9 +143,9 @@ public class UserService implements UserDetailsService {
 			dto.setUserName(user.getUserName());
 			dto.setEmail(user.getEmail());
 			dto.setRole(user.getRole());
-			dto.setIsEnable(countUserLoginFailedBlocked);
+			dto.setCountLoginFailed(String.valueOf(countUserLoginFailedBlocked));
 			dto.setRole(user.getRole());
-			dto.setIsEnable(user.getIsEnable());
+			dto.setEnable(user.isEnable());
 			dto.setTelNo(user.getTelNo());
 			dto.setFirstName(user.getFirstName());
 			dto.setLastName(user.getLastName());
@@ -135,14 +154,15 @@ public class UserService implements UserDetailsService {
 	}
 
 	@Transactional(rollbackFor = { Exception.class })
-	public void registNewUser(CompanyUserReqDto companyUserReqDto, CompanyEntity tCompany, RoleEntity role) {
+	public void registNewUser(CompanyUserReqDto companyUserReqDto, CompanyEntity tCompany, RoleEntity role) throws BestWorkBussinessException {
+		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
 		UserEntity newUser = new UserEntity();
 		Set<CompanyEntity> companyUser = new HashSet<CompanyEntity>();
 		UserCompanyReqDto newUserCompany = companyUserReqDto.getUser();
 		companyUser.add(tCompany);
 		newUser.setEmail(newUserCompany.getEmail());
 		newUser.setUserName(newUserCompany.getUserName());
-		newUser.setIsEnable(newUserCompany.getEnabled());
+		newUser.setEnable(newUserCompany.isEnabled());
 		newUser.setFirstName(newUserCompany.getFirstName());
 		newUser.setLastName(newUserCompany.getLastName());
 		newUser.setLoginFailedNum(0);
@@ -150,6 +170,8 @@ public class UserService implements UserDetailsService {
 		newUser.setTelNo(newUserCompany.getTelNo());
 		newUser.setRole(role);
 		newUser.setCompanys(companyUser);
+		newUser.setCreateBy(userAuthRoleReq.getUsername());
+		newUser.setCreateDate(LocalDateTime.now());
 
 		userRepo.save(newUser);
 
@@ -178,6 +200,9 @@ public class UserService implements UserDetailsService {
 	public UserEntity createUser(UserReqDto userReqDto) throws BestWorkBussinessException {
 
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
+		if (!(userAuthRoleReq.getIsOrgAdmin() || userAuthRoleReq.getIsSysAdmin())) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
+		}
 		String createUser = userAuthRoleReq.getUsername();
 		RoleEntity role = new RoleEntity();
 		if (ObjectUtils.isNotEmpty(userReqDto.getRole())) {
@@ -207,7 +232,7 @@ public class UserService implements UserDetailsService {
 		user.setLastName(userReqDto.getLastName());
 		user.setEmail(userReqDto.getEmail());
 		user.setTelNo(userReqDto.getTelNo());
-		user.setIsEnable(userReqDto.getEnabled());
+		user.setEnable(userReqDto.isEnabled());
 		user.setLoginFailedNum(0);
 		user.setRole(role);
 		user.setCreateBy(createUser);
@@ -304,7 +329,7 @@ public class UserService implements UserDetailsService {
 				userResDto.setTelNo(tUser.getTelNo());
 				userResDto.setRole(tUser.getRole());
 				userResDto.setId(tUser.getId());
-				userResDto.setIsEnable(tUser.getIsEnable());
+				userResDto.setEnable(tUser.isEnable());
 				userResDto.setAvatar(Arrays.toString(tUser.getUserAvatar()));
 				userResDtoList.add(userResDto);
 			}
@@ -351,11 +376,15 @@ public class UserService implements UserDetailsService {
 	@Transactional(rollbackFor = { Exception.class })
 	public UserEntity editUser(UserReqDto userReqDto, long userId) throws BestWorkBussinessException {
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
+		UserEntity curUser = this.findUserByUsername(userAuthRoleReq.getUsername());
 		if (!userAuthRoleReq.getIsSysAdmin()) {
 			CompanyEntity company = companyRepository.findById(findCompanyIdByUsername(userAuthRoleReq))
 					.orElse(new CompanyEntity());
-			if (null == company.getId()) {
+			if (ObjectUtils.isEmpty(company.getId())) {
 				throw new BestWorkBussinessException(CommonConstants.MessageCode.ECU0003, null);
+			}
+			if(!(userAuthRoleReq.getIsOrgAdmin() && curUser.getCompanys().contains(company))) {
+				throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
 			}
 		}
 		UserEntity user = userRepo.findById(userId).orElse(null);
@@ -363,7 +392,7 @@ public class UserService implements UserDetailsService {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.ECU0003, null);
 		}
 
-		if (userReqDto.getRole() == 1) {
+		if (userReqDto.getRole() <= 1 || userReqDto.getRole() > TRole.values().length) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.ECU0003, null);
 		}
 
@@ -381,7 +410,10 @@ public class UserService implements UserDetailsService {
 			userEntity.setCompanys(user.getCompanys());
 		}
 		userEntity.setId(userId);
-		userEntity.setUserName(userReqDto.getUserName());
+		if (!userReqDto.getUserName().equals(user.getUserName())) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.ECU0007, null);
+		}
+		userEntity.setUserName(user.getUserName());
 		if (null != userReqDto.getPassword()) {
 			userEntity.setPassword(encoder.encode(userReqDto.getPassword()));
 		} else {
@@ -391,7 +423,7 @@ public class UserService implements UserDetailsService {
 		userEntity.setLastName(userReqDto.getLastName());
 		userEntity.setEmail(userReqDto.getEmail());
 		userEntity.setTelNo(userReqDto.getTelNo());
-		userEntity.setIsEnable(userReqDto.getEnabled());
+		userEntity.setEnable(userReqDto.isEnabled());
 		userEntity.setLoginFailedNum(0);
 		if (ObjectUtils.isNotEmpty(userReqDto.getRole())) {
 			RoleEntity roleCurrent = roleRepository.findRole(userReqDto.getRole());
@@ -408,6 +440,7 @@ public class UserService implements UserDetailsService {
 			userEntity.setUserAvatar("".getBytes());
 		}
 		userEntity.setUpdateDate(LocalDateTime.now());
+		userEntity.setUpdateBy(userAuthRoleReq.getUsername());
 		userRepo.save(userEntity);
 		return userEntity;
 	}

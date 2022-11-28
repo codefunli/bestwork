@@ -4,8 +4,6 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.nineplus.bestwork.entity.CompanyEntity;
-import com.nineplus.bestwork.entity.RoleEntity;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -42,11 +40,8 @@ public class UserReqDto extends BaseDto {
 	private String telNo;
 
 	@JsonProperty("enabled")
-	private int enabled;
+	private boolean enabled;
 
-	/*
-	 * @JsonProperty("role") private TRole role;
-	 */
 	@JsonProperty("role")
 	private long role;
 

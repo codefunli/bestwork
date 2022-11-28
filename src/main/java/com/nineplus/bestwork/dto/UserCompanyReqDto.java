@@ -23,7 +23,7 @@ public class UserCompanyReqDto extends BaseDto {/**
 	private String password;
 
 	@JsonProperty("enabled")
-	private int enabled;
+	private boolean enabled;
 
 	@JsonProperty("firstName")
 	private String firstName;

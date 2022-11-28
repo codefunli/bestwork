@@ -21,7 +21,7 @@ public class AirWayBillReqDto extends BaseDto {
 	@JsonProperty("projectId")
 	private String projectId;
 
-	@JsonProperty("airWayBillCode")
+	@JsonProperty("code")
 	private String code;
 
 	@JsonProperty("note")
