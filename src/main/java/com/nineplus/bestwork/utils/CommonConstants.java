@@ -25,6 +25,7 @@ public class CommonConstants {
 
 	public class Image {
 		public static final String[] IMAGE_EXTENSION = { "png", "jpg", "jpeg", "bmp", "JPEG", "PNG", "JPG", "BMP" };
+		public static final int IMG_NAME_LEN = 250;
 	}
 
 	public class MediaType {

@@ -37,9 +37,6 @@ public class StorageServiceImpl implements IStorageService {
 	@Autowired
 	private StorageRepository storageRepository;
 
-	private final String POST_INVOICE_TYPE = "invoice";
-	private final String POST_PACKAGE_TYPE = "package";
-
 	@Override
 	@Transactional
 	public FileStorageEntity storeFilePost(String imageData, PostEntity reqPost) {
@@ -83,26 +80,6 @@ public class StorageServiceImpl implements IStorageService {
 		}
 
 	}
-
-//	@Override
-//	@Transactional
-//	public FileStorageEntity storeFileProgress(FileStorageReqDto file, ProgressEntity progress) {
-//		try {
-//			FileStorageEntity image = new FileStorageEntity();
-//			image.setData(file.getData().getBytes());
-//			image.setProgress(progress);
-//			String generatedFileName = UUID.randomUUID().toString().replace("-", "");
-//			image.setName(generatedFileName);
-//			image.setType(getImageType(file.getData()));
-//			image.setCreateDate(Timestamp.valueOf(LocalDateTime.now()));
-//			image.setPathFileServer("progress test");
-//
-//			return storageRepository.save(image);
-//		} catch (Exception e) {
-//			e.getMessage();
-//			return null;
-//		}
-//	}
 
 	public List<FileStorageEntity> findFilesByPostId(String postId) {
 		return this.storageRepository.findAllByPostId(postId);
@@ -156,7 +133,11 @@ public class StorageServiceImpl implements IStorageService {
 	}
 
 	private String getFileNameFromPath(String path) {
-		return FilenameUtils.getName(path);
+		String name = FilenameUtils.getName(path);
+		if (name.length() >= CommonConstants.Image.IMG_NAME_LEN) {
+			name = name.substring(0, CommonConstants.Image.IMG_NAME_LEN - 1);
+		}
+		return name;
 	}
 
 	private String getFileTypeFromPath(String path) {
@@ -190,5 +171,27 @@ public class StorageServiceImpl implements IStorageService {
 			}
 		}
 		return null;
+	}
+
+	@Override
+	public List<String> getPathFileByCstrtId(long constructionId) {
+		List<String> pathList = this.storageRepository.findAllPathsByCstrtId(constructionId);
+		return pathList;
+	}
+
+	@Override
+	public List<String> getPathFileByProgressId(long progressId) {
+		List<String> pathList = this.storageRepository.findAllPathsByProgressId(progressId);
+		return pathList;
+	}
+
+	@Override
+	public void deleteByCstrtId(long constructionId) {
+		this.storageRepository.deleteByConstructionId(constructionId);
+	}
+
+	@Override
+	public void deleteByProgressId(long progressId) {
+		this.storageRepository.deleteByProgressId(progressId);
 	}
 }

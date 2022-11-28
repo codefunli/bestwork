@@ -34,4 +34,12 @@ public interface IStorageService {
 	
 	Map<Long, String> getPathFileToDownLoad(String airWayBillCode, List<Long> listFileId) throws BestWorkBussinessException;
 
+	public void deleteByCstrtId(long constructionId);
+
+	public List<String> getPathFileByCstrtId(long constructionId);
+
+	public List<String> getPathFileByProgressId(long id);
+
+	public void deleteByProgressId(long id);
+
 }

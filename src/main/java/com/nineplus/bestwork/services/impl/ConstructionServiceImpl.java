@@ -515,6 +515,14 @@ public class ConstructionServiceImpl implements IConstructionService {
 			if (!sftpFileService.isValidFile(drawings)) {
 				throw new BestWorkBussinessException(CommonConstants.MessageCode.eF0002, null);
 			}
+			// Get file-paths of the construction and remove them from server 
+			List<String> listPath = this.storageService.getPathFileByCstrtId(constructionId);
+			for (String path : listPath) {
+				this.sftpFileService.removeFile(path);
+			}
+			// Delete files of the construction from database
+			this.storageService.deleteByCstrtId(constructionId);
+			// Save new files to database and server
 			for (MultipartFile file : drawings) {
 				String pathServer = this.sftpFileService.uploadConstructionDrawing(file, curConstruction.getId());
 				storageService.storeFile(curConstruction.getId(), FolderType.CONSTRUCTION, pathServer);
