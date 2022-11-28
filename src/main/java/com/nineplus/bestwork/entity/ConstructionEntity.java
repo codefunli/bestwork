@@ -22,10 +22,10 @@ import lombok.EqualsAndHashCode;
  * @author DiepTT
  *
  */
-@Entity
 @Data
 @EqualsAndHashCode
 @Table(name = "CONSTRUCTION")
+@Entity(name = "Construction")
 public class ConstructionEntity {
 
 	@Id

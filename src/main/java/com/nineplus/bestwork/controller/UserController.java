@@ -118,10 +118,10 @@ public class UserController extends BaseController {
 		userResDto.setLastName(user.getLastName());
 		userResDto.setEmail(user.getEmail());
 		userResDto.setTelNo(user.getTelNo());
-		userResDto.setIsEnable(user.getIsEnable());
+		userResDto.setEnable(user.isEnable());
 		int countLoginfailed = user.getLoginFailedNum();
 		if (countLoginfailed > MAX_LOGIN_FAILED_NUM) {
-			userResDto.setIsEnable(0);
+			userResDto.setEnable(false);
 		}
 		userResDto.setRole(user.getRole());
 		for (CompanyEntity tCompany : user.getCompanys()) {

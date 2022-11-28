@@ -394,29 +394,33 @@ public class ConstructionServiceImpl implements IConstructionService {
 		cstrtResDto.setStatus(cstrt.getStatus());
 		cstrtResDto.setProjectCode(cstrt.getProjectCode());
 		List<AirWayBillResDto> awbCodes = new ArrayList<>();
-		for (AirWayBill airWayBill : cstrt.getAirWayBills()) {
-			AirWayBillResDto dto = new AirWayBillResDto();
-			dto = modelMapper.map(airWayBill, AirWayBillResDto.class);
-			dto.setStatus(AirWayBillStatus.convertIntToStatus(airWayBill.getStatus()));
-			awbCodes.add(dto);
+		if (!ObjectUtils.isEmpty(cstrt.getAirWayBills())) {
+			for (AirWayBill airWayBill : cstrt.getAirWayBills()) {
+				AirWayBillResDto dto = new AirWayBillResDto();
+				dto = modelMapper.map(airWayBill, AirWayBillResDto.class);
+				dto.setStatus(AirWayBillStatus.convertIntToStatus(airWayBill.getStatus()));
+				awbCodes.add(dto);
+			}
 		}
 
 		cstrtResDto.setAwbCodes(awbCodes);
 
 		List<FileStorageResDto> fsResDtos = new ArrayList<>();
-		for (FileStorageEntity file : cstrt.getFileStorages()) {
-			FileStorageResDto fsResDto = new FileStorageResDto();
-			fsResDto.setId(file.getId());
-			fsResDto.setName(file.getName());
-			fsResDto.setCreateDate(file.getCreateDate().toString());
-			fsResDto.setType(file.getType());
-			fsResDto.setChoosen(file.isChoosen());
-			if (Arrays.asList(CommonConstants.Image.IMAGE_EXTENSION).contains(file.getType())) {
-				String pathServer = file.getPathFileServer();
-				byte[] imageContent = sftpFileService.getFile(pathServer);
-				fsResDto.setContent(imageContent);
+		if (!ObjectUtils.isEmpty(cstrt.getFileStorages())) {
+			for (FileStorageEntity file : cstrt.getFileStorages()) {
+				FileStorageResDto fsResDto = new FileStorageResDto();
+				fsResDto.setId(file.getId());
+				fsResDto.setName(file.getName());
+				fsResDto.setCreateDate(String.valueOf(file.getCreateDate()));
+				fsResDto.setType(file.getType());
+				fsResDto.setChoosen(file.isChoosen());
+				if (Arrays.asList(CommonConstants.Image.IMAGE_EXTENSION).contains(file.getType())) {
+					String pathServer = file.getPathFileServer();
+					byte[] imageContent = sftpFileService.getFile(pathServer);
+					fsResDto.setContent(imageContent);
+				}
+				fsResDtos.add(fsResDto);
 			}
-			fsResDtos.add(fsResDto);
 		}
 		cstrtResDto.setFileStorages(fsResDtos);
 		return cstrtResDto;
