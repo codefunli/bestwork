@@ -154,7 +154,8 @@ public class UserService implements UserDetailsService {
 	}
 
 	@Transactional(rollbackFor = { Exception.class })
-	public void registNewUser(CompanyUserReqDto companyUserReqDto, CompanyEntity tCompany, RoleEntity role) {
+	public void registNewUser(CompanyUserReqDto companyUserReqDto, CompanyEntity tCompany, RoleEntity role) throws BestWorkBussinessException {
+		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
 		UserEntity newUser = new UserEntity();
 		Set<CompanyEntity> companyUser = new HashSet<CompanyEntity>();
 		UserCompanyReqDto newUserCompany = companyUserReqDto.getUser();
@@ -169,6 +170,8 @@ public class UserService implements UserDetailsService {
 		newUser.setTelNo(newUserCompany.getTelNo());
 		newUser.setRole(role);
 		newUser.setCompanys(companyUser);
+		newUser.setCreateBy(userAuthRoleReq.getUsername());
+		newUser.setCreateDate(LocalDateTime.now());
 
 		userRepo.save(newUser);
 
@@ -373,11 +376,15 @@ public class UserService implements UserDetailsService {
 	@Transactional(rollbackFor = { Exception.class })
 	public UserEntity editUser(UserReqDto userReqDto, long userId) throws BestWorkBussinessException {
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
+		UserEntity curUser = this.findUserByUsername(userAuthRoleReq.getUsername());
 		if (!userAuthRoleReq.getIsSysAdmin()) {
 			CompanyEntity company = companyRepository.findById(findCompanyIdByUsername(userAuthRoleReq))
 					.orElse(new CompanyEntity());
-			if (null == company.getId()) {
+			if (ObjectUtils.isEmpty(company.getId())) {
 				throw new BestWorkBussinessException(CommonConstants.MessageCode.ECU0003, null);
+			}
+			if(!(userAuthRoleReq.getIsOrgAdmin() && curUser.getCompanys().contains(company))) {
+				throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
 			}
 		}
 		UserEntity user = userRepo.findById(userId).orElse(null);
@@ -433,6 +440,7 @@ public class UserService implements UserDetailsService {
 			userEntity.setUserAvatar("".getBytes());
 		}
 		userEntity.setUpdateDate(LocalDateTime.now());
+		userEntity.setUpdateBy(userAuthRoleReq.getUsername());
 		userRepo.save(userEntity);
 		return userEntity;
 	}
