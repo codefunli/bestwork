@@ -63,7 +63,6 @@ public class NotificationServiceImpl implements NotificationService {
 		return dtoList;
 	}
 
-
 	/**
 	 * @author DiepTT
 	 * @param none
@@ -76,7 +75,6 @@ public class NotificationServiceImpl implements NotificationService {
 		return username;
 	}
 
-
 	/**
 	 * @author DiepTT
 	 * @param notifyId (notification id)
@@ -88,12 +86,12 @@ public class NotificationServiceImpl implements NotificationService {
 		return this.notifyRepository.findById(notifyId);
 	}
 
-
 	/**
 	 * This method is used to change reading-status of the notification.
+	 * 
 	 * @author DiepTT
 	 * @param NotificationEntity
-	 * @return notification that is already read 
+	 * @return notification that is already read
 	 * @throws BestWorkBussinessException
 	 */
 	@Override
@@ -105,6 +103,7 @@ public class NotificationServiceImpl implements NotificationService {
 
 	/**
 	 * This method is used to save notification into database.
+	 * 
 	 * @author DiepTT
 	 * @param notification (request dto)
 	 * @throws BestWorkBussinessException

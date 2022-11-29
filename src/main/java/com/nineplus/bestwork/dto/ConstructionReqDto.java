@@ -8,8 +8,13 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @Data
-@EqualsAndHashCode
-public class ConstructionReqDto {
+@EqualsAndHashCode(callSuper = false)
+public class ConstructionReqDto extends BaseDto {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -9031950757474875938L;
 
 	@JsonProperty("constructionName")
 	private String constructionName;
@@ -28,7 +33,7 @@ public class ConstructionReqDto {
 
 	@JsonProperty("status")
 	private String status;
-	
+
 	@JsonProperty("projectCode")
 	private String projectCode;
 

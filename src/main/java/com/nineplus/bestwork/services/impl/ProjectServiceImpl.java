@@ -11,8 +11,6 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -55,8 +53,6 @@ import com.nineplus.bestwork.utils.UserAuthUtils;
 @Service
 @Transactional
 public class ProjectServiceImpl implements IProjectService {
-
-	private final Logger logger = LoggerFactory.getLogger(ProjectServiceImpl.class);
 
 	@Autowired
 	private ProjectRepository projectRepository;
@@ -481,8 +477,6 @@ public class ProjectServiceImpl implements IProjectService {
 	@Override
 	public Map<Long, List<ProjectRoleUserResDto>> getListAssign(AssignTaskReqDto assignTaskReqDto)
 			throws BestWorkBussinessException {
-		UserAuthDetected userAuthRoleReq = getAuthRoleReq();
-		String curUsername = userAuthRoleReq.getUsername();
 		List<ProjectAssignRepository> listRole = null;
 		if (StringUtils.isNotBlank(assignTaskReqDto.getProjectId())) {
 			listRole = projectRepository.getCompAndRoleUserByPrj(assignTaskReqDto.getProjectId());

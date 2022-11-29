@@ -2,6 +2,7 @@ package com.nineplus.bestwork.dto;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
 /**
  * 
  * @author DiepTT

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
 /**
  * 
  * @author DiepTT
@@ -11,7 +12,7 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class NotificationReqDto extends BaseDto{
+public class NotificationReqDto extends BaseDto {
 
 	/**
 	 * 

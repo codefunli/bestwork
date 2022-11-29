@@ -30,7 +30,7 @@ public class CompanyResDto extends BaseDto {
 
 	@JsonProperty("nation")
 	private String nation;
-	
+
 	@JsonProperty("city")
 	private String city;
 

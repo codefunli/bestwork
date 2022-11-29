@@ -11,13 +11,13 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class ProjectAssignReqDto extends BaseDto{
+public class ProjectAssignReqDto extends BaseDto {
 
 	private static final long serialVersionUID = 205181823126677365L;
 
 	@JsonProperty("companyId")
 	private long companyId;
-	
+
 	@JsonProperty("companyName")
 	private String companyName;
 

@@ -26,6 +26,7 @@ import com.nineplus.bestwork.services.IStorageService;
 import com.nineplus.bestwork.utils.CommonConstants;
 import com.nineplus.bestwork.utils.Enums.FolderType;
 import com.nineplus.bestwork.utils.UserAuthUtils;
+
 /**
  * 
  * @author TuanNA
@@ -139,17 +140,17 @@ public class EvidenAfterPostServiceImpl implements IEvidenAfterPostService {
 	public EvidenceAfterPost pushComment(Long evidenceAfterPostId, PostCommentReqDto postCommentRequestDto)
 			throws BestWorkBussinessException {
 		EvidenceAfterPost evidenceAfter = null;
-			if (ObjectUtils.isNotEmpty(evidenceAfterPostId) && ObjectUtils.isNotEmpty(postCommentRequestDto)) {
-				// Check exist post invoice with air way bill in DB
-				evidenceAfter = this.evidenceAfterPostRepository.findByIdAndAirWayBill(evidenceAfterPostId,
-						postCommentRequestDto.getAirWayBillCode());
-				if (ObjectUtils.isEmpty(evidenceAfter)) {
-					throw new BestWorkBussinessException(CommonConstants.MessageCode.eEA0002, null);
-				}
-				// Set comment
-				evidenceAfter.setComment(postCommentRequestDto.getComment());
-				this.evidenceAfterPostRepository.save(evidenceAfter);
+		if (ObjectUtils.isNotEmpty(evidenceAfterPostId) && ObjectUtils.isNotEmpty(postCommentRequestDto)) {
+			// Check exist post invoice with air way bill in DB
+			evidenceAfter = this.evidenceAfterPostRepository.findByIdAndAirWayBill(evidenceAfterPostId,
+					postCommentRequestDto.getAirWayBillCode());
+			if (ObjectUtils.isEmpty(evidenceAfter)) {
+				throw new BestWorkBussinessException(CommonConstants.MessageCode.eEA0002, null);
 			}
+			// Set comment
+			evidenceAfter.setComment(postCommentRequestDto.getComment());
+			this.evidenceAfterPostRepository.save(evidenceAfter);
+		}
 		return evidenceAfter;
 	}
 

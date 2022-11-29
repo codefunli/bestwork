@@ -17,7 +17,7 @@ public class AirWayBillReqDto extends BaseDto {
 	 * 
 	 */
 	private static final long serialVersionUID = 2697551299668063985L;
-	
+
 	@JsonProperty("projectId")
 	private String projectId;
 

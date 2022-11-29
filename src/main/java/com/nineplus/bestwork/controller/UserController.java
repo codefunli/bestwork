@@ -3,7 +3,6 @@ package com.nineplus.bestwork.controller;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -141,9 +140,8 @@ public class UserController extends BaseController {
 		if (bindingResult.hasErrors()) {
 			return failedWithError(CommonConstants.MessageCode.ECU0001, bindingResult.getFieldErrors().toArray(), null);
 		}
-		UserEntity userEdit = new UserEntity();
 		try {
-			userEdit = userService.editUser(userReqDto, id);
+			userService.editUser(userReqDto, id);
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}

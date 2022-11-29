@@ -5,9 +5,16 @@ import com.nineplus.bestwork.entity.CompanyEntity;
 import com.nineplus.bestwork.entity.RoleEntity;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
-public class UserResDto {
+@EqualsAndHashCode(callSuper = false)
+public class UserResDto extends BaseDto {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8141186326499493702L;
 
 	@JsonProperty("id")
 	private long id;

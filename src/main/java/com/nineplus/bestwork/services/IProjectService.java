@@ -58,7 +58,7 @@ public interface IProjectService {
 	public List<ProjectEntity> getPrj4CompanyAdmin(String curUsername);
 
 	public List<ProjectEntity> getPrj4SysAdmin(String curUsername);
-	
+
 	public List<ProjectEntity> getPrjLstByAnyUsername(UserAuthDetected userAuthRoleReq);
 
 }

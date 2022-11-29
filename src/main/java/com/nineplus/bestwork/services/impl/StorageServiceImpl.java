@@ -6,8 +6,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.ObjectUtils;
@@ -17,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.nineplus.bestwork.dto.ChangeStatusFileDto;
 import com.nineplus.bestwork.entity.FileStorageEntity;
-import com.nineplus.bestwork.entity.PostEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.repository.StorageRepository;
 import com.nineplus.bestwork.services.IStorageService;
@@ -36,50 +33,6 @@ public class StorageServiceImpl implements IStorageService {
 
 	@Autowired
 	private StorageRepository storageRepository;
-
-	@Override
-	@Transactional
-	public FileStorageEntity storeFilePost(String imageData, PostEntity reqPost) {
-		try {
-			FileStorageEntity image = new FileStorageEntity();
-			image.setData(imageData.getBytes());
-			image.setPost(reqPost);
-			String imageName = getImageName(reqPost);
-			image.setName(imageName);
-			String type = getImageType(imageData);
-			image.setType(type);
-			image.setCreateDate(Timestamp.valueOf(LocalDateTime.now()));
-
-			return storageRepository.save(image);
-		} catch (Exception e) {
-			e.getMessage();
-			return null;
-		}
-	}
-
-	private String getImageType(String imageData) {
-		String prefixRegex = "data:image/";
-		String suffixRegex = ";base64";
-		Pattern pattern = Pattern.compile(prefixRegex + "(.*?)" + suffixRegex);
-		Matcher matcher = pattern.matcher(imageData);
-		if (matcher.find()) {
-			return matcher.group(1);
-		}
-		return null;
-	}
-
-	private String getImageName(PostEntity reqPost) {
-//		String projectName = reqPost.getProject().getProjectName();
-		String constructionName = reqPost.getConstruction().getConstructionName();
-		String description = reqPost.getDescription();
-		String imageName = constructionName + ": " + description;
-		if (imageName.length() <= 40) {
-			return imageName;
-		} else {
-			return imageName.substring(0, 30) + "...";
-		}
-
-	}
 
 	public List<FileStorageEntity> findFilesByPostId(String postId) {
 		return this.storageRepository.findAllByPostId(postId);

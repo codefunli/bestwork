@@ -1,6 +1,5 @@
 package com.nineplus.bestwork.entity;
 
-
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -29,7 +28,7 @@ import lombok.Setter;
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class PostInvoice {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id", unique = true, nullable = false, precision = 19)
@@ -57,7 +56,7 @@ public class PostInvoice {
 
 	@Column(name = "airway_bill")
 	private String airWayBill;
-	
+
 	@OneToMany(mappedBy = "postInvoiceId")
 	private List<FileStorageEntity> fileStorages;
 }

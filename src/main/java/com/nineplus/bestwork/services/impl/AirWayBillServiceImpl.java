@@ -56,10 +56,10 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 
 	@Autowired
 	ISftpFileService iSftpFileService;
-	
+
 	@Autowired
 	PostInvoiceRepository postInvoiceRepository;
-	
+
 	@Autowired
 	PackagePostRepository packagePostRepository;
 
@@ -151,23 +151,22 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 	}
 
 	@Override
-	public List<String> createZipFolder(String code)
-			throws BestWorkBussinessException {
+	public List<String> createZipFolder(String code) throws BestWorkBussinessException {
 		List<String> listPathToDownLoad = new ArrayList<>();
 		List<InvoiceFileProjection> invoiceInfo = postInvoiceRepository.getClearanceInfo(code);
 		List<PackageFileProjection> packageInfo = packagePostRepository.getClearancePackageInfo(code);
-		
-		if(ObjectUtils.isNotEmpty(invoiceInfo)) {
+
+		if (ObjectUtils.isNotEmpty(invoiceInfo)) {
 			for (InvoiceFileProjection invoice : invoiceInfo) {
 				listPathToDownLoad.add(invoice.getPathFileServer());
 			}
 		}
-		if(ObjectUtils.isNotEmpty(packageInfo)) {
+		if (ObjectUtils.isNotEmpty(packageInfo)) {
 			for (PackageFileProjection pack : packageInfo) {
 				listPathToDownLoad.add(pack.getPathFileServer());
 			}
 		}
-		 return this.iSftpFileService.downloadFileTemp(code, listPathToDownLoad);
+		return this.iSftpFileService.downloadFileTemp(code, listPathToDownLoad);
 	}
 
 	@Override
@@ -175,5 +174,5 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 	public void changeStatus(String code, int destinationStatus) throws BestWorkBussinessException {
 		this.airWayBillRepository.changeStatus(code, destinationStatus);
 	}
-	
+
 }

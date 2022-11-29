@@ -7,13 +7,17 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class SearchDto {
+public class SearchDto extends BaseDto {
 
-    @JsonProperty("pageConditon")
-    private PageSearchDto pageConditon;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8706003761081458181L;
 
-    @JsonProperty("conditionSearch")
-    private ConditionSearchDto conditionSearchDto;
+	@JsonProperty("pageConditon")
+	private PageSearchDto pageConditon;
 
+	@JsonProperty("conditionSearch")
+	private ConditionSearchDto conditionSearchDto;
 
 }

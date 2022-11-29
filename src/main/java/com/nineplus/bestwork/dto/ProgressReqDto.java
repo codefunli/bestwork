@@ -9,8 +9,13 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class ProgressReqDto {
-	
+public class ProgressReqDto extends BaseDto {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4581409523912715993L;
+
 	@JsonProperty("constructionId")
 	private long constructionId;
 
@@ -32,6 +37,4 @@ public class ProgressReqDto {
 	@JsonProperty("note")
 	private String note;
 
-//	@JsonProperty("fileStorages")
-//	private List<FileStorageReqDto> fileStorages;
 }

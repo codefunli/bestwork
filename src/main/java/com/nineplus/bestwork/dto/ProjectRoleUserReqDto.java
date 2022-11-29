@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 public class ProjectRoleUserReqDto extends BaseDto {
-	
+
 	/**
 	 * 
 	 */

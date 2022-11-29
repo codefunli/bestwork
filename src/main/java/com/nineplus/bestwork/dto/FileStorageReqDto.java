@@ -9,7 +9,12 @@ import lombok.Setter;
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = false)
-public class FileStorageReqDto {
+public class FileStorageReqDto extends BaseDto {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4732663469808071724L;
 
 	@JsonProperty("id")
 	private long id;

@@ -18,7 +18,7 @@ public class ProgressResDto extends BaseDto {
 
 	@JsonProperty("id")
 	private Long id;
-	
+
 	@JsonProperty("title")
 	private String title;
 
@@ -39,10 +39,10 @@ public class ProgressResDto extends BaseDto {
 
 	@JsonProperty("createBy")
 	private String createBy;
-	
+
 	@JsonProperty("createDate")
 	private String createDate;
-	
+
 	@JsonProperty("fileStorages")
 	private List<FileStorageResDto> fileStorages;
 
