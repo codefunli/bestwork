@@ -274,8 +274,8 @@ public class UserService implements UserDetailsService {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
 		}
 		try {
-			List<UserEntity> tUserList = userRepo.findAllById(Arrays.asList(listId.getUserIdList()));
-			if (tUserList.isEmpty() || tUserList.size() < listId.getUserIdList().length) {
+			List<UserEntity> userList = userRepo.findAllById(Arrays.asList(listId.getUserIdList()));
+			if (userList.isEmpty() || userList.size() < listId.getUserIdList().length) {
 				throw new BestWorkBussinessException(CommonConstants.MessageCode.ECU0005, listId.getUserIdList());
 			}
 			userRepo.deleteAllByIdInBatch(Arrays.asList(listId.getUserIdList()));
@@ -301,37 +301,38 @@ public class UserService implements UserDetailsService {
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
 		CompanyEntity company = companyRepository.findById(findCompanyIdByUsername(userAuthRoleReq))
 				.orElse(new CompanyEntity());
-		Page<UserEntity> tUserPage;
+		Page<UserEntity> userPage;
 		if (null != company.getId()) {
-			tUserPage = userRepo.getAllUsers(pageable, String.valueOf(company.getId()), pageCondition);
+			userPage = userRepo.getAllUsers(pageable, String.valueOf(company.getId()), pageCondition);
 		} else {
-			tUserPage = userRepo.getAllUsers(pageable, "%%", pageCondition);
+			userPage = userRepo.getAllUsers(pageable, "%%", pageCondition);
 		}
 
-		List<UserEntity> result = tUserPage.getContent().stream()
+		List<UserEntity> result = userPage.getContent().stream()
 				.filter(u -> !userAuthRoleReq.getUsername().equals(u.getUserName())).collect(Collectors.toList());
-		tUserPage = new PageImpl<UserEntity>(result, pageable, tUserPage.getTotalElements());
-		RPageDto rPageDto = createRPageDto(tUserPage);
-		List<UserResDto> userResDtoList = convertTUser(tUserPage);
+		userPage = new PageImpl<UserEntity>(result, pageable, userPage.getTotalElements());
+		RPageDto rPageDto = createRPageDto(userPage);
+		List<UserResDto> userResDtoList = convertTUser(userPage);
 		pageResponseDto.setContent(userResDtoList);
 		pageResponseDto.setMetaData(rPageDto);
 		return pageResponseDto;
 	}
 
-	private List<UserResDto> convertTUser(Page<UserEntity> tUserPage) throws BestWorkBussinessException {
+	private List<UserResDto> convertTUser(Page<UserEntity> userPage) throws BestWorkBussinessException {
 		List<UserResDto> userResDtoList = new ArrayList<>();
 		try {
-			for (UserEntity tUser : tUserPage.getContent()) {
+			for (UserEntity user : userPage.getContent()) {
 				UserResDto userResDto = new UserResDto();
-				userResDto.setUserName(tUser.getUserName());
-				userResDto.setEmail(tUser.getEmail());
-				userResDto.setFirstName(tUser.getFirstName());
-				userResDto.setLastName(tUser.getLastName());
-				userResDto.setTelNo(tUser.getTelNo());
-				userResDto.setRole(tUser.getRole());
-				userResDto.setId(tUser.getId());
-				userResDto.setEnable(tUser.isEnable());
-				userResDto.setAvatar(Arrays.toString(tUser.getUserAvatar()));
+				userResDto.setUserName(user.getUserName());
+				userResDto.setEmail(user.getEmail());
+				userResDto.setFirstName(user.getFirstName());
+				userResDto.setLastName(user.getLastName());
+				userResDto.setTelNo(user.getTelNo());
+				userResDto.setRole(user.getRole());
+				userResDto.setId(user.getId());
+				userResDto.setEnable(user.isEnable());
+//				userResDto.setAvatar(Arrays.toString(tUser.getUserAvatar()));
+				userResDto.setAvatar(null);
 				userResDtoList.add(userResDto);
 			}
 		} catch (Exception e) {
@@ -341,14 +342,14 @@ public class UserService implements UserDetailsService {
 		return userResDtoList;
 	}
 
-	private RPageDto createRPageDto(Page<UserEntity> tUserPage) throws BestWorkBussinessException {
+	private RPageDto createRPageDto(Page<UserEntity> userPage) throws BestWorkBussinessException {
 		RPageDto rPageDto = new RPageDto();
 		try {
-			if (!tUserPage.isEmpty()) {
-				rPageDto.setNumber(tUserPage.getNumber());
-				rPageDto.setSize(tUserPage.getSize());
-				rPageDto.setTotalPages(tUserPage.getTotalPages());
-				rPageDto.setTotalElements(tUserPage.getTotalElements());
+			if (!userPage.isEmpty()) {
+				rPageDto.setNumber(userPage.getNumber());
+				rPageDto.setSize(userPage.getSize());
+				rPageDto.setTotalPages(userPage.getTotalPages());
+				rPageDto.setTotalElements(userPage.getTotalElements());
 			}
 		} catch (Exception e) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.ECU0002, null);

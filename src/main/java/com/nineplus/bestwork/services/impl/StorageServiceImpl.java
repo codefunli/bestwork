@@ -86,7 +86,11 @@ public class StorageServiceImpl implements IStorageService {
 	}
 
 	private String getFileNameFromPath(String path) {
-		return FilenameUtils.getName(path);
+		String name = FilenameUtils.getName(path);
+		if (name.length() >= CommonConstants.Image.IMG_NAME_LEN) {
+			name = name.substring(0, CommonConstants.Image.IMG_NAME_LEN - 1);
+		}
+		return name;
 	}
 
 	private String getFileTypeFromPath(String path) {
@@ -120,5 +124,27 @@ public class StorageServiceImpl implements IStorageService {
 			}
 		}
 		return null;
+	}
+
+	@Override
+	public List<String> getPathFileByCstrtId(long constructionId) {
+		List<String> pathList = this.storageRepository.findAllPathsByCstrtId(constructionId);
+		return pathList;
+	}
+
+	@Override
+	public List<String> getPathFileByProgressId(long progressId) {
+		List<String> pathList = this.storageRepository.findAllPathsByProgressId(progressId);
+		return pathList;
+	}
+
+	@Override
+	public void deleteByCstrtId(long constructionId) {
+		this.storageRepository.deleteByConstructionId(constructionId);
+	}
+
+	@Override
+	public void deleteByProgressId(long progressId) {
+		this.storageRepository.deleteByProgressId(progressId);
 	}
 }

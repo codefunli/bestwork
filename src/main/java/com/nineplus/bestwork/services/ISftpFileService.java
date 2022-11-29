@@ -39,5 +39,7 @@ public interface ISftpFileService {
 	List<String> downloadFileTemp(String airWayBillCode, List<String> listPathFileDownload);
 
 	String uploadProgressImage(MultipartFile file, long progressId);
+	
+	boolean removeFile(String pathFileServer);
 
 }

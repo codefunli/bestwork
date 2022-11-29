@@ -141,42 +141,18 @@ public class ProgressServiceImpl implements IProgressService {
 	}
 
 	public void saveImage(List<MultipartFile> files, ProgressEntity progress) {
-		this.storageRepo.deleteByProgressId(progress.getId());
+		List<String> listPath = this.storageService.getPathFileByProgressId(progress.getId());
+		for (String path : listPath) {
+			this.sftpService.removeFile(path);
+		}
+
+		this.storageService.deleteByProgressId(progress.getId());
+
 		for (MultipartFile file : files) {
 			String pathFile = this.sftpService.uploadProgressImage(file, progress.getId());
 			storageService.storeFile(progress.getId(), FolderType.PROGRESS, pathFile);
 		}
 	}
-
-	// public void saveNewImage(List<FileStorageReqDto> fileStorages, ProgressEntity
-	// progress) {
-	// List<Long> listIdCurrent =
-	// storageRepo.getListIdFileByProgress(progress.getId());
-	// List<Long> listIdUpdate = new ArrayList<>();
-	// for (FileStorageReqDto file : fileStorages) {
-	// listIdUpdate.add(file.getId());
-	// }
-	// // Get list Id image that will be removed
-	// List<Long> listRemoveId = listIdCurrent.stream().filter(e ->
-	// !listIdUpdate.contains(e))
-	// .collect(Collectors.toList());
-	//
-	// // Get list Id image that will be kept
-	// List<Long> listKeepId = listIdCurrent.stream().filter(e ->
-	// listIdUpdate.contains(e))
-	// .collect(Collectors.toList());
-	//
-	// // Delete image have in DB but not have in request
-	// if (listRemoveId != null && listRemoveId.size() > 0) {
-	// storageRepo.deleteByIdIn(listRemoveId);
-	// }
-	//
-	// fileStorages.removeIf(x -> listKeepId.contains(x.getId()));
-	//
-	// for (FileStorageReqDto file : fileStorages) {
-	// storageService.storeFileProgress(file, progress);
-	// }
-	// }
 
 	private void chkCurUserCanViewPrg(UserAuthDetected userAuthDetected, long cstrtId)
 			throws BestWorkBussinessException {

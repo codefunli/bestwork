@@ -52,4 +52,13 @@ public interface StorageRepository extends JpaRepository<FileStorageEntity, Long
 
 	@Modifying
 	void deleteByProgressId(long progressId);
+
+	@Modifying
+	void deleteByConstructionId(long constructionId);
+
+	@Query(value = " select path_file_server from FILE_STORAGE where construction_id = :constructionId", nativeQuery = true)
+	List<String> findAllPathsByCstrtId(long constructionId);
+
+	@Query(value = " select path_file_server from FILE_STORAGE where construction_id = :progressId", nativeQuery = true)
+	List<String> findAllPathsByProgressId(long progressId);
 }
