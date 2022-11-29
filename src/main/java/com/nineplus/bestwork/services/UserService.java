@@ -331,7 +331,8 @@ public class UserService implements UserDetailsService {
 				userResDto.setRole(tUser.getRole());
 				userResDto.setId(tUser.getId());
 				userResDto.setEnable(tUser.isEnable());
-				userResDto.setAvatar(Arrays.toString(tUser.getUserAvatar()));
+//				userResDto.setAvatar(Arrays.toString(tUser.getUserAvatar()));
+				userResDto.setAvatar(null);
 				userResDtoList.add(userResDto);
 			}
 		} catch (Exception e) {
