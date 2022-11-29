@@ -12,16 +12,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 public class PageResDto<T> extends BaseDto {
-	
+
 	/**
-     * serialVersionUID
-     */
-    private static final long serialVersionUID = 7969015153524943561L;
+	 * serialVersionUID
+	 */
+	private static final long serialVersionUID = 7969015153524943561L;
 
-    @JsonProperty("content")
-    private List<T> content;
+	@JsonProperty("content")
+	private List<T> content;
 
-    @JsonProperty("metaData")
-    private RPageDto metaData;
+	@JsonProperty("metaData")
+	private RPageDto metaData;
 
 }

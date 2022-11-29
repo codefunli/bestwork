@@ -1,7 +1,5 @@
 package com.nineplus.bestwork.dto;
 
-import java.io.Serializable;
-
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 
@@ -14,10 +12,13 @@ import lombok.EqualsAndHashCode;
  *
  */
 @Data
-@EqualsAndHashCode
-public class ChangePasswordReqDto implements Serializable {
+@EqualsAndHashCode(callSuper = false)
+public class ChangePasswordReqDto extends BaseDto {
 
-	private static final long serialVersionUID = 4432556268398475664L;
+	/**
+		 * 
+		 */
+	private static final long serialVersionUID = 2489379081966449543L;
 
 	@NotBlank(message = "Enter your current password")
 	private String currentPassword;

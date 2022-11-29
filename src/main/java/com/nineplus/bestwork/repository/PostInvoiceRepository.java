@@ -18,7 +18,8 @@ public interface PostInvoiceRepository extends JpaRepository<PostInvoice, Long> 
 	String getPathFileServer(long invoicePostId, long fileId);
 
 	@Query(value = "SELECT aw.code as code, ft.post_invoice_id as postInvoiceId, ft.id as fileId, ft.type as type, ft.name as name, ft.path_file_server as pathFileServer "
-			+ "FROM FILE_STORAGE ft " + "JOIN post_invoice pi ON ft.post_invoice_id = pi.id "
+			+ "FROM FILE_STORAGE ft "
+			+ "JOIN POST_INVOICE pi ON ft.post_invoice_id = pi.id "
 			+ "JOIN AIRWAY_BILL aw ON  aw.code = pi.airway_bill "
 			+ "WHERE aw.code = :code AND ft.is_choosen = 1", nativeQuery = true)
 	List<InvoiceFileProjection> getClearanceInfo(String code);

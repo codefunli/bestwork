@@ -1,7 +1,6 @@
 package com.nineplus.bestwork.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.nineplus.bestwork.utils.Enums.AirWayBillStatus;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

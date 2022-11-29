@@ -12,12 +12,12 @@ import lombok.Setter;
 @Setter
 @EqualsAndHashCode(callSuper = false)
 public class PostInvoiceResDto extends BaseDto {
-	
+
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -2766380575224594531L;
-	
+
 	@JsonProperty("invoiceId")
 	private long id;
 
@@ -38,7 +38,7 @@ public class PostInvoiceResDto extends BaseDto {
 
 	@JsonProperty("updateBy")
 	private String updateBy;
-	
+
 	@JsonProperty("postType")
 	private String postType;
 

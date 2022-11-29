@@ -30,6 +30,7 @@ public interface StorageRepository extends JpaRepository<FileStorageEntity, Long
 
 	void deleteByIdIn(List<Long> ids);
 
+	@Modifying
 	@Query(value = " delete from FILE_STORAGE where post_id = :postId", nativeQuery = true)
 	void deleteByPostpro(String postId);
 

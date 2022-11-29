@@ -17,7 +17,6 @@ public class CompanyReqDto extends BaseDto {
 	 */
 	private static final long serialVersionUID = 7969015153524943561L;
 
-
 	@JsonProperty("companyName")
 	private String companyName;
 
@@ -32,7 +31,7 @@ public class CompanyReqDto extends BaseDto {
 
 	@JsonProperty("national")
 	private String nation;
-	
+
 	@JsonProperty("city")
 	private String city;
 
@@ -50,7 +49,7 @@ public class CompanyReqDto extends BaseDto {
 
 	@JsonProperty("expiredDate")
 	private String expiredDate;
-	
+
 	@JsonIgnore
 	private String createBy;
 

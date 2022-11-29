@@ -17,12 +17,12 @@ import lombok.Setter;
 @Setter
 @EqualsAndHashCode(callSuper = false)
 public class EvidenceAfterResDto extends BaseDto {
-	
+
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -2766380575224594531L;
-	
+
 	@JsonProperty("evidenceAfterId")
 	private long id;
 

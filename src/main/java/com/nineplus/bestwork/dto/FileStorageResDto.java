@@ -1,7 +1,5 @@
 package com.nineplus.bestwork.dto;
 
-
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.EqualsAndHashCode;
@@ -38,10 +36,10 @@ public class FileStorageResDto extends BaseDto {
 
 	@JsonProperty("createDate")
 	private String createDate;
-	
+
 	@JsonProperty("progressId")
-	private long progressId; 
-	
+	private long progressId;
+
 	@JsonProperty("content")
 	private byte[] content;
 

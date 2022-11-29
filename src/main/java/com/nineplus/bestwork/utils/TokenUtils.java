@@ -1,6 +1,5 @@
 package com.nineplus.bestwork.utils;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Value;

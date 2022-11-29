@@ -48,7 +48,7 @@ public class ConvertResponseUtils {
 		}
 		return columnMapped;
 	}
-	
+
 	public String convertResponseProject(String item) {
 		HashMap<String, String> itemProject = new HashMap<>();
 		String columnMapped = "";

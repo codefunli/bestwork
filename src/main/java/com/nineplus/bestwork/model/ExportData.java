@@ -26,5 +26,5 @@ public class ExportData {
 	private String origin;
 	private String unit;
 	private BigDecimal cost;
-	
+
 }

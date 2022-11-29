@@ -1,6 +1,5 @@
 package com.nineplus.bestwork.dto;
 
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.nineplus.bestwork.entity.ProjectTypeEntity;
 
@@ -20,12 +19,12 @@ import lombok.NoArgsConstructor;
 public class ProjectResDto extends BaseDto {
 
 	/**
-	 * serialVersionUID
+	 * 
 	 */
-	private static final long serialVersionUID = 7969015153524943561L;
+	private static final long serialVersionUID = 6657618958290343215L;
 
 	@JsonProperty("id")
-	private String id ;
+	private String id;
 
 	@JsonProperty("projectName")
 	private String projectName;
@@ -44,7 +43,7 @@ public class ProjectResDto extends BaseDto {
 
 	@JsonProperty("status")
 	private String status;
-	
+
 	@JsonProperty("startDate")
 	private String startDate;
 

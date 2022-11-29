@@ -1,33 +1,39 @@
 package com.nineplus.bestwork.dto;
 
-public class LoginFailedResDto {
+public class LoginFailedResDto extends BaseDto {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6587000770343281826L;
+
 	String username;
-    int countLoginFailed;
-    boolean isLocked;
 
-    public String getUsername() {
-          return username;
-    }
+	int countLoginFailed;
 
-    public void setUsername(String username) {
-          this.username = username;
-    }
+	boolean isLocked;
 
-    public int getCountLoginFailed() {
-          return countLoginFailed;
-    }
+	public String getUsername() {
+		return username;
+	}
 
-    public void setCountLoginFailed(int countLoginFailed) {
-          this.countLoginFailed = countLoginFailed;
-    }
+	public void setUsername(String username) {
+		this.username = username;
+	}
 
-    public boolean isLocked() {
-          return isLocked;
-    }
+	public int getCountLoginFailed() {
+		return countLoginFailed;
+	}
 
-    public void setLocked(boolean isLocked) {
-          this.isLocked = isLocked;
-    }
+	public void setCountLoginFailed(int countLoginFailed) {
+		this.countLoginFailed = countLoginFailed;
+	}
 
+	public boolean isLocked() {
+		return isLocked;
+	}
+
+	public void setLocked(boolean isLocked) {
+		this.isLocked = isLocked;
+	}
 
 }

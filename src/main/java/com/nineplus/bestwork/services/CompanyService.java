@@ -106,7 +106,7 @@ public class CompanyService {
 
 			// Register user for this company
 			userService.registNewUser(companyReqDto, newCompanySaved, role);
-			
+
 		} catch (BestWorkBussinessException ex) {
 			logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0001,
 					new Object[] { CommonConstants.Character.COMPANY, companyReqDto.getCompany().getCompanyName() }),
@@ -270,7 +270,7 @@ public class CompanyService {
 			// delete user relate company
 			List<UserEntity> allTusers = userRepos.findAllUserByCompanyIdList(Arrays.asList(listId.getLstCompanyId()));
 			userRepos.deleteAllInBatch(allTusers);
-			
+
 			// delete all project of company
 			List<String> allProject = iProjectService.getAllProjectIdByCompany(Arrays.asList(listId.getLstCompanyId()));
 			iProjectService.deleteProjectById(allProject);
@@ -302,7 +302,7 @@ public class CompanyService {
 		CompanyUserResDto userCompanyRes = new CompanyUserResDto();
 		CompanyEntity company = companyRepository.findByCompanyId(companyId);
 		RoleEntity role = roleRepository.findRole(CommonConstants.RoleName.ORG_ADMIN);
-		UserEntity user = userService.getUserByCompanyId(companyId,role.getId());
+		UserEntity user = userService.getUserByCompanyId(companyId, role.getId());
 		if (company != null && user != null) {
 			CompanyResDto resCompany = modelMapper.map(company, CompanyResDto.class);
 			UserResDto resUser = modelMapper.map(user, UserResDto.class);
@@ -322,8 +322,7 @@ public class CompanyService {
 	 * @return page of company follow condition
 	 * @throws BestWorkBussinessException
 	 */
-	public PageResDto<CompanyResDto> getCompanyPage(PageSearchDto pageCondition)
-			throws BestWorkBussinessException {
+	public PageResDto<CompanyResDto> getCompanyPage(PageSearchDto pageCondition) throws BestWorkBussinessException {
 		Page<CompanyEntity> pageCompany;
 		try {
 			int pageNumber = NumberUtils.toInt(pageCondition.getPage());
