@@ -11,10 +11,11 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class UserReqDto extends BaseDto {
+
 	/**
-	 * serialVersionUID
+	 * 
 	 */
-	private static final long serialVersionUID = 8012401348414743244L;
+	private static final long serialVersionUID = -1726932600859444676L;
 
 	@NotBlank(message = "Enter username.")
 	@JsonProperty("userName")

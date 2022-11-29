@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import com.nineplus.bestwork.dto.ProgressAndConstructionResDto;
 import com.nineplus.bestwork.dto.ProgressReqDto;
 import com.nineplus.bestwork.dto.ProgressResDto;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
@@ -17,8 +16,8 @@ import com.nineplus.bestwork.exception.BestWorkBussinessException;
 public interface IProgressService {
 	void registProgress(ProgressReqDto progressReqDto, List<MultipartFile> files) throws BestWorkBussinessException;
 
-	void updateProgress(ProgressReqDto progressReqDto,
-			List<MultipartFile> files, Long progressId) throws BestWorkBussinessException;
+	void updateProgress(ProgressReqDto progressReqDto, List<MultipartFile> files, Long progressId)
+			throws BestWorkBussinessException;
 
 	void deleteProgressList(List<Long> ids) throws BestWorkBussinessException;
 

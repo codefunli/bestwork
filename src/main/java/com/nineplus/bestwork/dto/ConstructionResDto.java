@@ -13,8 +13,13 @@ import lombok.EqualsAndHashCode;
  *
  */
 @Data
-@EqualsAndHashCode
-public class ConstructionResDto {
+@EqualsAndHashCode(callSuper = false)
+public class ConstructionResDto extends BaseDto {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6038101338958770371L;
 
 	@JsonProperty("id")
 	private long id;

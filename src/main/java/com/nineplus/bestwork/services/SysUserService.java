@@ -2,13 +2,13 @@ package com.nineplus.bestwork.services;
 
 import java.util.List;
 
-import com.nineplus.bestwork.repository.SysUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.nineplus.bestwork.entity.UserEntity;
 import com.nineplus.bestwork.exception.SysUserNotFoundException;
+import com.nineplus.bestwork.repository.SysUserRepository;
 
 @Service
 public class SysUserService {

@@ -20,7 +20,7 @@ public class ChangeStatusFileDto extends BaseDto {
 
 	@JsonProperty("toStatus")
 	private boolean destinationStatus;
-	
+
 	@JsonProperty("postId")
 	private long postId;
 

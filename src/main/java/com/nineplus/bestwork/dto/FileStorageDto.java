@@ -8,8 +8,13 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @Data
-@EqualsAndHashCode
-public class FileStorageDto {
+@EqualsAndHashCode(callSuper = false)
+public class FileStorageDto extends BaseDto {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 9170073873460967635L;
+
 	@JsonProperty("id")
 	private Integer id;
 

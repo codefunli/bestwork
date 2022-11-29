@@ -1,6 +1,5 @@
 package com.nineplus.bestwork.dto;
 
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AllArgsConstructor;
@@ -17,10 +16,10 @@ public class ProjectRoleUserResDto extends BaseDto {
 	 * 
 	 */
 	private static final long serialVersionUID = 1159648122714585414L;
-	
+
 	@JsonProperty("companyId")
 	private long companyId;
-	
+
 	@JsonProperty("userId")
 	private long userId;
 

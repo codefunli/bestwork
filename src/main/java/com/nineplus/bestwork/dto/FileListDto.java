@@ -13,6 +13,7 @@ public class FileListDto extends BaseDto {
 	 * 
 	 */
 	private static final long serialVersionUID = 5142195130132848676L;
+
 	private Long[] listFileId;
 
 }

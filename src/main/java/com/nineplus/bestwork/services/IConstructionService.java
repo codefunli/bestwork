@@ -34,7 +34,8 @@ public interface IConstructionService {
 
 	ConstructionEntity findCstrtById(long constructionId);
 
-	Boolean chkCurUserCanCreateCstrt(UserAuthDetected userAuthDetected, String prjCode) throws BestWorkBussinessException;
+	Boolean chkCurUserCanCreateCstrt(UserAuthDetected userAuthDetected, String prjCode)
+			throws BestWorkBussinessException;
 
 	ConstructionEntity findCstrtByPrgId(Long progressId);
 

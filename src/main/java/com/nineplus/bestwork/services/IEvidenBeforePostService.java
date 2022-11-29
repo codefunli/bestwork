@@ -9,6 +9,7 @@ import com.nineplus.bestwork.dto.EvidenceBeforeResDto;
 import com.nineplus.bestwork.dto.PostCommentReqDto;
 import com.nineplus.bestwork.entity.EvidenceBeforePost;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
+
 /**
  * 
  * @author TuanNA
@@ -21,6 +22,7 @@ public interface IEvidenBeforePostService {
 
 	List<EvidenceBeforeResDto> getAllEvidenceBefore(String airWayBillId) throws BestWorkBussinessException;
 
-	EvidenceBeforePost pushComment(Long evidenceBeforePostId, PostCommentReqDto postCommentRequestDto) throws BestWorkBussinessException;
+	EvidenceBeforePost pushComment(Long evidenceBeforePostId, PostCommentReqDto postCommentRequestDto)
+			throws BestWorkBussinessException;
 
 }

@@ -17,7 +17,7 @@ public class AssignTaskEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id", unique = true, nullable = false, precision = 19)
 	private long id;
-	
+
 	@Column(name = "user_id")
 	private long userId;
 
@@ -25,7 +25,7 @@ public class AssignTaskEntity {
 	private long companyId;
 
 	@Column(name = "project_id")
-	private String  projectId;
+	private String projectId;
 
 	@Column(name = "can_view")
 	private boolean canView;

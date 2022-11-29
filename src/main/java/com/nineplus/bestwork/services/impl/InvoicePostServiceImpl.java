@@ -212,7 +212,7 @@ public class InvoicePostServiceImpl implements IInvoicePostService {
 				if (ObjectUtils.isEmpty(currentPost)) {
 					throw new BestWorkBussinessException(CommonConstants.MessageCode.eI0003, null);
 				}
-				//Set comment
+				// Set comment
 				currentPost.setComment(postCommentRequestDto.getComment());
 				this.postInvoiceRepository.save(currentPost);
 			}

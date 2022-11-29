@@ -51,7 +51,7 @@ public class CompanyEntity implements Serializable {
 
 	@Column(name = "nation")
 	private String nation;
-	
+
 	@Column(name = "province_city")
 	private String city;
 

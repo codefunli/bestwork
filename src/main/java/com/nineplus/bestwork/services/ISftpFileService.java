@@ -33,7 +33,7 @@ public interface ISftpFileService {
 	String uploadConstructionDrawing(MultipartFile file, long constructionId);
 
 	File downLoadFile(String pathFileDownload);
-	
+
 	void createZipFolder(String airWayBillCode, String[] listPathFileDownload);
 
 	List<String> downloadFileTemp(String airWayBillCode, List<String> listPathFileDownload);

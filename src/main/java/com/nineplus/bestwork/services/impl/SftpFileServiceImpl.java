@@ -207,7 +207,7 @@ public class SftpFileServiceImpl implements ISftpFileService {
 	public String uploadConstructionDrawing(MultipartFile file, long constructionId) {
 		return uploadImage(file, FolderType.CONSTRUCTION, constructionId);
 	}
-	
+
 	@Override
 	public String uploadProgressImage(MultipartFile file, long progressId) {
 		return uploadImage(file, FolderType.PROGRESS, progressId);

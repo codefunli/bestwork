@@ -18,5 +18,5 @@ public class ReportInput {
 	private Long totalExport;
 	private Long amountStartMonth;
 	private Long amountEndMonth;
-	
+
 }

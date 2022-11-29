@@ -14,6 +14,7 @@ public class ProgressListReqDto extends BaseDto {
 	 * 
 	 */
 	private static final long serialVersionUID = 7058050785855346638L;
+	
 	@JsonProperty("ids")
 	private Long[] lstProgressId;
 }

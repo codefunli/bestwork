@@ -22,7 +22,7 @@ public interface IPackagePostService {
 			throws BestWorkBussinessException;
 
 	public PackagePostResDto getDetailPackage(Long packagePostId) throws BestWorkBussinessException;
-	
+
 	List<PackagePostResDto> getAllPackagePost(String airWayBillCode) throws BestWorkBussinessException;
 
 	byte[] getFile(Long packagePostId, Long fileId) throws BestWorkBussinessException;
@@ -31,6 +31,7 @@ public interface IPackagePostService {
 
 	String getPathFileToDownload(long packagePostId, long fileId);
 
-	PackagePost pushComment(Long postPackageId, PostCommentReqDto postCommentRequestDto) throws BestWorkBussinessException;
+	PackagePost pushComment(Long postPackageId, PostCommentReqDto postCommentRequestDto)
+			throws BestWorkBussinessException;
 
 }

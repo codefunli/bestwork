@@ -9,7 +9,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = false)
-public class ProjectStatusReqDto extends BaseDto{
+public class ProjectStatusReqDto extends BaseDto {
 
 	/**
 	 * 

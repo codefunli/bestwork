@@ -9,8 +9,13 @@ import lombok.EqualsAndHashCode;
  *
  */
 @Data
-@EqualsAndHashCode
-public class ForgotPasswordResDto {
+@EqualsAndHashCode(callSuper = false)
+public class ForgotPasswordResDto extends BaseDto {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5694349271552512291L;
 
 	private String username;
 

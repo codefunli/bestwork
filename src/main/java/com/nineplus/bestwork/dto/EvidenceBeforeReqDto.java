@@ -20,6 +20,7 @@ public class EvidenceBeforeReqDto extends BaseDto {
 	 * 
 	 */
 	private static final long serialVersionUID = -8950939805008081581L;
+
 	@JsonProperty("airWayBillCode")
 	private String airWayBillCode;
 

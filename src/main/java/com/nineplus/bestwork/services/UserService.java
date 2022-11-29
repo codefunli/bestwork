@@ -76,18 +76,6 @@ public class UserService implements UserDetailsService {
 	@Autowired
 	PermissionService permissionService;
 
-	public void saveUser(UserEntity user) {
-		userRepo.save(user);
-	}
-
-	public UserEntity getUserByUsername(String userName) {
-		return userRepo.findByUserName(userName);
-	}
-
-	public boolean isBlocked(int countLoginFailed) {
-		return countLoginFailed >= countUserLoginFailedBlocked;
-	}
-
 	@Autowired
 	UserAuthUtils userAuthUtils;
 
@@ -124,6 +112,18 @@ public class UserService implements UserDetailsService {
 	@Autowired
 	ModelMapper modelMapper;
 
+	public void saveUser(UserEntity user) {
+		userRepo.save(user);
+	}
+
+	public UserEntity getUserByUsername(String userName) {
+		return userRepo.findByUserName(userName);
+	}
+
+	public boolean isBlocked(int countLoginFailed) {
+		return countLoginFailed >= countUserLoginFailedBlocked;
+	}
+
 	@Override
 	public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
 		UserEntity user = userRepo.findByUserName(userName);
@@ -154,7 +154,8 @@ public class UserService implements UserDetailsService {
 	}
 
 	@Transactional(rollbackFor = { Exception.class })
-	public void registNewUser(CompanyUserReqDto companyUserReqDto, CompanyEntity tCompany, RoleEntity role) throws BestWorkBussinessException {
+	public void registNewUser(CompanyUserReqDto companyUserReqDto, CompanyEntity tCompany, RoleEntity role)
+			throws BestWorkBussinessException {
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
 		UserEntity newUser = new UserEntity();
 		Set<CompanyEntity> companyUser = new HashSet<CompanyEntity>();
@@ -383,7 +384,7 @@ public class UserService implements UserDetailsService {
 			if (ObjectUtils.isEmpty(company.getId())) {
 				throw new BestWorkBussinessException(CommonConstants.MessageCode.ECU0003, null);
 			}
-			if(!(userAuthRoleReq.getIsOrgAdmin() && curUser.getCompanys().contains(company))) {
+			if (!(userAuthRoleReq.getIsOrgAdmin() && curUser.getCompanys().contains(company))) {
 				throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
 			}
 		}

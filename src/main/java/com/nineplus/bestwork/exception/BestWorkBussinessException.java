@@ -24,14 +24,14 @@ public class BestWorkBussinessException extends Exception {
 	private Object param[];
 
 	/**
-     * Constructor
-     * 
-     * @param String   msgCode
-     * @param Object[] param
-     */
-    public BestWorkBussinessException(String msgCode, Object[] param) {
-        this.msgCode = msgCode;
-        this.param = param;
-    }
+	 * Constructor
+	 * 
+	 * @param String   msgCode
+	 * @param Object[] param
+	 */
+	public BestWorkBussinessException(String msgCode, Object[] param) {
+		this.msgCode = msgCode;
+		this.param = param;
+	}
 
 }
