@@ -99,16 +99,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 		// set content type as json
 		response.setContentType("application/json");
 		// set TUser && pecBeanUtils
-		if (userService == null || bestWorkBeanUtils == null || permissionService == null || objectMapper == null) {
-			ServletContext servletContext = request.getServletContext();
-			WebApplicationContext webApplicationContext = WebApplicationContextUtils
-					.getWebApplicationContext(servletContext);
-			userService = webApplicationContext.getBean(UserService.class);
-			bestWorkBeanUtils = webApplicationContext.getBean(BestWorkBeanUtils.class);
-			permissionService = webApplicationContext.getBean(PermissionService.class);
-			objectMapper = webApplicationContext.getBean(ObjectMapper.class);
-		}
-
+		implementBean(request);
 		LoginFailedResDto loginFailedDTO = new LoginFailedResDto();
 
 		if (ObjectUtils.isEmpty(tUserAuth)
@@ -119,7 +110,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 		} else {
 			int countLoginFailed = tUserAuth.getLoginFailedNum();
 			boolean isLocked = userService.isBlocked(countLoginFailed);
-			if (isLocked == false) {
+			if (!isLocked) {
 				countLoginFailed += 1;
 				tUserAuth.setLoginFailedNum(countLoginFailed);
 				userService.saveUser(tUserAuth);
@@ -135,15 +126,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 	protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
 			Authentication authResult) throws IOException, ServletException {
 		// reset login failed
-		if (userService == null || bestWorkBeanUtils == null || permissionService == null || objectMapper == null) {
-			ServletContext servletContext = request.getServletContext();
-			WebApplicationContext webApplicationContext = WebApplicationContextUtils
-					.getWebApplicationContext(servletContext);
-			userService = webApplicationContext.getBean(UserService.class);
-			bestWorkBeanUtils = webApplicationContext.getBean(BestWorkBeanUtils.class);
-			permissionService = webApplicationContext.getBean(PermissionService.class);
-			objectMapper = webApplicationContext.getBean(ObjectMapper.class);
-		}
+		implementBean(request);
 		User user = (User) authResult.getPrincipal();
 		List<Integer> lstStt = new ArrayList<>();
 		lstStt.add(Status.ACTIVE.getValue());
@@ -158,11 +141,11 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 		}
 		Algorithm algorithm = Algorithm.HMAC256(SECRET_KEY.getBytes());
 		String accessToken = JWT.create().withSubject(user.getUsername())
-				.withExpiresAt(new Date(System.currentTimeMillis() + JWT_EXPIRATION * 1000))
+				.withExpiresAt(new Date(System.currentTimeMillis() + JWT_EXPIRATION * 1000L))
 				.withIssuer(request.getRequestURL().toString())
 				.withClaim(CommonConstants.Authentication.ROLES, roleList).sign(algorithm);
 		String refreshToken = JWT.create().withSubject(user.getUsername())
-				.withExpiresAt(new Date(System.currentTimeMillis() + JWT_EXPIRATION * 1000))
+				.withExpiresAt(new Date(System.currentTimeMillis() + JWT_EXPIRATION * 1000L))
 				.withIssuer(request.getRequestURL().toString()).sign(algorithm);
 		response.setHeader(CommonConstants.Authentication.ACCESS_TOKEN, accessToken);
 		response.setHeader(CommonConstants.Authentication.REFRESH_TOKEN, refreshToken);
@@ -172,6 +155,19 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 						+ "Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
 		mapRespon.put("permissions", mapPermission);
 		response.getWriter().write(objectMapper.writeValueAsString(mapRespon));
+	}
+
+	private void implementBean(HttpServletRequest request) {
+		if (userService == null || bestWorkBeanUtils == null || permissionService == null || objectMapper == null) {
+			ServletContext servletContext = request.getServletContext();
+			WebApplicationContext webApplicationContext = WebApplicationContextUtils
+					.getWebApplicationContext(servletContext);
+			assert webApplicationContext != null;
+			userService = webApplicationContext.getBean(UserService.class);
+			bestWorkBeanUtils = webApplicationContext.getBean(BestWorkBeanUtils.class);
+			permissionService = webApplicationContext.getBean(PermissionService.class);
+			objectMapper = webApplicationContext.getBean(ObjectMapper.class);
+		}
 	}
 
 }
