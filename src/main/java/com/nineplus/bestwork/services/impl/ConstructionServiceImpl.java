@@ -24,6 +24,7 @@ import com.nineplus.bestwork.dto.ConstructionListIdDto;
 import com.nineplus.bestwork.dto.ConstructionReqDto;
 import com.nineplus.bestwork.dto.ConstructionResDto;
 import com.nineplus.bestwork.dto.FileStorageResDto;
+import com.nineplus.bestwork.dto.NotificationReqDto;
 import com.nineplus.bestwork.dto.PageResDto;
 import com.nineplus.bestwork.dto.PageSearchDto;
 import com.nineplus.bestwork.dto.RPageDto;
@@ -42,12 +43,14 @@ import com.nineplus.bestwork.services.IConstructionService;
 import com.nineplus.bestwork.services.IProjectService;
 import com.nineplus.bestwork.services.ISftpFileService;
 import com.nineplus.bestwork.services.IStorageService;
+import com.nineplus.bestwork.services.NotificationService;
 import com.nineplus.bestwork.services.UserService;
 import com.nineplus.bestwork.utils.CommonConstants;
 import com.nineplus.bestwork.utils.ConvertResponseUtils;
 import com.nineplus.bestwork.utils.Enums.AirWayBillStatus;
 import com.nineplus.bestwork.utils.Enums.ConstructionStatus;
 import com.nineplus.bestwork.utils.Enums.FolderType;
+import com.nineplus.bestwork.utils.MessageUtils;
 import com.nineplus.bestwork.utils.UserAuthUtils;
 
 /**
@@ -87,6 +90,12 @@ public class ConstructionServiceImpl implements IConstructionService {
 
 	@Autowired
 	ModelMapper modelMapper;
+
+	@Autowired
+	MessageUtils messageUtils;
+
+	@Autowired
+	NotificationService notifyService;
 
 	/**
 	 * Function: get page of constructions with condition
@@ -206,8 +215,31 @@ public class ConstructionServiceImpl implements IConstructionService {
 				String pathServer = this.sftpFileService.uploadConstructionDrawing(file, construction.getId());
 				storageService.storeFile(construction.getId(), FolderType.CONSTRUCTION, pathServer);
 			}
+			this.sendNotify(construction, curUsername);
 		} catch (BestWorkBussinessException ex) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.FILE0002, null);
+		}
+	}
+
+	private void sendNotify(ConstructionEntity construction, String curUsername) throws BestWorkBussinessException {
+		ProjectEntity curPrj = projectService.getPrjByCstrtId(construction.getId());
+		List<AirWayBill> curAwbList = construction.getAirWayBills();
+
+		Set<String> involvedUsername = new HashSet<>();
+		involvedUsername.add(curPrj.getCreateBy());
+		for (AirWayBill awb : curAwbList) {
+			involvedUsername.add(awb.getCreateBy());
+		}
+		NotificationReqDto notifyReqDto = new NotificationReqDto();
+		notifyReqDto.setTitle(
+				messageUtils.getMessage(CommonConstants.MessageCode.TNU0007, new Object[] { curPrj.getProjectName() }));
+		notifyReqDto.setContent(messageUtils.getMessage(CommonConstants.MessageCode.CNU0007,
+				new Object[] { curUsername, construction.getLocation() }));
+
+		for (String username : involvedUsername) {
+			UserEntity user = userService.findUserByUsername(username);
+			notifyReqDto.setUserId(user.getId());
+			notifyService.createNotification(notifyReqDto);
 		}
 	}
 
@@ -515,7 +547,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 			if (!sftpFileService.isValidFile(drawings)) {
 				throw new BestWorkBussinessException(CommonConstants.MessageCode.eF0002, null);
 			}
-			// Get file-paths of the construction and remove them from server 
+			// Get file-paths of the construction and remove them from server
 			List<String> listPath = this.storageService.getPathFileByCstrtId(constructionId);
 			for (String path : listPath) {
 				this.sftpFileService.removeFile(path);

@@ -87,8 +87,8 @@ public class StorageServiceImpl implements IStorageService {
 
 	private String getFileNameFromPath(String path) {
 		String name = FilenameUtils.getName(path);
-		if (name.length() >= CommonConstants.Image.IMG_NAME_LEN) {
-			name = name.substring(0, CommonConstants.Image.IMG_NAME_LEN - 1);
+		if (name.length() >= CommonConstants.Character.STRING_LEN) {
+			name = name.substring(0, CommonConstants.Character.STRING_LEN - 1);
 		}
 		return name;
 	}
