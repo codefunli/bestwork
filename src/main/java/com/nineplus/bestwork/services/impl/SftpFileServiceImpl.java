@@ -533,6 +533,15 @@ public class SftpFileServiceImpl implements ISftpFileService {
 				Path path = Files.createDirectories(Paths.get(temporaryFolder + SEPARATOR + airWayBillCode));
 				String pathFileSever = path + SEPARATOR + fileName;
 				File newFile = new File(pathFileSever);
+				// Check if already exist this file
+				int i = 1;
+				while (newFile.exists() && !newFile.isDirectory()) {
+					String fileRename = FilenameUtils.getBaseName(pathFileSever) + "(" + i + ")."
+							+ FilenameUtils.getExtension(pathFileSever);
+					pathFileSever = path + SEPARATOR + fileRename;
+					newFile = new File(pathFileSever);
+					i++;
+				}
 				listPathFile.add(pathFileSever);
 				OutputStream os = new FileOutputStream(newFile);
 				BufferedOutputStream bos = new BufferedOutputStream(os);
