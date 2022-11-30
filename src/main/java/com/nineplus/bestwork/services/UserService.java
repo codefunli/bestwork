@@ -399,12 +399,12 @@ public class UserService implements UserDetailsService {
 		}
 
 		UserEntity userEntity = new UserEntity();
-		Set<CompanyEntity> tCompanySet = new HashSet<>();
+		Set<CompanyEntity> companySet = new HashSet<>();
 		if (ObjectUtils.isNotEmpty(userReqDto.getCompany())) {
 			CompanyEntity companyCurrent = companyRepository.findByCompanyId(userReqDto.getCompany());
 			if (companyCurrent != null) {
-				tCompanySet.add(companyCurrent);
-				userEntity.setCompanys(tCompanySet);
+				companySet.add(companyCurrent);
+				userEntity.setCompanys(companySet);
 			} else {
 				throw new BestWorkBussinessException(CommonConstants.MessageCode.CPN0003, null);
 			}
@@ -441,6 +441,8 @@ public class UserService implements UserDetailsService {
 		} else {
 			userEntity.setUserAvatar("".getBytes());
 		}
+		userEntity.setCreateBy(user.getCreateBy());
+		userEntity.setCreateDate(user.getCreateDate());
 		userEntity.setUpdateDate(LocalDateTime.now());
 		userEntity.setUpdateBy(userAuthRoleReq.getUsername());
 		userRepo.save(userEntity);
