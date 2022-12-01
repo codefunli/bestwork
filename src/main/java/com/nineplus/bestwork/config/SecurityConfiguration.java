@@ -59,6 +59,8 @@ public class SecurityConfiguration implements EnvironmentAware {
 	@Value("${allow.origins}")
 	private String allowOrigins;
 
+	private Boolean authorizationFlag;
+
 	@Bean
 	public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
 			throws Exception {
@@ -81,6 +83,7 @@ public class SecurityConfiguration implements EnvironmentAware {
 	@Bean
 	@Order(1)
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		authorizationFlag = Boolean.parseBoolean(this.environment.getProperty("bestwork.app.authorizationFlag"));
 		http.cors().configurationSource(corsConfigurationSource()).and().csrf().disable();
 
 		// No session will be created or used by spring security
@@ -88,8 +91,11 @@ public class SecurityConfiguration implements EnvironmentAware {
 		// Entry points
 		// uncheck authorizeRequest
 		http.authorizeRequests().antMatchers(PUBLIC_URL).permitAll();
-		http.authorizeRequests().anyRequest().authenticated()
-                .accessDecisionManager(accessDecisionManager());
+		if (authorizationFlag) {
+			http.authorizeRequests().anyRequest().authenticated().accessDecisionManager(accessDecisionManager());
+		} else {
+			http.authorizeRequests().anyRequest().authenticated();
+		}
 		http.apply(customDsl());
 		http.logout().logoutSuccessHandler(new LogoutSuccessHandler() {
 

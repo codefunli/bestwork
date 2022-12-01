@@ -5,11 +5,13 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.nineplus.bestwork.entity.SysPermissionEntity;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public interface PermissionRepository extends JpaRepository<SysPermissionEntity, Long> {
@@ -22,5 +24,10 @@ public interface PermissionRepository extends JpaRepository<SysPermissionEntity,
 			+ " WHERE tr.name in :lstName AND t.status in :lstStt AND (:actionId is null OR sa.id = :actionId) ", nativeQuery = true)
 	List<SysPermissionEntity> findAllBySysRole_RoleName(@Param("lstName") List<String> lstName,
 			@Param("lstStt") List<Integer> lstStt, @Param("actionId") Long actionId);
+
+	@Modifying
+	@Transactional
+	@Query(nativeQuery = true)
+	void insertSystemPermissionData();
 
 }
