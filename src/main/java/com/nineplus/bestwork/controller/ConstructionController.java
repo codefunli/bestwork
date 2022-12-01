@@ -1,5 +1,6 @@
 package com.nineplus.bestwork.controller;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -107,10 +108,11 @@ public class ConstructionController extends BaseController {
 	 * @param constructionReqDto
 	 * @return (ResponseEntity<apiResponseDto>) message that updating construction
 	 *         is successful or not
+	 * @throws IOException 
 	 */
 	@PatchMapping("/update/{constructionId}")
 	public ResponseEntity<? extends Object> updateConstruction(@PathVariable long constructionId,
-			@RequestPart ConstructionReqDto constructionReqDto, @RequestPart List<MultipartFile> drawings) {
+			@RequestPart ConstructionReqDto constructionReqDto, @RequestPart List<MultipartFile> drawings) throws IOException {
 		try {
 			constructionService.updateConstruction(constructionId, constructionReqDto, drawings);
 		} catch (BestWorkBussinessException ex) {

@@ -19,7 +19,7 @@ public interface NotificationService {
 
 	Optional<NotificationEntity> findById(long notifId);
 
-	NotificationEntity sendNotifyChgReadStatus(NotificationEntity notification) throws BestWorkBussinessException;
+	NotificationEntity chgReadStatus(NotificationEntity notification) throws BestWorkBussinessException;
 
 	void createNotification(NotificationReqDto notificationReqDto) throws BestWorkBussinessException;
 }

@@ -2,8 +2,10 @@ package com.nineplus.bestwork.services.impl;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -17,11 +19,15 @@ import com.nineplus.bestwork.dto.AirWayBillResDto;
 import com.nineplus.bestwork.dto.CustomClearanceInvoiceFileResDto;
 import com.nineplus.bestwork.dto.CustomClearancePackageFileResDto;
 import com.nineplus.bestwork.dto.CustomClearanceResDto;
+import com.nineplus.bestwork.dto.NotificationReqDto;
 import com.nineplus.bestwork.entity.AirWayBill;
+import com.nineplus.bestwork.entity.AssignTaskEntity;
 import com.nineplus.bestwork.entity.ProjectEntity;
+import com.nineplus.bestwork.entity.UserEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.model.UserAuthDetected;
 import com.nineplus.bestwork.repository.AirWayBillRepository;
+import com.nineplus.bestwork.repository.AssignTaskRepository;
 import com.nineplus.bestwork.repository.InvoiceFileProjection;
 import com.nineplus.bestwork.repository.PackageFileProjection;
 import com.nineplus.bestwork.repository.PackagePostRepository;
@@ -31,8 +37,12 @@ import com.nineplus.bestwork.services.IInvoicePostService;
 import com.nineplus.bestwork.services.IPackagePostService;
 import com.nineplus.bestwork.services.IProjectService;
 import com.nineplus.bestwork.services.ISftpFileService;
+import com.nineplus.bestwork.services.NotificationService;
+import com.nineplus.bestwork.services.UserService;
 import com.nineplus.bestwork.utils.CommonConstants;
 import com.nineplus.bestwork.utils.Enums.AirWayBillStatus;
+import com.nineplus.bestwork.utils.Enums.TRole;
+import com.nineplus.bestwork.utils.MessageUtils;
 import com.nineplus.bestwork.utils.UserAuthUtils;
 
 @Service
@@ -66,6 +76,18 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 	@Autowired
 	ModelMapper modelMapper;
 
+	@Autowired
+	AssignTaskRepository assignTaskRepository;
+
+	@Autowired
+	MessageUtils messageUtils;
+
+	@Autowired
+	NotificationService notifyService;
+
+	@Autowired
+	UserService userService;
+
 	@Override
 	public AirWayBill findByCode(String code) {
 		return this.airWayBillRepository.findByCode(code);
@@ -88,6 +110,8 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 		} catch (Exception ex) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.eA0001, null);
 		}
+		this.sendNotify(airway, true, false);
+
 	}
 
 	private void validateAirWayBill(AirWayBillReqDto airWayBillReqDto) throws BestWorkBussinessException {
@@ -111,6 +135,67 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.eA0004, null);
 		}
 
+	}
+
+	/**
+	 * Function: create notify when an AWB is created or is customs cleared
+	 * 
+	 * @param airWayBill
+	 * @param isCrtAwb     (boolean: true when AWB is created)
+	 * @param isAwbCleared (boolean: true when AWB is customs cleared)
+	 * @throws BestWorkBussinessException
+	 */
+	private void sendNotify(AirWayBill airWayBill, boolean isCrtAwb, boolean isAwbCleared)
+			throws BestWorkBussinessException {
+		UserAuthDetected userAuthDetected = userAuthUtils.getUserInfoFromReq(false);
+		String curUsername = userAuthDetected.getUsername();
+		UserEntity curUser = this.userService.findUserByUsername(curUsername);
+		ProjectEntity curPrj = this.iProjectService.getProjectById(airWayBill.getProjectCode()).get();
+
+		List<AssignTaskEntity> assignTaskList = this.assignTaskRepository.findByProjectId(curPrj.getId());
+
+		String title = "";
+		String content = "";
+		// Set the title and content for the notify when AWB is created 
+		if (isCrtAwb) {
+			title = messageUtils.getMessage(CommonConstants.MessageCode.TNU0009,
+					new Object[] { curPrj.getProjectName() });
+			content = messageUtils.getMessage(CommonConstants.MessageCode.CNU0009,
+					new Object[] { curUsername, airWayBill.getCode() });
+		}
+		// Set the title and content for the notify when AWB is customs cleared 
+		else if (isAwbCleared) {
+			title = messageUtils.getMessage(CommonConstants.MessageCode.TNU0010,
+					new Object[] { curPrj.getProjectName() });
+			content = messageUtils.getMessage(CommonConstants.MessageCode.CNU0010,
+					new Object[] { airWayBill.getCode() });
+		}
+
+		NotificationReqDto notifyReqDto = new NotificationReqDto();
+		notifyReqDto.setTitle(title);
+		notifyReqDto.setContent(content);
+		Set<Long> userIdList = new HashSet<>();
+
+		// Get userId of project-creator (investor)
+		UserEntity userCrtPrj = this.userService.findUserByUsername(curPrj.getCreateBy());
+		userIdList.add(userCrtPrj.getId());
+		// Get userId of AWB-creator (supplier)
+		if (isAwbCleared) {
+			userIdList.add(this.userService.findUserByUsername(airWayBill.getCreateBy()).getId());
+		}
+		// Get userIds of the contractors who are assigned as editors in curProject
+		// (contractors)
+		for (AssignTaskEntity ast : assignTaskList) {
+			if (ast.isCanEdit() && this.userService.findUserByUserId(ast.getUserId()).getRole().getRoleName()
+					.equals(TRole.CONTRACTOR.getValue())) {
+				userIdList.add(ast.getUserId());
+			}
+		}
+		userIdList.removeIf(x -> x == curUser.getId());
+		for (Long uId : userIdList) {
+			notifyReqDto.setUserId(uId);
+			notifyService.createNotification(notifyReqDto);
+		}
 	}
 
 	@Override
@@ -173,6 +258,9 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 	@Transactional
 	public void changeStatus(String code, int destinationStatus) throws BestWorkBussinessException {
 		this.airWayBillRepository.changeStatus(code, destinationStatus);
+		if (destinationStatus == AirWayBillStatus.DONE.ordinal()) {
+			this.sendNotify(airWayBillRepository.findByCode(code), false, true);
+		}
 	}
 
 }

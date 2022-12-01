@@ -178,7 +178,7 @@ public class InvoicePostServiceImpl implements IInvoicePostService {
 	}
 
 	@Override
-	public List<CustomClearanceInvoiceFileResDto> getInvoiceClearance(String code) {
+	public List<CustomClearanceInvoiceFileResDto> getInvoiceClearance(String code) throws BestWorkBussinessException {
 		List<CustomClearanceInvoiceFileResDto> lst = new ArrayList<>();
 		CustomClearanceInvoiceFileResDto customClearanceFileResDto = null;
 		List<InvoiceFileProjection> res = postInvoiceRepository.getClearanceInfo(code);

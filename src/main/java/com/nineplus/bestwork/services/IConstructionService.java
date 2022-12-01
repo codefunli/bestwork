@@ -1,5 +1,6 @@
 package com.nineplus.bestwork.services;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
@@ -28,7 +29,7 @@ public interface IConstructionService {
 	ConstructionResDto findCstrtResById(long constructionId) throws BestWorkBussinessException;
 
 	void updateConstruction(long constructionId, ConstructionReqDto constructionReqDto, List<MultipartFile> drawings)
-			throws BestWorkBussinessException;
+			throws BestWorkBussinessException, IOException;
 
 	void deleteConstruction(ConstructionListIdDto constructionListId) throws BestWorkBussinessException;
 

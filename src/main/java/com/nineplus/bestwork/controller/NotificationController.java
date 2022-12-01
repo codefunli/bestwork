@@ -53,7 +53,7 @@ public class NotificationController extends BaseController {
 		}
 		NotificationEntity notification = notificationOpt.get();
 		try {
-			notification = notificationService.sendNotifyChgReadStatus(notification);
+			notification = notificationService.chgReadStatus(notification);
 		} catch (BestWorkBussinessException e) {
 			return failed(e.getMsgCode(), e.getParam());
 		}
