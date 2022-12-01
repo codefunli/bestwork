@@ -41,7 +41,7 @@ public class RoleEntity implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id", unique = true, nullable = false, precision = 19)
-	private long id;
+	private Long id;
 
 	@Column(name = "name", nullable = false)
 	private String roleName;
