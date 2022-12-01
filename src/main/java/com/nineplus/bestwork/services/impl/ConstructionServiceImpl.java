@@ -398,7 +398,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 			for (AirWayBill airWayBill : cstrt.getAirWayBills()) {
 				AirWayBillResDto dto = new AirWayBillResDto();
 				dto = modelMapper.map(airWayBill, AirWayBillResDto.class);
-				dto.setStatus(AirWayBillStatus.convertIntToStatus(airWayBill.getStatus()));
+				dto.setStatus(airWayBill.getStatus());
 				awbCodes.add(dto);
 			}
 		}

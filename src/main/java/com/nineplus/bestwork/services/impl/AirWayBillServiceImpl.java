@@ -120,7 +120,7 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 		for (AirWayBill airWayBill : listAwb) {
 			AirWayBillResDto airWayResDTO = new AirWayBillResDto();
 			airWayResDTO = modelMapper.map(airWayBill, AirWayBillResDto.class);
-			airWayResDTO.setStatus(AirWayBillStatus.convertIntToStatus(airWayBill.getStatus()));
+			airWayResDTO.setStatus(airWayBill.getStatus());
 			listAwbRes.add(airWayResDTO);
 		}
 		return listAwbRes;
