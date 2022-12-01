@@ -51,10 +51,11 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @PropertySource("classpath:application.properties")
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-public class SercurityConfiguration implements EnvironmentAware {
+public class SecurityConfiguration implements EnvironmentAware {
 
-	public static String PUBLIC_URL[] = { "/api/v1/auth/**", "/login", "/logout" };
-	public static String IGNORE_URL[] = {};
+	public static String[] PUBLIC_URL = { "/api/v1/auth/**", "/login", "/logout", "/users/detect-infor",
+			"/auth/reset-password/{token}","/auth/forgot-password"};
+	public static String[] IGNORE_URL = {};
 	@Value("${allow.origins}")
 	private String allowOrigins;
 
@@ -87,8 +88,8 @@ public class SercurityConfiguration implements EnvironmentAware {
 		// Entry points
 		// uncheck authorizeRequest
 		http.authorizeRequests().antMatchers(PUBLIC_URL).permitAll();
-		http.authorizeRequests().anyRequest().authenticated();
-//                .accessDecisionManager(accessDecisionManager());
+		http.authorizeRequests().anyRequest().authenticated()
+                .accessDecisionManager(accessDecisionManager());
 		http.apply(customDsl());
 		http.logout().logoutSuccessHandler(new LogoutSuccessHandler() {
 

@@ -37,6 +37,8 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 
 	private int JWT_EXPIRATION;
 
+	private final Algorithm algorithm;
+
 	public String PUBLIC_URL[];
 
 	UserService userService;
@@ -46,6 +48,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 		PREFIX_TOKEN = prefixToken;
 		SECRET_KEY = secretKey;
 		JWT_EXPIRATION = Integer.parseInt(jwtExpiration);
+		algorithm = Algorithm.HMAC256(SECRET_KEY.getBytes());
 		this.PUBLIC_URL = Stream.of(publicUrl).map(item -> item.replace("/**", "")).toList()
 				.toArray(new String[publicUrl.length]);
 	}
@@ -76,11 +79,8 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 			if (accessToken != null && request.getHeader(CommonConstants.Authentication.PREFIX_TOKEN) != null
 					&& request.getHeader(CommonConstants.Authentication.PREFIX_TOKEN).startsWith(PREFIX_TOKEN)) {
 				try {
-					Algorithm algorithm = Algorithm.HMAC256(SECRET_KEY.getBytes());
-					JWTVerifier verifier = JWT.require(algorithm).build();
-					DecodedJWT decodedJWT = verifier.verify(accessToken);
-					String username = decodedJWT.getSubject();
-					UserEntity user = userService.getUserByUsername(username);
+					DecodedJWT decodedJWT = this.decodedToken(accessToken);
+					UserEntity user = userService.getUserByUsername(decodedJWT.getSubject());
 					if (ObjectUtils.isEmpty(user) || userService.isBlocked(user.getLoginFailedNum())) {
 						throw new Exception();
 					}
@@ -89,7 +89,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 					for (String role : roles) {
 						authorities.add(new SimpleGrantedAuthority(role));
 					}
-					UsernamePasswordAuthenticationToken authenToken = new UsernamePasswordAuthenticationToken(username,
+					UsernamePasswordAuthenticationToken authenToken = new UsernamePasswordAuthenticationToken(user.getUserName(),
 							null, authorities);
 					SecurityContextHolder.getContext().setAuthentication(authenToken);
 					this.addTokenToHeader(response, accessToken, refreshToken);
@@ -100,11 +100,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 			} else if (refreshToken != null
 					&& request.getHeader(CommonConstants.Authentication.PREFIX_TOKEN).startsWith(PREFIX_TOKEN)) {
 				try {
-					Algorithm algorithm = Algorithm.HMAC256(SECRET_KEY.getBytes());
-					JWTVerifier verifier = JWT.require(algorithm).build();
-					DecodedJWT decodedJWT = verifier.verify(refreshToken);
-					String username = decodedJWT.getSubject();
-					UserEntity user = userService.getUserByUsername(username);
+					UserEntity user = userService.getUserByUsername(this.decodedToken(refreshToken).getSubject());
 					if (ObjectUtils.isEmpty(user) || userService.isBlocked(user.getLoginFailedNum())) {
 						throw new Exception();
 					}
@@ -134,4 +130,8 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 						+ "Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
 	}
 
+	private DecodedJWT decodedToken(String token) {
+		JWTVerifier verifier = JWT.require(algorithm).build();
+		return verifier.verify(token);
+	}
 }

@@ -4,6 +4,11 @@ import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 
+import com.nineplus.bestwork.entity.RoleEntity;
+import com.nineplus.bestwork.entity.SysPermissionEntity;
+import com.nineplus.bestwork.model.enumtype.Status;
+import com.nineplus.bestwork.repository.PermissionRepository;
+import com.nineplus.bestwork.repository.RoleRepository;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.modelmapper.ModelMapper;
@@ -44,6 +49,12 @@ public class MonitorService {
 	SysMonitorRepository monitorRepository;
 
 	@Autowired
+	RoleRepository roleRepository;
+
+	@Autowired
+	PermissionRepository permissionRepository;
+
+	@Autowired
 	ModelMapper modelMapper;
 
 	@Autowired
@@ -73,6 +84,20 @@ public class MonitorService {
 			monitor.setCreatedDate(new Timestamp(System.currentTimeMillis()));
 			monitor.setCreatedUser(userAuthUtils.getUserInfoFromReq(false).getUsername());
 			monitorRepository.save(monitor);
+			List<RoleEntity> roleEntities = roleRepository.findAll();
+			for (RoleEntity role : roleEntities) {
+				SysPermissionEntity sysPermission = new SysPermissionEntity();
+				sysPermission.setSysRole(role);
+				sysPermission.setSysMonitor(monitor);
+				sysPermission.setCanAdd(false);
+				sysPermission.setCanEdit(false);
+				sysPermission.setCanDelete(false);
+				sysPermission.setCanAccess(false);
+				sysPermission.setCreatedUser(userAuthUtils.getUserInfoFromReq(false).getUsername());
+				sysPermission.setCreatedDate(new Timestamp(System.currentTimeMillis()));
+				sysPermission.setStatus(Status.ACTIVE.getValue());
+				permissionRepository.save(sysPermission);
+			}
 			return modelMapper.map(monitor, MonitorResDto.class);
 		} catch (Exception e) {
 			logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0001, null), e);
