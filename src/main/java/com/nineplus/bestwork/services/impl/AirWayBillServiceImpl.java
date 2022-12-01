@@ -137,6 +137,14 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 
 	}
 
+	/**
+	 * Function: create notify when an AWB is created or is customs cleared
+	 * 
+	 * @param airWayBill
+	 * @param isCrtAwb     (boolean: true when AWB is created)
+	 * @param isAwbCleared (boolean: true when AWB is customs cleared)
+	 * @throws BestWorkBussinessException
+	 */
 	private void sendNotify(AirWayBill airWayBill, boolean isCrtAwb, boolean isAwbCleared)
 			throws BestWorkBussinessException {
 		UserAuthDetected userAuthDetected = userAuthUtils.getUserInfoFromReq(false);
@@ -148,12 +156,15 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 
 		String title = "";
 		String content = "";
+		// Set the title and content for the notify when AWB is created 
 		if (isCrtAwb) {
 			title = messageUtils.getMessage(CommonConstants.MessageCode.TNU0009,
 					new Object[] { curPrj.getProjectName() });
 			content = messageUtils.getMessage(CommonConstants.MessageCode.CNU0009,
 					new Object[] { curUsername, airWayBill.getCode() });
-		} else if (isAwbCleared) {
+		}
+		// Set the title and content for the notify when AWB is customs cleared 
+		else if (isAwbCleared) {
 			title = messageUtils.getMessage(CommonConstants.MessageCode.TNU0010,
 					new Object[] { curPrj.getProjectName() });
 			content = messageUtils.getMessage(CommonConstants.MessageCode.CNU0010,

@@ -277,7 +277,7 @@ public class ProjectServiceImpl implements IProjectService {
 					assignTask.setCanView(dto.isCanView());
 					assignTask.setCanEdit(dto.isCanEdit());
 					assignTaskRepository.save(assignTask);
-					this.sendNotify(generateProjectId, dto);
+					this.sendNotify(generateProjectId, dto, true, false, false);
 				}
 			}
 		} catch (Exception ex) {
@@ -350,11 +350,11 @@ public class ProjectServiceImpl implements IProjectService {
 								if (((originAssign.isCanEdit() != userDto.isCanEdit())
 										|| (originAssign.isCanView() != userDto.isCanView()))
 										&& (userDto.isCanEdit() || userDto.isCanView())) {
-									sendChgAssignNotify(projectId, userDto);
+									this.sendNotify(projectId, userDto, false, true, false);
 								} else if (((originAssign.isCanEdit() != userDto.isCanEdit())
 										|| (originAssign.isCanView() != userDto.isCanView()))
 										&& (!userDto.isCanEdit() && !userDto.isCanView())) {
-									sendRemoveAssignNotify(projectId, userDto);
+									this.sendNotify(projectId, userDto, false, false, true);
 								}
 							} else {
 								AssignTaskEntity assignTaskNew = new AssignTaskEntity();
@@ -365,7 +365,7 @@ public class ProjectServiceImpl implements IProjectService {
 								assignTaskNew.setCanEdit(userDto.isCanEdit());
 								if (assignTaskNew.isCanEdit() || assignTaskNew.isCanView()) {
 									assignTaskRepository.save(assignTaskNew);
-									sendNotify(projectId, userDto);
+									this.sendNotify(projectId, userDto, true, false, false);
 								}
 							}
 						} else {
@@ -389,46 +389,48 @@ public class ProjectServiceImpl implements IProjectService {
 		return false;
 	}
 
-	private void sendNotify(String generatePrjId, ProjectRoleUserReqDto user) throws BestWorkBussinessException {
+	/**
+	 * 
+	 * @param prjId
+	 * @param user
+	 * @param isNewAssign    (boolean: true when user is assigned to the project)
+	 * @param isChangeAssign (boolean: true when the assignment of an user is
+	 *                       changed on the project (view <-> edit)
+	 * @param isRemoveAssign (boolean: true when the assignment of an user is
+	 *                       removed from the project -> is no longer assigned)
+	 * @throws BestWorkBussinessException
+	 */
+	private void sendNotify(String prjId, ProjectRoleUserReqDto user, boolean isNewAssign, boolean isChangeAssign,
+			boolean isRemoveAssign) throws BestWorkBussinessException {
 		UserAuthDetected userAuthRoleReq = getAuthRoleReq();
 		String curUsername = userAuthRoleReq.getUsername();
-		String projectName = projectRepository.findbyProjectId(generatePrjId).getProjectName();
+		String projectName = projectRepository.findbyProjectId(prjId).getProjectName();
 
 		NotificationReqDto notifyReqDto = new NotificationReqDto();
-		notifyReqDto
-				.setTitle(messageUtils.getMessage(CommonConstants.MessageCode.TNU0004, new Object[] { projectName }));
-		notifyReqDto.setContent(messageUtils.getMessage(CommonConstants.MessageCode.CNU0004, new Object[] { curUsername,
-				(user.isCanEdit() ? CommonConstants.Character.EDITOR : CommonConstants.Character.VIEWER) }));
-		notifyReqDto.setUserId(user.getUserId());
-		notifyService.createNotification(notifyReqDto);
-	}
+		String title = "";
+		String content = "";
+		// Set title and content for the notify when the user is assigned to the project
+		if (isNewAssign) {
+			title = messageUtils.getMessage(CommonConstants.MessageCode.TNU0004, new Object[] { projectName });
+			content = messageUtils.getMessage(CommonConstants.MessageCode.CNU0004, new Object[] { curUsername,
+					(user.isCanEdit() ? CommonConstants.Character.EDITOR : CommonConstants.Character.VIEWER) });
 
-	private void sendChgAssignNotify(String projectId, ProjectRoleUserReqDto user) throws BestWorkBussinessException {
-		UserAuthDetected userAuthRoleReq = getAuthRoleReq();
-		String curUsername = userAuthRoleReq.getUsername();
-		String projectName = projectRepository.findbyProjectId(projectId).getProjectName();
-
-		NotificationReqDto notificationReqDto = new NotificationReqDto();
-		notificationReqDto
-				.setTitle(messageUtils.getMessage(CommonConstants.MessageCode.TNU0004, new Object[] { projectName }));
-		notificationReqDto
-				.setContent(messageUtils.getMessage(CommonConstants.MessageCode.CNU0005, new Object[] { curUsername,
-						(user.isCanEdit() ? CommonConstants.Character.EDITOR : CommonConstants.Character.VIEWER) }));
-		notificationReqDto.setUserId(user.getUserId());
-		notifyService.createNotification(notificationReqDto);
-	}
-
-	private void sendRemoveAssignNotify(String projectId, ProjectRoleUserReqDto user)
-			throws BestWorkBussinessException {
-		UserAuthDetected userAuthRoleReq = getAuthRoleReq();
-		String curUsername = userAuthRoleReq.getUsername();
-		String projectName = projectRepository.findbyProjectId(projectId).getProjectName();
-
-		NotificationReqDto notifyReqDto = new NotificationReqDto();
-		notifyReqDto
-				.setTitle(messageUtils.getMessage(CommonConstants.MessageCode.TNU0006, new Object[] { projectName }));
-		notifyReqDto
-				.setContent(messageUtils.getMessage(CommonConstants.MessageCode.CNU0006, new Object[] { curUsername }));
+		}
+		// Set title and content for the notify when the assignment of an user is
+		// changed on the project (view <-> edit)
+		else if (isChangeAssign) {
+			title = messageUtils.getMessage(CommonConstants.MessageCode.TNU0004, new Object[] { projectName });
+			content = messageUtils.getMessage(CommonConstants.MessageCode.CNU0005, new Object[] { curUsername,
+					(user.isCanEdit() ? CommonConstants.Character.EDITOR : CommonConstants.Character.VIEWER) });
+		}
+		// Set title and content for the notify when the assignment of the user is
+		// removed from the project -> is no longer assigned
+		else if (isRemoveAssign) {
+			title = messageUtils.getMessage(CommonConstants.MessageCode.TNU0006, new Object[] { projectName });
+			content = messageUtils.getMessage(CommonConstants.MessageCode.CNU0006, new Object[] { curUsername });
+		}
+		notifyReqDto.setTitle(title);
+		notifyReqDto.setContent(content);
 		notifyReqDto.setUserId(user.getUserId());
 		notifyService.createNotification(notifyReqDto);
 	}

@@ -553,6 +553,14 @@ public class ConstructionServiceImpl implements IConstructionService {
 		}
 	}
 
+	/**
+	 * 
+	 * @param construction
+	 * @param curUsername
+	 * @param isCrtCstrt   (boolean: true when construction is created)
+	 * @param isCstrtDone  (boolean: true when construction is done/finished)
+	 * @throws BestWorkBussinessException
+	 */
 	private void sendNotify(ConstructionEntity construction, String curUsername, boolean isCrtCstrt,
 			boolean isCstrtDone) throws BestWorkBussinessException {
 		ProjectEntity curPrj = projectService.getPrjByCstrtId(construction.getId());
@@ -565,12 +573,15 @@ public class ConstructionServiceImpl implements IConstructionService {
 		}
 		String title = "";
 		String content = "";
+		// Set the title and content for the notify when construction is created 
 		if (isCrtCstrt) {
 			title = messageUtils.getMessage(CommonConstants.MessageCode.TNU0007,
 					new Object[] { curPrj.getProjectName() });
 			content = messageUtils.getMessage(CommonConstants.MessageCode.CNU0007,
 					new Object[] { curUsername, construction.getLocation() });
-		} else if (isCstrtDone) {
+		}
+		// Set the title and content for the notify when construction is done/finished 
+		else if (isCstrtDone) {
 			title = messageUtils.getMessage(CommonConstants.MessageCode.TNU0008,
 					new Object[] { curPrj.getProjectName() });
 			content = messageUtils.getMessage(CommonConstants.MessageCode.CNU0008,
