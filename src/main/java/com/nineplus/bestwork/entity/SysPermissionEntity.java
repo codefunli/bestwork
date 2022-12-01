@@ -27,7 +27,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class SysPermissionEntity {
+public class SysPermissionEntity implements Cloneable {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -78,5 +78,16 @@ public class SysPermissionEntity {
 
 	public void setStatus(Integer status) {
 		this.status = Status.fromValue(status);
+	}
+
+	@Override
+	public SysPermissionEntity clone() {
+		try {
+			SysPermissionEntity clone = (SysPermissionEntity) super.clone();
+			// TODO: copy mutable state here, so the clone can't change the internals of the original
+			return clone;
+		} catch (CloneNotSupportedException e) {
+			throw new AssertionError();
+		}
 	}
 }

@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.nineplus.bestwork.model.enumtype.Status;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
@@ -188,6 +189,24 @@ public class PermissionService {
 		} catch (Exception ex) {
 			logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0001, null), ex);
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0001, null);
+		}
+	}
+
+	public void createPermissionsForNewRole(RoleEntity newRole) throws BestWorkBussinessException {
+		SysPermissionEntity sysPermission = new SysPermissionEntity();
+		sysPermission.setSysRole(newRole);
+		sysPermission.setStatus(Status.ACTIVE.getValue());
+		sysPermission.setCreatedDate(new Timestamp(System.currentTimeMillis()));
+		sysPermission.setCreatedUser(userAuthUtils.getUserInfoFromReq(false).getUsername());
+		sysPermission.setCanEdit(false);
+		sysPermission.setCanAdd(false);
+		sysPermission.setCanDelete(false);
+		sysPermission.setCanAccess(false);
+		List<SysMonitorEntity> sysMonitorEntities = monitorRepository.findAll();
+		for (SysMonitorEntity monitor : sysMonitorEntities){
+			SysPermissionEntity newPermission = sysPermission.clone();
+			newPermission.setSysMonitor(monitor);
+			permissionRepository.save(newPermission);
 		}
 	}
 }

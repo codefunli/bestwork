@@ -1,9 +1,14 @@
 package com.nineplus.bestwork.services;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import com.nineplus.bestwork.entity.SysPermissionEntity;
+import com.nineplus.bestwork.model.enumtype.Status;
+import com.nineplus.bestwork.repository.PermissionRepository;
+import com.nineplus.bestwork.repository.SysMonitorRepository;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.modelmapper.ModelMapper;
@@ -50,6 +55,9 @@ public class RoleService {
 	@Autowired
 	private PageUtils responseUtils;
 
+	@Autowired
+	private PermissionService permissionService;
+
 	public ResRoleDto getRole(Long id) throws BestWorkBussinessException {
 		Optional<RoleEntity> role = roleRepository.findById(id);
 		if (role.isPresent()) {
@@ -78,7 +86,9 @@ public class RoleService {
 			role.setDescription(dto.getDescription());
 			role.setCreateDate(LocalDateTime.now());
 			role.setCreateBy(userAuthUtils.getUserInfoFromReq(false).getUsername());
-			roleRepository.save(role);
+			role.setDeleteFlag(0);
+			role = roleRepository.save(role);
+			permissionService.createPermissionsForNewRole(role);
 			return modelMapper.map(role, ResRoleDto.class);
 		} catch (Exception e) {
 			logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0001, null), e);
