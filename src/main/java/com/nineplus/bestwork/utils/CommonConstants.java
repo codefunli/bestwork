@@ -216,6 +216,12 @@ public class CommonConstants {
 		public static final String CNU0006 = "cnu0006";
 		public static final String TNU0007 = "tnu0007";
 		public static final String CNU0007 = "cnu0007";
+		public static final String TNU0008 = "tnu0008";
+		public static final String CNU0008 = "cnu0008";
+		public static final String TNU0009 = "tnu0009";
+		public static final String CNU0009 = "cnu0009";
+		public static final String TNU0010 = "tnu0010";
+		public static final String CNU0010 = "cnu0010";
 
 		public static final String eF0001 = "eF0001";
 		public static final String eF0002 = "eF0002";

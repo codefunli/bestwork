@@ -32,6 +32,7 @@ import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpException;
+import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.exception.FileHandleException;
 import com.nineplus.bestwork.services.ISftpFileService;
 import com.nineplus.bestwork.utils.CommonConstants;
@@ -154,7 +155,7 @@ public class SftpFileServiceImpl implements ISftpFileService {
 	}
 
 	@Override
-	public byte[] getFile(String pathFileDownload) {
+	public byte[] getFile(String pathFileDownload) throws BestWorkBussinessException {
 		byte[] resBytes = null;
 		ChannelSftp channel = null;
 		Session session = null;
@@ -164,14 +165,15 @@ public class SftpFileServiceImpl implements ISftpFileService {
 
 			session = sftpConnection.getFirst();
 			channel = sftpConnection.getSecond();
+			if(isExistFolder(channel, pathFileDownload)) {
 			resBytes = IOUtils.toByteArray(channel.get(pathFileDownload));
-
-			// disconnect to sftp server.
+		}
+		}catch (SftpException | IOException e) {
+			// disconnect to sftp server
 			disconnect(session, channel);
-		} catch (SftpException | IOException e) {
-			// disconnect to sftp server.
+			throw new BestWorkBussinessException(e.getMessage(),null);
+		} finally {
 			disconnect(session, channel);
-			throw new FileHandleException(e.getMessage(), e);
 		}
 
 		return resBytes;
