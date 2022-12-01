@@ -1,5 +1,6 @@
 package com.nineplus.bestwork.services.impl;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -9,6 +10,7 @@ import java.util.Set;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -24,6 +26,7 @@ import com.nineplus.bestwork.dto.ConstructionListIdDto;
 import com.nineplus.bestwork.dto.ConstructionReqDto;
 import com.nineplus.bestwork.dto.ConstructionResDto;
 import com.nineplus.bestwork.dto.FileStorageResDto;
+import com.nineplus.bestwork.dto.NotificationReqDto;
 import com.nineplus.bestwork.dto.PageResDto;
 import com.nineplus.bestwork.dto.PageSearchDto;
 import com.nineplus.bestwork.dto.RPageDto;
@@ -37,17 +40,20 @@ import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.model.UserAuthDetected;
 import com.nineplus.bestwork.repository.AssignTaskRepository;
 import com.nineplus.bestwork.repository.ConstructionRepository;
+import com.nineplus.bestwork.repository.ProgressRepository;
 import com.nineplus.bestwork.services.IAirWayBillService;
 import com.nineplus.bestwork.services.IConstructionService;
 import com.nineplus.bestwork.services.IProjectService;
 import com.nineplus.bestwork.services.ISftpFileService;
 import com.nineplus.bestwork.services.IStorageService;
+import com.nineplus.bestwork.services.NotificationService;
 import com.nineplus.bestwork.services.UserService;
 import com.nineplus.bestwork.utils.CommonConstants;
 import com.nineplus.bestwork.utils.ConvertResponseUtils;
 import com.nineplus.bestwork.utils.Enums.AirWayBillStatus;
 import com.nineplus.bestwork.utils.Enums.ConstructionStatus;
 import com.nineplus.bestwork.utils.Enums.FolderType;
+import com.nineplus.bestwork.utils.MessageUtils;
 import com.nineplus.bestwork.utils.UserAuthUtils;
 
 /**
@@ -88,6 +94,18 @@ public class ConstructionServiceImpl implements IConstructionService {
 	@Autowired
 	ModelMapper modelMapper;
 
+	@Autowired
+	MessageUtils messageUtils;
+
+	@Autowired
+	NotificationService notifyService;
+
+//	@Autowired
+//	IProgressService progressService;
+
+	@Autowired
+	ProgressRepository progressRepo;
+
 	/**
 	 * Function: get page of constructions with condition
 	 */
@@ -123,7 +141,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 
 			return pageResDto;
 		} catch (Exception ex) {
-			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
+			throw new BestWorkBussinessException(ex.getMessage(), null);
 		}
 	}
 
@@ -206,6 +224,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 				String pathServer = this.sftpFileService.uploadConstructionDrawing(file, construction.getId());
 				storageService.storeFile(construction.getId(), FolderType.CONSTRUCTION, pathServer);
 			}
+			this.sendNotify(construction, curUsername, true, false);
 		} catch (BestWorkBussinessException ex) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.FILE0002, null);
 		}
@@ -382,7 +401,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 		return cstrtResDto;
 	}
 
-	private ConstructionResDto trsferCstrtToResDto(ConstructionEntity cstrt) {
+	private ConstructionResDto trsferCstrtToResDto(ConstructionEntity cstrt) throws BestWorkBussinessException {
 		ConstructionResDto cstrtResDto = new ConstructionResDto();
 		cstrtResDto.setId(cstrt.getId());
 		cstrtResDto.setConstructionName(cstrt.getConstructionName());
@@ -490,11 +509,12 @@ public class ConstructionServiceImpl implements IConstructionService {
 	 * 
 	 * @param constructionId
 	 * @param constructionReqDto
+	 * @throws IOException
 	 */
 	@Override
 	@Transactional
 	public void updateConstruction(long constructionId, ConstructionReqDto constructionReqDto,
-			List<MultipartFile> drawings) throws BestWorkBussinessException {
+			List<MultipartFile> drawings) throws BestWorkBussinessException, IOException {
 		UserAuthDetected userAuthRoleReq = this.getUserAuthRoleReq();
 		String curUsername = userAuthRoleReq.getUsername();
 		Optional<ConstructionEntity> constructionOpt = cstrtRepo.findById(constructionId);
@@ -502,6 +522,8 @@ public class ConstructionServiceImpl implements IConstructionService {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
 		}
 		ConstructionEntity curConstruction = constructionOpt.get();
+		ConstructionEntity originConstruction = new ConstructionEntity();
+		BeanUtils.copyProperties(curConstruction, originConstruction);
 		if (!chkCurUserCanEditDelCstrt(curConstruction, curUsername)) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
 		}
@@ -511,11 +533,15 @@ public class ConstructionServiceImpl implements IConstructionService {
 
 		try {
 			curConstruction = this.cstrtRepo.save(curConstruction);
+			if (Integer.parseInt(curConstruction.getStatus()) == ConstructionStatus.DONE.ordinal() && Integer
+					.parseInt(curConstruction.getStatus()) != Integer.parseInt(originConstruction.getStatus())) {
+				this.sendNotify(curConstruction, curUsername, false, true);
+			}
 
 			if (!sftpFileService.isValidFile(drawings)) {
 				throw new BestWorkBussinessException(CommonConstants.MessageCode.eF0002, null);
 			}
-			// Get file-paths of the construction and remove them from server 
+			// Get file-paths of the construction and remove them from server
 			List<String> listPath = this.storageService.getPathFileByCstrtId(constructionId);
 			for (String path : listPath) {
 				this.sftpFileService.removeFile(path);
@@ -524,11 +550,59 @@ public class ConstructionServiceImpl implements IConstructionService {
 			this.storageService.deleteByCstrtId(constructionId);
 			// Save new files to database and server
 			for (MultipartFile file : drawings) {
-				String pathServer = this.sftpFileService.uploadConstructionDrawing(file, curConstruction.getId());
-				storageService.storeFile(curConstruction.getId(), FolderType.CONSTRUCTION, pathServer);
+				if (ObjectUtils.isNotEmpty(file.getBytes())) {
+					String pathServer = this.sftpFileService.uploadConstructionDrawing(file, curConstruction.getId());
+					storageService.storeFile(curConstruction.getId(), FolderType.CONSTRUCTION, pathServer);
+				}
 			}
 		} catch (BestWorkBussinessException ex) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.FILE0002, null);
+		}
+	}
+
+	/**
+	 * 
+	 * @param construction
+	 * @param curUsername
+	 * @param isCrtCstrt   (boolean: true when construction is created)
+	 * @param isCstrtDone  (boolean: true when construction is done/finished)
+	 * @throws BestWorkBussinessException
+	 */
+	private void sendNotify(ConstructionEntity construction, String curUsername, boolean isCrtCstrt,
+			boolean isCstrtDone) throws BestWorkBussinessException {
+		ProjectEntity curPrj = projectService.getPrjByCstrtId(construction.getId());
+		List<AirWayBill> curAwbList = construction.getAirWayBills();
+
+		Set<String> involvedUsername = new HashSet<>();
+		involvedUsername.add(curPrj.getCreateBy());
+		for (AirWayBill awb : curAwbList) {
+			involvedUsername.add(awb.getCreateBy());
+		}
+		String title = "";
+		String content = "";
+		// Set the title and content for the notify when construction is created
+		if (isCrtCstrt) {
+			title = messageUtils.getMessage(CommonConstants.MessageCode.TNU0007,
+					new Object[] { curPrj.getProjectName() });
+			content = messageUtils.getMessage(CommonConstants.MessageCode.CNU0007,
+					new Object[] { curUsername, construction.getLocation() });
+		}
+		// Set the title and content for the notify when construction is done/finished
+		else if (isCstrtDone) {
+			title = messageUtils.getMessage(CommonConstants.MessageCode.TNU0008,
+					new Object[] { curPrj.getProjectName() });
+			content = messageUtils.getMessage(CommonConstants.MessageCode.CNU0008,
+					new Object[] { construction.getConstructionName(), construction.getLocation() });
+		}
+
+		NotificationReqDto notifyReqDto = new NotificationReqDto();
+		notifyReqDto.setTitle(title);
+		notifyReqDto.setContent(content);
+
+		for (String username : involvedUsername) {
+			UserEntity user = userService.findUserByUsername(username);
+			notifyReqDto.setUserId(user.getId());
+			notifyService.createNotification(notifyReqDto);
 		}
 	}
 
@@ -559,6 +633,9 @@ public class ConstructionServiceImpl implements IConstructionService {
 		if (cstrtList.contains(null)) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.ECS0006, null);
 		}
+		// Delete all progresses of the constructions that will be deleted
+		this.progressRepo.deleteByCstrtIdList(ids);
+
 		this.cstrtRepo.deleteAll(cstrtList);
 	}
 

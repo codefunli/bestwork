@@ -25,7 +25,6 @@ public class CommonConstants {
 
 	public class Image {
 		public static final String[] IMAGE_EXTENSION = { "png", "jpg", "jpeg", "bmp", "JPEG", "PNG", "JPG", "BMP" };
-		public static final int IMG_NAME_LEN = 250;
 	}
 
 	public class MediaType {
@@ -63,6 +62,10 @@ public class CommonConstants {
 
 		public static final String CONSTRUCTION_NAME = "Construction Name";
 		public static final String AIR_WAY_BILL = "Air Way Bill code";
+
+		public static final String EDITOR = "editor";
+		public static final String VIEWER = "viewer";
+		public static final int STRING_LEN = 250;
 	}
 
 	public class MessageCode {
@@ -206,6 +209,19 @@ public class CommonConstants {
 		public static final String ENU0002 = "enu0002";
 		public static final String SNU0003 = "snu0003";
 		public static final String ENU0003 = "enu0003";
+		public static final String TNU0004 = "tnu0004";
+		public static final String CNU0004 = "cnu0004";
+		public static final String CNU0005 = "cnu0005";
+		public static final String TNU0006 = "tnu0006";
+		public static final String CNU0006 = "cnu0006";
+		public static final String TNU0007 = "tnu0007";
+		public static final String CNU0007 = "cnu0007";
+		public static final String TNU0008 = "tnu0008";
+		public static final String CNU0008 = "cnu0008";
+		public static final String TNU0009 = "tnu0009";
+		public static final String CNU0009 = "cnu0009";
+		public static final String TNU0010 = "tnu0010";
+		public static final String CNU0010 = "cnu0010";
 
 		public static final String eF0001 = "eF0001";
 		public static final String eF0002 = "eF0002";

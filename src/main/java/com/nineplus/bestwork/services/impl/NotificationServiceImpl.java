@@ -95,8 +95,7 @@ public class NotificationServiceImpl implements NotificationService {
 	 * @throws BestWorkBussinessException
 	 */
 	@Override
-	public NotificationEntity sendNotifyChgReadStatus(NotificationEntity notification)
-			throws BestWorkBussinessException {
+	public NotificationEntity chgReadStatus(NotificationEntity notification) throws BestWorkBussinessException {
 		notification.setIsRead(1);
 		return this.notifyRepository.save(notification);
 	}
@@ -114,8 +113,16 @@ public class NotificationServiceImpl implements NotificationService {
 		UserEntity user = userService.findUserByUserId(notifyReqDto.getUserId());
 		if (user != null) {
 			NotificationEntity notification = new NotificationEntity();
-			notification.setTitle(notifyReqDto.getTitle());
-			notification.setContent(notifyReqDto.getContent());
+			String title = notifyReqDto.getTitle();
+			String content = notifyReqDto.getContent();
+			if (title.length() > CommonConstants.Character.STRING_LEN) {
+				title = title.substring(0, CommonConstants.Character.STRING_LEN - 1);
+			}
+			if (content.length() > CommonConstants.Character.STRING_LEN) {
+				content = content.substring(0, CommonConstants.Character.STRING_LEN - 1);
+			}
+			notification.setTitle(title);
+			notification.setContent(content);
 			notification.setCreateDate(LocalDateTime.now());
 			notification.setIsRead(0);
 			notification.setCreateBy(getLoggedInUsername());

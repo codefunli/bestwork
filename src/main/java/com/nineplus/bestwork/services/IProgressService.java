@@ -24,4 +24,6 @@ public interface IProgressService {
 	ProgressResDto getProgressById(Long progressId) throws BestWorkBussinessException;
 
 	List<ProgressResDto> getProgressByConstruction(String constructionId) throws BestWorkBussinessException;
+
+//	void deleteProgressByCstrtIdList(long[] ids);
 }

@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.jcraft.jsch.ChannelSftp;
+import com.nineplus.bestwork.exception.BestWorkBussinessException;
 
 public interface ISftpFileService {
 	boolean isExistFolder(ChannelSftp channel, String path);
@@ -14,7 +15,7 @@ public interface ISftpFileService {
 
 	void createFolderCommonRoot(List<String> folderStrings);
 
-	byte[] getFile(String pathFileDownload);
+	byte[] getFile(String pathFileDownload) throws BestWorkBussinessException;
 
 	byte[] viewFilePdf(String pathFileView);
 
