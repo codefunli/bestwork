@@ -88,8 +88,8 @@ public class SecurityConfiguration implements EnvironmentAware {
 		// Entry points
 		// uncheck authorizeRequest
 		http.authorizeRequests().antMatchers(PUBLIC_URL).permitAll();
-		http.authorizeRequests().anyRequest().authenticated();
-//                .accessDecisionManager(accessDecisionManager());
+		http.authorizeRequests().anyRequest().authenticated()
+                .accessDecisionManager(accessDecisionManager());
 		http.apply(customDsl());
 		http.logout().logoutSuccessHandler(new LogoutSuccessHandler() {
 
