@@ -23,16 +23,14 @@ public interface ConstructionRepository extends JpaRepository<ConstructionEntity
 	@Query(value = " select * from CONSTRUCTION where construction_name = :constructionName ", nativeQuery = true)
 	ConstructionEntity findByName(String constructionName);
 
-	@Query(value = "select c.* from CONSTRUCTION c " + " join AWB_CONSTRUCTION awbc on awbc.construction_id = c.id "
-			+ "	join AIRWAY_BILL awb on awb.id = awbc.awb_id " + "	where awb.project_code in :projectIds" + " and ( "
+	@Query(value = "select c.* from CONSTRUCTION c " + " where c.project_code in :projectIds" + " and ( "
 			+ "	c.`construction_name` like :#{#pageSearchDto.keyword} "
 			+ "	or c.`description` like :#{#pageSearchDto.keyword} "
 			+ "	or c.location like :#{#pageSearchDto.keyword}) "
 			+ "	and c.`status` like if ( :#{#pageSearchDto.status} = -1, '%%', :#{#pageSearchDto.status}) "
 			+ " group by c.id ", nativeQuery = true, countQuery = "select c.* from CONSTRUCTION c "
-					+ " join AWB_CONSTRUCTION awbc on awbc.construction_id = c.id "
-					+ "	join AIRWAY_BILL awb on awb.id = awbc.awb_id " + "	where awb.project_code in :projectIds"
-					+ " and ( " + "	c.`construction_name` like :#{#pageSearchDto.keyword} "
+					+ " where c.project_code in :projectIds" + " and ( "
+					+ "	c.`construction_name` like :#{#pageSearchDto.keyword} "
 					+ "	or c.`description` like :#{#pageSearchDto.keyword} "
 					+ "	or c.location like :#{#pageSearchDto.keyword}) "
 					+ "	and c.`status` like if ( :#{#pageSearchDto.status} = -1, '%%', :#{#pageSearchDto.status}) "
@@ -43,7 +41,7 @@ public interface ConstructionRepository extends JpaRepository<ConstructionEntity
 	List<ConstructionEntity> findByIds(long[] ids);
 
 	@Query(value = " select c.* from CONSTRUCTION c join PROGRESS_TRACKING pt on pt.construction_id = c.id "
-			+ " where pt.id = :progressId " , nativeQuery = true)
+			+ " where pt.id = :progressId ", nativeQuery = true)
 	ConstructionEntity findByProgressId(@Param("progressId") Long progressId);
 
 }

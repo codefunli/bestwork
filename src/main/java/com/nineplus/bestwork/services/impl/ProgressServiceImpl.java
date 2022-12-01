@@ -104,10 +104,8 @@ public class ProgressServiceImpl implements IProgressService {
 			progress.setStatus(progressReqDto.getStatus());
 			progress.setReport(progressReqDto.getReport());
 			progress.setNote(progressReqDto.getNote());
-			String startDt = dateUtils.convertToUTC(progressReqDto.getStartDate());
-			String endDt = dateUtils.convertToUTC(progressReqDto.getEndDate());
-			progress.setStartDate(startDt);
-			progress.setEndDate(endDt);
+			progress.setStartDate(progressReqDto.getStartDate());
+			progress.setEndDate(progressReqDto.getEndDate());
 			progress.setCreateDate(LocalDateTime.now());
 			if (!isEdit) {
 				long constructionId = Long.valueOf(progressReqDto.getConstructionId());

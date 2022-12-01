@@ -96,6 +96,9 @@ public class Enums {
 		public String getValue() {
 			return this.value;
 		}
+		public int getStatus() {
+			return this.status;
+		}
 
 		public int getStatusAsInt(String value) {
 			return status;

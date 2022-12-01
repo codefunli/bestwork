@@ -40,6 +40,7 @@ import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.model.UserAuthDetected;
 import com.nineplus.bestwork.repository.AssignTaskRepository;
 import com.nineplus.bestwork.repository.ConstructionRepository;
+import com.nineplus.bestwork.repository.ProgressRepository;
 import com.nineplus.bestwork.services.IAirWayBillService;
 import com.nineplus.bestwork.services.IConstructionService;
 import com.nineplus.bestwork.services.IProjectService;
@@ -98,6 +99,9 @@ public class ConstructionServiceImpl implements IConstructionService {
 
 	@Autowired
 	NotificationService notifyService;
+
+	@Autowired
+	ProgressRepository progressRepo;
 
 	/**
 	 * Function: get page of constructions with condition
@@ -410,7 +414,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 			for (AirWayBill airWayBill : cstrt.getAirWayBills()) {
 				AirWayBillResDto dto = new AirWayBillResDto();
 				dto = modelMapper.map(airWayBill, AirWayBillResDto.class);
-				dto.setStatus(AirWayBillStatus.convertIntToStatus(airWayBill.getStatus()));
+				dto.setStatus(airWayBill.getStatus());
 				awbCodes.add(dto);
 			}
 		}
@@ -573,14 +577,14 @@ public class ConstructionServiceImpl implements IConstructionService {
 		}
 		String title = "";
 		String content = "";
-		// Set the title and content for the notify when construction is created 
+		// Set the title and content for the notify when construction is created
 		if (isCrtCstrt) {
 			title = messageUtils.getMessage(CommonConstants.MessageCode.TNU0007,
 					new Object[] { curPrj.getProjectName() });
 			content = messageUtils.getMessage(CommonConstants.MessageCode.CNU0007,
 					new Object[] { curUsername, construction.getLocation() });
 		}
-		// Set the title and content for the notify when construction is done/finished 
+		// Set the title and content for the notify when construction is done/finished
 		else if (isCstrtDone) {
 			title = messageUtils.getMessage(CommonConstants.MessageCode.TNU0008,
 					new Object[] { curPrj.getProjectName() });
@@ -626,6 +630,9 @@ public class ConstructionServiceImpl implements IConstructionService {
 		if (cstrtList.contains(null)) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.ECS0006, null);
 		}
+		// Delete all progresses of the constructions that will be deleted
+		this.progressRepo.deleteByCstrtIdList(ids);
+
 		this.cstrtRepo.deleteAll(cstrtList);
 	}
 

@@ -165,13 +165,13 @@ public class SftpFileServiceImpl implements ISftpFileService {
 
 			session = sftpConnection.getFirst();
 			channel = sftpConnection.getSecond();
-			if(isExistFolder(channel, pathFileDownload)) {
-			resBytes = IOUtils.toByteArray(channel.get(pathFileDownload));
-		}
-		}catch (SftpException | IOException e) {
+			if (isExistFolder(channel, pathFileDownload)) {
+				resBytes = IOUtils.toByteArray(channel.get(pathFileDownload));
+			}
+		} catch (SftpException | IOException e) {
 			// disconnect to sftp server
 			disconnect(session, channel);
-			throw new BestWorkBussinessException(e.getMessage(),null);
+			throw new BestWorkBussinessException(e.getMessage(), null);
 		} finally {
 			disconnect(session, channel);
 		}

@@ -156,14 +156,14 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 
 		String title = "";
 		String content = "";
-		// Set the title and content for the notify when AWB is created 
+		// Set the title and content for the notify when AWB is created
 		if (isCrtAwb) {
 			title = messageUtils.getMessage(CommonConstants.MessageCode.TNU0009,
 					new Object[] { curPrj.getProjectName() });
 			content = messageUtils.getMessage(CommonConstants.MessageCode.CNU0009,
 					new Object[] { curUsername, airWayBill.getCode() });
 		}
-		// Set the title and content for the notify when AWB is customs cleared 
+		// Set the title and content for the notify when AWB is customs cleared
 		else if (isAwbCleared) {
 			title = messageUtils.getMessage(CommonConstants.MessageCode.TNU0010,
 					new Object[] { curPrj.getProjectName() });
@@ -205,7 +205,7 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 		for (AirWayBill airWayBill : listAwb) {
 			AirWayBillResDto airWayResDTO = new AirWayBillResDto();
 			airWayResDTO = modelMapper.map(airWayBill, AirWayBillResDto.class);
-			airWayResDTO.setStatus(AirWayBillStatus.convertIntToStatus(airWayBill.getStatus()));
+			airWayResDTO.setStatus(airWayBill.getStatus());
 			listAwbRes.add(airWayResDTO);
 		}
 		return listAwbRes;

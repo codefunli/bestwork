@@ -22,5 +22,5 @@ public class AirWayBillStatusResDto extends BaseDto {
 	private int id;
 
 	@JsonProperty("status")
-	private String status;
+	private int status;
 }
