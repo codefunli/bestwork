@@ -1,6 +1,7 @@
 package com.nineplus.bestwork.services;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.lang3.ObjectUtils;
@@ -144,5 +145,9 @@ public class RoleService {
 			logger.error(messageUtils.getMessage(CommonConstants.MessageCode.RLF0002, null), ex);
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.RLF0002, null);
 		}
+	}
+
+	public List<RoleEntity> getAllRole() throws BestWorkBussinessException {
+		return roleRepository.findAll();
 	}
 }
