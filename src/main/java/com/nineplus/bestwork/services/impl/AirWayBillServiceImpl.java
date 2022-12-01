@@ -32,7 +32,6 @@ import com.nineplus.bestwork.services.IPackagePostService;
 import com.nineplus.bestwork.services.IProjectService;
 import com.nineplus.bestwork.services.ISftpFileService;
 import com.nineplus.bestwork.utils.CommonConstants;
-import com.nineplus.bestwork.utils.Enums.AirWayBillStatus;
 import com.nineplus.bestwork.utils.UserAuthUtils;
 
 @Service
