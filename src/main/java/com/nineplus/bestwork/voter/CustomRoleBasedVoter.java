@@ -74,7 +74,7 @@ public class CustomRoleBasedVoter implements AccessDecisionVoter<FilterInvocatio
 		if (!actionList.isEmpty()) {
 			for (SysActionEntity action : actionList) {
 				uriTemplate = new UriTemplate(action.getUrl());
-				if (!uriTemplate.match(url).isEmpty()) {
+				if (!uriTemplate.match(url).isEmpty() || url.equals(action.getUrl())) {
 					actionCheck = action;
 					break;
 				}
