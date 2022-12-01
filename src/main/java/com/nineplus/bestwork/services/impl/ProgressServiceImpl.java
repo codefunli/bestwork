@@ -263,10 +263,4 @@ public class ProgressServiceImpl implements IProgressService {
 		}
 		return progressDtoList;
 	}
-
-//	@Override
-//	public void deleteProgressByCstrtIdList(long[] cstrtIds) {
-//		this.progressRepo.deleteByCstrtIdList(cstrtIds);
-//		
-//	}
 }

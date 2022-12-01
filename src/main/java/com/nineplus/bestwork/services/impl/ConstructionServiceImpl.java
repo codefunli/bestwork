@@ -100,9 +100,6 @@ public class ConstructionServiceImpl implements IConstructionService {
 	@Autowired
 	NotificationService notifyService;
 
-//	@Autowired
-//	IProgressService progressService;
-
 	@Autowired
 	ProgressRepository progressRepo;
 
