@@ -16,9 +16,9 @@ public class RegPermissionDto extends BaseDto {
 	 */
 	private static final long serialVersionUID = -2842665162431283116L;
 
-	@JsonProperty("roleId")
+	@JsonProperty("id")
 	private Long roleId;
 
-	@JsonProperty("monitorInfo")
+	@JsonProperty("permissions")
 	List<PermissionDto> monitorInfo;
 }
