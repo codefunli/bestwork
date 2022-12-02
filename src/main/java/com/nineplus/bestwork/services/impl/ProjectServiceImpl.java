@@ -517,7 +517,7 @@ public class ProjectServiceImpl implements IProjectService {
 		try {
 			curPrjOpt = projectRepository.findById(projectId);
 
-			if (!curPrjOpt.isPresent() && chkPrjCrtByCurUser(curPrjOpt.get(), curUsername)) {
+			if (curPrjOpt.isPresent() && chkPrjCrtByCurUser(curPrjOpt.get(), curUsername)) {
 				curPrjOpt.get().setStatus(projectStatusReqDto.getToStatus());
 			}
 		} catch (Exception ex) {
