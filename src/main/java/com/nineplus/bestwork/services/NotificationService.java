@@ -7,6 +7,7 @@ import com.nineplus.bestwork.dto.NotificationReqDto;
 import com.nineplus.bestwork.dto.NotificationResDto;
 import com.nineplus.bestwork.entity.NotificationEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
+
 /**
  * 
  * @author DiepTT
@@ -14,12 +15,11 @@ import com.nineplus.bestwork.exception.BestWorkBussinessException;
  */
 public interface NotificationService {
 
-	List<NotificationResDto> getAllNotificationsByUser() throws BestWorkBussinessException;
+	List<NotificationResDto> getAllNotifyByUser() throws BestWorkBussinessException;
 
 	Optional<NotificationEntity> findById(long notifId);
 
-	NotificationEntity changeNotificationReadingStatus(NotificationEntity notification)
-			throws BestWorkBussinessException;
+	NotificationEntity chgReadStatus(NotificationEntity notification) throws BestWorkBussinessException;
 
 	void createNotification(NotificationReqDto notificationReqDto) throws BestWorkBussinessException;
 }

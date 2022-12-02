@@ -9,12 +9,13 @@ import lombok.Setter;
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = false)
-public class AirWayBillAttachReqDto extends BaseDto{
+public class AirWayBillAttachReqDto extends BaseDto {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1693385259110927641L;
+
 	@JsonProperty("postInvoice")
 	PostInvoiceReqDto postInvoiceReqDto;
 

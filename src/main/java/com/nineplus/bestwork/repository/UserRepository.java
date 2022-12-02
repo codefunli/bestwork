@@ -46,36 +46,33 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
 			+ " where uc.company_id = ?1 ", nativeQuery = true)
 	List<UserEntity> findAllUsersByCompanyId(long companyId);
 
-	@Query(value = " select tsau.* " + " from t_sys_app_user tsau "
-			+ "         join t_company_user tcu on tsau.id = tcu.user_id "
-			+ "         join t_sys_app_role tsar on tsar.id = tsau.role_id "
-			+ "         join t_company tc on tc.id = tcu.company_id "
+	@Query(value = " select tsau.* " + " from T_SYS_APP_USER tsau "
+			+ " join T_COMPANY_USER tcu on tsau.id = tcu.user_id "
+			+ " join T_SYS_APP_ROLE tsar on tsar.id = tsau.role_id " + " join T_COMPANY tc on tc.id = tcu.company_id "
 			+ " where ( tsau.email like :#{#pageCondition.keyword} or tsau.user_name like :#{#pageCondition.keyword} "
 			+ " or tsau.first_name like :#{#pageCondition.keyword} or tsau.last_name like :#{#pageCondition.keyword} or "
-			+ "       tsau.tel_no like :#{#pageCondition.keyword} ) "
-			+ "  and tsau.enable like :#{#pageCondition.status} "
-			+ "  and tsar.id like :#{#pageCondition.role} and tc.id like :companyId ", nativeQuery = true, countQuery = " select tsau.* "
-					+ " from t_sys_app_user tsau " + "         join t_company_user tcu on tsau.id = tcu.user_id "
-					+ "         join t_sys_app_role tsar on tsar.id = tsau.role_id "
-					+ "         join t_company tc on tc.id = tcu.company_id "
+			+ " tsau.tel_no like :#{#pageCondition.keyword} ) " + " and tsau.enable like :#{#pageCondition.status} "
+			+ " and tsar.id like :#{#pageCondition.role} and tc.id like :companyId ", nativeQuery = true, countQuery = " select tsau.* "
+					+ " from T_SYS_APP_USER tsau " + " join T_COMPANY_USER tcu on tsau.id = tcu.user_id "
+					+ " join T_SYS_APP_ROLE tsar on tsar.id = tsau.role_id "
+					+ " join T_COMPANY tc on tc.id = tcu.company_id "
 					+ " where ( tsau.email like :#{#pageCondition.keyword} or tsau.user_name like :#{#pageCondition.keyword} "
 					+ " or tsau.first_name like :#{#pageCondition.keyword} or tsau.last_name like :#{#pageCondition.keyword} or "
-					+ "       tsau.tel_no like :#{#pageCondition.keyword} ) "
-					+ "  and tsau.enable like :#{#pageCondition.status} "
-					+ "  and tsar.id like :#{#pageCondition.role} and tc.id like :companyId ")
+					+ " tsau.tel_no like :#{#pageCondition.keyword} ) "
+					+ " and tsau.enable like :#{#pageCondition.status} "
+					+ " and tsar.id like :#{#pageCondition.role} and tc.id like :companyId ")
 	Page<UserEntity> getAllUsers(Pageable pageable, @Param("companyId") String companyId,
 			@Param("pageCondition") PageSearchUserDto pageCondition);
 
-	@Query(value = " select u.* from t_sys_app_user u " + " join t_company_user tcu on u.id = tcu.user_id "
-			+ " join t_company tc on tc.id = tcu.company_id "
+	@Query(value = " select u.* from T_SYS_APP_USER u " + " join T_COMPANY_USER tcu on u.id = tcu.user_id "
+			+ " join T_COMPANY tc on tc.id = tcu.company_id "
 			+ " where u.id = :userId and tc.id like :companyId ", nativeQuery = true)
 	Optional<UserEntity> findUserById(@Param("userId") long userId, @Param("companyId") String companyId);
 
 	@Query(value = " select * from T_SYS_APP_USER where user_name = ?1 ", nativeQuery = true)
 	UserEntity findUserByUserName(String username);
 
-	@Query(value = " select * from T_SYS_APP_USER u"
-			+ " join ASSIGN_TASK t on t.user_id = u.id "
-			+ " where t.project_id = :prjId and t.can_edit = 1 ", nativeQuery =  true)
+	@Query(value = " select * from T_SYS_APP_USER u" + " join ASSIGN_TASK t on t.user_id = u.id "
+			+ " where t.project_id = :prjId and t.can_edit = 1 ", nativeQuery = true)
 	List<UserEntity> findUserAllwUpdPrj(String prjId);
 }

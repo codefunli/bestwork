@@ -1,12 +1,12 @@
 package com.nineplus.bestwork.services;
 
 import java.io.File;
-import java.io.InputStream;
 import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
 import com.jcraft.jsch.ChannelSftp;
+import com.nineplus.bestwork.exception.BestWorkBussinessException;
 
 public interface ISftpFileService {
 	boolean isExistFolder(ChannelSftp channel, String path);
@@ -15,7 +15,7 @@ public interface ISftpFileService {
 
 	void createFolderCommonRoot(List<String> folderStrings);
 
-	byte[] getFile(String pathFileDownload);
+	byte[] getFile(String pathFileDownload) throws BestWorkBussinessException;
 
 	byte[] viewFilePdf(String pathFileView);
 
@@ -29,6 +29,18 @@ public interface ISftpFileService {
 
 	boolean isValidFile(List<MultipartFile> file);
 
+	boolean isImageFile(List<MultipartFile> file);
+
+	String uploadConstructionDrawing(MultipartFile file, long constructionId);
+
 	File downLoadFile(String pathFileDownload);
+
+	void createZipFolder(String airWayBillCode, String[] listPathFileDownload);
+
+	List<String> downloadFileTemp(String airWayBillCode, List<String> listPathFileDownload);
+
+	String uploadProgressImage(MultipartFile file, long progressId);
+	
+	boolean removeFile(String pathFileServer);
 
 }

@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.nineplus.bestwork.dto.CustomClearanceInvoiceFileResDto;
+import com.nineplus.bestwork.dto.PostCommentReqDto;
 import com.nineplus.bestwork.dto.PostInvoiceReqDto;
 import com.nineplus.bestwork.dto.PostInvoiceResDto;
 import com.nineplus.bestwork.entity.PostInvoice;
@@ -29,4 +30,7 @@ public interface IInvoicePostService {
 	List<CustomClearanceInvoiceFileResDto> getInvoiceClearance(String code) throws BestWorkBussinessException;
 
 	String getPathFileToDownload(Long postId, Long fileId) throws BestWorkBussinessException;
+
+	PostInvoice pushComment(Long postInvoiceId, PostCommentReqDto postCommentRequestDto)
+			throws BestWorkBussinessException;
 }

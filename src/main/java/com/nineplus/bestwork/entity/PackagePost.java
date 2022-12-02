@@ -53,7 +53,7 @@ public class PackagePost {
 
 	@Column(name = "airway_bill")
 	private String airWayBill;
-	
+
 	@OneToMany(mappedBy = "packagePostId")
 	private List<FileStorageEntity> fileStorages;
 

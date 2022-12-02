@@ -41,30 +41,30 @@ public class RoleEntity implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id", unique = true, nullable = false, precision = 19)
-	private long id;
+	private Long id;
 
 	@Column(name = "name", nullable = false)
 	private String roleName;
 
 	@Column(name = "description", nullable = false)
 	private String description;
-	
-    @CreationTimestamp
-    @Column(name = "create_date", nullable = false, insertable = false, updatable = false)
-    private LocalDateTime createDate;
 
-    @UpdateTimestamp
-    @Column(name = "update_date", nullable = false)
-    private LocalDateTime updateDate;
+	@CreationTimestamp
+	@Column(name = "create_date", nullable = false, insertable = false, updatable = false)
+	private LocalDateTime createDate;
 
-    @Column(name = "delete_flag")
-    private Integer deleteFlag;
+	@UpdateTimestamp
+	@Column(name = "update_date", nullable = false)
+	private LocalDateTime updateDate;
 
-    @Column(name = "create_by")
-    private String createBy;
+	@Column(name = "delete_flag")
+	private Integer deleteFlag;
 
-    @Column(name = "update_by")
-    private String updateBy;
+	@Column(name = "create_by")
+	private String createBy;
+
+	@Column(name = "update_by")
+	private String updateBy;
 
 	@OneToMany(mappedBy = "role", cascade = CascadeType.ALL)
 	@EqualsAndHashCode.Exclude

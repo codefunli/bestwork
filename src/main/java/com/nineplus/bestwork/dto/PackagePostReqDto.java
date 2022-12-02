@@ -20,6 +20,7 @@ public class PackagePostReqDto extends BaseDto {
 	 * 
 	 */
 	private static final long serialVersionUID = -5373302457283153662L;
+	
 	@JsonProperty("files")
 	List<MultipartFile> mFiles;
 

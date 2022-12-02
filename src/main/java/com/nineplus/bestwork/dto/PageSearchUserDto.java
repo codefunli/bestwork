@@ -1,15 +1,22 @@
 package com.nineplus.bestwork.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import javax.validation.constraints.NotNull;
+
 import org.springframework.data.domain.Sort;
 
-import javax.validation.constraints.NotNull;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class PageSearchUserDto {
+public class PageSearchUserDto extends BaseDto {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3339752387422986735L;
 
 	@NotNull
 	@JsonProperty("page")

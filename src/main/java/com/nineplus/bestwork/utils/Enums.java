@@ -81,11 +81,11 @@ public class Enums {
 	}
 
 	public enum AirWayBillStatus {
-		NOT_YET_CUSTOMS_CLEARANCES(0,"Not yet customs clearance"),
-		IN_CUSTOMS_CLEARANCES_PROGRESS(1,"In Customs Clearance Progress"), DONE(2,"Done");
+		NOT_YET_CUSTOMS_CLEARANCES(0, "Not yet customs clearance"),
+		IN_CUSTOMS_CLEARANCES_PROGRESS(1, "In Customs Clearance Progress"), DONE(2, "Done");
 
 		private String value;
-		
+
 		private final int status;
 
 		private AirWayBillStatus(int status, String value) {
@@ -96,23 +96,26 @@ public class Enums {
 		public String getValue() {
 			return this.value;
 		}
+		public int getStatus() {
+			return this.status;
+		}
 
 		public int getStatusAsInt(String value) {
-	        return status;
-	    }
+			return status;
+		}
 
 		public static String convertIntToStatus(int status) {
-	        for (AirWayBillStatus status1 : AirWayBillStatus.values()) {
-	            if (status1.getStatusAsInt(status1.getValue()) == status) {
-	                return status1.getValue();
-	            }
-	        }
-	        return null;
-	    }
+			for (AirWayBillStatus status1 : AirWayBillStatus.values()) {
+				if (status1.getStatusAsInt(status1.getValue()) == status) {
+					return status1.getValue();
+				}
+			}
+			return null;
+		}
 	}
 
 	public enum FolderType {
-		INVOICE, PACKAGE, EVIDENCE_BEFORE, EVIDENCE_AFTER, DEFAULT
+		INVOICE, PACKAGE, EVIDENCE_BEFORE, EVIDENCE_AFTER, CONSTRUCTION, PROGRESS, DEFAULT
 	}
 
 	public enum Nation {

@@ -4,8 +4,6 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.nineplus.bestwork.entity.CompanyEntity;
-import com.nineplus.bestwork.entity.RoleEntity;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -13,10 +11,11 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class UserReqDto extends BaseDto {
+
 	/**
-	 * serialVersionUID
+	 * 
 	 */
-	private static final long serialVersionUID = 8012401348414743244L;
+	private static final long serialVersionUID = -1726932600859444676L;
 
 	@NotBlank(message = "Enter username.")
 	@JsonProperty("userName")
@@ -42,11 +41,8 @@ public class UserReqDto extends BaseDto {
 	private String telNo;
 
 	@JsonProperty("enabled")
-	private int enabled;
+	private boolean enabled;
 
-	/*
-	 * @JsonProperty("role") private TRole role;
-	 */
 	@JsonProperty("role")
 	private long role;
 

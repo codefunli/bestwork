@@ -6,9 +6,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.ObjectUtils;
@@ -17,10 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.nineplus.bestwork.dto.ChangeStatusFileDto;
-import com.nineplus.bestwork.dto.FileStorageReqDto;
 import com.nineplus.bestwork.entity.FileStorageEntity;
-import com.nineplus.bestwork.entity.PostEntity;
-import com.nineplus.bestwork.entity.ProgressEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.repository.StorageRepository;
 import com.nineplus.bestwork.services.IStorageService;
@@ -40,71 +34,6 @@ public class StorageServiceImpl implements IStorageService {
 	@Autowired
 	private StorageRepository storageRepository;
 
-	private final String POST_INVOICE_TYPE = "invoice";
-	private final String POST_PACKAGE_TYPE = "package";
-
-	@Override
-	@Transactional
-	public FileStorageEntity storeFilePost(String imageData, PostEntity reqPost) {
-		try {
-			FileStorageEntity image = new FileStorageEntity();
-			image.setData(imageData.getBytes());
-			image.setPost(reqPost);
-			String imageName = getImageName(reqPost);
-			image.setName(imageName);
-			String type = getImageType(imageData);
-			image.setType(type);
-			image.setCreateDate(Timestamp.valueOf(LocalDateTime.now()));
-
-			return storageRepository.save(image);
-		} catch (Exception e) {
-			e.getMessage();
-			return null;
-		}
-	}
-
-	private String getImageType(String imageData) {
-		String prefixRegex = "data:image/";
-		String suffixRegex = ";base64";
-		Pattern pattern = Pattern.compile(prefixRegex + "(.*?)" + suffixRegex);
-		Matcher matcher = pattern.matcher(imageData);
-		if (matcher.find()) {
-			return matcher.group(1);
-		}
-		return null;
-	}
-
-	private String getImageName(PostEntity reqPost) {
-		String projectName = reqPost.getProject().getProjectName();
-		String description = reqPost.getDescription();
-		String imageName = projectName + ": " + description;
-		if (imageName.length() <= 40) {
-			return imageName;
-		} else {
-			return imageName.substring(0, 30) + "...";
-		}
-
-	}
-
-	@Override
-	@Transactional
-	public FileStorageEntity storeFileProgress(FileStorageReqDto file, ProgressEntity progress) {
-		try {
-			FileStorageEntity image = new FileStorageEntity();
-			image.setData(file.getData().getBytes());
-			image.setProgress(progress);
-			String generatedFileName = UUID.randomUUID().toString().replace("-", "");
-			image.setName(generatedFileName);
-			image.setType(getImageType(file.getData()));
-			image.setCreateDate(Timestamp.valueOf(LocalDateTime.now()));
-
-			return storageRepository.save(image);
-		} catch (Exception e) {
-			e.getMessage();
-			return null;
-		}
-	}
-
 	public List<FileStorageEntity> findFilesByPostId(String postId) {
 		return this.storageRepository.findAllByPostId(postId);
 	}
@@ -121,21 +50,27 @@ public class StorageServiceImpl implements IStorageService {
 
 	@Override
 	@Transactional
-	public void storeFile(Long Id, FolderType type, String pathOnServer) {
+	public void storeFile(Long id, FolderType type, String pathOnServer) {
 		try {
 			FileStorageEntity file = new FileStorageEntity();
 			switch (type) {
 			case INVOICE:
-				file.setPostInvoiceId(Id);
+				file.setPostInvoiceId(id);
 				break;
 			case PACKAGE:
-				file.setPackagePostId(Id);
+				file.setPackagePostId(id);
 				break;
 			case EVIDENCE_BEFORE:
-				// file.setPackagePostId(Id);
+				file.setEvidenceBeforePostId(id);
 				break;
 			case EVIDENCE_AFTER:
-				// file.setPackagePostId(Id);
+				file.setEvidenceAfterPostId(id);
+				break;
+			case CONSTRUCTION:
+				file.setConstructionId(id);
+				break;
+			case PROGRESS:
+				file.setProgressId(id);
 				break;
 			default:
 				break;
@@ -151,7 +86,11 @@ public class StorageServiceImpl implements IStorageService {
 	}
 
 	private String getFileNameFromPath(String path) {
-		return FilenameUtils.getName(path);
+		String name = FilenameUtils.getName(path);
+		if (name.length() >= CommonConstants.Character.STRING_LEN) {
+			name = name.substring(0, CommonConstants.Character.STRING_LEN - 1);
+		}
+		return name;
 	}
 
 	private String getFileTypeFromPath(String path) {
@@ -185,5 +124,27 @@ public class StorageServiceImpl implements IStorageService {
 			}
 		}
 		return null;
+	}
+
+	@Override
+	public List<String> getPathFileByCstrtId(long constructionId) {
+		List<String> pathList = this.storageRepository.findAllPathsByCstrtId(constructionId);
+		return pathList;
+	}
+
+	@Override
+	public List<String> getPathFileByProgressId(long progressId) {
+		List<String> pathList = this.storageRepository.findAllPathsByProgressId(progressId);
+		return pathList;
+	}
+
+	@Override
+	public void deleteByCstrtId(long constructionId) {
+		this.storageRepository.deleteByConstructionId(constructionId);
+	}
+
+	@Override
+	public void deleteByProgressId(long progressId) {
+		this.storageRepository.deleteByProgressId(progressId);
 	}
 }

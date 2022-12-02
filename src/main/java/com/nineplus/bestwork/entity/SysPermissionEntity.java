@@ -2,11 +2,24 @@ package com.nineplus.bestwork.entity;
 
 import java.sql.Timestamp;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.nineplus.bestwork.model.enumtype.Status;
-import lombok.*;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "SYS_PERMISSION")
@@ -14,7 +27,7 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class SysPermissionEntity {
+public class SysPermissionEntity implements Cloneable {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,10 +52,10 @@ public class SysPermissionEntity {
 	@Column(name = "created_date", nullable = false)
 	private Timestamp createdDate;
 
-	@Column(name = "updated_user", nullable = false, columnDefinition = "varchar(20)")
+	@Column(name = "updated_user", columnDefinition = "varchar(20)")
 	private String updatedUser;
 
-	@Column(name = "updated_date", nullable = false)
+	@Column(name = "updated_date")
 	private Timestamp updatedDate;
 
 	@Column(name = "status", nullable = false)
@@ -65,5 +78,16 @@ public class SysPermissionEntity {
 
 	public void setStatus(Integer status) {
 		this.status = Status.fromValue(status);
+	}
+
+	@Override
+	public SysPermissionEntity clone() {
+		try {
+			SysPermissionEntity clone = (SysPermissionEntity) super.clone();
+			// TODO: copy mutable state here, so the clone can't change the internals of the original
+			return clone;
+		} catch (CloneNotSupportedException e) {
+			throw new AssertionError();
+		}
 	}
 }

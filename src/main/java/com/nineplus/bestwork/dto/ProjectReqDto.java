@@ -1,10 +1,10 @@
 package com.nineplus.bestwork.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-
 
 /**
  * 
@@ -16,7 +16,10 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper = false)
 public class ProjectReqDto extends BaseDto {
 
-	private static final long serialVersionUID = 3716543566647577097L;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4302890498560102857L;
 
 	@JsonProperty("projectName")
 	private String projectName;

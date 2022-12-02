@@ -2,8 +2,8 @@ package com.nineplus.bestwork.utils;
 
 public class CommonConstants {
 	public class Authentication {
-		public static final String ACCESS_COOKIE = "access_cookie";
-		public static final String REFRESH_COOKIE = "refresh_cookie";
+		public static final String ACCESS_TOKEN = "access_token";
+		public static final String REFRESH_TOKEN = "refresh_token";
 		public static final String PREFIX_TOKEN = "prefix";
 		public static final String ROLES = "roles";
 		public static final String USERNAME = "username";
@@ -33,6 +33,8 @@ public class CommonConstants {
 
 		public static final String MEDIA_TYPE_PDF = "application/pdf";
 
+		public static final String MEDIA_TYPE_ZIP = "application/zip";
+
 		/** The Constant CONTENT_DISPOSITION. */
 		public static final String CONTENT_DISPOSITION = "attachment;filename=";
 	}
@@ -60,6 +62,10 @@ public class CommonConstants {
 
 		public static final String CONSTRUCTION_NAME = "Construction Name";
 		public static final String AIR_WAY_BILL = "Air Way Bill code";
+
+		public static final String EDITOR = "editor";
+		public static final String VIEWER = "viewer";
+		public static final int STRING_LEN = 250;
 	}
 
 	public class MessageCode {
@@ -150,6 +156,8 @@ public class CommonConstants {
 		public static final String EXS0005 = "EXS0005";
 		public static final String EXS0006 = "EXS0006";
 		public static final String EXS0007 = "EXS0007";
+		public static final String EXS0008 = "EXS0008";
+		public static final String EXS0009 = "EXS0009";
 		public static final String FILE0001 = "FILE0001";
 		public static final String FILE0002 = "FILE0002";
 		public static final String FILE0003 = "FILE0003";
@@ -176,6 +184,7 @@ public class CommonConstants {
 		public static final String ECU0004 = "ecu0004";
 		public static final String ECU0005 = "ecu0005";
 		public static final String ECU0006 = "ecu0006";
+		public static final String ECU0007 = "ecu0007";
 
 		public static final String SPOST0001 = "sPost0001";
 		public static final String EPOST0001 = "ePost0001";
@@ -200,9 +209,24 @@ public class CommonConstants {
 		public static final String ENU0002 = "enu0002";
 		public static final String SNU0003 = "snu0003";
 		public static final String ENU0003 = "enu0003";
+		public static final String TNU0004 = "tnu0004";
+		public static final String CNU0004 = "cnu0004";
+		public static final String CNU0005 = "cnu0005";
+		public static final String TNU0006 = "tnu0006";
+		public static final String CNU0006 = "cnu0006";
+		public static final String TNU0007 = "tnu0007";
+		public static final String CNU0007 = "cnu0007";
+		public static final String TNU0008 = "tnu0008";
+		public static final String CNU0008 = "cnu0008";
+		public static final String TNU0009 = "tnu0009";
+		public static final String CNU0009 = "cnu0009";
+		public static final String TNU0010 = "tnu0010";
+		public static final String CNU0010 = "cnu0010";
 
 		public static final String eF0001 = "eF0001";
 		public static final String eF0002 = "eF0002";
+		public static final String eF0003 = "eF0003";
+		public static final String eF0004 = "eF0004";
 		public static final String sF0001 = "sF0001";
 		public static final String sF0002 = "sF0002";
 		public static final String sF0003 = "sF0003";
@@ -220,10 +244,14 @@ public class CommonConstants {
 		public static final String eA0005 = "eA0005";
 		public static final String eA0006 = "eA0006";
 
+		// for invoice post
 		public static final String sI0001 = "sI0001";
 		public static final String sI0002 = "sI0002";
+		public static final String eI0003 = "eI0003";
+		public static final String eI0004 = "eI0004";
 		public static final String sI0003 = "sI0003";
 		public static final String eI0001 = "eI0001";
+		public static final String sI0004 = "sI0004";
 
 		public static final String SCS0001 = "scs0001";
 		public static final String ECS0001 = "ecs0001";
@@ -234,6 +262,9 @@ public class CommonConstants {
 		public static final String SCS0004 = "scs0004";
 		public static final String ECS0004 = "ecs0004";
 		public static final String SCS0005 = "scs0005";
+		public static final String ECS0005 = "ecs0005";
+		public static final String ECS0006 = "ecs0006";
+		public static final String ECS0007 = "ecs0007";
 
 		public static final String ENU0004 = "enu0004";
 		public static final String SNU0005 = "snu0005";
@@ -244,9 +275,27 @@ public class CommonConstants {
 		public static final String sP0002 = "sP0002";
 		public static final String sP0003 = "sP0003";
 		public static final String eP0001 = "eP0001";
+		public static final String eP0003 = "eP0003";
+		public static final String eP0004 = "eP0004";
 
 		public static final String EXM001 = "EXM001";
 		public static final String SCM001 = "SCM001";
+
+		// For evidence before
+		public static final String eEB0001 = "eEB0001";
+		public static final String eEB0002 = "eEB0002";
+		public static final String eEB0003 = "eEB0003";
+		public static final String sEB0001 = "sEB0001";
+		public static final String sEB0002 = "sEB0002";
+		public static final String sEB0003 = "sEB0003";
+
+		// For evidence after
+		public static final String eEA0001 = "eEA0001";
+		public static final String eEA0002 = "eEA0002";
+		public static final String eEA0003 = "eEA0003";
+		public static final String sEA0001 = "sEA0001";
+		public static final String sEA0002 = "sEA0002";
+		public static final String sEA0003 = "sEA0003";
 
 	}
 

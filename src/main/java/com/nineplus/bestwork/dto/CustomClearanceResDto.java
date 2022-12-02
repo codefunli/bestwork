@@ -1,6 +1,5 @@
 package com.nineplus.bestwork.dto;
 
-
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -14,9 +13,10 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class CustomClearanceResDto extends BaseDto {/**
-	 * 
-	 */
+public class CustomClearanceResDto extends BaseDto {
+	/**
+	* 
+	*/
 	private static final long serialVersionUID = 2836785181757379376L;
 
 	@JsonProperty("invoicesDoc")

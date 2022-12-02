@@ -81,14 +81,7 @@ public class RoleController extends BaseController {
     
     @GetMapping("/all")
 	public ResponseEntity<? extends Object> getAllRole() throws BestWorkBussinessException {
-		List<RoleResDto> roleList = new ArrayList<>();
-		for (TRole role : TRole.values()) {
-			RoleResDto roleDto = new RoleResDto();
-			roleDto.setId(role.ordinal() + 1);
-			roleDto.setRole(role.getValue());
-			roleList.add(roleDto);
-		}
-		return success(CommonConstants.MessageCode.RLS0001, roleList, null);
+		return success(CommonConstants.MessageCode.RLS0001, roleService.getAllRole(), null);
 	}
 
 }

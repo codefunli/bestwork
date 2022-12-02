@@ -1,7 +1,6 @@
 package com.nineplus.bestwork.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.nineplus.bestwork.utils.Enums.AirWayBillStatus;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -29,7 +28,7 @@ public class AirWayBillResDto extends BaseDto {
 	private String note;
 
 	@JsonProperty("status")
-	private String status;
+	private int status;
 
 	@JsonProperty("createDate")
 	private String createDate;

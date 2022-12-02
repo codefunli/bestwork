@@ -1,16 +1,23 @@
 package com.nineplus.bestwork.dto;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @Data
-@EqualsAndHashCode
-public class ConstructionReqDto {
+@EqualsAndHashCode(callSuper = false)
+public class ConstructionReqDto extends BaseDto {
 
-	@JsonProperty("name")
-	private String name;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -9031950757474875938L;
+
+	@JsonProperty("constructionName")
+	private String constructionName;
 
 	@JsonProperty("description")
 	private String description;
@@ -27,6 +34,9 @@ public class ConstructionReqDto {
 	@JsonProperty("status")
 	private String status;
 
+	@JsonProperty("projectCode")
+	private String projectCode;
+
 	@JsonProperty("awbCodes")
-	private String[] awbCodes;
+	private List<AirWayBillReqDto> awbCodes;
 }

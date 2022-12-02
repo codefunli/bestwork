@@ -1,5 +1,6 @@
 package com.nineplus.bestwork.controller;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang3.ObjectUtils;
@@ -11,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -18,12 +20,19 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.nineplus.bestwork.dto.InvoiceFileDownLoadReqDto;
+import com.nineplus.bestwork.dto.PostCommentReqDto;
 import com.nineplus.bestwork.dto.PostInvoiceReqDto;
 import com.nineplus.bestwork.dto.PostInvoiceResDto;
+import com.nineplus.bestwork.entity.PostInvoice;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.services.IInvoicePostService;
 import com.nineplus.bestwork.utils.CommonConstants;
 
+/**
+ * 
+ * @author TuanNA
+ *
+ */
 @RestController
 @RequestMapping("/api/v1/invoices")
 public class InvoicePostController extends BaseController {
@@ -100,7 +109,7 @@ public class InvoicePostController extends BaseController {
 				.contentType(MediaType.parseMediaType(CommonConstants.MediaType.MEDIA_TYPE_STREAM)).body(dataBytesFile);
 	}
 
-	@GetMapping("/view-file-pdf")
+	@PostMapping("/view-file-pdf")
 	public ResponseEntity<? extends Object> viewFilePdf(
 			@RequestBody InvoiceFileDownLoadReqDto invoiceFileDownLoadReqDto) throws BestWorkBussinessException {
 		byte[] dataBytesFile = null;
@@ -120,7 +129,20 @@ public class InvoicePostController extends BaseController {
 				// Content-Disposition
 				.header(HttpHeaders.CONTENT_DISPOSITION, CommonConstants.MediaType.CONTENT_DISPOSITION + pathFile)
 				// Content-Type
-				.contentType(MediaType.parseMediaType(CommonConstants.MediaType.MEDIA_TYPE_PDF)).body(dataBytesFile);
+				.contentType(MediaType.parseMediaType(CommonConstants.MediaType.MEDIA_TYPE_PDF))
+				.body(Arrays.toString(dataBytesFile));
+	}
+
+	@PatchMapping("/{postInvoiceId}/comment")
+	public ResponseEntity<? extends Object> addComment(@PathVariable Long postInvoiceId,
+			@RequestBody PostCommentReqDto postCommentRequestDto) throws BestWorkBussinessException {
+		PostInvoice postInvoice =  null;
+		try {
+			postInvoice = iPostInvoiceService.pushComment(postInvoiceId, postCommentRequestDto);
+		} catch (BestWorkBussinessException ex) {
+			return failed(ex.getMsgCode(), ex.getParam());
+		}
+		return success(CommonConstants.MessageCode.sI0004, postInvoice, null);
 	}
 
 }

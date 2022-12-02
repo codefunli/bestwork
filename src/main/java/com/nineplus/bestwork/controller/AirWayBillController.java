@@ -1,15 +1,24 @@
 package com.nineplus.bestwork.controller;
 
-import java.io.InputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,7 +26,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import com.nineplus.bestwork.dto.AirWayBillReqDto;
 import com.nineplus.bestwork.dto.AirWayBillResDto;
@@ -41,6 +49,8 @@ public class AirWayBillController extends BaseController {
 	@Autowired
 	IStorageService iStorageService;
 
+	private final String ZIP_EXTENSION = ".zip";
+
 	@PostMapping("/create")
 	public ResponseEntity<? extends Object> create(@RequestBody AirWayBillReqDto airWayBillReqDto)
 			throws BestWorkBussinessException {
@@ -58,7 +68,7 @@ public class AirWayBillController extends BaseController {
 		for (AirWayBillStatus status : AirWayBillStatus.values()) {
 			AirWayBillStatusResDto dto = new AirWayBillStatusResDto();
 			dto.setId(status.ordinal());
-			dto.setStatus(status.getValue());
+			dto.setStatus(status.getStatus());
 			airWayBillStatus.add(dto);
 		}
 		return success(CommonConstants.MessageCode.sA0002, airWayBillStatus, null);
@@ -123,13 +133,12 @@ public class AirWayBillController extends BaseController {
 		return success(CommonConstants.MessageCode.sA0005, customClearanceResDto, null);
 	}
 
-	
 	@PostMapping("{code}/change-status")
-	public ResponseEntity<? extends Object> confirmDone(@PathVariable String code, @RequestBody AirWayBillStatusReqDto statusDto )
-			throws BestWorkBussinessException {
+	public ResponseEntity<? extends Object> confirmDone(@PathVariable String code,
+			@RequestBody AirWayBillStatusReqDto statusDto) throws BestWorkBussinessException {
 		try {
-			if(ObjectUtils.isNotEmpty(statusDto.getDestinationStatus())) {
-			iAirWayBillService.confirmDone(code, statusDto.getDestinationStatus());
+			if (ObjectUtils.isNotEmpty(statusDto.getDestinationStatus())) {
+				iAirWayBillService.changeStatus(code, statusDto.getDestinationStatus());
 			}
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
@@ -137,15 +146,50 @@ public class AirWayBillController extends BaseController {
 		return success(CommonConstants.MessageCode.sA0006, null, null);
 	}
 
-	@GetMapping("{airWayBillCode}/download-clearance-doc")
-	public ResponseEntity<StreamingResponseBody> downloadZip(HttpServletResponse response,
+	@GetMapping(value = "{airWayBillCode}/download-clearance-doc")
+	public ResponseEntity<? extends Object> downloadZip(HttpServletResponse response,
 			@PathVariable String airWayBillCode) throws BestWorkBussinessException {
-		StreamingResponseBody streamResponseBody = iAirWayBillService.downloadZip(airWayBillCode, response);
-		response.setContentType("application/zip");
-		response.setHeader("Content-Disposition", "attachment; filename=example.zip");
-		response.addHeader("Pragma", "no-cache");
-		response.addHeader("Expires", "0");
+		List<String> listFile = iAirWayBillService.createZipFolder(airWayBillCode);
+		if (ObjectUtils.isEmpty(listFile)) {
+			return success(CommonConstants.MessageCode.E1X0003, null, null);
+		} else {
+			String pathFolder = "";
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			ZipOutputStream zipOutputStream = new ZipOutputStream(bos);
+			ArrayList<File> files = new ArrayList<>();
+			for (String path : listFile) {
+				files.add(new File(path));
+			}
+			// package files
+			for (File file : files) {
+				pathFolder = FilenameUtils.getFullPathNoEndSeparator(file.getAbsolutePath());
+				try {
+					zipOutputStream.putNextEntry(new ZipEntry(file.getName()));
+					FileInputStream fileInputStream = new FileInputStream(file);
 
-		return ResponseEntity.ok(streamResponseBody);
+					IOUtils.copy(fileInputStream, zipOutputStream);
+
+					fileInputStream.close();
+					zipOutputStream.closeEntry();
+
+					// delete temporary file
+					file.delete();
+				} catch (Exception e) {
+					throw new BestWorkBussinessException(airWayBillCode, null);
+				}
+			}
+			try {
+				// Delete folder temporary
+				FileUtils.deleteDirectory(new File(pathFolder));
+				zipOutputStream.close();
+			} catch (IOException e) {
+				throw new BestWorkBussinessException(airWayBillCode, null);
+			}
+
+			return ResponseEntity.ok()
+					.header(HttpHeaders.CONTENT_DISPOSITION,
+							CommonConstants.MediaType.CONTENT_DISPOSITION + airWayBillCode + ZIP_EXTENSION)
+					.body(Arrays.toString(new ByteArrayInputStream(bos.toByteArray()).readAllBytes()));
+		}
 	}
 }

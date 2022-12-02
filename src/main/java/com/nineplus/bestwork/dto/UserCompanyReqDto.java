@@ -10,12 +10,12 @@ import lombok.Setter;
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = false)
-public class UserCompanyReqDto extends BaseDto {/**
-	 * 
-	 */
+public class UserCompanyReqDto extends BaseDto {
+	/**
+	* 
+	*/
 	private static final long serialVersionUID = 1524915304620701462L;
-	
-	
+
 	@JsonProperty("userName")
 	private String userName;
 
@@ -23,7 +23,7 @@ public class UserCompanyReqDto extends BaseDto {/**
 	private String password;
 
 	@JsonProperty("enabled")
-	private int enabled;
+	private boolean enabled;
 
 	@JsonProperty("firstName")
 	private String firstName;

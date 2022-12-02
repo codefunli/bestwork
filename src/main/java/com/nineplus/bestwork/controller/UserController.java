@@ -3,7 +3,6 @@ package com.nineplus.bestwork.controller;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -118,10 +117,10 @@ public class UserController extends BaseController {
 		userResDto.setLastName(user.getLastName());
 		userResDto.setEmail(user.getEmail());
 		userResDto.setTelNo(user.getTelNo());
-		userResDto.setIsEnable(user.getIsEnable());
+		userResDto.setEnable(user.isEnable());
 		int countLoginfailed = user.getLoginFailedNum();
 		if (countLoginfailed > MAX_LOGIN_FAILED_NUM) {
-			userResDto.setIsEnable(0);
+			userResDto.setEnable(false);
 		}
 		userResDto.setRole(user.getRole());
 		for (CompanyEntity tCompany : user.getCompanys()) {
@@ -141,9 +140,8 @@ public class UserController extends BaseController {
 		if (bindingResult.hasErrors()) {
 			return failedWithError(CommonConstants.MessageCode.ECU0001, bindingResult.getFieldErrors().toArray(), null);
 		}
-		UserEntity userEdit = new UserEntity();
 		try {
-			userEdit = userService.editUser(userReqDto, id);
+			userService.editUser(userReqDto, id);
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}
@@ -180,10 +178,10 @@ public class UserController extends BaseController {
 
 	@GetMapping("/detect-infor")
 	public ResponseEntity<? extends Object> detectUserLogin(HttpServletRequest request, HttpServletResponse response) {
-		Cookie accessCookie = tokenUtils.getCookieFromRequest(request, CommonConstants.Authentication.ACCESS_COOKIE);
-		if (accessCookie != null) {
+		String accessToken = tokenUtils.getTokenFromRequest(request, CommonConstants.Authentication.ACCESS_TOKEN);
+		if (accessToken != null) {
 			try {
-				String username = tokenUtils.getUserNameFromCookie(accessCookie);
+				String username = tokenUtils.getUserNameFromToken(accessToken);
 				UserDetectResDto userDetect = userService.detectUser(username);
 				return userDetect != null ? success(CommonConstants.MessageCode.sUS0001, userDetect, null)
 						: failed(CommonConstants.MessageCode.E1X0003, null);

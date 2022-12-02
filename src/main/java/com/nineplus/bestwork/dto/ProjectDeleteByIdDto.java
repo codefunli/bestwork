@@ -14,6 +14,5 @@ public class ProjectDeleteByIdDto extends BaseDto {
 	 */
 	private static final long serialVersionUID = 214503171219975448L;
 
-//	private String id;
 	private List<String> id;
 }

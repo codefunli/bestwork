@@ -30,11 +30,12 @@ public interface StorageRepository extends JpaRepository<FileStorageEntity, Long
 
 	void deleteByIdIn(List<Long> ids);
 
+	@Modifying
 	@Query(value = " delete from FILE_STORAGE where post_id = :postId", nativeQuery = true)
 	void deleteByPostpro(String postId);
 
 	@Query(value = "select * from FILE_STORAGE where progress_id in ?1", nativeQuery = true)
-	List<FileStorageEntity> findAllByProgressListId(List<Long> ids);
+	List<FileStorageEntity> findAllByPrgListId(List<Long> ids);
 
 	@Transactional
 	@Modifying
@@ -48,4 +49,16 @@ public interface StorageRepository extends JpaRepository<FileStorageEntity, Long
 
 	@Query(value = "select id,name, path_file_server from FILE_STORAGE where id in ?1", nativeQuery = true)
 	List<FileStorageEntity> findAllByListId(List<Long> ids);
+
+	@Modifying
+	void deleteByProgressId(long progressId);
+
+	@Modifying
+	void deleteByConstructionId(long constructionId);
+
+	@Query(value = " select path_file_server from FILE_STORAGE where construction_id = :constructionId", nativeQuery = true)
+	List<String> findAllPathsByCstrtId(long constructionId);
+
+	@Query(value = " select path_file_server from FILE_STORAGE where construction_id = :progressId", nativeQuery = true)
+	List<String> findAllPathsByProgressId(long progressId);
 }

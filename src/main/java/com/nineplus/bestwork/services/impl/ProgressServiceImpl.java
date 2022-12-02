@@ -2,20 +2,20 @@ package com.nineplus.bestwork.services.impl;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
-import com.nineplus.bestwork.dto.FileStorageReqDto;
 import com.nineplus.bestwork.dto.FileStorageResDto;
-import com.nineplus.bestwork.dto.ProgressAndProjectResDto;
 import com.nineplus.bestwork.dto.ProgressReqDto;
 import com.nineplus.bestwork.dto.ProgressResDto;
-import com.nineplus.bestwork.dto.ProjectResDto;
+import com.nineplus.bestwork.entity.ConstructionEntity;
 import com.nineplus.bestwork.entity.FileStorageEntity;
 import com.nineplus.bestwork.entity.ProgressEntity;
 import com.nineplus.bestwork.entity.ProjectEntity;
@@ -24,24 +24,32 @@ import com.nineplus.bestwork.model.UserAuthDetected;
 import com.nineplus.bestwork.repository.ProgressRepository;
 import com.nineplus.bestwork.repository.ProjectRepository;
 import com.nineplus.bestwork.repository.StorageRepository;
+import com.nineplus.bestwork.services.IConstructionService;
 import com.nineplus.bestwork.services.IProgressService;
 import com.nineplus.bestwork.services.IProjectService;
+import com.nineplus.bestwork.services.ISftpFileService;
 import com.nineplus.bestwork.services.IStorageService;
 import com.nineplus.bestwork.utils.CommonConstants;
 import com.nineplus.bestwork.utils.DateUtils;
+import com.nineplus.bestwork.utils.Enums.FolderType;
 import com.nineplus.bestwork.utils.UserAuthUtils;
 
+/**
+ * 
+ * @author TuanNA
+ *
+ */
 @Service
 @Transactional
 public class ProgressServiceImpl implements IProgressService {
 	@Autowired
-	private ProgressRepository progressRepository;
+	private ProgressRepository progressRepo;
 
 	@Autowired
-	private ProjectRepository projectRepository;
+	private ProjectRepository projectRepo;
 
 	@Autowired
-	private StorageRepository storageRepository;
+	private StorageRepository storageRepo;
 
 	@Autowired
 	DateUtils dateUtils;
@@ -56,23 +64,37 @@ public class ProgressServiceImpl implements IProgressService {
 	private IStorageService storageService;
 
 	@Autowired
+	private IConstructionService cstrtService;
+
+	@Autowired
 	private IProjectService projectService;
 
-	@Override
-	public void registProgress(ProgressReqDto progressReqDto) throws BestWorkBussinessException {
-		this.saveProgress(progressReqDto, null, false);
-
-	}
+	@Autowired
+	private ISftpFileService sftpService;
 
 	@Override
-	public void updateProgress(ProgressReqDto progressReqDto, Long progressId) throws BestWorkBussinessException {
-		ProgressEntity currentProgress = progressRepository.findById(progressId).orElse(null);
-		this.saveProgress(progressReqDto, currentProgress, true);
-	}
-
-	public void saveProgress(ProgressReqDto progressReqDto, ProgressEntity progress, boolean isEdit)
+	@Transactional
+	public void registProgress(ProgressReqDto progressReqDto, List<MultipartFile> files)
 			throws BestWorkBussinessException {
+		this.saveProgress(progressReqDto, files, null, false);
+	}
+
+	@Override
+	@Transactional
+	public void updateProgress(ProgressReqDto progressReqDto, List<MultipartFile> files, Long progressId)
+			throws BestWorkBussinessException {
+		ProgressEntity currentProgress = progressRepo.findById(progressId).orElse(null);
+		this.saveProgress(progressReqDto, files, currentProgress, true);
+
+	}
+
+	public void saveProgress(ProgressReqDto progressReqDto, List<MultipartFile> files, ProgressEntity progress,
+			boolean isEdit) throws BestWorkBussinessException {
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
+		this.chkCurUserCanCrtUpdPrg(userAuthRoleReq, progressReqDto.getConstructionId(), isEdit);
+		if (isEdit && !progress.getCreateBy().equals(userAuthRoleReq.getUsername())) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
+		}
 		String createUser = userAuthRoleReq.getUsername();
 		try {
 			if (progress == null) {
@@ -82,20 +104,18 @@ public class ProgressServiceImpl implements IProgressService {
 			progress.setStatus(progressReqDto.getStatus());
 			progress.setReport(progressReqDto.getReport());
 			progress.setNote(progressReqDto.getNote());
-			String startDt = dateUtils.convertToUTC(progressReqDto.getStartDate());
-			String endDt = dateUtils.convertToUTC(progressReqDto.getEndDate());
-			progress.setStartDate(startDt);
-			progress.setEndDate(endDt);
+			progress.setStartDate(progressReqDto.getStartDate());
+			progress.setEndDate(progressReqDto.getEndDate());
 			progress.setCreateDate(LocalDateTime.now());
 			if (!isEdit) {
-				progress.setProject(projectService.getProjectById(progressReqDto.getProjectId()).get());
+				long constructionId = Long.valueOf(progressReqDto.getConstructionId());
+				progress.setConstruction(cstrtService.findCstrtById(constructionId));
 				progress.setCreateBy(createUser);
 			} else {
 				progress.setUpdateBy(createUser);
 			}
-			progressRepository.save(progress);
-
-			saveImage(progressReqDto.getFileStorages(), progress);
+			progressRepo.save(progress);
+			saveImage(files, progress);
 
 		} catch (Exception ex) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0001, null);
@@ -103,114 +123,56 @@ public class ProgressServiceImpl implements IProgressService {
 
 	}
 
-	public void saveImage(List<FileStorageReqDto> fileStorages, ProgressEntity progress) {
-		List<Long> listIdCurrent = storageRepository.getListIdFileByProgress(progress.getId());
-		List<Long> listIdUpdate = new ArrayList<>();
-		for (FileStorageReqDto file : fileStorages) {
-			listIdUpdate.add(file.getId());
+	private void chkCurUserCanCrtUpdPrg(UserAuthDetected userAuthRoleReq, long cstrtId, boolean isEdit)
+			throws BestWorkBussinessException {
+		ConstructionEntity curCstrt = this.cstrtService.findCstrtById(cstrtId);
+		if (curCstrt == null) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.ECS0007, null);
 		}
-		// Get list Id image that will be removed
-		List<Long> listRemoveId = listIdCurrent.stream().filter(e -> !listIdUpdate.contains(e))
-				.collect(Collectors.toList());
-
-		// Get list Id image that will be kept
-		List<Long> listKeepId = listIdCurrent.stream().filter(e -> listIdUpdate.contains(e))
-				.collect(Collectors.toList());
-
-		// Delete image have in DB but not have in request
-		if (listRemoveId != null && listRemoveId.size() > 0) {
-			storageRepository.deleteByIdIn(listRemoveId);
+		ProjectEntity curPrj = this.projectRepo.findByConstructionId(cstrtId);
+		if (curPrj == null) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.S1X0002, null);
 		}
-
-		fileStorages.removeIf(x -> listKeepId.contains(x.getId()));
-
-		for (FileStorageReqDto file : fileStorages) {
-			storageService.storeFileProgress(file, progress);
+		if (!this.cstrtService.chkCurUserCanCreateCstrt(userAuthRoleReq, curPrj.getId())) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
 		}
-
 	}
 
-	@Override
-	public List<ProgressResDto> getProgressByProjectId(String projectId) throws BestWorkBussinessException {
-		List<ProgressEntity> progress = progressRepository.findProgressByProjectId(projectId);
-		List<ProgressResDto> progressDto = new ArrayList<>();
-		for (ProgressEntity pro : progress) {
-			ProgressResDto proDto = new ProgressResDto();
-			proDto.setTitle(pro.getTitle());
-			proDto.setStatus(pro.getStatus());
-			proDto.setReport(pro.getReport());
-			proDto.setNote(pro.getNote());
-			proDto.setCreateBy(pro.getCreateBy());
-			proDto.setStartDate(pro.getStartDate());
-			proDto.setEndDate(pro.getEndDate());
-			if (pro.getCreateDate() != null) {
-				proDto.setCreateDate(pro.getCreateDate().toString());
-			}
-			List<FileStorageResDto> fileStorageResponseDtos = new ArrayList<>();
-			for (FileStorageEntity file : pro.getFileStorages()) {
-				FileStorageResDto fileStorageResponseDto = new FileStorageResDto();
-				fileStorageResponseDto.setId(file.getId());
-				fileStorageResponseDto.setName(file.getName());
-				fileStorageResponseDto.setCreateDate(file.getCreateDate().toString());
-				fileStorageResponseDto.setType(file.getType());
-				fileStorageResponseDto.setData(new String(file.getData()));
-				fileStorageResponseDtos.add(fileStorageResponseDto);
-			}
-			proDto.setFileStorages(fileStorageResponseDtos);
-			progressDto.add(proDto);
+	public void saveImage(List<MultipartFile> files, ProgressEntity progress) {
+		List<String> listPath = this.storageService.getPathFileByProgressId(progress.getId());
+		for (String path : listPath) {
+			this.sftpService.removeFile(path);
 		}
-		return progressDto;
+
+		this.storageService.deleteByProgressId(progress.getId());
+
+		for (MultipartFile file : files) {
+			String pathFile = this.sftpService.uploadProgressImage(file, progress.getId());
+			storageService.storeFile(progress.getId(), FolderType.PROGRESS, pathFile);
+		}
 	}
 
-	@Override
-	public ProgressAndProjectResDto getProjectAndProgress(String projectId) throws BestWorkBussinessException {
-		ProgressAndProjectResDto dto = new ProgressAndProjectResDto();
-		List<ProgressResDto> lst = new ArrayList<>();
-		ProjectEntity project = projectRepository.findbyProjectId(projectId);
-		List<ProgressEntity> progress = progressRepository.findProgressByProjectId(projectId);
-
-		if (project != null && progress != null) {
-			ProjectResDto projectDto = modelMapper.map(project, ProjectResDto.class);
-			for (ProgressEntity prog : progress) {
-				ProgressResDto progressDto = new ProgressResDto();
-				List<FileStorageResDto> lstFileDto = new ArrayList<>();
-				progressDto.setId(prog.getId());
-				progressDto.setTitle(prog.getTitle());
-				progressDto.setStatus(prog.getStatus());
-				progressDto.setNote(prog.getNote());
-				progressDto.setReport(prog.getReport());
-				progressDto.setCreateBy(prog.getCreateBy());
-				progressDto.setStartDate(prog.getStartDate());
-				progressDto.setEndDate(prog.getEndDate());
-				progressDto.setCreateDate(LocalDateTime.now().toString());
-				List<FileStorageEntity> fileStorages = prog.getFileStorages();
-				for (FileStorageEntity file : fileStorages) {
-					FileStorageResDto fileDto = new FileStorageResDto();
-					fileDto.setProgressId(file.getProgress().getId());
-					fileDto.setId(file.getId());
-					fileDto.setName(file.getName());
-					fileDto.setType(file.getType());
-					fileDto.setData(new String(file.getData()));
-					fileDto.setCreateDate(file.getCreateDate().toString());
-					lstFileDto.add(fileDto);
-				}
-				progressDto.setFileStorages(lstFileDto);
-				lst.add(progressDto);
-			}
-			dto.setProject(projectDto);
-			dto.setProgress(lst);
+	private void chkCurUserCanViewPrg(UserAuthDetected userAuthDetected, long cstrtId)
+			throws BestWorkBussinessException {
+		List<ProjectEntity> prjLstCurUserCanView = this.projectService.getPrjLstByAnyUsername(userAuthDetected);
+		ProjectEntity curPrj = this.projectService.getPrjByCstrtId(cstrtId);
+		if (!prjLstCurUserCanView.contains(curPrj)) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
 		}
-		return dto;
 	}
 
 	@Override
 	@Transactional(rollbackFor = { Exception.class })
 	public void deleteProgressList(List<Long> ids) throws BestWorkBussinessException {
+		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
 		try {
-			progressRepository.deleteProgressWithId(ids);
-			List<FileStorageEntity> allFiles = storageRepository.findAllByProgressListId(ids);
+			for (Long cstrtId : ids) {
+				this.chkCurUserCanCrtUpdPrg(userAuthRoleReq, cstrtId, true);
+			}
+			progressRepo.delProgressWithId(ids);
+			List<FileStorageEntity> allFiles = storageRepo.findAllByPrgListId(ids);
 			if (allFiles != null) {
-				storageRepository.deleteAllInBatch(allFiles);
+				storageRepo.deleteAllInBatch(allFiles);
 			}
 		} catch (Exception ex) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.ePu0001, null);
@@ -219,7 +181,12 @@ public class ProgressServiceImpl implements IProgressService {
 
 	@Override
 	public ProgressResDto getProgressById(Long progressId) throws BestWorkBussinessException {
-		ProgressEntity progress = progressRepository.findById(Long.valueOf(progressId)).orElse(null);
+
+		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
+		ConstructionEntity curCstrt = this.cstrtService.findCstrtByPrgId(progressId);
+		this.chkCurUserCanViewPrg(userAuthRoleReq, curCstrt.getId());
+
+		ProgressEntity progress = progressRepo.findById(Long.valueOf(progressId)).orElse(null);
 		ProgressResDto progressDto = null;
 		if (progress != null) {
 			progressDto = new ProgressResDto();
@@ -237,7 +204,7 @@ public class ProgressServiceImpl implements IProgressService {
 			for (FileStorageEntity file : fileStorage) {
 				// Dto for response file storage
 				FileStorageResDto fileDto = new FileStorageResDto();
-				fileDto.setProgressId(file.getProgress().getId());
+				fileDto.setProgressId(file.getProgressId());
 				fileDto.setId(file.getId());
 				fileDto.setName(file.getName());
 				fileDto.setType(file.getType());
@@ -251,11 +218,49 @@ public class ProgressServiceImpl implements IProgressService {
 	}
 
 	@Override
-	public List<Long> getAllProgressByProject(List<String> listProjectId) {
-		List<Long> listProgressId = null;
-		if (listProjectId != null) {
-			listProgressId = progressRepository.getAllProgressByProject(listProjectId);
+	public List<ProgressResDto> getProgressByConstruction(String constructionId) throws BestWorkBussinessException {
+		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
+		this.chkCurUserCanViewPrg(userAuthRoleReq, Long.valueOf(constructionId));
+		ConstructionEntity curCstrt = this.cstrtService.findCstrtById(Long.valueOf(constructionId));
+		if (ObjectUtils.isEmpty(curCstrt)) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.ECS0007, null);
 		}
-		return listProgressId;
+		List<ProgressResDto> progressDtoList = new ArrayList<ProgressResDto>();
+		List<ProgressEntity> progressLst = progressRepo.findProgressByCstrtId(Long.valueOf(constructionId));
+		if (ObjectUtils.isNotEmpty(progressLst)) {
+			for (ProgressEntity prog : progressLst) {
+				ProgressResDto progressDto = new ProgressResDto();
+				progressDto.setId(prog.getId());
+				progressDto.setTitle(prog.getTitle());
+				progressDto.setStatus(prog.getStatus());
+				progressDto.setNote(prog.getNote());
+				progressDto.setReport(prog.getReport());
+				progressDto.setCreateBy(prog.getCreateBy());
+				progressDto.setStartDate(prog.getStartDate());
+				progressDto.setEndDate(prog.getEndDate());
+				progressDto.setCreateDate(LocalDateTime.now().toString());
+				List<FileStorageResDto> lstFileDto = new ArrayList<>();
+				List<FileStorageEntity> fileStorages = prog.getFileStorages();
+				for (FileStorageEntity file : fileStorages) {
+					FileStorageResDto fileDto = new FileStorageResDto();
+					fileDto.setProgressId(file.getProgressId());
+					fileDto.setId(file.getId());
+					fileDto.setName(file.getName());
+					fileDto.setType(file.getType());
+					fileDto.setData(file.getData() != null ? new String(file.getData()) : null);
+					fileDto.setCreateDate(file.getCreateDate().toString());
+					// return content file if file is image
+					if (Arrays.asList(CommonConstants.Image.IMAGE_EXTENSION).contains(file.getType())) {
+						String pathServer = file.getPathFileServer();
+						byte[] imageContent = sftpService.getFile(pathServer);
+						fileDto.setContent(imageContent);
+					}
+					lstFileDto.add(fileDto);
+				}
+				progressDto.setFileStorages(lstFileDto);
+				progressDtoList.add(progressDto);
+			}
+		}
+		return progressDtoList;
 	}
 }

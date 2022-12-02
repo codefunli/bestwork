@@ -8,6 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.nineplus.bestwork.dto.CustomClearancePackageFileResDto;
 import com.nineplus.bestwork.dto.PackagePostReqDto;
 import com.nineplus.bestwork.dto.PackagePostResDto;
+import com.nineplus.bestwork.dto.PostCommentReqDto;
 import com.nineplus.bestwork.entity.PackagePost;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 
@@ -21,7 +22,7 @@ public interface IPackagePostService {
 			throws BestWorkBussinessException;
 
 	public PackagePostResDto getDetailPackage(Long packagePostId) throws BestWorkBussinessException;
-	
+
 	List<PackagePostResDto> getAllPackagePost(String airWayBillCode) throws BestWorkBussinessException;
 
 	byte[] getFile(Long packagePostId, Long fileId) throws BestWorkBussinessException;
@@ -29,5 +30,8 @@ public interface IPackagePostService {
 	List<CustomClearancePackageFileResDto> getPackageClearance(String code) throws BestWorkBussinessException;
 
 	String getPathFileToDownload(long packagePostId, long fileId);
+
+	PackagePost pushComment(Long postPackageId, PostCommentReqDto postCommentRequestDto)
+			throws BestWorkBussinessException;
 
 }

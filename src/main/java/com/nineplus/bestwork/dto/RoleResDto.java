@@ -17,12 +17,11 @@ public class RoleResDto extends BaseDto {
 	 * 
 	 */
 	private static final long serialVersionUID = 4029561917437379896L;
-	
+
 	@JsonProperty("id")
 	private int id;
 
 	@JsonProperty("role")
 	private String role;
-
 
 }
