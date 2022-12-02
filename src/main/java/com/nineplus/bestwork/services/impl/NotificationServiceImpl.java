@@ -11,6 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.nineplus.bestwork.dto.NotificationReqDto;
 import com.nineplus.bestwork.dto.NotificationResDto;
+import com.nineplus.bestwork.dto.PageResDto;
+import com.nineplus.bestwork.dto.PageSearchDto;
 import com.nineplus.bestwork.entity.NotificationEntity;
 import com.nineplus.bestwork.entity.UserEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
@@ -45,7 +47,8 @@ public class NotificationServiceImpl implements NotificationService {
 	 * @throws BestWorkBussinessException
 	 */
 	@Override
-	public List<NotificationResDto> getAllNotifyByUser() throws BestWorkBussinessException {
+	public PageResDto<NotificationResDto> getAllNotifyByUser(PageSearchDto pageSearchDto)
+			throws BestWorkBussinessException {
 		String username = getLoggedInUsername();
 		UserEntity currentUser = userService.findUserByUsername(username);
 		List<NotificationResDto> dtoList = new ArrayList<>();
@@ -60,7 +63,8 @@ public class NotificationServiceImpl implements NotificationService {
 			dto.setUserId(noti.getUser().getId());
 			dtoList.add(dto);
 		}
-		return dtoList;
+//		return dtoList;
+		return null;
 	}
 
 	/**

@@ -1,10 +1,11 @@
 package com.nineplus.bestwork.services;
 
-import java.util.List;
 import java.util.Optional;
 
 import com.nineplus.bestwork.dto.NotificationReqDto;
 import com.nineplus.bestwork.dto.NotificationResDto;
+import com.nineplus.bestwork.dto.PageResDto;
+import com.nineplus.bestwork.dto.PageSearchDto;
 import com.nineplus.bestwork.entity.NotificationEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 
@@ -15,7 +16,7 @@ import com.nineplus.bestwork.exception.BestWorkBussinessException;
  */
 public interface NotificationService {
 
-	List<NotificationResDto> getAllNotifyByUser() throws BestWorkBussinessException;
+	PageResDto<NotificationResDto> getAllNotifyByUser(PageSearchDto pageSearchDto) throws BestWorkBussinessException;
 
 	Optional<NotificationEntity> findById(long notifId);
 

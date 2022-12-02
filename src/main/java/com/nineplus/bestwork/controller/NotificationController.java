@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -13,8 +14,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.nineplus.bestwork.dto.ConstructionResDto;
 import com.nineplus.bestwork.dto.NotificationReqDto;
 import com.nineplus.bestwork.dto.NotificationResDto;
+import com.nineplus.bestwork.dto.PageResDto;
+import com.nineplus.bestwork.dto.PageSearchDto;
 import com.nineplus.bestwork.entity.NotificationEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.services.NotificationService;
@@ -32,16 +36,14 @@ public class NotificationController extends BaseController {
 	private NotificationService notificationService;
 
 	@GetMapping("/list")
-	public ResponseEntity<? extends Object> getAllNotificationsByUser() {
-
-		List<NotificationResDto> notificationList = null;
-
+	public ResponseEntity<? extends Object> getAllNotificationsByUser(@RequestBody PageSearchDto pageSearchDto) {
+		PageResDto<NotificationResDto> pageNotify = null;
 		try {
-			notificationList = notificationService.getAllNotifyByUser();
-		} catch (BestWorkBussinessException e) {
-			return failed(e.getMsgCode(), e.getParam());
+			pageNotify = notificationService.getAllNotifyByUser(pageSearchDto);
+		} catch (BestWorkBussinessException ex) {
+			return failed(ex.getMsgCode(), ex.getParam());
 		}
-		return success(CommonConstants.MessageCode.SNU0001, notificationList, null);
+		return success(CommonConstants.MessageCode.SNU0001, pageNotify, null);		
 	}
 
 	@PatchMapping("/read/{notifId}")
