@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.nineplus.bestwork.dto.ProgressListReqDto;
+import com.nineplus.bestwork.dto.IdsToDelReqDto;
 import com.nineplus.bestwork.dto.ProgressReqDto;
 import com.nineplus.bestwork.dto.ProgressResDto;
 import com.nineplus.bestwork.dto.ProgressStatusResDto;
@@ -69,10 +69,10 @@ public class ProgressController extends BaseController {
 	}
 
 	@PostMapping("/delete")
-	public ResponseEntity<? extends Object> deleteProgress(@RequestBody ProgressListReqDto listId)
+	public ResponseEntity<? extends Object> deleteProgress(@RequestBody IdsToDelReqDto listId)
 			throws BestWorkBussinessException {
 		try {
-			progressService.deleteProgressList(Arrays.asList(listId.getLstProgressId()));
+			progressService.deleteProgressList(Arrays.asList(listId.getListId()));
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}

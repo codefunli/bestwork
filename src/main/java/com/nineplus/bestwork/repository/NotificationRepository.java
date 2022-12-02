@@ -1,12 +1,14 @@
 package com.nineplus.bestwork.repository;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import com.nineplus.bestwork.dto.PageSearchDto;
 import com.nineplus.bestwork.entity.NotificationEntity;
+
 /**
  * 
  * @author DiepTT
@@ -15,7 +17,11 @@ import com.nineplus.bestwork.entity.NotificationEntity;
 @Repository
 public interface NotificationRepository extends JpaRepository<NotificationEntity, Long> {
 
-	@Query(value = " select * from NOTIFICATION where user_id = ?1 ", nativeQuery = true)
-	List<NotificationEntity> findAllByUser(long id);
+	@Query(value = " select n.* from NOTIFICATION n where n.user_id = :userId "
+			+ " and (n.title like :#{#pageSearchDto.keyword} or n.content like :#{#pageSearchDto.keyword}) "
+			+ " and (n.is_read like if( :#{#pageSearchDto.status} = -1, '%%', :#{#pageSearchDto.status})) ", nativeQuery = true, countQuery = " select n.* from NOTIFICATION n where n.user_id = :userId "
+					+ " and (n.title like :#{#pageSearchDto.keyword} or n.content like :#{#pageSearchDto.keyword}) "
+					+ " and (n.is_read like if( :#{#pageSearchDto.status} = -1, '%%', :#{#pageSearchDto.status})) ")
+	Page<NotificationEntity> findAllByUser(long userId, PageSearchDto pageSearchDto, Pageable pageable);
 
 }

@@ -5,9 +5,9 @@ import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import com.nineplus.bestwork.dto.ConstructionListIdDto;
 import com.nineplus.bestwork.dto.ConstructionReqDto;
 import com.nineplus.bestwork.dto.ConstructionResDto;
+import com.nineplus.bestwork.dto.IdsToDelReqDto;
 import com.nineplus.bestwork.dto.PageResDto;
 import com.nineplus.bestwork.dto.PageSearchDto;
 import com.nineplus.bestwork.entity.ConstructionEntity;
@@ -31,7 +31,7 @@ public interface IConstructionService {
 	void updateConstruction(long constructionId, ConstructionReqDto constructionReqDto, List<MultipartFile> drawings)
 			throws BestWorkBussinessException, IOException;
 
-	void deleteConstruction(ConstructionListIdDto constructionListId) throws BestWorkBussinessException;
+	void deleteConstruction(IdsToDelReqDto idsToDelReqDto) throws BestWorkBussinessException;
 
 	ConstructionEntity findCstrtById(long constructionId);
 

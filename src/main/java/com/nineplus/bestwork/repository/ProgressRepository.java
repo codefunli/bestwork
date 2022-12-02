@@ -27,6 +27,6 @@ public interface ProgressRepository extends JpaRepository<ProgressEntity, Long> 
 	@Query(value = " delete from PROGRESS_TRACKING p where p.construction_id in :cstrtIds ", nativeQuery = true)
 	@Modifying
 	@Transactional
-	void deleteByCstrtIdList(long[] cstrtIds);
+	void deleteByCstrtIdList(Long[] cstrtIds);
 
 }

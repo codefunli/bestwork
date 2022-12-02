@@ -22,10 +22,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.nineplus.bestwork.dto.AirWayBillReqDto;
 import com.nineplus.bestwork.dto.AirWayBillResDto;
-import com.nineplus.bestwork.dto.ConstructionListIdDto;
 import com.nineplus.bestwork.dto.ConstructionReqDto;
 import com.nineplus.bestwork.dto.ConstructionResDto;
 import com.nineplus.bestwork.dto.FileStorageResDto;
+import com.nineplus.bestwork.dto.IdsToDelReqDto;
 import com.nineplus.bestwork.dto.NotificationReqDto;
 import com.nineplus.bestwork.dto.PageResDto;
 import com.nineplus.bestwork.dto.PageSearchDto;
@@ -610,10 +610,10 @@ public class ConstructionServiceImpl implements IConstructionService {
 	 */
 	@Override
 	@Transactional
-	public void deleteConstruction(ConstructionListIdDto constructionIds) throws BestWorkBussinessException {
+	public void deleteConstruction(IdsToDelReqDto idsToDelReqDto) throws BestWorkBussinessException {
 		UserAuthDetected userAuthRoleReq = this.getUserAuthRoleReq();
 		String curUsername = userAuthRoleReq.getUsername();
-		long[] ids = constructionIds.getListId();
+		Long[] ids = idsToDelReqDto.getListId();
 		List<ConstructionEntity> cstrtList = new ArrayList<>();
 		for (long id : ids) {
 			Optional<ConstructionEntity> cstrtOpt = cstrtRepo.findById(id);

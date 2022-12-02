@@ -9,12 +9,12 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class ProgressListReqDto extends BaseDto {
+public class IdsToDelReqDto extends BaseDto {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 7058050785855346638L;
 	
 	@JsonProperty("ids")
-	private Long[] lstProgressId;
+	private Long[] listId;
 }

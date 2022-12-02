@@ -96,6 +96,7 @@ public class Enums {
 		public String getValue() {
 			return this.value;
 		}
+
 		public int getStatus() {
 			return this.status;
 		}
@@ -124,6 +125,20 @@ public class Enums {
 		private String value;
 
 		private Nation(String value) {
+			this.value = value;
+		}
+
+		public String getValue() {
+			return this.value;
+		}
+	}
+
+	public enum NotifyStatus {
+		NOT_READ("Not Read"), READ("Read");
+
+		private String value;
+
+		private NotifyStatus(String value) {
 			this.value = value;
 		}
 

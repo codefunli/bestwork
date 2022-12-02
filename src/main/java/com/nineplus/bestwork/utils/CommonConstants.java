@@ -209,6 +209,13 @@ public class CommonConstants {
 		public static final String ENU0002 = "enu0002";
 		public static final String SNU0003 = "snu0003";
 		public static final String ENU0003 = "enu0003";
+		public static final String ENU0004 = "enu0004";
+		public static final String SNU0005 = "snu0005";
+		public static final String ENU0005 = "enu0005";
+		public static final String SNU0006 = "snu0006";
+		public static final String SNU0007 = "snu0007";
+		public static final String ENU0007 = "enu0007";
+		
 		public static final String TNU0004 = "tnu0004";
 		public static final String CNU0004 = "cnu0004";
 		public static final String CNU0005 = "cnu0005";
@@ -265,10 +272,8 @@ public class CommonConstants {
 		public static final String ECS0005 = "ecs0005";
 		public static final String ECS0006 = "ecs0006";
 		public static final String ECS0007 = "ecs0007";
+		public static final String SCS0008 = "scs0008";
 
-		public static final String ENU0004 = "enu0004";
-		public static final String SNU0005 = "snu0005";
-		public static final String ENU0005 = "enu0005";
 
 		// For package AWB message
 		public static final String sP0001 = "sP0001";
