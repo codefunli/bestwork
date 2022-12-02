@@ -196,6 +196,7 @@ public class CommonConstants {
 		public static final String sPu00001 = "sPu0001";
 		public static final String sPu00002 = "sPu0002";
 		public static final String sPu00003 = "sPu0003";
+		public static final String ePu0003 = "ePu0003";
 		public static final String sPu0004 = "sPu0004";
 		public static final String sPu0005 = "sPu0005";
 		public static final String sPu0006 = "sPu0006";
@@ -215,6 +216,7 @@ public class CommonConstants {
 		public static final String SNU0006 = "snu0006";
 		public static final String SNU0007 = "snu0007";
 		public static final String ENU0007 = "enu0007";
+		public static final String SNU0008 = "snu0008";
 		
 		public static final String TNU0004 = "tnu0004";
 		public static final String CNU0004 = "cnu0004";

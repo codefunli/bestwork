@@ -34,6 +34,7 @@ import com.nineplus.bestwork.entity.AirWayBill;
 import com.nineplus.bestwork.entity.AssignTaskEntity;
 import com.nineplus.bestwork.entity.ConstructionEntity;
 import com.nineplus.bestwork.entity.FileStorageEntity;
+import com.nineplus.bestwork.entity.ProgressEntity;
 import com.nineplus.bestwork.entity.ProjectEntity;
 import com.nineplus.bestwork.entity.UserEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
@@ -43,6 +44,7 @@ import com.nineplus.bestwork.repository.ConstructionRepository;
 import com.nineplus.bestwork.repository.ProgressRepository;
 import com.nineplus.bestwork.services.IAirWayBillService;
 import com.nineplus.bestwork.services.IConstructionService;
+import com.nineplus.bestwork.services.IProgressService;
 import com.nineplus.bestwork.services.IProjectService;
 import com.nineplus.bestwork.services.ISftpFileService;
 import com.nineplus.bestwork.services.IStorageService;
@@ -63,6 +65,8 @@ import com.nineplus.bestwork.utils.UserAuthUtils;
  */
 @Service
 public class ConstructionServiceImpl implements IConstructionService {
+	@Autowired
+	private IProgressService progressService;
 
 	@Autowired
 	private ConstructionRepository cstrtRepo;
@@ -80,7 +84,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 	private IProjectService projectService;
 
 	@Autowired
-	private ISftpFileService sftpFileService;
+	private ISftpFileService sftpService;
 
 	@Autowired
 	private IStorageService storageService;
@@ -214,11 +218,11 @@ public class ConstructionServiceImpl implements IConstructionService {
 		try {
 			construction = this.cstrtRepo.save(construction);
 
-			if (!sftpFileService.isValidFile(drawings)) {
+			if (!sftpService.isValidFile(drawings)) {
 				throw new BestWorkBussinessException(CommonConstants.MessageCode.eF0002, null);
 			}
 			for (MultipartFile file : drawings) {
-				String pathServer = this.sftpFileService.uploadConstructionDrawing(file, construction.getId());
+				String pathServer = this.sftpService.uploadConstructionDrawing(file, construction.getId());
 				storageService.storeFile(construction.getId(), FolderType.CONSTRUCTION, pathServer);
 			}
 			this.sendNotify(construction, curUsername, true, false);
@@ -432,7 +436,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 				fsResDto.setChoosen(file.isChoosen());
 				if (Arrays.asList(CommonConstants.Image.IMAGE_EXTENSION).contains(file.getType())) {
 					String pathServer = file.getPathFileServer();
-					byte[] imageContent = sftpFileService.getFile(pathServer);
+					byte[] imageContent = sftpService.getFile(pathServer);
 					fsResDto.setContent(imageContent);
 				}
 				fsResDtos.add(fsResDto);
@@ -535,20 +539,20 @@ public class ConstructionServiceImpl implements IConstructionService {
 				this.sendNotify(curConstruction, curUsername, false, true);
 			}
 
-			if (!sftpFileService.isValidFile(drawings)) {
+			if (!sftpService.isValidFile(drawings)) {
 				throw new BestWorkBussinessException(CommonConstants.MessageCode.eF0002, null);
 			}
 			// Get file-paths of the construction and remove them from server
 			List<String> listPath = this.storageService.getPathFileByCstrtId(constructionId);
 			for (String path : listPath) {
-				this.sftpFileService.removeFile(path);
+				this.sftpService.removeFile(path);
 			}
 			// Delete files of the construction from database
 			this.storageService.deleteByCstrtId(constructionId);
 			// Save new files to database and server
 			for (MultipartFile file : drawings) {
 				if (ObjectUtils.isNotEmpty(file.getBytes())) {
-					String pathServer = this.sftpFileService.uploadConstructionDrawing(file, curConstruction.getId());
+					String pathServer = this.sftpService.uploadConstructionDrawing(file, curConstruction.getId());
 					storageService.storeFile(curConstruction.getId(), FolderType.CONSTRUCTION, pathServer);
 				}
 			}
@@ -614,13 +618,30 @@ public class ConstructionServiceImpl implements IConstructionService {
 		UserAuthDetected userAuthRoleReq = this.getUserAuthRoleReq();
 		String curUsername = userAuthRoleReq.getUsername();
 		Long[] ids = idsToDelReqDto.getListId();
+		List<String> listPath = new ArrayList<>();
 		List<ConstructionEntity> cstrtList = new ArrayList<>();
+		List<Long> prgIdListToDel = new ArrayList<>();
 		for (long id : ids) {
 			Optional<ConstructionEntity> cstrtOpt = cstrtRepo.findById(id);
 			if (!cstrtOpt.isPresent()) {
 				throw new BestWorkBussinessException(CommonConstants.MessageCode.ECS0007, null);
 			}
 			cstrtList.add(cstrtOpt.get());
+			// Get all progresses of the construction
+			List<ProgressEntity> prgList = this.progressRepo.findProgressByCstrtId(id);
+			for (ProgressEntity prg : prgList) {
+				if (prg != null) {
+					prgIdListToDel.add(prg.getId());
+				}
+			}
+
+			// Get file-paths of the construction
+			List<String> paths = this.storageService.getPathFileByCstrtId(id);
+			for (String path : paths) {
+				if (path != null) {
+					listPath.add(path);
+				}
+			}
 		}
 		for (ConstructionEntity construction : cstrtList) {
 			if (!chkCurUserCanEditDelCstrt(construction, curUsername)) {
@@ -631,8 +652,14 @@ public class ConstructionServiceImpl implements IConstructionService {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.ECS0006, null);
 		}
 		// Delete all progresses of the constructions that will be deleted
-		this.progressRepo.deleteByCstrtIdList(ids);
+		this.progressService.deleteProgressList(prgIdListToDel);
 
+		// Remove file-paths from server
+		for (String path : listPath) {
+			this.sftpService.removeFile(path);
+		}
+		// Delete files of the construction from database
+		this.storageService.deleteByCstrtIds(Arrays.asList(ids));
 		this.cstrtRepo.deleteAll(cstrtList);
 	}
 

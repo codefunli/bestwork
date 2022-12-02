@@ -37,4 +37,8 @@ public interface IStorageService {
 
 	public void deleteByProgressId(long id);
 
+	public void deleteByProgressIds(List<Long> ids);
+
+	public void deleteByCstrtIds(List<Long> ids);
+
 }

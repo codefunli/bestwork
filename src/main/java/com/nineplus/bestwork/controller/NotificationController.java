@@ -64,18 +64,6 @@ public class NotificationController extends BaseController {
 		return success(CommonConstants.MessageCode.SNU0005, notification, null);
 	}
 
-//	// This method is used to test on Postman, later it will be used through
-//	// notificationService when in need
-//	@PostMapping("/create")
-//	public ResponseEntity<? extends Object> createNotifications(@RequestBody NotificationReqDto notificationReqDto) {
-//		try {
-//			notifyService.createNotification(notificationReqDto);
-//		} catch (BestWorkBussinessException e) {
-//			return failed(e.getMsgCode(), e.getParam());
-//		}
-//		return success(CommonConstants.MessageCode.SNU0002, null, null);
-//	}
-
 	@PostMapping("/delete")
 	public ResponseEntity<? extends Object> deleteNotify(@RequestBody IdsToDelReqDto idsToDelReqDto) {
 		try {
@@ -103,5 +91,11 @@ public class NotificationController extends BaseController {
 			notifyStatus.add(dto);
 		}
 		return success(CommonConstants.MessageCode.SNU0006, notifyStatus, null);
+	}
+
+	@GetMapping("/count-not-read")
+	public ResponseEntity<? extends Object> getQuanOfNotReadNotify() throws BestWorkBussinessException {
+		long countNotRead = this.notifyService.countNotReadNotifys();
+		return success(CommonConstants.MessageCode.SNU0008, countNotRead, null);
 	}
 }

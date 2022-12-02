@@ -40,7 +40,7 @@ public class NotificationEntity {
 	private LocalDateTime createDate;
 
 	@Column(name = "is_read", nullable = false, columnDefinition = "tinyint(1) default 0")
-	private int isRead;
+	private boolean isRead;
 
 	@Column(name = "create_by", nullable = false, columnDefinition = "varchar(255)")
 	private String createBy;

@@ -83,7 +83,7 @@ public class NotificationServiceImpl implements NotificationService {
 				dto.setTitle(noti.getTitle());
 				dto.setContent(noti.getContent());
 				dto.setCreateDate(String.valueOf(noti.getCreateDate()));
-				dto.setIsRead(noti.getIsRead());
+				dto.setRead(noti.isRead());
 				dto.setUserId(noti.getUser().getId());
 				dtos.add(dto);
 			}
@@ -147,7 +147,7 @@ public class NotificationServiceImpl implements NotificationService {
 	 */
 	@Override
 	public NotificationEntity chgReadStatus(NotificationEntity notification) throws BestWorkBussinessException {
-		notification.setIsRead(1);
+		notification.setRead(true);
 		return this.notifyRepository.save(notification);
 	}
 
@@ -175,7 +175,7 @@ public class NotificationServiceImpl implements NotificationService {
 			notification.setTitle(title);
 			notification.setContent(content);
 			notification.setCreateDate(LocalDateTime.now());
-			notification.setIsRead(0);
+			notification.setRead(false);
 			notification.setCreateBy(getLoggedInUsername());
 			notification.setUser(user);
 			notifyRepository.save(notification);
@@ -214,5 +214,13 @@ public class NotificationServiceImpl implements NotificationService {
 			return true;
 		}
 		return false;
+	}
+
+	@Override
+	public long countNotReadNotifys() throws BestWorkBussinessException {
+		UserAuthDetected userAuthDetected = userAuthUtils.getUserInfoFromReq(false);
+		UserEntity curUser = userService.findUserByUsername(userAuthDetected.getUsername());
+		long count = this.notifyRepository.countNotReadNotify(curUser.getId());
+		return count;
 	}
 }

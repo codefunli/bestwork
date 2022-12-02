@@ -27,4 +27,6 @@ public interface NotificationService {
 
 	void deleteNotifyByIds(IdsToDelReqDto idsToDelReqDto) throws BestWorkBussinessException;
 
+	long countNotReadNotifys() throws BestWorkBussinessException;
+
 }

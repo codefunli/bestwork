@@ -144,7 +144,18 @@ public class StorageServiceImpl implements IStorageService {
 	}
 
 	@Override
+	public void deleteByCstrtIds(List<Long> constructionIds) {
+		this.storageRepository.deleteByConstructionIds(constructionIds);
+	}
+
+	@Override
 	public void deleteByProgressId(long progressId) {
 		this.storageRepository.deleteByProgressId(progressId);
+	}
+
+	@Override
+	public void deleteByProgressIds(List<Long> progressids) {
+		this.storageRepository.deleteByProgressIds(progressids);
+		
 	}
 }

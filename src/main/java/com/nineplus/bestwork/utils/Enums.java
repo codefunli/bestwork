@@ -134,7 +134,7 @@ public class Enums {
 	}
 
 	public enum NotifyStatus {
-		NOT_READ("Not Read"), READ("Read");
+		UNREAD("Unread"), READ("Read");
 
 		private String value;
 
