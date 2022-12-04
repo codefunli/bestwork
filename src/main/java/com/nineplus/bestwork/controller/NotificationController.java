@@ -93,7 +93,7 @@ public class NotificationController extends BaseController {
 		return success(CommonConstants.MessageCode.SNU0006, notifyStatus, null);
 	}
 
-	@GetMapping("/count-not-read")
+	@GetMapping("/count-unread")
 	public ResponseEntity<? extends Object> getQuanOfNotReadNotify() throws BestWorkBussinessException {
 		long countNotRead = this.notifyService.countNotReadNotifys();
 		return success(CommonConstants.MessageCode.SNU0008, countNotRead, null);
