@@ -44,4 +44,7 @@ public interface ConstructionRepository extends JpaRepository<ConstructionEntity
 			+ " where pt.id = :progressId ", nativeQuery = true)
 	ConstructionEntity findByProgressId(@Param("progressId") Long progressId);
 
+	@Query(value = " select c.id from CONSTRUCTION c where c.project_code in :prjIds", nativeQuery = true)
+	List<Long> findIdByPrjIds(List<String> prjIds);
+
 }

@@ -40,4 +40,6 @@ public interface IConstructionService {
 
 	ConstructionEntity findCstrtByPrgId(Long progressId);
 
+	List<Long> findIdByPrjIds(List<String> listProjectId);
+
 }

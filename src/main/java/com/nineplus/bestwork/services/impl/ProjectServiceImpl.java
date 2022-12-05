@@ -13,6 +13,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -40,6 +41,7 @@ import com.nineplus.bestwork.model.UserAuthDetected;
 import com.nineplus.bestwork.repository.AssignTaskRepository;
 import com.nineplus.bestwork.repository.ProjectAssignRepository;
 import com.nineplus.bestwork.repository.ProjectRepository;
+import com.nineplus.bestwork.services.IConstructionService;
 import com.nineplus.bestwork.services.IProjectService;
 import com.nineplus.bestwork.services.NotificationService;
 import com.nineplus.bestwork.services.UserService;
@@ -81,6 +83,10 @@ public class ProjectServiceImpl implements IProjectService {
 
 	@Autowired
 	MessageUtils messageUtils;
+
+	@Autowired
+	@Lazy
+	IConstructionService cstrtService;
 
 	@Override
 	public PageResDto<ProjectResDto> getProjectPage(PageSearchDto pageSearchDto) throws BestWorkBussinessException {
@@ -195,18 +201,18 @@ public class ProjectServiceImpl implements IProjectService {
 		UserAuthDetected userAuthRoleReq = getAuthRoleReq();
 		String curUsername = userAuthRoleReq.getUsername();
 		for (String id : listProjectId) {
-			ProjectEntity prj = this.projectRepository.findbyProjectId(id);
-			if (prj == null) {
+			Optional<ProjectEntity> prjOpt = this.projectRepository.findById(id);
+			if (!prjOpt.isPresent()) {
 				throw new BestWorkBussinessException(CommonConstants.MessageCode.S1X0002, null);
 			}
-			if (!this.chkPrjCrtByCurUser(prj, curUsername)) {
+			if (!this.chkPrjCrtByCurUser(prjOpt.get(), curUsername)) {
 				throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
 			}
 		}
 		try {
 			this.projectRepository.deleteProjectById(listProjectId);
 		} catch (Exception ex) {
-			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0002, null);
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.S1X0012, null);
 		}
 
 	}
@@ -307,15 +313,15 @@ public class ProjectServiceImpl implements IProjectService {
 	@Transactional
 	public void updateProject(ProjectTaskReqDto projectTaskDto, ProjectTypeEntity projectType, String projectId)
 			throws BestWorkBussinessException {
-		ProjectEntity curPrj = null;
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
 		String curUsername = userAuthRoleReq.getUsername();
 		UserEntity curUser = this.userService.findUserByUsername(curUsername);
 
-		curPrj = projectRepository.findbyProjectId(projectId);
-		if (curPrj == null) {
+		Optional<ProjectEntity> curPrjOpt = projectRepository.findById(projectId);
+		if (!curPrjOpt.isPresent()) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
 		}
+		ProjectEntity curPrj = curPrjOpt.get();
 
 		// Only user creating project can edit project info and create/change/remove
 		// assignment other user
@@ -404,7 +410,7 @@ public class ProjectServiceImpl implements IProjectService {
 			boolean isRemoveAssign) throws BestWorkBussinessException {
 		UserAuthDetected userAuthRoleReq = getAuthRoleReq();
 		String curUsername = userAuthRoleReq.getUsername();
-		String projectName = projectRepository.findbyProjectId(prjId).getProjectName();
+		String projectName = projectRepository.findById(prjId).get().getProjectName();
 
 		NotificationReqDto notifyReqDto = new NotificationReqDto();
 		String title = "";
@@ -464,10 +470,11 @@ public class ProjectServiceImpl implements IProjectService {
 		UserAuthDetected userAuthRoleReq = getAuthRoleReq();
 		String curUsername = userAuthRoleReq.getUsername();
 
-		ProjectEntity project = projectRepository.findbyProjectId(projectId);
-		if (project == null) {
+		Optional<ProjectEntity> projectOpt = projectRepository.findById(projectId);
+		if (!projectOpt.isPresent()) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.S1X0002, null);
 		}
+		ProjectEntity project = projectOpt.get();
 		List<ProjectEntity> involvedPrjList = this.getPrjInvolvedByCurUser(curUsername);
 		if (!involvedPrjList.contains(project)) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
@@ -511,11 +518,11 @@ public class ProjectServiceImpl implements IProjectService {
 			throws BestWorkBussinessException {
 		UserAuthDetected userAuthRoleReq = getAuthRoleReq();
 		String curUsername = userAuthRoleReq.getUsername();
-		ProjectEntity currentProject = null;
+		Optional<ProjectEntity> curPrjOpt = null;
 		try {
-			currentProject = projectRepository.findbyProjectId(projectId);
-			if (currentProject != null && chkPrjCrtByCurUser(currentProject, curUsername)) {
-				currentProject.setStatus(projectStatusReqDto.getToStatus());
+			curPrjOpt = projectRepository.findById(projectId);
+			if (curPrjOpt.isPresent() && chkPrjCrtByCurUser(curPrjOpt.get(), curUsername)) {
+				curPrjOpt.get().setStatus(projectStatusReqDto.getToStatus());
 			}
 		} catch (Exception ex) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0017, null);
