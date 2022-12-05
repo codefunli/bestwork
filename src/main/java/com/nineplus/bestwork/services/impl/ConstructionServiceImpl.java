@@ -677,9 +677,4 @@ public class ConstructionServiceImpl implements IConstructionService {
 	public ConstructionEntity findCstrtByPrgId(Long progressId) {
 		return this.cstrtRepo.findByProgressId(progressId);
 	}
-
-	@Override
-	public List<Long> findIdByPrjIds(List<String> prjId) {
-		return this.cstrtRepo.findIdByPrjIds(prjId);
-	}
 }

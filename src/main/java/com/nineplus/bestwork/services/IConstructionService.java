@@ -39,7 +39,4 @@ public interface IConstructionService {
 			throws BestWorkBussinessException;
 
 	ConstructionEntity findCstrtByPrgId(Long progressId);
-
-	List<Long> findIdByPrjIds(List<String> listProjectId);
-
 }
