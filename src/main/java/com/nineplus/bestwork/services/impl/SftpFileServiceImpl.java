@@ -17,7 +17,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.zip.ZipOutputStream;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -177,12 +176,6 @@ public class SftpFileServiceImpl implements ISftpFileService {
 		}
 
 		return resBytes;
-	}
-
-	@Override
-	public byte[] viewFilePdf(String pathFileView) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override
@@ -443,32 +436,6 @@ public class SftpFileServiceImpl implements ISftpFileService {
 	}
 
 	@Override
-	public File downLoadFile(String pathFileDownload) {
-		ChannelSftp channel = null;
-		Session session = null;
-		File tempFile;
-		try {
-
-			Pair<Session, ChannelSftp> sftpConnection = this.getConnection();
-
-			session = sftpConnection.getFirst();
-			channel = sftpConnection.getSecond();
-			tempFile = File.createTempFile("fileTemp", ".png");
-			tempFile.deleteOnExit();
-			FileUtils.copyInputStreamToFile(channel.get(pathFileDownload), tempFile);
-			// resBytes = IOUtils.toByteArray(channel.get(pathFileDownload));
-			// disconnect to sftp server.
-			// disconnect(session, channel);
-		} catch (Exception ex) {
-			disconnect(session, channel);
-			throw new FileHandleException(ex.getMessage(), ex);
-		} finally {
-			disconnect(session, channel);
-		}
-		return tempFile;
-	}
-
-	@Override
 	public void createZipFolder(String airWayBillCode, String[] listPathFileDownload) {
 		ChannelSftp channel = null;
 		Session session = null;
@@ -477,7 +444,7 @@ public class SftpFileServiceImpl implements ISftpFileService {
 
 			session = sftpConnection.getFirst();
 			channel = sftpConnection.getSecond();
-			// create a ZipOutputStream object+
+			// create a ZipOutputStream object
 			FileOutputStream fos = new FileOutputStream(airWayBillCode);
 			ZipOutputStream zos = new ZipOutputStream(fos);
 
@@ -531,6 +498,7 @@ public class SftpFileServiceImpl implements ISftpFileService {
 					fileName = PACKAGE_NAME_PREFIX + fileName;
 				}
 				byte[] buffer = new byte[1024];
+				if(isExistFolder(channel, pathFile)) {
 				BufferedInputStream bis = new BufferedInputStream(channel.get(pathFile));
 				Path path = Files.createDirectories(Paths.get(temporaryFolder + SEPARATOR + airWayBillCode));
 				String pathFileSever = path + SEPARATOR + fileName;
@@ -554,6 +522,7 @@ public class SftpFileServiceImpl implements ISftpFileService {
 				bis.close();
 				bos.close();
 
+			}
 			}
 			// disconnect to sftp server.
 			disconnect(session, channel);

@@ -1,6 +1,5 @@
 package com.nineplus.bestwork.services;
 
-import java.io.File;
 import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
@@ -17,8 +16,6 @@ public interface ISftpFileService {
 
 	byte[] getFile(String pathFileDownload) throws BestWorkBussinessException;
 
-	byte[] viewFilePdf(String pathFileView);
-
 	String uploadInvoice(MultipartFile file, String airWayBill, long invoiceId);
 
 	String uploadPackage(MultipartFile file, String airWayBill, long packageId);
@@ -32,8 +29,6 @@ public interface ISftpFileService {
 	boolean isImageFile(List<MultipartFile> file);
 
 	String uploadConstructionDrawing(MultipartFile file, long constructionId);
-
-	File downLoadFile(String pathFileDownload);
 
 	void createZipFolder(String airWayBillCode, String[] listPathFileDownload);
 
