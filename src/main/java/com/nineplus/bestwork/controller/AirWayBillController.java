@@ -67,8 +67,8 @@ public class AirWayBillController extends BaseController {
 		List<AirWayBillStatusResDto> airWayBillStatus = new ArrayList<>();
 		for (AirWayBillStatus status : AirWayBillStatus.values()) {
 			AirWayBillStatusResDto dto = new AirWayBillStatusResDto();
-			dto.setId(status.ordinal());
-			dto.setStatus(status.getStatus());
+			dto.setId(status.getStatus());
+			dto.setStatus(status.getValue());
 			airWayBillStatus.add(dto);
 		}
 		return success(CommonConstants.MessageCode.sA0002, airWayBillStatus, null);
