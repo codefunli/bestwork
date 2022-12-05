@@ -16,10 +16,10 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.nineplus.bestwork.dto.ConstructionListIdDto;
 import com.nineplus.bestwork.dto.ConstructionReqDto;
 import com.nineplus.bestwork.dto.ConstructionResDto;
 import com.nineplus.bestwork.dto.ConstructionStatusResDto;
+import com.nineplus.bestwork.dto.IdsToDelReqDto;
 import com.nineplus.bestwork.dto.PageResDto;
 import com.nineplus.bestwork.dto.PageSearchDto;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
@@ -108,11 +108,12 @@ public class ConstructionController extends BaseController {
 	 * @param constructionReqDto
 	 * @return (ResponseEntity<apiResponseDto>) message that updating construction
 	 *         is successful or not
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	@PatchMapping("/update/{constructionId}")
 	public ResponseEntity<? extends Object> updateConstruction(@PathVariable long constructionId,
-			@RequestPart ConstructionReqDto constructionReqDto, @RequestPart List<MultipartFile> drawings) throws IOException {
+			@RequestPart ConstructionReqDto constructionReqDto, @RequestPart List<MultipartFile> drawings)
+			throws IOException {
 		try {
 			constructionService.updateConstruction(constructionId, constructionReqDto, drawings);
 		} catch (BestWorkBussinessException ex) {
@@ -129,9 +130,9 @@ public class ConstructionController extends BaseController {
 	 *         is successful or not
 	 */
 	@PostMapping("/delete")
-	public ResponseEntity<? extends Object> deleteConstruction(@RequestBody ConstructionListIdDto constructionListId) {
+	public ResponseEntity<? extends Object> deleteConstruction(@RequestBody IdsToDelReqDto idsToDelReqDto) {
 		try {
-			constructionService.deleteConstruction(constructionListId);
+			constructionService.deleteConstruction(idsToDelReqDto);
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}
@@ -154,6 +155,6 @@ public class ConstructionController extends BaseController {
 			dto.setStatus(status.getValue());
 			constructionStatus.add(dto);
 		}
-		return success(CommonConstants.MessageCode.S1X0015, constructionStatus, null);
+		return success(CommonConstants.MessageCode.SCS0008, constructionStatus, null);
 	}
 }

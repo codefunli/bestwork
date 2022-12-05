@@ -84,4 +84,19 @@ public class ConvertResponseUtils {
 		}
 		return columnMapped;
 	}
+
+	public String convertResponseNotify(String item) {
+		HashMap<String, String> itemNotify = new HashMap<>();
+		String columnMapped = "";
+		itemNotify.put("id", "id");
+		itemNotify.put("title", "title");
+		itemNotify.put("content", "content");
+		itemNotify.put("createDate", "create_date");
+		itemNotify.put("isRead", "is_read");
+		itemNotify.put("createBy", "create_by");
+		if (itemNotify.containsKey(item)) {
+			columnMapped = itemNotify.get(item);
+		}
+		return columnMapped;
+	}
 }

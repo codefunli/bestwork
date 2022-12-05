@@ -13,6 +13,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -40,6 +41,7 @@ import com.nineplus.bestwork.model.UserAuthDetected;
 import com.nineplus.bestwork.repository.AssignTaskRepository;
 import com.nineplus.bestwork.repository.ProjectAssignRepository;
 import com.nineplus.bestwork.repository.ProjectRepository;
+import com.nineplus.bestwork.services.IConstructionService;
 import com.nineplus.bestwork.services.IProjectService;
 import com.nineplus.bestwork.services.NotificationService;
 import com.nineplus.bestwork.services.UserService;
@@ -81,6 +83,10 @@ public class ProjectServiceImpl implements IProjectService {
 
 	@Autowired
 	MessageUtils messageUtils;
+
+	@Autowired
+	@Lazy
+	IConstructionService cstrtService;
 
 	@Override
 	public PageResDto<ProjectResDto> getProjectPage(PageSearchDto pageSearchDto) throws BestWorkBussinessException {
@@ -206,7 +212,7 @@ public class ProjectServiceImpl implements IProjectService {
 		try {
 			this.projectRepository.deleteProjectById(listProjectId);
 		} catch (Exception ex) {
-			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0002, null);
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.S1X0012, null);
 		}
 
 	}
@@ -516,7 +522,6 @@ public class ProjectServiceImpl implements IProjectService {
 		Optional<ProjectEntity> curPrjOpt = null;
 		try {
 			curPrjOpt = projectRepository.findById(projectId);
-
 			if (curPrjOpt.isPresent() && chkPrjCrtByCurUser(curPrjOpt.get(), curUsername)) {
 				curPrjOpt.get().setStatus(projectStatusReqDto.getToStatus());
 			}

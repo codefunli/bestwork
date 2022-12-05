@@ -25,7 +25,7 @@ public class NotificationResDto extends BaseDto {
 
 	private String createDate;
 
-	private int isRead;
+	private boolean isRead;
 
 	private long userId;
 
