@@ -353,7 +353,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 	 */
 	private void chkExistCstrtNameWhenCreating(ConstructionReqDto constructionReqDto)
 			throws BestWorkBussinessException {
-		ConstructionEntity existedCstrt = cstrtRepo.findByName(constructionReqDto.getConstructionName());
+		ConstructionEntity existedCstrt = cstrtRepo.findByConstructionName(constructionReqDto.getConstructionName());
 		if (!ObjectUtils.isEmpty(existedCstrt)) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.EXS0003,
 					new Object[] { CommonConstants.Character.CONSTRUCTION_NAME });
@@ -370,7 +370,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 	 */
 	private void chkExistCstrtNameWhenEditing(ConstructionReqDto constructionReqDto, ConstructionEntity curConstruction)
 			throws BestWorkBussinessException {
-		ConstructionEntity existedCstrt = cstrtRepo.findByName(constructionReqDto.getConstructionName());
+		ConstructionEntity existedCstrt = cstrtRepo.findByConstructionName(constructionReqDto.getConstructionName());
 		if (!ObjectUtils.isEmpty(existedCstrt)
 				&& !curConstruction.getConstructionName().equals(existedCstrt.getConstructionName())) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.EXS0003,
@@ -396,8 +396,26 @@ public class ConstructionServiceImpl implements IConstructionService {
 		if (!chkCurUserCanViewCstrt(constructionId, userAuthRoleReq)) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
 		}
-
-		ConstructionResDto cstrtResDto = trsferCstrtToResDto(constructionOpt.get());
+		ConstructionEntity cstrt = constructionOpt.get();
+		ConstructionResDto cstrtResDto = trsferCstrtToResDto(cstrt);
+		List<FileStorageResDto> fsResDtos = new ArrayList<>();
+		if (!ObjectUtils.isEmpty(cstrt.getFileStorages())) {
+			for (FileStorageEntity file : cstrt.getFileStorages()) {
+				FileStorageResDto fsResDto = new FileStorageResDto();
+				fsResDto.setId(file.getId());
+				fsResDto.setName(file.getName());
+				fsResDto.setCreateDate(String.valueOf(file.getCreateDate()));
+				fsResDto.setType(file.getType());
+				fsResDto.setChoosen(file.isChoosen());
+				if (Arrays.asList(CommonConstants.Image.IMAGE_EXTENSION).contains(file.getType())) {
+					String pathServer = file.getPathFileServer();
+					byte[] imageContent = sftpService.getFile(pathServer);
+					fsResDto.setContent(imageContent);
+				}
+				fsResDtos.add(fsResDto);
+			}
+		}
+		cstrtResDto.setFileStorages(fsResDtos);
 
 		return cstrtResDto;
 	}
@@ -424,25 +442,6 @@ public class ConstructionServiceImpl implements IConstructionService {
 		}
 
 		cstrtResDto.setAwbCodes(awbCodes);
-
-		List<FileStorageResDto> fsResDtos = new ArrayList<>();
-		if (!ObjectUtils.isEmpty(cstrt.getFileStorages())) {
-			for (FileStorageEntity file : cstrt.getFileStorages()) {
-				FileStorageResDto fsResDto = new FileStorageResDto();
-				fsResDto.setId(file.getId());
-				fsResDto.setName(file.getName());
-				fsResDto.setCreateDate(String.valueOf(file.getCreateDate()));
-				fsResDto.setType(file.getType());
-				fsResDto.setChoosen(file.isChoosen());
-				if (Arrays.asList(CommonConstants.Image.IMAGE_EXTENSION).contains(file.getType())) {
-					String pathServer = file.getPathFileServer();
-					byte[] imageContent = sftpService.getFile(pathServer);
-					fsResDto.setContent(imageContent);
-				}
-				fsResDtos.add(fsResDto);
-			}
-		}
-		cstrtResDto.setFileStorages(fsResDtos);
 		return cstrtResDto;
 	}
 
@@ -628,7 +627,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 			}
 			cstrtList.add(cstrtOpt.get());
 			// Get all progresses of the construction
-			List<ProgressEntity> prgList = this.progressRepo.findProgressByCstrtId(id);
+			List<ProgressEntity> prgList = this.progressRepo.findByConstructionId(id);
 			for (ProgressEntity prg : prgList) {
 				if (prg != null) {
 					prgIdListToDel.add(prg.getId());

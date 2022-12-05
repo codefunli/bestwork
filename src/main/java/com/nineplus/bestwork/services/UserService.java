@@ -250,10 +250,6 @@ public class UserService implements UserDetailsService {
 		return createdUser;
 	}
 
-	public List<UserEntity> findAllUsersByCompanyId(long companyId) {
-		return this.userRepo.findAllUsersByCompanyId(companyId);
-	}
-
 	public UserEntity getUserById(long userId) throws BestWorkBussinessException {
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
 		CompanyEntity company = companyRepository.findById(findCompanyIdByUsername(userAuthRoleReq))

@@ -24,8 +24,8 @@ public interface NotificationRepository extends JpaRepository<NotificationEntity
 					+ " and (n.is_read like if( :#{#pageSearchDto.status} = -1, '%%', :#{#pageSearchDto.status})) ")
 	Page<NotificationEntity> findAllByUser(long userId, PageSearchDto pageSearchDto, Pageable pageable);
 
-	@Query (value = " select count(n.id) from NOTIFICATION n where n.user_id = :userId"
+	@Query(value = " select count(n.id) from NOTIFICATION n where n.user_id = :userId"
 			+ " and n.is_read = 0 ", nativeQuery = true)
-	long countNotReadNotify(long userId);
+	long countUnreadNotify(long userId);
 
 }

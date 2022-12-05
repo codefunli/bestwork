@@ -25,9 +25,6 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
 	@Query(value = "select t.* from T_SYS_APP_USER t JOIN T_COMPANY_USER tcu ON (t.id = tcu.user_id) where tcu.company_id = :companyId and t.role_id = :role ", nativeQuery = true)
 	UserEntity findUserByOrgId(Long companyId, Long role);
 
-	@Query(value = "select * from T_SYS_APP_USER", countQuery = "select count(*) from T_SYS_APP_USER ", nativeQuery = true)
-	Page<UserEntity> getPageUser(Pageable pageable);
-
 	@Query(value = " select company_id from T_COMPANY_USER uc" + " join T_SYS_APP_USER u on u.id = uc.user_id "
 			+ " where u.user_name = :username", nativeQuery = true)
 	int findCompanyIdByAdminUsername(@Param("username") String companyAdminUsername);
@@ -41,10 +38,6 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
 	@Query(value = " select u.* from T_SYS_APP_USER u " + " where user_name like %?1% " + " or first_name like %?1% "
 			+ " or last_name like %?1% " + " or email like %?1% " + " or tel_no like %?1%", nativeQuery = true)
 	List<UserEntity> getUsersByKeyword(String keyword);
-
-	@Query(value = " select u.* from T_SYS_APP_USER u" + " join T_COMPANY_USER uc on uc.user_id = u.id "
-			+ " where uc.company_id = ?1 ", nativeQuery = true)
-	List<UserEntity> findAllUsersByCompanyId(long companyId);
 
 	@Query(value = " select tsau.* " + " from T_SYS_APP_USER tsau "
 			+ " join T_COMPANY_USER tcu on tsau.id = tcu.user_id "

@@ -273,7 +273,7 @@ public class CompanyService {
 
 			// delete all project of company
 			List<String> allProject = iProjectService.getAllProjectIdByCompany(Arrays.asList(listId.getLstCompanyId()));
-			iProjectService.deleteProjectById(allProject);
+			iProjectService.deleteProjectByIds(allProject);
 
 		} catch (Exception ex) {
 			logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0002, null), ex);

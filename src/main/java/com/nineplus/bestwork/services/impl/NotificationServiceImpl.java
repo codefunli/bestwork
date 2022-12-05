@@ -220,7 +220,7 @@ public class NotificationServiceImpl implements NotificationService {
 	public long countNotReadNotifys() throws BestWorkBussinessException {
 		UserAuthDetected userAuthDetected = userAuthUtils.getUserInfoFromReq(false);
 		UserEntity curUser = userService.findUserByUsername(userAuthDetected.getUsername());
-		long count = this.notifyRepository.countNotReadNotify(curUser.getId());
+		long count = this.notifyRepository.countUnreadNotify(curUser.getId());
 		return count;
 	}
 }

@@ -90,7 +90,7 @@ public class ProjectController extends BaseController {
 	public ResponseEntity<? extends Object> deleteMassiveProject(
 			@RequestBody ProjectDeleteByIdDto projectDeleteByIdDto) {
 		try {
-			this.projectService.deleteProjectById(projectDeleteByIdDto.getId());
+			this.projectService.deleteProjectByIds(projectDeleteByIdDto.getId());
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
 //			return failed(CommonConstants.MessageCode.S1X0012, ex.getParam());
