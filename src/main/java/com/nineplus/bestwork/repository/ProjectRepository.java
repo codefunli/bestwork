@@ -23,8 +23,7 @@ public interface ProjectRepository extends JpaRepository<ProjectEntity, String> 
 	@Modifying
 	void deleteProjectById(@Param("id") List<String> id);
 
-	@Query(value = "SELECT * FROM PROJECT WHERE project_name = :name", nativeQuery = true)
-	ProjectEntity findbyProjectName(@Param("name") String name);
+	ProjectEntity findByProjectName(String name);
 
 	@Query(value = "SELECT prj.id FROM PROJECT prj JOIN ASSIGN_TASK ast ON prj.id = ast.project_id where ast.company_id in ?1 ", nativeQuery = true)
 	List<String> getAllPrjIdByComp(List<Long> listCompanyId);
@@ -90,8 +89,7 @@ public interface ProjectRepository extends JpaRepository<ProjectEntity, String> 
 			+ "  where tsau.user_name = :curUsername and (ast.can_view = 1 or ast.can_edit = 1)) as PRJ "
 			+ "  where (PRJ.`project_name` like :#{#pageSearchDto.keyword} "
 			+ "  or PRJ.`description` like  :#{#pageSearchDto.keyword}) "
-			+ "  and PRJ.`status` like if ( :#{#pageSearchDto.status} = -1, '%%', :#{#pageSearchDto.status})", nativeQuery = true, 
-			countQuery = " select * from (select p.* from PROJECT p where p.create_by = :curUsername "
+			+ "  and PRJ.`status` like if ( :#{#pageSearchDto.status} = -1, '%%', :#{#pageSearchDto.status})", nativeQuery = true, countQuery = " select * from (select p.* from PROJECT p where p.create_by = :curUsername "
 					+ "  union " + "  select p.* from PROJECT p join ASSIGN_TASK ast on ast.project_id = p.id "
 					+ "  join T_SYS_APP_USER tsau on tsau.id = ast.user_id "
 					+ "  where tsau.user_name = :curUsername and (ast.can_view = 1 or ast.can_edit = 1)) as PRJ "

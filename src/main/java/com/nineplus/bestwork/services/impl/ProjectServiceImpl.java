@@ -302,7 +302,7 @@ public class ProjectServiceImpl implements IProjectService {
 		}
 		// Check exists Project name in database
 		if (!isEdit) {
-			ProjectEntity project = projectRepository.findbyProjectName(projectName);
+			ProjectEntity project = projectRepository.findByProjectName(projectName);
 			if (!ObjectUtils.isEmpty(project)) {
 				throw new BestWorkBussinessException(CommonConstants.MessageCode.S1X0013, new Object[] { project });
 			}
@@ -313,6 +313,7 @@ public class ProjectServiceImpl implements IProjectService {
 	@Transactional
 	public void updateProject(ProjectTaskReqDto projectTaskDto, ProjectTypeEntity projectType, String projectId)
 			throws BestWorkBussinessException {
+
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
 		String curUsername = userAuthRoleReq.getUsername();
 		UserEntity curUser = this.userService.findUserByUsername(curUsername);
@@ -470,12 +471,12 @@ public class ProjectServiceImpl implements IProjectService {
 		UserAuthDetected userAuthRoleReq = getAuthRoleReq();
 		String curUsername = userAuthRoleReq.getUsername();
 
-		Optional<ProjectEntity> projectOpt = projectRepository.findById(projectId);
-		if (!projectOpt.isPresent()) {
+		Optional<ProjectEntity> prjOpt = projectRepository.findById(projectId);
+		if (!prjOpt.isPresent()) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.S1X0002, null);
 		}
-		ProjectEntity project = projectOpt.get();
 		List<ProjectEntity> involvedPrjList = this.getPrjInvolvedByCurUser(curUsername);
+		ProjectEntity project = prjOpt.get();
 		if (!involvedPrjList.contains(project)) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
 		}
