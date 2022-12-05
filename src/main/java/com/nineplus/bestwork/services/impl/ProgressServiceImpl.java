@@ -4,10 +4,12 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,7 +25,6 @@ import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.model.UserAuthDetected;
 import com.nineplus.bestwork.repository.ProgressRepository;
 import com.nineplus.bestwork.repository.ProjectRepository;
-import com.nineplus.bestwork.repository.StorageRepository;
 import com.nineplus.bestwork.services.IConstructionService;
 import com.nineplus.bestwork.services.IProgressService;
 import com.nineplus.bestwork.services.IProjectService;
@@ -43,13 +44,14 @@ import com.nineplus.bestwork.utils.UserAuthUtils;
 @Transactional
 public class ProgressServiceImpl implements IProgressService {
 	@Autowired
+	@Lazy
+	private IConstructionService cstrtService;
+
+	@Autowired
 	private ProgressRepository progressRepo;
 
 	@Autowired
 	private ProjectRepository projectRepo;
-
-	@Autowired
-	private StorageRepository storageRepo;
 
 	@Autowired
 	DateUtils dateUtils;
@@ -62,9 +64,6 @@ public class ProgressServiceImpl implements IProgressService {
 
 	@Autowired
 	private IStorageService storageService;
-
-	@Autowired
-	private IConstructionService cstrtService;
 
 	@Autowired
 	private IProjectService projectService;
@@ -166,14 +165,38 @@ public class ProgressServiceImpl implements IProgressService {
 	public void deleteProgressList(List<Long> ids) throws BestWorkBussinessException {
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
 		try {
-			for (Long cstrtId : ids) {
-				this.chkCurUserCanCrtUpdPrg(userAuthRoleReq, cstrtId, true);
+			List<String> listPath = new ArrayList<>();
+			List<ProgressEntity> prgList = new ArrayList<>();
+			for (Long prgId : ids) {
+				Optional<ProgressEntity> prgOpt = this.progressRepo.findById(prgId);
+				if (!prgOpt.isPresent()) {
+					throw new BestWorkBussinessException(CommonConstants.MessageCode.ePu0003, null);
+				}
+				prgList.add(prgOpt.get());
+				// Get file-paths of the progress
+				List<String> paths = this.storageService.getPathFileByProgressId(prgId);
+				for (String path : paths) {
+					if (path != null) {
+						listPath.add(path);
+					}
+				}
 			}
-			progressRepo.delProgressWithId(ids);
-			List<FileStorageEntity> allFiles = storageRepo.findAllByPrgListId(ids);
-			if (allFiles != null) {
-				storageRepo.deleteAllInBatch(allFiles);
+			for (ProgressEntity prg : prgList) {
+				if (!prg.getCreateBy().equals(userAuthRoleReq.getUsername())) {
+					throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
+				}
 			}
+			if (prgList.contains(null)) {
+				throw new BestWorkBussinessException(CommonConstants.MessageCode.ePu0001, null);
+			}
+
+			// Remove file-paths from server
+			for (String path : listPath) {
+				this.sftpService.removeFile(path);
+			}
+			// Delete files of the progress from database
+			this.storageService.deleteByProgressIds(ids);
+			this.progressRepo.deleteAll(prgList);
 		} catch (Exception ex) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.ePu0001, null);
 		}

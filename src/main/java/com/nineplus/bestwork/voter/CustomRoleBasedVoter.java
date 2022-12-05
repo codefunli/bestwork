@@ -6,14 +6,11 @@ import java.util.List;
 
 import javax.servlet.ServletContext;
 
-import com.nineplus.bestwork.utils.CommonConstants;
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.ConfigAttribute;
-import org.springframework.security.config.annotation.web.AbstractRequestMatcherRegistry;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.FilterInvocation;
-import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.util.UriTemplate;
@@ -24,6 +21,7 @@ import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.model.enumtype.Status;
 import com.nineplus.bestwork.services.PermissionService;
 import com.nineplus.bestwork.services.SysActionService;
+import com.nineplus.bestwork.utils.CommonConstants;
 
 public class CustomRoleBasedVoter implements AccessDecisionVoter<FilterInvocation> {
 	private SysActionService sysActionService;
@@ -50,11 +48,11 @@ public class CustomRoleBasedVoter implements AccessDecisionVoter<FilterInvocatio
 	@Override
 	public int vote(Authentication authentication, FilterInvocation fi, Collection<ConfigAttribute> attributes) {
 		String url = fi.getRequestUrl().split("\\?")[0];
-		if(url.contains(CommonConstants.ApiPath.BASE_PATH)){
+		if (url.contains(CommonConstants.ApiPath.BASE_PATH)) {
 			url = url.split(CommonConstants.ApiPath.BASE_PATH)[1];
 		}
 		String methodType = fi.getRequest().getMethod();
-		if (isWhiteList(url)){
+		if (isWhiteList(url)) {
 			return ACCESS_GRANTED;
 		}
 		if (sysActionService == null) {
