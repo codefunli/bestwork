@@ -50,8 +50,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 
 	public static final String USERNAME = "username";
 	public static final String PASSWORD = "password";
-
-	protected UserEntity tUserAuth;
+	public static String currentUsername = "";
 
 	private AuthenticationManager authenticationManager;
 
@@ -78,6 +77,8 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
 			throws AuthenticationException {
 		String requestData = "";
+		String test = "";
+		implementBean(request);
 		try {
 			requestData = request.getReader().lines().collect(Collectors.joining());
 		} catch (IOException ex) {
@@ -86,7 +87,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 		JSONObject loginInfor = new JSONObject(requestData);
 		String username = loginInfor.getString(CommonConstants.Authentication.USERNAME);
 		String password = loginInfor.getString(CommonConstants.Authentication.PASSWORD);
-
+		currentUsername = username;
 		UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(username, password);
 		Authentication auth = authenticationManager.authenticate(authToken);
 		return auth;
@@ -98,10 +99,10 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 		response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 		// set content type as json
 		response.setContentType("application/json");
-		// set TUser && pecBeanUtils
+		String userName = currentUsername;
 		implementBean(request);
+		UserEntity tUserAuth = userService.getUserByUsername(userName);
 		LoginFailedResDto loginFailedDTO = new LoginFailedResDto();
-
 		if (ObjectUtils.isEmpty(tUserAuth)
 				|| tUserAuth.getRole().getRoleName().equals(CommonConstants.RoleName.SYS_ADMIN)) {
 			loginFailedDTO.setUsername(null);
@@ -119,13 +120,16 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 			loginFailedDTO.setCountLoginFailed(countLoginFailed);
 			loginFailedDTO.setLocked(isLocked);
 		}
-		response.getWriter().write(bestWorkBeanUtils.objectToJsonString(loginFailedDTO));
+		try {
+			response.getWriter().write(bestWorkBeanUtils.objectToJsonString(loginFailedDTO));
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override
 	protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
 			Authentication authResult) throws IOException, ServletException {
-		// reset login failed
 		implementBean(request);
 		User user = (User) authResult.getPrincipal();
 		List<Integer> lstStt = new ArrayList<>();
