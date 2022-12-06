@@ -8,8 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import com.nineplus.bestwork.entity.AssignTaskEntity;
 
 public interface AssignTaskRepository extends JpaRepository<AssignTaskEntity, Long> {
-	@Query(value = "SELECT * FROM ASSIGN_TASK WHERE company_id = :id", nativeQuery = true)
-	List<AssignTaskEntity> findbyCompanyId(Long id);
 
 	@Query(value = "SELECT * FROM ASSIGN_TASK WHERE user_id = ?1 and company_id = ?2 and project_id = ?3", nativeQuery = true)
 	AssignTaskEntity findbyCondition(Long userId, Long companyId, String projectId);

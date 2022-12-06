@@ -197,7 +197,7 @@ public class ProjectServiceImpl implements IProjectService {
 
 	@Override
 	@Transactional
-	public void deleteProjectById(List<String> listProjectId) throws BestWorkBussinessException {
+	public void deleteProjectByIds(List<String> listProjectId) throws BestWorkBussinessException {
 		UserAuthDetected userAuthRoleReq = getAuthRoleReq();
 		String curUsername = userAuthRoleReq.getUsername();
 		for (String id : listProjectId) {
@@ -210,7 +210,7 @@ public class ProjectServiceImpl implements IProjectService {
 			}
 		}
 		try {
-			this.projectRepository.deleteProjectById(listProjectId);
+			this.projectRepository.deleteProjectByIds(listProjectId);
 		} catch (Exception ex) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.S1X0012, null);
 		}
@@ -565,7 +565,7 @@ public class ProjectServiceImpl implements IProjectService {
 	 */
 	@Override
 	public List<ProjectEntity> getPrjCreatedByCurUser(String curUsername) {
-		return this.projectRepository.findPrjCreatedByCurUser(curUsername);
+		return this.projectRepository.findByCreateBy(curUsername);
 	}
 
 	/**

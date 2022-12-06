@@ -132,9 +132,11 @@ public class ProgressServiceImpl implements IProgressService {
 		if (curPrj == null) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.S1X0002, null);
 		}
-		if (!this.cstrtService.chkCurUserCanCreateCstrt(userAuthRoleReq, curPrj.getId())) {
+		if (!this.cstrtService.chkCurUserCanCreateCstrt(userAuthRoleReq, curPrj.getId())
+				|| !curCstrt.getCreateBy().equals(userAuthRoleReq.getUsername())) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
 		}
+
 	}
 
 	public void saveImage(List<MultipartFile> files, ProgressEntity progress) {
@@ -249,7 +251,7 @@ public class ProgressServiceImpl implements IProgressService {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.ECS0007, null);
 		}
 		List<ProgressResDto> progressDtoList = new ArrayList<ProgressResDto>();
-		List<ProgressEntity> progressLst = progressRepo.findProgressByCstrtId(Long.valueOf(constructionId));
+		List<ProgressEntity> progressLst = progressRepo.findByConstructionId(Long.valueOf(constructionId));
 		if (ObjectUtils.isNotEmpty(progressLst)) {
 			for (ProgressEntity prog : progressLst) {
 				ProgressResDto progressDto = new ProgressResDto();

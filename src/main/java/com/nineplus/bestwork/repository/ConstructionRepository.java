@@ -20,8 +20,7 @@ import com.nineplus.bestwork.entity.ConstructionEntity;
 @Repository
 public interface ConstructionRepository extends JpaRepository<ConstructionEntity, Long> {
 
-	@Query(value = " select * from CONSTRUCTION where construction_name = :constructionName ", nativeQuery = true)
-	ConstructionEntity findByName(String constructionName);
+	ConstructionEntity findByConstructionName(String constructionName);
 
 	@Query(value = "select c.* from CONSTRUCTION c " + " where c.project_code in :projectIds" + " and ( "
 			+ "	c.`construction_name` like :#{#pageSearchDto.keyword} "

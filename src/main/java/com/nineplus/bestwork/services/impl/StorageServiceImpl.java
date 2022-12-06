@@ -34,20 +34,6 @@ public class StorageServiceImpl implements IStorageService {
 	@Autowired
 	private StorageRepository storageRepository;
 
-	public List<FileStorageEntity> findFilesByPostId(String postId) {
-		return this.storageRepository.findAllByPostId(postId);
-	}
-
-	@Override
-	public List<FileStorageEntity> findFilesByProgressId(Long progressId) {
-		return this.storageRepository.findAllByProgressId(progressId);
-	}
-
-	@Override
-	public void deleteFilesByPostId(String postId) {
-		this.storageRepository.deleteByPostId(postId);
-	}
-
 	@Override
 	@Transactional
 	public void storeFile(Long id, FolderType type, String pathOnServer) {
@@ -156,6 +142,6 @@ public class StorageServiceImpl implements IStorageService {
 	@Override
 	public void deleteByProgressIds(List<Long> progressids) {
 		this.storageRepository.deleteByProgressIds(progressids);
-		
+
 	}
 }
