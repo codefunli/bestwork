@@ -25,6 +25,7 @@ import com.nineplus.bestwork.dto.PostInvoiceReqDto;
 import com.nineplus.bestwork.dto.PostInvoiceResDto;
 import com.nineplus.bestwork.entity.PostInvoice;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
+import com.nineplus.bestwork.services.IAirWayBillService;
 import com.nineplus.bestwork.services.IInvoicePostService;
 import com.nineplus.bestwork.utils.CommonConstants;
 
@@ -39,17 +40,17 @@ public class InvoicePostController extends BaseController {
 
 	@Autowired
 	IInvoicePostService iPostInvoiceService;
-
-	@PatchMapping("/update-invoice/{airWayBillCode}")
+	
+	@PatchMapping("/update-invoice/{awbId}")
 	public ResponseEntity<? extends Object> update(@RequestParam("file") List<MultipartFile> mFiles,
-			@RequestParam("invoiceDescription") String invoiceDes, @PathVariable String airWayBillCode)
+			@RequestParam("invoiceDescription") String invoiceDes, @PathVariable long awbId)
 			throws BestWorkBussinessException {
 		try {
 			PostInvoiceReqDto postInvoiceReqDto = new PostInvoiceReqDto();
 			if (StringUtils.isNotBlank(invoiceDes)) {
 				postInvoiceReqDto.setDescription(invoiceDes);
 			}
-			iPostInvoiceService.updatePostInvoice(mFiles, postInvoiceReqDto, airWayBillCode);
+			iPostInvoiceService.updatePostInvoice(mFiles, postInvoiceReqDto, awbId);
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}

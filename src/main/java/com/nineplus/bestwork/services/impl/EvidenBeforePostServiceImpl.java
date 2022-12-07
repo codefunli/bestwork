@@ -61,13 +61,13 @@ public class EvidenBeforePostServiceImpl implements IEvidenBeforePostService {
 		}
 		try {
 			if (ObjectUtils.isNotEmpty(evidenceBeforeReqDto)) {
-				String airWayCode = evidenceBeforeReqDto.getAirWayBillCode();
+				long awbId = evidenceBeforeReqDto.getAirWayBillId();
 				// Save information for post invoice
 				evidenceBefore = this.saveEvidenceBefore(evidenceBeforeReqDto);
 				long evidenceBeforePostId = evidenceBefore.getId();
 				// Upload file of post invoice into sever
 				for (MultipartFile mFile : mFiles) {
-					String pathServer = sftpFileService.uploadEvidenceBefore(mFile, airWayCode, evidenceBeforePostId);
+					String pathServer = sftpFileService.uploadEvidenceBefore(mFile, awbId, evidenceBeforePostId);
 					// Save path file of post invoice
 					iStorageService.storeFile(evidenceBeforePostId, FolderType.EVIDENCE_BEFORE, pathServer);
 				}
@@ -83,7 +83,7 @@ public class EvidenBeforePostServiceImpl implements IEvidenBeforePostService {
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
 		EvidenceBeforePost evidenceBefore = new EvidenceBeforePost();
 		try {
-			evidenceBefore.setAirWayBill(evidenceBeforeReqDto.getAirWayBillCode());
+			evidenceBefore.setAirWayBill(evidenceBeforeReqDto.getAirWayBillId());
 			evidenceBefore.setDescription(evidenceBeforeReqDto.getDescription());
 			evidenceBefore.setCreateBy(userAuthRoleReq.getUsername());
 			evidenceBefore.setUpdateBy(userAuthRoleReq.getUsername());

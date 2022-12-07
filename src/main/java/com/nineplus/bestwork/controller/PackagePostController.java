@@ -35,16 +35,16 @@ public class PackagePostController extends BaseController {
 	@Autowired
 	IPackagePostService iPackagePostService;
 
-	@PatchMapping("/update-package/{airWayBillCode}")
+	@PatchMapping("/update-package/{awbId}")
 	public ResponseEntity<? extends Object> update(@RequestParam("file") List<MultipartFile> mFiles,
-			@RequestParam("packageDescription") String packageDes, @PathVariable String airWayBillCode)
+			@RequestParam("packageDescription") String packageDes, @PathVariable long awbId)
 			throws BestWorkBussinessException {
 		try {
 			PackagePostReqDto packagePostReqDto = new PackagePostReqDto();
 			if (StringUtils.isNotBlank(packageDes)) {
 				packagePostReqDto.setDescription(packageDes);
 			}
-			iPackagePostService.updatePackagePost(mFiles, packagePostReqDto, airWayBillCode);
+			iPackagePostService.updatePackagePost(mFiles, packagePostReqDto, awbId);
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}
