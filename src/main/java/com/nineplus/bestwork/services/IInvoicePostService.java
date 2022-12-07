@@ -13,12 +13,12 @@ import com.nineplus.bestwork.entity.PostInvoice;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 
 public interface IInvoicePostService {
-	PostInvoice savePostInvoice(PostInvoiceReqDto postInvoiceReqDto, String airWayBillCode)
+	PostInvoice savePostInvoice(PostInvoiceReqDto postInvoiceReqDto, long awbId)
 			throws BestWorkBussinessException;
 
 	Optional<PostInvoice> getPostInvoice(Long postInvoiceId) throws BestWorkBussinessException;
 
-	void updatePostInvoice(List<MultipartFile> mFiles, PostInvoiceReqDto postInvoiceReqDto, String airWayCode)
+	void updatePostInvoice(List<MultipartFile> mFiles, PostInvoiceReqDto postInvoiceReqDto, long awbId)
 			throws BestWorkBussinessException;
 
 	public PostInvoiceResDto getDetailInvoice(Long invoicePostId) throws BestWorkBussinessException;
@@ -27,7 +27,7 @@ public interface IInvoicePostService {
 
 	byte[] getFile(Long postId, Long fileId) throws BestWorkBussinessException;
 
-	List<CustomClearanceInvoiceFileResDto> getInvoiceClearance(String code) throws BestWorkBussinessException;
+	List<CustomClearanceInvoiceFileResDto> getInvoiceClearance(long awbId) throws BestWorkBussinessException;
 
 	String getPathFileToDownload(Long postId, Long fileId) throws BestWorkBussinessException;
 

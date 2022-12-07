@@ -212,23 +212,13 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 	}
 
 	@Override
-	public AirWayBillResDto getDetail(String airWayBillCode) throws BestWorkBussinessException {
-		AirWayBillResDto airWayResDTO = null;
-		AirWayBill airway = airWayBillRepository.findByCode(airWayBillCode);
-		if (ObjectUtils.isNotEmpty(airway)) {
-			airWayResDTO = modelMapper.map(airway, AirWayBillResDto.class);
-		}
-		return airWayResDTO;
-	}
-
-	@Override
-	public CustomClearanceResDto getCustomClearanceDoc(String code) throws BestWorkBussinessException {
+	public CustomClearanceResDto getCustomClearanceDoc(long awbId) throws BestWorkBussinessException {
 		CustomClearanceResDto res = new CustomClearanceResDto();
-		List<CustomClearanceInvoiceFileResDto> invoiceInfo = iInvoicePostService.getInvoiceClearance(code);
+		List<CustomClearanceInvoiceFileResDto> invoiceInfo = iInvoicePostService.getInvoiceClearance(awbId);
 		if (ObjectUtils.isNotEmpty(invoiceInfo)) {
 			res.setInvoicesDoc(invoiceInfo);
 		}
-		List<CustomClearancePackageFileResDto> packageInfo = iPackagePostService.getPackageClearance(code);
+		List<CustomClearancePackageFileResDto> packageInfo = iPackagePostService.getPackageClearance(awbId);
 		if (ObjectUtils.isNotEmpty(packageInfo)) {
 			res.setPackagesDoc(packageInfo);
 		}
@@ -236,10 +226,10 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 	}
 
 	@Override
-	public List<String> createZipFolder(String code) throws BestWorkBussinessException {
+	public List<String> createZipFolder(long awbId) throws BestWorkBussinessException {
 		List<String> listPathToDownLoad = new ArrayList<>();
-		List<InvoiceFileProjection> invoiceInfo = postInvoiceRepository.getClearanceInfo(code);
-		List<PackageFileProjection> packageInfo = packagePostRepository.getClearancePackageInfo(code);
+		List<InvoiceFileProjection> invoiceInfo = postInvoiceRepository.getClearanceInfo(awbId);
+		List<PackageFileProjection> packageInfo = packagePostRepository.getClearancePackageInfo(awbId);
 
 		if (ObjectUtils.isNotEmpty(invoiceInfo)) {
 			for (InvoiceFileProjection invoice : invoiceInfo) {
@@ -251,16 +241,21 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 				listPathToDownLoad.add(pack.getPathFileServer());
 			}
 		}
-		return this.iSftpFileService.downloadFileTemp(code, listPathToDownLoad);
+		return this.iSftpFileService.downloadFileTemp(awbId, listPathToDownLoad);
 	}
 
 	@Override
 	@Transactional
-	public void changeStatus(String code, int destinationStatus) throws BestWorkBussinessException {
-		this.airWayBillRepository.changeStatus(code, destinationStatus);
+	public void changeStatus(long id, int destinationStatus) throws BestWorkBussinessException {
+		this.airWayBillRepository.changeStatus(id, destinationStatus);
 		if (destinationStatus == AirWayBillStatus.DONE.ordinal()) {
-			this.sendNotify(airWayBillRepository.findByCode(code), false, true);
+			this.sendNotify(airWayBillRepository.findById(id).get(), false, true);
 		}
+	}
+
+	@Override
+	public String findCodeById(long id) throws BestWorkBussinessException {
+		return this.airWayBillRepository.findCodeById(id);
 	}
 
 }

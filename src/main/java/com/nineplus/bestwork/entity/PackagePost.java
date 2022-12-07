@@ -52,7 +52,7 @@ public class PackagePost {
 	private String updateBy;
 
 	@Column(name = "airway_bill")
-	private String airWayBill;
+	private long airWayBill;
 
 	@OneToMany(mappedBy = "packagePostId")
 	private List<FileStorageEntity> fileStorages;

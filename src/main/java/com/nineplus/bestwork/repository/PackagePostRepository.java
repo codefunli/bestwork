@@ -18,8 +18,8 @@ public interface PackagePostRepository extends JpaRepository<PackagePost, Long> 
 	@Query(value = "SELECT ft.post_package_id as postPackageId, ft.id as fileId, ft.type as type, ft.name as name , ft.path_file_server as pathFileServer "
 			+ "FROM FILE_STORAGE ft " + "JOIN PACKAGE_POST pp ON ft.post_package_id = pp.id "
 			+ "JOIN AIRWAY_BILL aw ON  aw.code = pp.airway_bill "
-			+ "WHERE aw.code = :code AND ft.is_choosen = 1", nativeQuery = true)
-	List<PackageFileProjection> getClearancePackageInfo(String code);
+			+ "WHERE aw.id = :awbId AND ft.is_choosen = 1", nativeQuery = true)
+	List<PackageFileProjection> getClearancePackageInfo(long awbId);
 
 	PackagePost findByIdAndAirWayBill(Long postPackageId, String airWayBillCode);
 }

@@ -13,14 +13,14 @@ public interface IAirWayBillService {
 
 	List<AirWayBillResDto> getAllAirWayBillByProject(String projectId) throws BestWorkBussinessException;
 
-	AirWayBillResDto getDetail(String code) throws BestWorkBussinessException;
-
 	AirWayBill findByCode(String code);
 
-	CustomClearanceResDto getCustomClearanceDoc(String code) throws BestWorkBussinessException;
+	CustomClearanceResDto getCustomClearanceDoc(long awbId) throws BestWorkBussinessException;
 
-	List<String> createZipFolder(String code) throws BestWorkBussinessException;
+	List<String> createZipFolder(long awbId) throws BestWorkBussinessException;
 
-	void changeStatus(String code, int destinationStatus) throws BestWorkBussinessException;
+	void changeStatus(long id, int destinationStatus) throws BestWorkBussinessException;
+	
+	String findCodeById(long id) throws BestWorkBussinessException;
 
 }

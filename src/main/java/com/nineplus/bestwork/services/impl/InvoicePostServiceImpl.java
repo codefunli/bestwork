@@ -23,6 +23,7 @@ import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.model.UserAuthDetected;
 import com.nineplus.bestwork.repository.InvoiceFileProjection;
 import com.nineplus.bestwork.repository.PostInvoiceRepository;
+import com.nineplus.bestwork.services.IAirWayBillService;
 import com.nineplus.bestwork.services.IInvoicePostService;
 import com.nineplus.bestwork.services.ISftpFileService;
 import com.nineplus.bestwork.services.IStorageService;
@@ -48,12 +49,12 @@ public class InvoicePostServiceImpl implements IInvoicePostService {
 
 	@Override
 	@Transactional
-	public PostInvoice savePostInvoice(PostInvoiceReqDto postInvoiceReqDto, String airWayBillCode)
+	public PostInvoice savePostInvoice(PostInvoiceReqDto postInvoiceReqDto, long awbId)
 			throws BestWorkBussinessException {
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
 		PostInvoice postInvoce = new PostInvoice();
 		try {
-			postInvoce.setAirWayBill(airWayBillCode);
+			postInvoce.setAirWayBill(awbId);
 			postInvoce.setDescription(postInvoiceReqDto.getDescription());
 			postInvoce.setCreateBy(userAuthRoleReq.getUsername());
 			postInvoce.setUpdateBy(userAuthRoleReq.getUsername());
@@ -68,7 +69,7 @@ public class InvoicePostServiceImpl implements IInvoicePostService {
 
 	@Override
 	@Transactional
-	public void updatePostInvoice(List<MultipartFile> mFiles, PostInvoiceReqDto postInvoiceReqDto, String airWayCode)
+	public void updatePostInvoice(List<MultipartFile> mFiles, PostInvoiceReqDto postInvoiceReqDto, long awbId)
 			throws BestWorkBussinessException {
 		PostInvoice createPostInvoice = null;
 		// Validate file
@@ -77,14 +78,14 @@ public class InvoicePostServiceImpl implements IInvoicePostService {
 		}
 		try {
 			// Save information for post invoice
-			createPostInvoice = this.savePostInvoice(postInvoiceReqDto, airWayCode);
+			createPostInvoice = this.savePostInvoice(postInvoiceReqDto, awbId);
 			long postInvoiceId = createPostInvoice.getId();
-			// Upload file of post invoice into sever
-			for (MultipartFile mFile : mFiles) {
-				String pathServer = sftpFileService.uploadInvoice(mFile, airWayCode, postInvoiceId);
-				// Save path file of post invoice
-				iStorageService.storeFile(postInvoiceId, FolderType.INVOICE, pathServer);
-			}
+				// Upload file of post invoice into sever
+				for (MultipartFile mFile : mFiles) {
+					String pathServer = sftpFileService.uploadInvoice(mFile, awbId, postInvoiceId);
+					// Save path file of post invoice
+					iStorageService.storeFile(postInvoiceId, FolderType.INVOICE, pathServer);
+				}
 		} catch (Exception ex) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.eA0002, null);
 		}
@@ -178,10 +179,10 @@ public class InvoicePostServiceImpl implements IInvoicePostService {
 	}
 
 	@Override
-	public List<CustomClearanceInvoiceFileResDto> getInvoiceClearance(String code) throws BestWorkBussinessException {
+	public List<CustomClearanceInvoiceFileResDto> getInvoiceClearance(long awbId) throws BestWorkBussinessException {
 		List<CustomClearanceInvoiceFileResDto> lst = new ArrayList<>();
 		CustomClearanceInvoiceFileResDto customClearanceFileResDto = null;
-		List<InvoiceFileProjection> res = postInvoiceRepository.getClearanceInfo(code);
+		List<InvoiceFileProjection> res = postInvoiceRepository.getClearanceInfo(awbId);
 		for (InvoiceFileProjection projection : res) {
 			customClearanceFileResDto = new CustomClearanceInvoiceFileResDto();
 			customClearanceFileResDto.setFileId(projection.getFileId());
