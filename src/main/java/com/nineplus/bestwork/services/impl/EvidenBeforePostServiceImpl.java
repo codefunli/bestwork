@@ -111,6 +111,7 @@ public class EvidenBeforePostServiceImpl implements IEvidenBeforePostService {
 			res.setUpdateBy(evidence.getUpdateBy());
 			res.setCreateDate(evidence.getCreateDate().toString());
 			res.setUpdateDate(evidence.getUpdateDate().toString());
+			res.setPostType(CommonConstants.Character.TYPE_POST_IMAGE_BEFORE);
 			List<FileStorageResDto> fileStorageResponseDtos = new ArrayList<>();
 			for (FileStorageEntity file : evidence.getFileStorages()) {
 				FileStorageResDto fileStorageResponseDto = new FileStorageResDto();
