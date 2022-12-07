@@ -111,7 +111,8 @@ public class AirWayBillController extends BaseController {
 		}
 
 		if (ObjectUtils.isEmpty(customClearanceResDto.getInvoicesDoc())
-				&& ObjectUtils.isEmpty(customClearanceResDto.getPackagesDoc())) {
+				&& ObjectUtils.isEmpty(customClearanceResDto.getPackagesDoc())
+				&& ObjectUtils.isEmpty(customClearanceResDto.getImageBeforeDoc())) {
 			return success(CommonConstants.MessageCode.E1X0003, null, null);
 		}
 		return success(CommonConstants.MessageCode.sA0005, customClearanceResDto, null);
@@ -131,8 +132,8 @@ public class AirWayBillController extends BaseController {
 	}
 
 	@GetMapping(value = "{awbId}/download-clearance-doc")
-	public ResponseEntity<? extends Object> downloadZip(HttpServletResponse response,
-			@PathVariable long awbId) throws BestWorkBussinessException {
+	public ResponseEntity<? extends Object> downloadZip(HttpServletResponse response, @PathVariable long awbId)
+			throws BestWorkBussinessException {
 		List<String> listFile = iAirWayBillService.createZipFolder(awbId);
 		if (ObjectUtils.isEmpty(listFile)) {
 			return success(CommonConstants.MessageCode.E1X0003, null, null);
@@ -169,12 +170,13 @@ public class AirWayBillController extends BaseController {
 			} catch (IOException e) {
 				throw new BestWorkBussinessException(CommonConstants.MessageCode.eF0003, null);
 			}
-			
+
 			String airWayBillCode = iAirWayBillService.findCodeById(awbId);
 
 			return ResponseEntity.ok()
 					.header(HttpHeaders.CONTENT_DISPOSITION,
-							CommonConstants.MediaType.CONTENT_DISPOSITION + (ObjectUtils.isNotEmpty(airWayBillCode) ? airWayBillCode : awbId) + ZIP_EXTENSION)
+							CommonConstants.MediaType.CONTENT_DISPOSITION
+									+ (ObjectUtils.isNotEmpty(airWayBillCode) ? airWayBillCode : awbId) + ZIP_EXTENSION)
 					.body(Arrays.toString(new ByteArrayInputStream(bos.toByteArray()).readAllBytes()));
 		}
 	}

@@ -1,12 +1,12 @@
 package com.nineplus.bestwork.repository;
 
-public interface PackageFileProjection {
+public interface ImageBeforeFileProjection {
 	Long getAwbId();
 
 	String getCode();
 
-	Long getPostPackageId();
-	
+	Long getPostImageBeforeId();
+
 	Long getFileId();
 	
 	String getType();
