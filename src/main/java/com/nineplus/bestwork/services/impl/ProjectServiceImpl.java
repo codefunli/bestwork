@@ -507,8 +507,7 @@ public class ProjectServiceImpl implements IProjectService {
 		}
 
 		Map<Long, List<ProjectRoleUserResDto>> resultList = listRole.stream()
-				.map(listR -> new ProjectRoleUserResDto(listR.getCompanyId(), listR.getUserId(), listR.getUserName(),
-						listR.getCanView(), listR.getCanEdit()))
+				.map(listR -> new ProjectRoleUserResDto(listR.getCompanyId(), listR.getUserId(), listR.getUserName(), listR.getRoleName(), listR.getCanView(), listR.getCanEdit()))
 				.collect(Collectors.groupingBy(ProjectRoleUserResDto::getCompanyId, Collectors.toList()));
 		return resultList;
 	}
