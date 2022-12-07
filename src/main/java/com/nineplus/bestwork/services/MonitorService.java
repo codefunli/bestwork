@@ -60,13 +60,9 @@ public class MonitorService {
 	@Autowired
 	private PageUtils responseUtils;
 
-	public List<MonitorResDto> getMonitors(Long id) throws BestWorkBussinessException {
-		List<SysMonitorEntity> monitors = monitorRepository.findAllMonitorByRoleId(id);
-		if (!monitors.isEmpty()) {
-			return (List<MonitorResDto>) modelMapper.map(monitors, List.class);
-		}
-		throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
-
+	public List<MonitorResDto> getMonitors() {
+		List<SysMonitorEntity> entities = monitorRepository.findAll();
+		return  entities.stream().map(sysMonitorEntity -> modelMapper.map(sysMonitorEntity, MonitorResDto.class)).toList();
 	}
 
 	@Transactional(rollbackFor = { Exception.class })
