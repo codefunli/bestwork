@@ -66,12 +66,12 @@ public class PackagePostController extends BaseController {
 		return success(CommonConstants.MessageCode.sP0002, packagePostResDto, null);
 	}
 
-	@GetMapping("/list/by/{airWayBillId}")
-	public ResponseEntity<? extends Object> getAllPackagePost(@PathVariable String airWayBillId)
+	@GetMapping("/list/by/{awbId}")
+	public ResponseEntity<? extends Object> getAllPackagePost(@PathVariable long awbId)
 			throws BestWorkBussinessException {
 		List<PackagePostResDto> listPackagePostResDto = null;
 		try {
-			listPackagePostResDto = iPackagePostService.getAllPackagePost(airWayBillId);
+			listPackagePostResDto = iPackagePostService.getAllPackagePost(awbId);
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}

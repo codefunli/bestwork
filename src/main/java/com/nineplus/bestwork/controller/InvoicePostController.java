@@ -72,12 +72,12 @@ public class InvoicePostController extends BaseController {
 		return success(CommonConstants.MessageCode.sI0002, postInvoiceResDto, null);
 	}
 
-	@GetMapping("/list/by/{airWayBillId}")
-	public ResponseEntity<? extends Object> getAllPackagePost(@PathVariable String airWayBillId)
+	@GetMapping("/list/by/{awbId}")
+	public ResponseEntity<? extends Object> getAllPackagePost(@PathVariable long awbId)
 			throws BestWorkBussinessException {
 		List<PostInvoiceResDto> listPostInvoiceResDto = null;
 		try {
-			listPostInvoiceResDto = iPostInvoiceService.getAllInvoicePost(airWayBillId);
+			listPostInvoiceResDto = iPostInvoiceService.getAllInvoicePost(awbId);
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}

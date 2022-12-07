@@ -23,7 +23,7 @@ public interface IPackagePostService {
 
 	public PackagePostResDto getDetailPackage(Long packagePostId) throws BestWorkBussinessException;
 
-	List<PackagePostResDto> getAllPackagePost(String airWayBillCode) throws BestWorkBussinessException;
+	List<PackagePostResDto> getAllPackagePost(long awbId) throws BestWorkBussinessException;
 
 	byte[] getFile(Long packagePostId, Long fileId) throws BestWorkBussinessException;
 

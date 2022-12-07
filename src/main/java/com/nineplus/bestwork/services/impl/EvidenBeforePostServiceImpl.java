@@ -96,8 +96,8 @@ public class EvidenBeforePostServiceImpl implements IEvidenBeforePostService {
 	}
 
 	@Override
-	public List<EvidenceBeforeResDto> getAllEvidenceBefore(String airWayBillId) throws BestWorkBussinessException {
-		List<EvidenceBeforePost> listEvidence = evidenceBeforePostRepository.findByAirWayBill(airWayBillId);
+	public List<EvidenceBeforeResDto> getAllEvidenceBefore(long awbId) throws BestWorkBussinessException {
+		List<EvidenceBeforePost> listEvidence = evidenceBeforePostRepository.findByAirWayBill(awbId);
 		List<EvidenceBeforeResDto> listEvidenceResDto = new ArrayList<>();
 		EvidenceBeforeResDto res = null;
 		for (EvidenceBeforePost evidence : listEvidence) {

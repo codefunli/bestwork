@@ -10,7 +10,7 @@ import com.nineplus.bestwork.entity.PostInvoice;
 
 @Repository
 public interface PostInvoiceRepository extends JpaRepository<PostInvoice, Long> {
-	List<PostInvoice> findByAirWayBill(String airWayBill);
+	List<PostInvoice> findByAirWayBill(long awbId);
 
 	PostInvoice findByIdAndAirWayBill(Long postInvoiceId, String airWayBill);
 

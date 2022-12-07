@@ -23,7 +23,6 @@ import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.model.UserAuthDetected;
 import com.nineplus.bestwork.repository.InvoiceFileProjection;
 import com.nineplus.bestwork.repository.PostInvoiceRepository;
-import com.nineplus.bestwork.services.IAirWayBillService;
 import com.nineplus.bestwork.services.IInvoicePostService;
 import com.nineplus.bestwork.services.ISftpFileService;
 import com.nineplus.bestwork.services.IStorageService;
@@ -125,8 +124,8 @@ public class InvoicePostServiceImpl implements IInvoicePostService {
 	}
 
 	@Override
-	public List<PostInvoiceResDto> getAllInvoicePost(String airWayBillId) throws BestWorkBussinessException {
-		List<PostInvoice> listInvoicePost = postInvoiceRepository.findByAirWayBill(airWayBillId);
+	public List<PostInvoiceResDto> getAllInvoicePost(long awbId) throws BestWorkBussinessException {
+		List<PostInvoice> listInvoicePost = postInvoiceRepository.findByAirWayBill(awbId);
 		List<PostInvoiceResDto> listPostInvoiceResDto = new ArrayList<>();
 		PostInvoiceResDto res = null;
 		for (PostInvoice invoice : listInvoicePost) {

@@ -123,8 +123,8 @@ public class PackagePostServiceImpl implements IPackagePostService {
 	}
 
 	@Override
-	public List<PackagePostResDto> getAllPackagePost(String airWayBillCode) throws BestWorkBussinessException {
-		List<PackagePost> listPackagePost = packagePostRepository.findByAirWayBill(airWayBillCode);
+	public List<PackagePostResDto> getAllPackagePost(long awbId) throws BestWorkBussinessException {
+		List<PackagePost> listPackagePost = packagePostRepository.findByAirWayBill(awbId);
 		List<PackagePostResDto> listPackagePostResDto = null;
 		PackagePostResDto res = null;
 		if (ObjectUtils.isNotEmpty(listPackagePost)) {
