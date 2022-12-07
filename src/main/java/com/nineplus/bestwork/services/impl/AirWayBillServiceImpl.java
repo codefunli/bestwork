@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.nineplus.bestwork.dto.AirWayBillReqDto;
 import com.nineplus.bestwork.dto.AirWayBillResDto;
+import com.nineplus.bestwork.dto.CustomClearanceImageFileResDto;
 import com.nineplus.bestwork.dto.CustomClearanceInvoiceFileResDto;
 import com.nineplus.bestwork.dto.CustomClearancePackageFileResDto;
 import com.nineplus.bestwork.dto.CustomClearanceResDto;
@@ -33,6 +34,7 @@ import com.nineplus.bestwork.repository.PackageFileProjection;
 import com.nineplus.bestwork.repository.PackagePostRepository;
 import com.nineplus.bestwork.repository.PostInvoiceRepository;
 import com.nineplus.bestwork.services.IAirWayBillService;
+import com.nineplus.bestwork.services.IEvidenBeforePostService;
 import com.nineplus.bestwork.services.IInvoicePostService;
 import com.nineplus.bestwork.services.IPackagePostService;
 import com.nineplus.bestwork.services.IProjectService;
@@ -60,6 +62,9 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 
 	@Autowired
 	IPackagePostService iPackagePostService;
+	
+	@Autowired
+	IEvidenBeforePostService iEvidenBeforePostService;
 
 	@Autowired
 	UserAuthUtils userAuthUtils;
@@ -221,6 +226,11 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 		List<CustomClearancePackageFileResDto> packageInfo = iPackagePostService.getPackageClearance(awbId);
 		if (ObjectUtils.isNotEmpty(packageInfo)) {
 			res.setPackagesDoc(packageInfo);
+		}
+		
+		List<CustomClearanceImageFileResDto> imageBeforeInfo = iEvidenBeforePostService.getImageClearance(awbId);
+		if (ObjectUtils.isNotEmpty(imageBeforeInfo)) {
+			res.setImageBeforeDoc(imageBeforeInfo);
 		}
 		return res;
 	}

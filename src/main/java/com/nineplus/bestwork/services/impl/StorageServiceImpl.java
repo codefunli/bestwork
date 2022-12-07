@@ -95,6 +95,8 @@ public class StorageServiceImpl implements IStorageService {
 				storageRepository.changeStatusInvoice(postId, listFile, toStatus);
 			} else if (CommonConstants.Character.TYPE_POST_PACKAGE.equals(postType)) {
 				storageRepository.changeStatusPackage(postId, listFile, toStatus);
+			} else if (CommonConstants.Character.TYPE_POST_IMAGE_BEFORE.equals(postType)) {
+				storageRepository.changeStatusImageBefore(postId, listFile, toStatus);
 			}
 		}
 	}
