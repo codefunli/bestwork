@@ -119,6 +119,7 @@ public class EvidenBeforePostServiceImpl implements IEvidenBeforePostService {
 				fileStorageResponseDto.setName(file.getName());
 				fileStorageResponseDto.setCreateDate(file.getCreateDate().toString());
 				fileStorageResponseDto.setType(file.getType());
+				fileStorageResponseDto.setChoosen(file.isChoosen());
 				// return content file if file is image
 				if (Arrays.asList(CommonConstants.Image.IMAGE_EXTENSION).contains(file.getType())) {
 					String pathServer = file.getPathFileServer();
