@@ -143,7 +143,7 @@ public class EvidenAfterPostServiceImpl implements IEvidenAfterPostService {
 		if (ObjectUtils.isNotEmpty(evidenceAfterPostId) && ObjectUtils.isNotEmpty(postCommentRequestDto)) {
 			// Check exist post invoice with air way bill in DB
 			evidenceAfter = this.evidenceAfterPostRepository.findByIdAndAirWayBill(evidenceAfterPostId,
-					postCommentRequestDto.getAirWayBillCode());
+					postCommentRequestDto.getAwbId());
 			if (ObjectUtils.isEmpty(evidenceAfter)) {
 				throw new BestWorkBussinessException(CommonConstants.MessageCode.eEA0002, null);
 			}

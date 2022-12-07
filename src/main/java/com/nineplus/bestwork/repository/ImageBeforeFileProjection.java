@@ -3,8 +3,6 @@ package com.nineplus.bestwork.repository;
 public interface ImageBeforeFileProjection {
 	Long getAwbId();
 
-	String getCode();
-
 	Long getPostImageBeforeId();
 
 	Long getFileId();
