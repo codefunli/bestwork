@@ -20,4 +20,6 @@ public interface AirWayBillRepository extends JpaRepository<AirWayBill, Long> {
 	void changeStatus(long airWayBillId, int destinationStatus);
 
 	String findCodeById(long id);
+
+	Integer countAllByCodeInAndStatus(List<String> lstCode,Integer status);
 }

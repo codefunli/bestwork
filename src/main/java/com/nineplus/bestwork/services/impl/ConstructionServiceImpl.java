@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.modelmapper.ModelMapper;
@@ -118,9 +119,9 @@ public class ConstructionServiceImpl implements IConstructionService {
 		try {
 			Pageable pageable = convertSearch(pageSearchDto);
 
-			List<ProjectEntity> canViewprjList = projectService.getPrjLstByAnyUsername(userAuthRoleReq);
+			List<ProjectEntity> canViewPrjList = projectService.getPrjLstByAnyUsername(userAuthRoleReq);
 			List<String> prjIds = new ArrayList<>();
-			for (ProjectEntity project : canViewprjList) {
+			for (ProjectEntity project : canViewPrjList) {
 				prjIds.add(project.getId());
 			}
 			Page<ConstructionEntity> pageCstrt = cstrtRepo.findCstrtByPrjIds(prjIds, pageSearchDto, pageable);
@@ -273,7 +274,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 
 		// Check if current project (found by project id) exists or not
 		Optional<ProjectEntity> curProjectOpt = this.projectService.getProjectById(cstrtReqDto.getProjectCode());
-		if (!curProjectOpt.isPresent()) {
+		if (curProjectOpt.isEmpty()) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.EXS0004,
 					new Object[] { CommonConstants.Character.PROJECT });
 		}
@@ -303,7 +304,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 						new Object[] { "AWB code " + code });
 			}
 			Optional<ProjectEntity> projectOpt = this.projectService.getProjectById(airWayBill.getProjectCode());
-			if (!projectOpt.isPresent()) {
+			if (projectOpt.isEmpty()) {
 				throw new BestWorkBussinessException(CommonConstants.MessageCode.EXS0007,
 						new Object[] { "code " + code });
 			}
@@ -315,7 +316,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.EXS0005, null);
 		} else if (prjContainAWBs.size() == 1 && !prjContainAWBs.contains(curProject)) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.EXS0008, null);
-		} else if (prjContainAWBs.size() == 0 || prjContainAWBs.isEmpty()) {
+		} else if (prjContainAWBs.size() == 0) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.EXS0006, null);
 		}
 
@@ -333,15 +334,9 @@ public class ConstructionServiceImpl implements IConstructionService {
 	 * @param awbCodes
 	 * @return true/false
 	 */
-	private Boolean checkAWBStatus(List<AirWayBillReqDto> awbCodes) {
-		for (AirWayBillReqDto awbResDto : awbCodes) {
-			String code = awbResDto.getCode();
-			AirWayBill airWayBill = this.awbService.findByCode(code);
-			if (AirWayBillStatus.values()[airWayBill.getStatus()].equals(AirWayBillStatus.DONE)) {
-				return true;
-			}
-		}
-		return false;
+	public Boolean checkAWBStatus(List<AirWayBillReqDto> awbCodes) {
+		List<String> codes = awbCodes.stream().map(AirWayBillReqDto::getCode).toList();
+		return this.awbService.checkExistAwbDone(codes);
 	}
 
 	/**
@@ -390,7 +385,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 	public ConstructionResDto findCstrtResById(long constructionId) throws BestWorkBussinessException {
 		UserAuthDetected userAuthRoleReq = this.getUserAuthRoleReq();
 		Optional<ConstructionEntity> constructionOpt = cstrtRepo.findById(constructionId);
-		if (!constructionOpt.isPresent()) {
+		if (constructionOpt.isEmpty()) {
 			return null;
 		}
 		if (!chkCurUserCanViewCstrt(constructionId, userAuthRoleReq)) {
@@ -518,7 +513,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 		UserAuthDetected userAuthRoleReq = this.getUserAuthRoleReq();
 		String curUsername = userAuthRoleReq.getUsername();
 		Optional<ConstructionEntity> constructionOpt = cstrtRepo.findById(constructionId);
-		if (!constructionOpt.isPresent()) {
+		if (constructionOpt.isEmpty()) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
 		}
 		ConstructionEntity curConstruction = constructionOpt.get();
@@ -622,7 +617,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 		List<Long> prgIdListToDel = new ArrayList<>();
 		for (long id : ids) {
 			Optional<ConstructionEntity> cstrtOpt = cstrtRepo.findById(id);
-			if (!cstrtOpt.isPresent()) {
+			if (cstrtOpt.isEmpty()) {
 				throw new BestWorkBussinessException(CommonConstants.MessageCode.ECS0007, null);
 			}
 			cstrtList.add(cstrtOpt.get());
@@ -665,11 +660,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 	@Override
 	public ConstructionEntity findCstrtById(long constructionId) {
 		Optional<ConstructionEntity> cstrtOpt = this.cstrtRepo.findById(constructionId);
-		if (!cstrtOpt.isPresent()) {
-			return null;
-		} else {
-			return cstrtOpt.get();
-		}
+		return cstrtOpt.orElse(null);
 	}
 
 	@Override

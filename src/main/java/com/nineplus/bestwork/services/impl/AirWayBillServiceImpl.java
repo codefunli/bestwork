@@ -258,4 +258,10 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 		return this.airWayBillRepository.findCodeById(id);
 	}
 
+	@Override
+	public boolean checkExistAwbDone(List<String> codeLst) {
+		return airWayBillRepository.countAllByCodeInAndStatus(codeLst, AirWayBillStatus.DONE.getStatus()) > 0;
+
+	}
+
 }

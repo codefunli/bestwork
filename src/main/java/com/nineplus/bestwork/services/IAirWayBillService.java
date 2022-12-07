@@ -23,4 +23,6 @@ public interface IAirWayBillService {
 	
 	String findCodeById(long id) throws BestWorkBussinessException;
 
+	boolean checkExistAwbDone(List<String> codeLst);
+
 }
