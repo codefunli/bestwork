@@ -15,7 +15,7 @@ import com.nineplus.bestwork.entity.EvidenceBeforePost;
 @Repository
 public interface EvidenceBeforePostRepository extends JpaRepository<EvidenceBeforePost, Long> {
 
-	List<EvidenceBeforePost> findByAirWayBill(String airWayBillId);
+	List<EvidenceBeforePost> findByAirWayBill(long airWayBillId);
 
 	EvidenceBeforePost findByIdAndAirWayBill(Long evidenceBeforePostId, String airWayBillCode);
 }

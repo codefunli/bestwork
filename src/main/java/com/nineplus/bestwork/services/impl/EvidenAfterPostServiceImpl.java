@@ -96,8 +96,8 @@ public class EvidenAfterPostServiceImpl implements IEvidenAfterPostService {
 	}
 
 	@Override
-	public List<EvidenceAfterResDto> getAllEvidenceAfter(String airWayBillId) throws BestWorkBussinessException {
-		List<EvidenceAfterPost> listEvidence = evidenceAfterPostRepository.findByAirWayBill(airWayBillId);
+	public List<EvidenceAfterResDto> getAllEvidenceAfter(long awbId) throws BestWorkBussinessException {
+		List<EvidenceAfterPost> listEvidence = evidenceAfterPostRepository.findByAirWayBill(awbId);
 		List<EvidenceAfterResDto> listEvidenceResDto = new ArrayList<>();
 		EvidenceAfterResDto res = null;
 		for (EvidenceAfterPost evidence : listEvidence) {

@@ -46,5 +46,8 @@ public class ProjectResDto extends BaseDto {
 
 	@JsonProperty("startDate")
 	private String startDate;
+	
+	@JsonProperty("createBy")
+	private String createBy;
 
 }

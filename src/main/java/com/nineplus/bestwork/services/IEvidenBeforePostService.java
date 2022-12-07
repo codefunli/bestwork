@@ -20,7 +20,7 @@ public interface IEvidenBeforePostService {
 	void updateEvidenceBefore(EvidenceBeforeReqDto evidenceBeforeReqDto, List<MultipartFile> mFiles)
 			throws BestWorkBussinessException;
 
-	List<EvidenceBeforeResDto> getAllEvidenceBefore(String airWayBillId) throws BestWorkBussinessException;
+	List<EvidenceBeforeResDto> getAllEvidenceBefore(long awbId) throws BestWorkBussinessException;
 
 	EvidenceBeforePost pushComment(Long evidenceBeforePostId, PostCommentReqDto postCommentRequestDto)
 			throws BestWorkBussinessException;
