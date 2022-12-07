@@ -15,8 +15,8 @@ public class PostCommentReqDto extends BaseDto {
 	 */
 	private static final long serialVersionUID = 5245229871548232443L;
 
-	@JsonProperty("airWayBillCode")
-	private String airWayBillCode;
+	@JsonProperty("awbId")
+	private long awbId;
 
 	@JsonProperty("comment")
 	private String comment;

@@ -18,7 +18,7 @@ public interface EvidenceBeforePostRepository extends JpaRepository<EvidenceBefo
 
 	List<EvidenceBeforePost> findByAirWayBill(long airWayBillId);
 
-	EvidenceBeforePost findByIdAndAirWayBill(Long evidenceBeforePostId, String airWayBillCode);
+	EvidenceBeforePost findByIdAndAirWayBill(long evidenceBeforePostId, long awbId);
 
 	@Query(value = "SELECT aw.id as awbId, ft.evidence_before_post_id as postImageBeforeId, ft.id as fileId, ft.type as type, ft.name as name , ft.path_file_server as pathFileServer "
 			+ "FROM FILE_STORAGE ft " + "JOIN EVIDENCE_BEFORE_POST ebp ON ft.evidence_before_post_id = ebp.id "

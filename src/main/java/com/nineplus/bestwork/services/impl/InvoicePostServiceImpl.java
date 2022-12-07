@@ -208,7 +208,7 @@ public class InvoicePostServiceImpl implements IInvoicePostService {
 			if (ObjectUtils.isNotEmpty(postInvoiceId) && ObjectUtils.isNotEmpty(postCommentRequestDto)) {
 				// Check exist post invoice with air way bill in DB
 				currentPost = this.postInvoiceRepository.findByIdAndAirWayBill(postInvoiceId,
-						postCommentRequestDto.getAirWayBillCode());
+						postCommentRequestDto.getAwbId());
 				if (ObjectUtils.isEmpty(currentPost)) {
 					throw new BestWorkBussinessException(CommonConstants.MessageCode.eI0003, null);
 				}

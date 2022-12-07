@@ -214,7 +214,7 @@ public class PackagePostServiceImpl implements IPackagePostService {
 			if (ObjectUtils.isNotEmpty(postPackageId) && ObjectUtils.isNotEmpty(postCommentRequestDto)) {
 				// Check exist post invoice with air way bill in DB
 				currentPost = this.packagePostRepository.findByIdAndAirWayBill(postPackageId,
-						postCommentRequestDto.getAirWayBillCode());
+						postCommentRequestDto.getAwbId());
 				if (ObjectUtils.isEmpty(currentPost)) {
 					throw new BestWorkBussinessException(CommonConstants.MessageCode.eP0003, null);
 				}

@@ -146,7 +146,7 @@ public class EvidenBeforePostServiceImpl implements IEvidenBeforePostService {
 			if (ObjectUtils.isNotEmpty(evidenceBeforePostId) && ObjectUtils.isNotEmpty(postCommentRequestDto)) {
 				// Check exist post invoice with air way bill in DB
 				evidenceBefore = this.evidenceBeforePostRepository.findByIdAndAirWayBill(evidenceBeforePostId,
-						postCommentRequestDto.getAirWayBillCode());
+						postCommentRequestDto.getAwbId());
 				if (ObjectUtils.isEmpty(evidenceBefore)) {
 					throw new BestWorkBussinessException(CommonConstants.MessageCode.eEB0002, null);
 				}

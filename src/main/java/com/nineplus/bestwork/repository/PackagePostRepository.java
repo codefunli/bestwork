@@ -21,5 +21,5 @@ public interface PackagePostRepository extends JpaRepository<PackagePost, Long> 
 			+ "WHERE aw.id = :awbId AND ft.is_choosen = 1", nativeQuery = true)
 	List<PackageFileProjection> getClearancePackageInfo(long awbId);
 
-	PackagePost findByIdAndAirWayBill(Long postPackageId, String airWayBillCode);
+	PackagePost findByIdAndAirWayBill(long postPackageId, long awbId);
 }
