@@ -7,7 +7,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.modelmapper.ModelMapper;
@@ -53,7 +52,6 @@ import com.nineplus.bestwork.services.NotificationService;
 import com.nineplus.bestwork.services.UserService;
 import com.nineplus.bestwork.utils.CommonConstants;
 import com.nineplus.bestwork.utils.ConvertResponseUtils;
-import com.nineplus.bestwork.utils.Enums.AirWayBillStatus;
 import com.nineplus.bestwork.utils.Enums.ConstructionStatus;
 import com.nineplus.bestwork.utils.Enums.FolderType;
 import com.nineplus.bestwork.utils.MessageUtils;
@@ -218,6 +216,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 		trsferDtoToCstrt(constructionReqDto, construction);
 		try {
 			construction = this.cstrtRepo.save(construction);
+			projectService.updateStsProject(construction.getProjectCode());
 
 			if (!sftpService.isValidFile(drawings)) {
 				throw new BestWorkBussinessException(CommonConstants.MessageCode.eF0002, null);
@@ -666,5 +665,13 @@ public class ConstructionServiceImpl implements IConstructionService {
 	@Override
 	public ConstructionEntity findCstrtByPrgId(Long progressId) {
 		return this.cstrtRepo.findByProgressId(progressId);
+	}
+
+	@Override
+	@Transactional
+	public void updateStsConstruction(long progressId, String status) throws BestWorkBussinessException {
+		ConstructionEntity constructionCur = this.cstrtRepo.findByProgressId(progressId);
+		constructionCur.setStatus(status);
+		this.cstrtRepo.save(constructionCur);
 	}
 }
