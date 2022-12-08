@@ -250,11 +250,8 @@ public class ProgressServiceImpl implements IProgressService {
 					fileDto.setType(file.getType());
 					fileDto.setCreateDate(file.getCreateDate().toString());
 					String pathServer = file.getPathFileServer();
-					// return content file if file is image
-					if (Arrays.asList(CommonConstants.Image.IMAGE_EXTENSION).contains(file.getType())) {
 						byte[] imageContent = sftpService.getFile(pathServer);
 						fileDto.setContent(imageContent);
-					}
 					if (pathServer.contains(PROGRESS_PATH_BEFORE)) {
 						lstFileBefore.add(fileDto);
 					} else if (pathServer.contains(PROGRESS_PATH_AFTER)) {
