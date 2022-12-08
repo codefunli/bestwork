@@ -264,6 +264,8 @@ public class CommonConstants {
 		public static final String sI0004 = "sI0004";
 
 		public static final String SCS0001 = "scs0001";
+
+		public static final  String SCN001 = "SCN001";
 		public static final String ECS0001 = "ecs0001";
 		public static final String SCS0002 = "scs0002";
 		public static final String ECS0002 = "ecs0002";

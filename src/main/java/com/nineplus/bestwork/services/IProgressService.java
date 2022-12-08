@@ -2,6 +2,7 @@ package com.nineplus.bestwork.services;
 
 import java.util.List;
 
+import com.nineplus.bestwork.dto.ProgressConsDto;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.nineplus.bestwork.dto.ProgressReqDto;
@@ -25,4 +26,5 @@ public interface IProgressService {
 
 	List<ProgressResDto> getProgressByConstruction(String constructionId) throws BestWorkBussinessException;
 
+    List<ProgressConsDto> getProgressUser(String username);
 }

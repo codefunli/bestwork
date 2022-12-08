@@ -371,4 +371,11 @@ public class CompanyService {
 		return "*" + text + "*";
 	}
 
+	public Integer countCompanyUser(String username) {
+		UserEntity user = userService.findUserByUsername(username);
+		if (ObjectUtils.isNotEmpty(user)) {
+			return user.getCompanys().size();
+		}
+		return 0;
+	}
 }

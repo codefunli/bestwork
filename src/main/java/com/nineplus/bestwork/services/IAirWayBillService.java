@@ -1,6 +1,7 @@
 package com.nineplus.bestwork.services;
 
 import java.util.List;
+import java.util.Map;
 
 import com.nineplus.bestwork.dto.AirWayBillReqDto;
 import com.nineplus.bestwork.dto.AirWayBillResDto;
@@ -25,4 +26,7 @@ public interface IAirWayBillService {
 
 	boolean checkExistAwbDone(List<String> codeLst);
 
+	Integer countAwbUser(String username);
+
+	Map<String, Integer> countAwbByStatus(String username);
 }
