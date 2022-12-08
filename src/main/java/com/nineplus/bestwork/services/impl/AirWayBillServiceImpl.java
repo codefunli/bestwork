@@ -276,4 +276,14 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 		}
 	}
 
+	@Override
+	public String findCodeById(long id) throws BestWorkBussinessException {
+		return this.airWayBillRepository.findCodeById(id);
+	}
+
+	@Override
+	public boolean checkExistAwbDone(List<String> codeLst) {
+		return airWayBillRepository.countAllByCodeInAndStatus(codeLst, AirWayBillStatus.DONE.getStatus()) > 0;
+
+	}
 }
