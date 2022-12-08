@@ -21,6 +21,4 @@ public interface IAirWayBillService {
 
 	void changeStatus(long id, int destinationStatus) throws BestWorkBussinessException;
 	
-	String findCodeById(long id) throws BestWorkBussinessException;
-
 }
