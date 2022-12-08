@@ -22,18 +22,23 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.nineplus.bestwork.dto.AirWayBillReqDto;
 import com.nineplus.bestwork.dto.AirWayBillResDto;
+import com.nineplus.bestwork.dto.CompanyBriefResDto;
 import com.nineplus.bestwork.dto.ConstructionReqDto;
 import com.nineplus.bestwork.dto.ConstructionResDto;
 import com.nineplus.bestwork.dto.FileStorageResDto;
 import com.nineplus.bestwork.dto.IdsToDelReqDto;
+import com.nineplus.bestwork.dto.NationResDto;
 import com.nineplus.bestwork.dto.NotificationReqDto;
 import com.nineplus.bestwork.dto.PageResDto;
-import com.nineplus.bestwork.dto.PageSearchDto;
+import com.nineplus.bestwork.dto.PageSearchConstrctDto;
+import com.nineplus.bestwork.dto.ProjectResDto;
 import com.nineplus.bestwork.dto.RPageDto;
 import com.nineplus.bestwork.entity.AirWayBill;
 import com.nineplus.bestwork.entity.AssignTaskEntity;
+import com.nineplus.bestwork.entity.CompanyEntity;
 import com.nineplus.bestwork.entity.ConstructionEntity;
 import com.nineplus.bestwork.entity.FileStorageEntity;
+import com.nineplus.bestwork.entity.NationEntity;
 import com.nineplus.bestwork.entity.ProgressEntity;
 import com.nineplus.bestwork.entity.ProjectEntity;
 import com.nineplus.bestwork.entity.UserEntity;
@@ -42,8 +47,10 @@ import com.nineplus.bestwork.model.UserAuthDetected;
 import com.nineplus.bestwork.repository.AssignTaskRepository;
 import com.nineplus.bestwork.repository.ConstructionRepository;
 import com.nineplus.bestwork.repository.ProgressRepository;
+import com.nineplus.bestwork.services.CompanyService;
 import com.nineplus.bestwork.services.IAirWayBillService;
 import com.nineplus.bestwork.services.IConstructionService;
+import com.nineplus.bestwork.services.INationService;
 import com.nineplus.bestwork.services.IProgressService;
 import com.nineplus.bestwork.services.IProjectService;
 import com.nineplus.bestwork.services.ISftpFileService;
@@ -107,24 +114,31 @@ public class ConstructionServiceImpl implements IConstructionService {
 	@Autowired
 	ProgressRepository progressRepo;
 
+	@Autowired
+	INationService nationService;
+
+	@Autowired
+	CompanyService companyService;
+
 	/**
 	 * Function: get page of constructions with condition
 	 */
 	@Override
-	public PageResDto<ConstructionResDto> getPageConstructions(PageSearchDto pageSearchDto)
+	public PageResDto<ConstructionResDto> getPageConstructions(PageSearchConstrctDto pageSearchDto)
 			throws BestWorkBussinessException {
 		UserAuthDetected userAuthRoleReq = this.getUserAuthRoleReq();
 
 		try {
-			Pageable pageable = convertSearch(pageSearchDto);
+			Pageable pageable = this.convertSearch(pageSearchDto);
 
-			List<ProjectEntity> canViewprjList = projectService.getPrjLstByAnyUsername(userAuthRoleReq);
-			List<String> prjIds = new ArrayList<>();
-			for (ProjectEntity project : canViewprjList) {
-				prjIds.add(project.getId());
+			List<String> prjIds = this.getCanViewPrjIds(userAuthRoleReq);
+			Page<ConstructionEntity> pageCstrt = null;
+			if (pageSearchDto.getCompanyId() == 0 && "%%".equals(pageSearchDto.getLocation())
+					&& pageSearchDto.getNationId() == 0 && "%%".equals(pageSearchDto.getProjectId())) {
+				pageCstrt = cstrtRepo.findCstrtByPrjIds(prjIds, pageSearchDto, pageable);
+			} else {
+				pageCstrt = cstrtRepo.findCstrtByCondition(prjIds, pageSearchDto, pageable);
 			}
-			Page<ConstructionEntity> pageCstrt = cstrtRepo.findCstrtByPrjIds(prjIds, pageSearchDto, pageable);
-
 			PageResDto<ConstructionResDto> pageResDto = new PageResDto<>();
 			RPageDto metaData = new RPageDto();
 			metaData.setNumber(pageCstrt.getNumber());
@@ -146,6 +160,15 @@ public class ConstructionServiceImpl implements IConstructionService {
 		}
 	}
 
+	private List<String> getCanViewPrjIds(UserAuthDetected userAuthRoleReq) {
+		List<ProjectEntity> canViewPrjList = projectService.getPrjLstByAnyUsername(userAuthRoleReq);
+		List<String> prjIds = new ArrayList<>();
+		for (ProjectEntity project : canViewPrjList) {
+			prjIds.add(project.getId());
+		}
+		return prjIds;
+	}
+
 	/**
 	 * Private function: get userAuthDetected
 	 * 
@@ -161,16 +184,41 @@ public class ConstructionServiceImpl implements IConstructionService {
 	 * 
 	 * @param pageSearchDto
 	 * @return Pageable
+	 * @throws BestWorkBussinessException
 	 */
-	private Pageable convertSearch(PageSearchDto pageSearchDto) {
-		if (pageSearchDto.getKeyword().equals("")) {
+	private Pageable convertSearch(PageSearchConstrctDto pageSearchDto) throws BestWorkBussinessException {
+		// keyword
+		if ("".equals(pageSearchDto.getKeyword())) {
 			pageSearchDto.setKeyword("%%");
 		} else {
 			pageSearchDto.setKeyword("%" + pageSearchDto.getKeyword() + "%");
 		}
+		// status
 		if (pageSearchDto.getStatus() < 0 || pageSearchDto.getStatus() >= ConstructionStatus.values().length) {
 			pageSearchDto.setStatus(-1);
 		}
+
+		// companyId
+		if (pageSearchDto.getCompanyId() <= 0) {
+			pageSearchDto.setCompanyId(0);
+		}
+
+		// nation
+		if (pageSearchDto.getNationId() <= 0 || pageSearchDto.getNationId() > this.nationService.findAll().size()) {
+			pageSearchDto.setNationId(0);
+		}
+
+		// location
+		if ("".equals(pageSearchDto.getLocation())) {
+			pageSearchDto.setLocation("%%");
+		} else {
+			pageSearchDto.setLocation("%" + pageSearchDto.getLocation() + "%");
+		}
+		// projectId
+		if ("".equals(pageSearchDto.getProjectId())) {
+			pageSearchDto.setProjectId("%%");
+		}
+
 		String mappedColumn = convertResponseUtils.convertResponseConstruction(pageSearchDto.getSortBy());
 		return PageRequest.of(Integer.parseInt(pageSearchDto.getPage()), Integer.parseInt(pageSearchDto.getSize()),
 				Sort.by(pageSearchDto.getSortDirection(), mappedColumn));
@@ -185,7 +233,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 	 */
 	private List<ProjectEntity> getPrjInvolvedByCompUser(String curUsername) {
 		List<ProjectEntity> creatingPrjList = projectService.getPrjCreatedByCurUser(curUsername);
-		List<ProjectEntity> assignedPrjList = projectService.getPrAssignedToCurUser(curUsername);
+		List<ProjectEntity> assignedPrjList = projectService.getPrjAssignedToCurUser(curUsername);
 		Set<ProjectEntity> projectSet = new HashSet<>();
 		if (creatingPrjList != null)
 			projectSet.addAll(creatingPrjList);
@@ -209,12 +257,12 @@ public class ConstructionServiceImpl implements IConstructionService {
 		if (!chkCurUserCanCreateCstrt(userAuthDetected, constructionReqDto.getProjectCode())) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
 		}
-		chkExistCstrtNameWhenCreating(constructionReqDto);
-		validateCstrtInfo(constructionReqDto);
+		this.chkExistCstrtNameWhenCreating(constructionReqDto);
+		this.validateCstrtInfo(constructionReqDto);
 
 		ConstructionEntity construction = new ConstructionEntity();
 		construction.setCreateBy(curUsername);
-		trsferDtoToCstrt(constructionReqDto, construction);
+		this.trsferDtoToCstrt(constructionReqDto, construction);
 		try {
 			construction = this.cstrtRepo.save(construction);
 
@@ -222,8 +270,10 @@ public class ConstructionServiceImpl implements IConstructionService {
 				throw new BestWorkBussinessException(CommonConstants.MessageCode.eF0002, null);
 			}
 			for (MultipartFile file : drawings) {
-				String pathServer = this.sftpService.uploadConstructionDrawing(file, construction.getId());
-				storageService.storeFile(construction.getId(), FolderType.CONSTRUCTION, pathServer);
+				if (!file.isEmpty()) {
+					String pathServer = this.sftpService.uploadConstructionDrawing(file, construction.getId());
+					storageService.storeFile(construction.getId(), FolderType.CONSTRUCTION, pathServer);
+				}
 			}
 			this.sendNotify(construction, curUsername, true, false);
 		} catch (BestWorkBussinessException ex) {
@@ -242,6 +292,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 		construction.setConstructionName(cstrtReqDto.getConstructionName());
 		construction.setDescription(cstrtReqDto.getDescription());
 		construction.setLocation(cstrtReqDto.getLocation());
+		construction.setNationId(cstrtReqDto.getNationId());
 		construction.setStartDate(cstrtReqDto.getStartDate());
 		construction.setEndDate(cstrtReqDto.getEndDate());
 		construction.setStatus(cstrtReqDto.getStatus());
@@ -397,7 +448,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
 		}
 		ConstructionEntity cstrt = constructionOpt.get();
-		ConstructionResDto cstrtResDto = trsferCstrtToResDto(cstrt);
+		ConstructionResDto cstrtResDto = this.trsferCstrtToResDto(cstrt);
 		List<FileStorageResDto> fsResDtos = new ArrayList<>();
 		if (!ObjectUtils.isEmpty(cstrt.getFileStorages())) {
 			for (FileStorageEntity file : cstrt.getFileStorages()) {
@@ -425,12 +476,15 @@ public class ConstructionServiceImpl implements IConstructionService {
 		cstrtResDto.setId(cstrt.getId());
 		cstrtResDto.setConstructionName(cstrt.getConstructionName());
 		cstrtResDto.setDescription(cstrt.getDescription());
+		NationEntity nation = this.nationService.findById(cstrt.getNationId());
+		cstrtResDto.setNation(nation.getName());
 		cstrtResDto.setLocation(cstrt.getLocation());
 		cstrtResDto.setStartDate(cstrt.getStartDate());
 		cstrtResDto.setEndDate(cstrt.getEndDate());
 		cstrtResDto.setCreateBy(cstrt.getCreateBy());
 		cstrtResDto.setStatus(cstrt.getStatus());
 		cstrtResDto.setProjectCode(cstrt.getProjectCode());
+		cstrtResDto.setProjectName(this.projectService.getProjectById(cstrt.getProjectCode()).get().getProjectName());
 		List<AirWayBillResDto> awbCodes = new ArrayList<>();
 		if (!ObjectUtils.isEmpty(cstrt.getAirWayBills())) {
 			for (AirWayBill airWayBill : cstrt.getAirWayBills()) {
@@ -440,7 +494,6 @@ public class ConstructionServiceImpl implements IConstructionService {
 				awbCodes.add(dto);
 			}
 		}
-
 		cstrtResDto.setAwbCodes(awbCodes);
 		return cstrtResDto;
 	}
@@ -527,9 +580,9 @@ public class ConstructionServiceImpl implements IConstructionService {
 		if (!chkCurUserCanEditDelCstrt(curConstruction, curUsername)) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
 		}
-		chkExistCstrtNameWhenEditing(constructionReqDto, curConstruction);
-		validateCstrtInfo(constructionReqDto);
-		trsferDtoToCstrt(constructionReqDto, curConstruction);
+		this.chkExistCstrtNameWhenEditing(constructionReqDto, curConstruction);
+		this.validateCstrtInfo(constructionReqDto);
+		this.trsferDtoToCstrt(constructionReqDto, curConstruction);
 
 		try {
 			curConstruction = this.cstrtRepo.save(curConstruction);
@@ -676,4 +729,76 @@ public class ConstructionServiceImpl implements IConstructionService {
 	public ConstructionEntity findCstrtByPrgId(Long progressId) {
 		return this.cstrtRepo.findByProgressId(progressId);
 	}
+
+	@Override
+	public List<CompanyBriefResDto> getCompanyCrtPrj() throws BestWorkBussinessException {
+		List<ProjectEntity> prjList = this.projectService.getPrjLstByAnyUsername(this.getUserAuthRoleReq());
+		List<String> prjIds = new ArrayList<>();
+		for (ProjectEntity prj : prjList) {
+			prjIds.add(prj.getId());
+		}
+		if (ObjectUtils.isEmpty(prjIds)) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
+		}
+		List<CompanyEntity> compList = this.companyService.findByCrtedPrjIds(prjIds);
+		if (ObjectUtils.isEmpty(compList)) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
+		}
+		return trferCompLstToDtos(compList);
+	}
+
+	private List<CompanyBriefResDto> trferCompLstToDtos(List<CompanyEntity> compList) {
+		List<CompanyBriefResDto> dtos = new ArrayList<>();
+		for (CompanyEntity company : compList) {
+			CompanyBriefResDto dto = new CompanyBriefResDto();
+			dto.setId(company.getId());
+			dto.setCompanyName(company.getCompanyName());
+			dtos.add(dto);
+		}
+		return dtos;
+	}
+
+	@Override
+	public List<ProjectResDto> getPrjForCurUser() throws BestWorkBussinessException {
+		List<ProjectEntity> canViewPrjList = projectService.getPrjLstByAnyUsername(this.getUserAuthRoleReq());
+		if (ObjectUtils.isEmpty(canViewPrjList)) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
+		}
+		canViewPrjList.sort((p1, p2) -> p1.getId().compareTo(p2.getId()));
+		List<ProjectResDto> dtos = new ArrayList<>();
+		for (ProjectEntity prj : canViewPrjList) {
+			ProjectResDto dto = new ProjectResDto();
+			dto.setId(prj.getId());
+			dto.setProjectName(prj.getProjectName());
+			dto.setDescription(prj.getDescription());
+			dto.setProjectType(prj.getProjectType());
+			dto.setIsPaid(prj.getIsPaid());
+			dto.setNotificationFlag(prj.getNotificationFlag());
+			dto.setStartDate(prj.getStartDate());
+			dto.setStatus(prj.getStatus());
+			dtos.add(dto);
+		}
+		return dtos;
+	}
+
+	@Override
+	public List<NationResDto> getNationsByCurCstrt() throws BestWorkBussinessException {
+		List<String> canViewPrjIds = this.getCanViewPrjIds(getUserAuthRoleReq());
+
+		List<NationEntity> nationList = new ArrayList<>();
+		List<Long> nationIds = this.cstrtRepo.findNationIdsByPrjIds(canViewPrjIds);
+		nationList = this.nationService.findByIds(nationIds);
+		if (ObjectUtils.isEmpty(nationList)) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.ENA0002, null);
+		}
+		List<NationResDto> dtos = new ArrayList<>();
+		for (NationEntity nation : nationList) {
+			NationResDto dto = new NationResDto();
+			dto.setId(nation.getId());
+			dto.setName(nation.getName());
+			dtos.add(dto);
+		}
+		return dtos;
+	}
+
 }

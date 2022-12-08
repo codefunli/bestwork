@@ -371,4 +371,8 @@ public class CompanyService {
 		return "*" + text + "*";
 	}
 
+	public List<CompanyEntity> findByCrtedPrjIds(List<String> prjIds) {
+		return this.companyRepository.findByCrtedPrjIds(prjIds);
+	}
+
 }

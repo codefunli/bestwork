@@ -143,7 +143,7 @@ public class ProjectServiceImpl implements IProjectService {
 
 		List<ProjectEntity> creatingProjectList = getPrjCreatedByCurUser(curUsername);
 		// Get projects that assigned to current user
-		List<ProjectEntity> assignedProjectList = getPrAssignedToCurUser(curUsername);
+		List<ProjectEntity> assignedProjectList = getPrjAssignedToCurUser(curUsername);
 
 		Set<ProjectEntity> projectSet = new HashSet<>();
 		if (creatingProjectList != null)
@@ -575,7 +575,7 @@ public class ProjectServiceImpl implements IProjectService {
 	 * @return List<ProjectEntity>
 	 */
 	@Override
-	public List<ProjectEntity> getPrAssignedToCurUser(String curUsername) {
+	public List<ProjectEntity> getPrjAssignedToCurUser(String curUsername) {
 		return this.projectRepository.findPrjAssignedToCurUser(curUsername);
 	}
 
@@ -602,16 +602,16 @@ public class ProjectServiceImpl implements IProjectService {
 
 	@Override
 	public List<ProjectEntity> getPrjLstByAnyUsername(UserAuthDetected userAuthRoleReq) {
-		List<ProjectEntity> canViewprjList = null;
+		List<ProjectEntity> canViewPrjList = null;
 		String curUsername = userAuthRoleReq.getUsername();
 		if (!userAuthRoleReq.getIsSysAdmin() && !userAuthRoleReq.getIsOrgAdmin()) {
-			canViewprjList = this.getPrjInvolvedByCompUser(curUsername);
+			canViewPrjList = this.getPrjInvolvedByCompUser(curUsername);
 		} else if (userAuthRoleReq.getIsOrgAdmin()) {
-			canViewprjList = this.getPrj4CompanyAdmin(curUsername);
+			canViewPrjList = this.getPrj4CompanyAdmin(curUsername);
 		} else if (userAuthRoleReq.getIsSysAdmin()) {
-			canViewprjList = this.getPrj4SysAdmin(curUsername);
+			canViewPrjList = this.getPrj4SysAdmin(curUsername);
 		}
-		return canViewprjList;
+		return canViewPrjList;
 	}
 
 	/**
@@ -623,7 +623,7 @@ public class ProjectServiceImpl implements IProjectService {
 	 */
 	private List<ProjectEntity> getPrjInvolvedByCompUser(String curUsername) {
 		List<ProjectEntity> creatingPrjList = this.getPrjCreatedByCurUser(curUsername);
-		List<ProjectEntity> assignedPrjList = this.getPrAssignedToCurUser(curUsername);
+		List<ProjectEntity> assignedPrjList = this.getPrjAssignedToCurUser(curUsername);
 		Set<ProjectEntity> projectSet = new HashSet<>();
 		if (creatingPrjList != null)
 			projectSet.addAll(creatingPrjList);

@@ -15,6 +15,8 @@ import com.nineplus.bestwork.entity.ProgressEntity;
 public interface ProgressRepository extends JpaRepository<ProgressEntity, Long> {
 	List<ProgressEntity> findByConstructionId(Long constructionId);
 
+	List<ProgressEntity> findByConstructionIdOrderByIdDesc(Long valueOf);
+
 	@Query(value = "SELECT p.id FROM PROGRESS_TRACKING p WHERE p.project_id in ?1", nativeQuery = true)
 	List<Long> getAllProgressByProject(List<String> listProjectId);
 

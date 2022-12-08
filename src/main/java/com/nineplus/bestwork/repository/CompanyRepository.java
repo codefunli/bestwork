@@ -19,8 +19,8 @@ public interface CompanyRepository extends JpaRepository<CompanyEntity, Long> {
 
 	@Query(value = "SELECT * FROM T_COMPANY WHERE company_name = :name", nativeQuery = true)
 	CompanyEntity findbyCompanyName(String name);
-	
-	@Query(value = "SELECT id as Id, company_name as companyName FROM T_COMPANY",nativeQuery = true)
+
+	@Query(value = "SELECT id as Id, company_name as companyName FROM T_COMPANY", nativeQuery = true)
 	List<CompanyProjection> getAllCompany();
 
 	@Query(value = "select * from T_COMPANY", nativeQuery = true)
@@ -39,7 +39,14 @@ public interface CompanyRepository extends JpaRepository<CompanyEntity, Long> {
 	@Query(value = "DELETE from T_COMPANY c where c.id in ?1", nativeQuery = true)
 	void deleteCompaniesWithIds(List<Long> ids);
 
-	@Query(value = "SELECT * FROM T_COMPANY c JOIN T_COMPANY_USER tcu ON c.id = tcu.company_id JOIN T_SYS_APP_USER tsu ON tsu.id = tcu.user_id WHERE tsu.id = :userId ",nativeQuery = true)
+	@Query(value = "SELECT * FROM T_COMPANY c JOIN T_COMPANY_USER tcu ON c.id = tcu.company_id JOIN T_SYS_APP_USER tsu ON tsu.id = tcu.user_id WHERE tsu.id = :userId ", nativeQuery = true)
 	CompanyEntity getCompanyOfUser(long userId);
+
+	@Query(value = " select DISTINCT c.* from T_COMPANY c " 
+			+ " join T_COMPANY_USER cu on cu.company_id = c.id "
+			+ " join T_SYS_APP_USER u on u.id = cu.user_id " 
+			+ " join PROJECT p on p.create_by = u.user_name "
+			+ " where p.id in :prjIds ", nativeQuery = true)
+	List<CompanyEntity> findByCrtedPrjIds(List<String> prjIds);
 
 }

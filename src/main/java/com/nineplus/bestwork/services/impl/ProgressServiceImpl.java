@@ -251,7 +251,8 @@ public class ProgressServiceImpl implements IProgressService {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.ECS0007, null);
 		}
 		List<ProgressResDto> progressDtoList = new ArrayList<ProgressResDto>();
-		List<ProgressEntity> progressLst = progressRepo.findByConstructionId(Long.valueOf(constructionId));
+		List<ProgressEntity> progressLst = progressRepo
+				.findByConstructionIdOrderByIdDesc(Long.valueOf(constructionId));
 		if (ObjectUtils.isNotEmpty(progressLst)) {
 			for (ProgressEntity prog : progressLst) {
 				ProgressResDto progressDto = new ProgressResDto();
