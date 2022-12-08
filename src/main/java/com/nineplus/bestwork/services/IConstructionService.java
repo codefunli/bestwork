@@ -39,4 +39,6 @@ public interface IConstructionService {
 			throws BestWorkBussinessException;
 
 	ConstructionEntity findCstrtByPrgId(Long progressId);
+
+	void updateStsConstruction(long id, String status) throws BestWorkBussinessException;
 }

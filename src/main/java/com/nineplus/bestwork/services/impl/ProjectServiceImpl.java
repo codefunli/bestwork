@@ -630,4 +630,12 @@ public class ProjectServiceImpl implements IProjectService {
 			projectSet.addAll(assignedPrjList);
 		return new ArrayList<>(projectSet);
 	}
+
+	@Override
+	@Transactional
+	public void updateStsProject(String projectCode) throws BestWorkBussinessException {
+		ProjectEntity projectCur = this.projectRepository.findById(projectCode).get();
+		projectCur.setStatus(String.valueOf(ProjectStatus.IN_PROGRESS.ordinal()));
+		this.projectRepository.save(projectCur);
+	}
 }

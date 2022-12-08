@@ -69,6 +69,10 @@ public class ProgressServiceImpl implements IProgressService {
 	private IProjectService projectService;
 
 	@Autowired
+	@Lazy
+	private IConstructionService iConstructionService;
+	
+	@Autowired
 	private ISftpFileService sftpService;
 
 	public static final String PROGRESS_PATH_BEFORE = "fileBefore";
@@ -88,7 +92,6 @@ public class ProgressServiceImpl implements IProgressService {
 			throws BestWorkBussinessException {
 		ProgressEntity currentProgress = progressRepo.findById(progressId).orElse(null);
 		this.saveProgress(progressReqDto, fileBefore ,fileAfter, currentProgress, true);
-
 	}
 
 	public void saveProgress(ProgressReqDto progressReqDto, List<MultipartFile> fileBefore,
@@ -118,6 +121,8 @@ public class ProgressServiceImpl implements IProgressService {
 				progress.setUpdateBy(createUser);
 			}
 			progressRepo.save(progress);
+			//Update latest status for construction
+			this.iConstructionService.updateStsConstruction(progress.getId(), progress.getStatus());
 			saveImage(fileBefore, fileAfter, progress);
 
 		} catch (Exception ex) {

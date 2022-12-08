@@ -52,7 +52,7 @@ public class ProjectEntity {
 	@Column(name = "is_paid", nullable = true, columnDefinition = "tinyint(1)")
 	private Boolean isPaid;
 
-	@Column(name = "status", nullable = false, columnDefinition = "tinyint(1)")
+	@Column(name = "status", nullable = false)
 	private String status;
 
 	@Column(name = "start_date", nullable = false)
