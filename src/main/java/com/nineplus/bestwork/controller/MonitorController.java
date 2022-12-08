@@ -28,14 +28,10 @@ public class MonitorController extends BaseController {
     @Autowired
     MonitorService monitorService;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<? extends Object> getMonitors(@PathVariable Long id) {
+    @GetMapping("")
+    public ResponseEntity<? extends Object> getMonitors() {
         List<MonitorResDto> dtos = null;
-        try {
-            dtos = monitorService.getMonitors(id);
-        } catch (BestWorkBussinessException ex) {
-            return failed(ex.getMsgCode(), ex.getParam());
-        }
+            dtos = monitorService.getMonitors();
         return success(CommonConstants.MessageCode.RLS0001, dtos, null);
 
     }

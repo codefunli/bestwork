@@ -15,7 +15,7 @@ import com.nineplus.bestwork.entity.EvidenceAfterPost;
 @Repository
 public interface EvidenceAfterPostRepository extends JpaRepository<EvidenceAfterPost, Long> {
 
-	List<EvidenceAfterPost> findByAirWayBill(String airWayBillId);
+	List<EvidenceAfterPost> findByAirWayBill(long awbId);
 
-	EvidenceAfterPost findByIdAndAirWayBill(Long evidenceBeforePostId, String airWayBillCode);
+	EvidenceAfterPost findByIdAndAirWayBill(Long evidenceBeforePostId, long awbId);
 }

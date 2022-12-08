@@ -28,13 +28,13 @@ public interface ProjectRepository extends JpaRepository<ProjectEntity, String> 
 	@Query(value = "SELECT prj.id FROM PROJECT prj JOIN ASSIGN_TASK ast ON prj.id = ast.project_id where ast.company_id in ?1 ", nativeQuery = true)
 	List<String> getAllPrjIdByComp(List<Long> listCompanyId);
 
-	@Query(value = "Select tc.id as companyId, tc.company_name as companyName, tus.user_name as userName, tus.id as userId, 'false' as canView ,'false' as canEdit from T_SYS_APP_USER tus JOIN T_COMPANY_USER tcu ON tus.id = tcu.user_id JOIN T_COMPANY tc on tcu.company_id = tc.id WHERE tcu.company_id = ?1", nativeQuery = true)
+	@Query(value = "Select tc.id as companyId, tc.company_name as companyName, tus.user_name as userName, tsar.name as roleName, tus.id as userId, 'false' as canView ,'false' as canEdit from T_SYS_APP_USER tus JOIN T_SYS_APP_ROLE tsar ON tsar.id = tus.role_id JOIN T_COMPANY_USER tcu ON tus.id = tcu.user_id JOIN T_COMPANY tc on tcu.company_id = tc.id WHERE tcu.company_id = ?1", nativeQuery = true)
 	List<ProjectAssignRepository> getCompAndRoleUserByCompId(Long companyId);
 
-	@Query(value = "Select tus.user_name as userName, ast.user_id as userId, ast.can_view as canView , ast.can_edit as canEdit from ASSIGN_TASK ast JOIN PROJECT pr ON ast.project_id = pr.id JOIN T_SYS_APP_USER tus ON tus.id = ast.user_id  WHERE ast.company_id = ?1 AND ast.project_id = ?2", nativeQuery = true)
+	@Query(value = "Select tus.user_name as userName, tsar.name as roleName, ast.user_id as userId, ast.can_view as canView , ast.can_edit as canEdit from ASSIGN_TASK ast JOIN PROJECT pr ON ast.project_id = pr.id JOIN T_SYS_APP_USER tus ON tus.id = ast.user_id JOIN T_SYS_APP_ROLE tsar ON tsar.id = tus.role_id WHERE ast.company_id = ?1 AND ast.project_id = ?2", nativeQuery = true)
 	List<ProjectAssignRepository> getCompAndRoleUserByCompAndPrj(Long companyId, String projectId);
 
-	@Query(value = "Select ast.company_id as companyId, tc.company_name as companyName, tus.user_name as userName, ast.user_id as userId, ast.can_view as canView , ast.can_edit as canEdit from T_COMPANY tc join ASSIGN_TASK ast ON tc.id = ast.company_id JOIN PROJECT pr ON ast.project_id = pr.id JOIN T_SYS_APP_USER tus ON tus.id = ast.user_id WHERE ast.project_id = :projectId", nativeQuery = true)
+	@Query(value = "Select ast.company_id as companyId, tc.company_name as companyName, tus.user_name as userName, ast.user_id as userId, tsar.name as roleName, ast.can_view as canView , ast.can_edit as canEdit from T_COMPANY tc join ASSIGN_TASK ast ON tc.id = ast.company_id JOIN PROJECT pr ON ast.project_id = pr.id JOIN T_SYS_APP_USER tus ON tus.id = ast.user_id JOIN T_SYS_APP_ROLE tsar ON tsar.id = tus.role_id WHERE ast.project_id = :projectId", nativeQuery = true)
 	List<ProjectAssignRepository> getCompAndRoleUserByPrj(String projectId);
 
 	List<ProjectEntity> findByCreateBy(String curUsername);

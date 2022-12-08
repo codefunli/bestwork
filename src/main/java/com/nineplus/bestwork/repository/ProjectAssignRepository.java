@@ -8,6 +8,8 @@ public interface ProjectAssignRepository {
 
 	String getUserName();
 
+	String getRoleName();
+
 	Long getUserId();
 
 	Boolean getCanView();

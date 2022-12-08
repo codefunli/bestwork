@@ -48,12 +48,12 @@ public class InvoicePostServiceImpl implements IInvoicePostService {
 
 	@Override
 	@Transactional
-	public PostInvoice savePostInvoice(PostInvoiceReqDto postInvoiceReqDto, String airWayBillCode)
+	public PostInvoice savePostInvoice(PostInvoiceReqDto postInvoiceReqDto, long awbId)
 			throws BestWorkBussinessException {
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
 		PostInvoice postInvoce = new PostInvoice();
 		try {
-			postInvoce.setAirWayBill(airWayBillCode);
+			postInvoce.setAirWayBill(awbId);
 			postInvoce.setDescription(postInvoiceReqDto.getDescription());
 			postInvoce.setCreateBy(userAuthRoleReq.getUsername());
 			postInvoce.setUpdateBy(userAuthRoleReq.getUsername());
@@ -68,7 +68,7 @@ public class InvoicePostServiceImpl implements IInvoicePostService {
 
 	@Override
 	@Transactional
-	public void updatePostInvoice(List<MultipartFile> mFiles, PostInvoiceReqDto postInvoiceReqDto, String airWayCode)
+	public void updatePostInvoice(List<MultipartFile> mFiles, PostInvoiceReqDto postInvoiceReqDto, long awbId)
 			throws BestWorkBussinessException {
 		PostInvoice createPostInvoice = null;
 		// Validate file
@@ -77,14 +77,14 @@ public class InvoicePostServiceImpl implements IInvoicePostService {
 		}
 		try {
 			// Save information for post invoice
-			createPostInvoice = this.savePostInvoice(postInvoiceReqDto, airWayCode);
+			createPostInvoice = this.savePostInvoice(postInvoiceReqDto, awbId);
 			long postInvoiceId = createPostInvoice.getId();
-			// Upload file of post invoice into sever
-			for (MultipartFile mFile : mFiles) {
-				String pathServer = sftpFileService.uploadInvoice(mFile, airWayCode, postInvoiceId);
-				// Save path file of post invoice
-				iStorageService.storeFile(postInvoiceId, FolderType.INVOICE, pathServer);
-			}
+				// Upload file of post invoice into sever
+				for (MultipartFile mFile : mFiles) {
+					String pathServer = sftpFileService.uploadInvoice(mFile, awbId, postInvoiceId);
+					// Save path file of post invoice
+					iStorageService.storeFile(postInvoiceId, FolderType.INVOICE, pathServer);
+				}
 		} catch (Exception ex) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.eA0002, null);
 		}
@@ -124,8 +124,8 @@ public class InvoicePostServiceImpl implements IInvoicePostService {
 	}
 
 	@Override
-	public List<PostInvoiceResDto> getAllInvoicePost(String airWayBillId) throws BestWorkBussinessException {
-		List<PostInvoice> listInvoicePost = postInvoiceRepository.findByAirWayBill(airWayBillId);
+	public List<PostInvoiceResDto> getAllInvoicePost(long awbId) throws BestWorkBussinessException {
+		List<PostInvoice> listInvoicePost = postInvoiceRepository.findByAirWayBill(awbId);
 		List<PostInvoiceResDto> listPostInvoiceResDto = new ArrayList<>();
 		PostInvoiceResDto res = null;
 		for (PostInvoice invoice : listInvoicePost) {
@@ -178,10 +178,10 @@ public class InvoicePostServiceImpl implements IInvoicePostService {
 	}
 
 	@Override
-	public List<CustomClearanceInvoiceFileResDto> getInvoiceClearance(String code) throws BestWorkBussinessException {
+	public List<CustomClearanceInvoiceFileResDto> getInvoiceClearance(long awbId) throws BestWorkBussinessException {
 		List<CustomClearanceInvoiceFileResDto> lst = new ArrayList<>();
 		CustomClearanceInvoiceFileResDto customClearanceFileResDto = null;
-		List<InvoiceFileProjection> res = postInvoiceRepository.getClearanceInfo(code);
+		List<InvoiceFileProjection> res = postInvoiceRepository.getClearanceInfo(awbId);
 		for (InvoiceFileProjection projection : res) {
 			customClearanceFileResDto = new CustomClearanceInvoiceFileResDto();
 			customClearanceFileResDto.setFileId(projection.getFileId());
@@ -208,7 +208,7 @@ public class InvoicePostServiceImpl implements IInvoicePostService {
 			if (ObjectUtils.isNotEmpty(postInvoiceId) && ObjectUtils.isNotEmpty(postCommentRequestDto)) {
 				// Check exist post invoice with air way bill in DB
 				currentPost = this.postInvoiceRepository.findByIdAndAirWayBill(postInvoiceId,
-						postCommentRequestDto.getAirWayBillCode());
+						postCommentRequestDto.getAwbId());
 				if (ObjectUtils.isEmpty(currentPost)) {
 					throw new BestWorkBussinessException(CommonConstants.MessageCode.eI0003, null);
 				}

@@ -50,6 +50,7 @@ public class CommonConstants {
 		public static final String PROJECT = "Project";
 		public static final String TYPE_POST_INVOICE = "invoice";
 		public static final String TYPE_POST_PACKAGE = "package";
+		public static final String TYPE_POST_IMAGE_BEFORE = "imageBefore";
 
 		public static final String COMPANY = "COMPANY";
 		public static final String USERNAME_OR_EMAIL = "USER or EMAIL";

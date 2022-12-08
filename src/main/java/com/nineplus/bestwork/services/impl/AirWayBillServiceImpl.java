@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.nineplus.bestwork.dto.AirWayBillReqDto;
 import com.nineplus.bestwork.dto.AirWayBillResDto;
+import com.nineplus.bestwork.dto.CustomClearanceImageFileResDto;
 import com.nineplus.bestwork.dto.CustomClearanceInvoiceFileResDto;
 import com.nineplus.bestwork.dto.CustomClearancePackageFileResDto;
 import com.nineplus.bestwork.dto.CustomClearanceResDto;
@@ -28,11 +29,14 @@ import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.model.UserAuthDetected;
 import com.nineplus.bestwork.repository.AirWayBillRepository;
 import com.nineplus.bestwork.repository.AssignTaskRepository;
+import com.nineplus.bestwork.repository.EvidenceBeforePostRepository;
+import com.nineplus.bestwork.repository.ImageBeforeFileProjection;
 import com.nineplus.bestwork.repository.InvoiceFileProjection;
 import com.nineplus.bestwork.repository.PackageFileProjection;
 import com.nineplus.bestwork.repository.PackagePostRepository;
 import com.nineplus.bestwork.repository.PostInvoiceRepository;
 import com.nineplus.bestwork.services.IAirWayBillService;
+import com.nineplus.bestwork.services.IEvidenBeforePostService;
 import com.nineplus.bestwork.services.IInvoicePostService;
 import com.nineplus.bestwork.services.IPackagePostService;
 import com.nineplus.bestwork.services.IProjectService;
@@ -60,6 +64,9 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 
 	@Autowired
 	IPackagePostService iPackagePostService;
+	
+	@Autowired
+	IEvidenBeforePostService iEvidenBeforePostService;
 
 	@Autowired
 	UserAuthUtils userAuthUtils;
@@ -72,6 +79,9 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 
 	@Autowired
 	PackagePostRepository packagePostRepository;
+	
+	@Autowired
+	EvidenceBeforePostRepository evidenceBeforePostRepository;
 
 	@Autowired
 	ModelMapper modelMapper;
@@ -212,34 +222,30 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 	}
 
 	@Override
-	public AirWayBillResDto getDetail(String airWayBillCode) throws BestWorkBussinessException {
-		AirWayBillResDto airWayResDTO = null;
-		AirWayBill airway = airWayBillRepository.findByCode(airWayBillCode);
-		if (ObjectUtils.isNotEmpty(airway)) {
-			airWayResDTO = modelMapper.map(airway, AirWayBillResDto.class);
-		}
-		return airWayResDTO;
-	}
-
-	@Override
-	public CustomClearanceResDto getCustomClearanceDoc(String code) throws BestWorkBussinessException {
+	public CustomClearanceResDto getCustomClearanceDoc(long awbId) throws BestWorkBussinessException {
 		CustomClearanceResDto res = new CustomClearanceResDto();
-		List<CustomClearanceInvoiceFileResDto> invoiceInfo = iInvoicePostService.getInvoiceClearance(code);
+		List<CustomClearanceInvoiceFileResDto> invoiceInfo = iInvoicePostService.getInvoiceClearance(awbId);
 		if (ObjectUtils.isNotEmpty(invoiceInfo)) {
 			res.setInvoicesDoc(invoiceInfo);
 		}
-		List<CustomClearancePackageFileResDto> packageInfo = iPackagePostService.getPackageClearance(code);
+		List<CustomClearancePackageFileResDto> packageInfo = iPackagePostService.getPackageClearance(awbId);
 		if (ObjectUtils.isNotEmpty(packageInfo)) {
 			res.setPackagesDoc(packageInfo);
+		}
+		
+		List<CustomClearanceImageFileResDto> imageBeforeInfo = iEvidenBeforePostService.getImageClearance(awbId);
+		if (ObjectUtils.isNotEmpty(imageBeforeInfo)) {
+			res.setImageBeforeDoc(imageBeforeInfo);
 		}
 		return res;
 	}
 
 	@Override
-	public List<String> createZipFolder(String code) throws BestWorkBussinessException {
+	public List<String> createZipFolder(long awbId) throws BestWorkBussinessException {
 		List<String> listPathToDownLoad = new ArrayList<>();
-		List<InvoiceFileProjection> invoiceInfo = postInvoiceRepository.getClearanceInfo(code);
-		List<PackageFileProjection> packageInfo = packagePostRepository.getClearancePackageInfo(code);
+		List<InvoiceFileProjection> invoiceInfo = postInvoiceRepository.getClearanceInfo(awbId);
+		List<PackageFileProjection> packageInfo = packagePostRepository.getClearancePackageInfo(awbId);
+		List<ImageBeforeFileProjection> imageInfo = evidenceBeforePostRepository.getClearanceImageInfo(awbId);
 
 		if (ObjectUtils.isNotEmpty(invoiceInfo)) {
 			for (InvoiceFileProjection invoice : invoiceInfo) {
@@ -251,16 +257,33 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 				listPathToDownLoad.add(pack.getPathFileServer());
 			}
 		}
-		return this.iSftpFileService.downloadFileTemp(code, listPathToDownLoad);
+		
+		if (ObjectUtils.isNotEmpty(imageInfo)) {
+			for (ImageBeforeFileProjection image : imageInfo) {
+				listPathToDownLoad.add(image.getPathFileServer());
+			}
+		}
+		
+		return this.iSftpFileService.downloadFileTemp(awbId, listPathToDownLoad);
 	}
 
 	@Override
 	@Transactional
-	public void changeStatus(String code, int destinationStatus) throws BestWorkBussinessException {
-		this.airWayBillRepository.changeStatus(code, destinationStatus);
+	public void changeStatus(long id, int destinationStatus) throws BestWorkBussinessException {
+		this.airWayBillRepository.changeStatus(id, destinationStatus);
 		if (destinationStatus == AirWayBillStatus.DONE.ordinal()) {
-			this.sendNotify(airWayBillRepository.findByCode(code), false, true);
+			this.sendNotify(airWayBillRepository.findById(id).get(), false, true);
 		}
 	}
 
+	@Override
+	public String findCodeById(long id) throws BestWorkBussinessException {
+		return this.airWayBillRepository.findCodeById(id);
+	}
+
+	@Override
+	public boolean checkExistAwbDone(List<String> codeLst) {
+		return airWayBillRepository.countAllByCodeInAndStatus(codeLst, AirWayBillStatus.DONE.getStatus()) > 0;
+
+	}
 }

@@ -59,7 +59,6 @@ import com.nineplus.bestwork.services.NotificationService;
 import com.nineplus.bestwork.services.UserService;
 import com.nineplus.bestwork.utils.CommonConstants;
 import com.nineplus.bestwork.utils.ConvertResponseUtils;
-import com.nineplus.bestwork.utils.Enums.AirWayBillStatus;
 import com.nineplus.bestwork.utils.Enums.ConstructionStatus;
 import com.nineplus.bestwork.utils.Enums.FolderType;
 import com.nineplus.bestwork.utils.MessageUtils;
@@ -138,6 +137,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 				pageCstrt = cstrtRepo.findCstrtByPrjIds(prjIds, pageSearchDto, pageable);
 			} else {
 				pageCstrt = cstrtRepo.findCstrtByCondition(prjIds, pageSearchDto, pageable);
+
 			}
 			PageResDto<ConstructionResDto> pageResDto = new PageResDto<>();
 			RPageDto metaData = new RPageDto();
@@ -265,6 +265,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 		this.trsferDtoToCstrt(constructionReqDto, construction);
 		try {
 			construction = this.cstrtRepo.save(construction);
+			projectService.updateStsProject(construction.getProjectCode());
 
 			if (!sftpService.isValidFile(drawings)) {
 				throw new BestWorkBussinessException(CommonConstants.MessageCode.eF0002, null);
@@ -324,7 +325,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 
 		// Check if current project (found by project id) exists or not
 		Optional<ProjectEntity> curProjectOpt = this.projectService.getProjectById(cstrtReqDto.getProjectCode());
-		if (!curProjectOpt.isPresent()) {
+		if (curProjectOpt.isEmpty()) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.EXS0004,
 					new Object[] { CommonConstants.Character.PROJECT });
 		}
@@ -354,7 +355,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 						new Object[] { "AWB code " + code });
 			}
 			Optional<ProjectEntity> projectOpt = this.projectService.getProjectById(airWayBill.getProjectCode());
-			if (!projectOpt.isPresent()) {
+			if (projectOpt.isEmpty()) {
 				throw new BestWorkBussinessException(CommonConstants.MessageCode.EXS0007,
 						new Object[] { "code " + code });
 			}
@@ -366,7 +367,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.EXS0005, null);
 		} else if (prjContainAWBs.size() == 1 && !prjContainAWBs.contains(curProject)) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.EXS0008, null);
-		} else if (prjContainAWBs.size() == 0 || prjContainAWBs.isEmpty()) {
+		} else if (prjContainAWBs.size() == 0) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.EXS0006, null);
 		}
 
@@ -384,15 +385,9 @@ public class ConstructionServiceImpl implements IConstructionService {
 	 * @param awbCodes
 	 * @return true/false
 	 */
-	private Boolean checkAWBStatus(List<AirWayBillReqDto> awbCodes) {
-		for (AirWayBillReqDto awbResDto : awbCodes) {
-			String code = awbResDto.getCode();
-			AirWayBill airWayBill = this.awbService.findByCode(code);
-			if (AirWayBillStatus.values()[airWayBill.getStatus()].equals(AirWayBillStatus.DONE)) {
-				return true;
-			}
-		}
-		return false;
+	public Boolean checkAWBStatus(List<AirWayBillReqDto> awbCodes) {
+		List<String> codes = awbCodes.stream().map(AirWayBillReqDto::getCode).toList();
+		return this.awbService.checkExistAwbDone(codes);
 	}
 
 	/**
@@ -441,7 +436,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 	public ConstructionResDto findCstrtResById(long constructionId) throws BestWorkBussinessException {
 		UserAuthDetected userAuthRoleReq = this.getUserAuthRoleReq();
 		Optional<ConstructionEntity> constructionOpt = cstrtRepo.findById(constructionId);
-		if (!constructionOpt.isPresent()) {
+		if (constructionOpt.isEmpty()) {
 			return null;
 		}
 		if (!chkCurUserCanViewCstrt(constructionId, userAuthRoleReq)) {
@@ -571,7 +566,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 		UserAuthDetected userAuthRoleReq = this.getUserAuthRoleReq();
 		String curUsername = userAuthRoleReq.getUsername();
 		Optional<ConstructionEntity> constructionOpt = cstrtRepo.findById(constructionId);
-		if (!constructionOpt.isPresent()) {
+		if (constructionOpt.isEmpty()) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
 		}
 		ConstructionEntity curConstruction = constructionOpt.get();
@@ -675,7 +670,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 		List<Long> prgIdListToDel = new ArrayList<>();
 		for (long id : ids) {
 			Optional<ConstructionEntity> cstrtOpt = cstrtRepo.findById(id);
-			if (!cstrtOpt.isPresent()) {
+			if (cstrtOpt.isEmpty()) {
 				throw new BestWorkBussinessException(CommonConstants.MessageCode.ECS0007, null);
 			}
 			cstrtList.add(cstrtOpt.get());
@@ -718,11 +713,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 	@Override
 	public ConstructionEntity findCstrtById(long constructionId) {
 		Optional<ConstructionEntity> cstrtOpt = this.cstrtRepo.findById(constructionId);
-		if (!cstrtOpt.isPresent()) {
-			return null;
-		} else {
-			return cstrtOpt.get();
-		}
+		return cstrtOpt.orElse(null);
 	}
 
 	@Override
@@ -799,6 +790,13 @@ public class ConstructionServiceImpl implements IConstructionService {
 			dtos.add(dto);
 		}
 		return dtos;
+	}
+
+	@Transactional
+	public void updateStsConstruction(long progressId, String status) throws BestWorkBussinessException {
+		ConstructionEntity constructionCur = this.cstrtRepo.findByProgressId(progressId);
+		constructionCur.setStatus(status);
+		this.cstrtRepo.save(constructionCur);
 	}
 
 }

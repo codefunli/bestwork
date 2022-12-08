@@ -55,7 +55,7 @@ public class PostInvoice {
 	private String updateBy;
 
 	@Column(name = "airway_bill")
-	private String airWayBill;
+	private long airWayBill;
 
 	@OneToMany(mappedBy = "postInvoiceId")
 	private List<FileStorageEntity> fileStorages;

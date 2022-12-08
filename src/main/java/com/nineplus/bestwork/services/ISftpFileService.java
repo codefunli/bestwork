@@ -16,13 +16,13 @@ public interface ISftpFileService {
 
 	byte[] getFile(String pathFileDownload) throws BestWorkBussinessException;
 
-	String uploadInvoice(MultipartFile file, String airWayBill, long invoiceId);
+	String uploadInvoice(MultipartFile file, long awbId, long invoiceId) throws BestWorkBussinessException;
 
-	String uploadPackage(MultipartFile file, String airWayBill, long packageId);
+	String uploadPackage(MultipartFile file, long awbId, long packageId) throws BestWorkBussinessException;
 
-	String uploadEvidenceBefore(MultipartFile file, String airWayBill, long evidenceBeforeId);
+	String uploadEvidenceBefore(MultipartFile file, long awbId, long evidenceBeforeId) throws BestWorkBussinessException;
 
-	String uploadEvidenceAfter(MultipartFile file, String airWayBill, long evidenceAfterId);
+	String uploadEvidenceAfter(MultipartFile file, long awbId, long evidenceAfterId) throws BestWorkBussinessException;
 
 	boolean isValidFile(List<MultipartFile> file);
 
@@ -30,11 +30,9 @@ public interface ISftpFileService {
 
 	String uploadConstructionDrawing(MultipartFile file, long constructionId);
 
-	void createZipFolder(String airWayBillCode, String[] listPathFileDownload);
+	List<String> downloadFileTemp(long awbId, List<String> listPathFileDownload);
 
-	List<String> downloadFileTemp(String airWayBillCode, List<String> listPathFileDownload);
-
-	String uploadProgressImage(MultipartFile file, long progressId);
+	String uploadProgressImage(MultipartFile file, long progressId, int type);
 	
 	boolean removeFile(String pathFileServer);
 

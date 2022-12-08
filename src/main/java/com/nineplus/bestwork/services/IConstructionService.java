@@ -49,4 +49,7 @@ public interface IConstructionService {
 	List<ProjectResDto> getPrjForCurUser() throws BestWorkBussinessException;
 
 	List<NationResDto> getNationsByCurCstrt() throws BestWorkBussinessException;
+
+	void updateStsConstruction(long id, String status) throws BestWorkBussinessException;
+
 }

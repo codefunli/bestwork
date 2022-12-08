@@ -3,7 +3,6 @@ package com.nineplus.bestwork.services.impl;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -15,7 +14,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -45,7 +43,7 @@ import lombok.extern.slf4j.Slf4j;
 @Configuration
 @PropertySource("classpath:application.properties")
 public class SftpFileServiceImpl implements ISftpFileService {
-
+	
 	/**
 	 * The Constant SEPARATOR.
 	 */
@@ -56,6 +54,8 @@ public class SftpFileServiceImpl implements ISftpFileService {
 	public static final String INVOICE_NAME_PREFIX = "(inv)";
 
 	public static final String PACKAGE_NAME_PREFIX = "(pac)";
+
+	public static final String IMAGE_BEFORE_NAME_PREFIX = "(evi)";
 
 	/**
 	 * The Constant ROOT_PATH.
@@ -108,6 +108,10 @@ public class SftpFileServiceImpl implements ISftpFileService {
 	public static final String CONSTRUCTION_PATH = "constructions";
 
 	public static final String PROGRESS_PATH = "progress";
+	
+	public static final String PROGRESS_PATH_BEFORE = "fileBefore";
+
+	public static final String PROGRESS_PATH_AFTER = "fileAfter";
 
 	@Override
 	public boolean isExistFolder(ChannelSftp channel, String path) {
@@ -179,33 +183,37 @@ public class SftpFileServiceImpl implements ISftpFileService {
 	}
 
 	@Override
-	public String uploadInvoice(MultipartFile file, String airWayBill, long Id) {
-		return upload(file, FolderType.INVOICE, airWayBill, Id);
+	public String uploadInvoice(MultipartFile file, long awbId, long Id) throws BestWorkBussinessException {
+		return upload(file, FolderType.INVOICE, awbId, Id);
 	}
 
 	@Override
-	public String uploadPackage(MultipartFile file, String airWayBill, long Id) {
+	public String uploadPackage(MultipartFile file, long airWayBill, long Id) {
 		return upload(file, FolderType.PACKAGE, airWayBill, Id);
 	}
 
 	@Override
-	public String uploadEvidenceBefore(MultipartFile file, String airWayBill, long Id) {
+	public String uploadEvidenceBefore(MultipartFile file, long airWayBill, long Id) {
 		return upload(file, FolderType.EVIDENCE_BEFORE, airWayBill, Id);
 	}
 
 	@Override
-	public String uploadEvidenceAfter(MultipartFile file, String airWayBill, long Id) {
+	public String uploadEvidenceAfter(MultipartFile file, long airWayBill, long Id) {
 		return upload(file, FolderType.EVIDENCE_AFTER, airWayBill, Id);
 	}
 
 	@Override
 	public String uploadConstructionDrawing(MultipartFile file, long constructionId) {
-		return uploadImage(file, FolderType.CONSTRUCTION, constructionId);
+		return uploadImage(file, FolderType.CONSTRUCTION, constructionId, 3);
 	}
 
 	@Override
-	public String uploadProgressImage(MultipartFile file, long progressId) {
-		return uploadImage(file, FolderType.PROGRESS, progressId);
+	public String uploadProgressImage(MultipartFile file, long progressId, int subType) {
+		if(subType == 1) {
+		return uploadImage(file, FolderType.PROGRESS, progressId, subType);
+		} else {
+			return uploadImage(file, FolderType.PROGRESS, progressId, subType);
+		}
 	}
 
 	/**
@@ -250,7 +258,7 @@ public class SftpFileServiceImpl implements ISftpFileService {
 		}
 	}
 
-	private String upload(MultipartFile mfile, FolderType folderType, String airWayBill, Long Id) {
+	private String upload(MultipartFile mfile, FolderType folderType, long awbId, Long Id) {
 		Session session = null;
 		ChannelSftp channel = null;
 		String pathTemp = null;
@@ -275,7 +283,7 @@ public class SftpFileServiceImpl implements ISftpFileService {
 					pathTemp = absolutePathInSftpServer;
 				}
 			}
-			pathTemp = pathTemp + SEPARATOR + airWayBill;
+			pathTemp = pathTemp + SEPARATOR + awbId;
 			if (!isExistFolder(channel, pathTemp)) {
 				pathTemp = this.createFolder(channel, pathTemp);
 			}
@@ -302,7 +310,61 @@ public class SftpFileServiceImpl implements ISftpFileService {
 		return finalPath;
 	}
 
-	private String uploadImage(MultipartFile mfile, FolderType folderType, Long objId) {
+	private String uploadImage(MultipartFile mfile, FolderType folderType, Long objId, int subType) {
+		Session session = null;
+		ChannelSftp channel = null;
+		String pathTemp = null;
+		String finalPath = null;
+
+		// Create folder in sftp server.
+		try {
+
+			Pair<Session, ChannelSftp> sftpConnection = this.getConnection();
+
+			session = sftpConnection.getFirst();
+			channel = sftpConnection.getSecond();
+
+			String absolutePathInSftpServer = getPathSeverUpload(folderType);
+			if (!isExistFolder(channel, absolutePathInSftpServer)) {
+				pathTemp = this.createFolder(channel, absolutePathInSftpServer);
+			} else {
+				absolutePathInSftpServer = absolutePathInSftpServer + SEPARATOR + buildSubFolderName(folderType);
+				if (!isExistFolder(channel, absolutePathInSftpServer)) {
+					pathTemp = this.createFolder(channel, absolutePathInSftpServer);
+				} else {
+					pathTemp = absolutePathInSftpServer;
+				}
+			}
+
+			pathTemp = pathTemp + SEPARATOR + objId;
+			if (!isExistFolder(channel, pathTemp)) {
+				pathTemp = this.createFolder(channel, pathTemp);
+			}
+			if(subType ==1) {
+				pathTemp = pathTemp + SEPARATOR + PROGRESS_PATH_BEFORE ;
+			} else if (subType ==2) {
+				pathTemp = pathTemp + SEPARATOR + PROGRESS_PATH_AFTER ;
+			}
+			if (!isExistFolder(channel, pathTemp)) {
+				pathTemp = this.createFolder(channel, pathTemp);
+			}
+			String fileName = FilenameUtils.getName(mfile.getOriginalFilename());
+
+			// save file.
+			channel.cd(pathTemp);
+			channel.put(mfile.getInputStream(), fileName);
+			finalPath = pathTemp + SEPARATOR + fileName;
+			disconnect(session, channel);
+		} catch (IOException | SftpException e) {
+			disconnect(session, channel);
+			throw new FileHandleException(e.getMessage(), e);
+		} finally {
+			disconnect(session, channel);
+		}
+		return finalPath;
+	}
+	
+	private String uploadFileBefore(MultipartFile mfile, FolderType folderType, Long objId) {
 		Session session = null;
 		ChannelSftp channel = null;
 		String pathTemp = null;
@@ -436,52 +498,7 @@ public class SftpFileServiceImpl implements ISftpFileService {
 	}
 
 	@Override
-	public void createZipFolder(String airWayBillCode, String[] listPathFileDownload) {
-		ChannelSftp channel = null;
-		Session session = null;
-		try {
-			Pair<Session, ChannelSftp> sftpConnection = this.getConnection();
-
-			session = sftpConnection.getFirst();
-			channel = sftpConnection.getSecond();
-			// create a ZipOutputStream object
-			FileOutputStream fos = new FileOutputStream(airWayBillCode);
-			ZipOutputStream zos = new ZipOutputStream(fos);
-
-			for (int i = 0; i < listPathFileDownload.length; i++) {
-				File srcFile = new File(listPathFileDownload[i]);
-				FileInputStream fis = new FileInputStream(srcFile);
-
-				// Start writing a new file entry
-
-				int length;
-				// create byte buffer
-				byte[] buffer = new byte[1024];
-
-				// read and write the content of the file
-				while ((length = fis.read(buffer)) > 0) {
-					zos.write(buffer, 0, length);
-				}
-				// current file entry is written and current zip entry is closed
-				zos.closeEntry();
-
-				// close the InputStream of the file
-				fis.close();
-
-			}
-			// close the ZipOutputStream
-			zos.close();
-
-		} catch (Exception ex) {
-			disconnect(session, channel);
-			throw new FileHandleException(ex.getMessage(), ex);
-		} finally {
-			disconnect(session, channel);
-		}
-	}
-
-	@Override
-	public List<String> downloadFileTemp(String airWayBillCode, List<String> listPathFileDownload) {
+	public List<String> downloadFileTemp(long awbId , List<String> listPathFileDownload) {
 		ChannelSftp channel = null;
 		Session session = null;
 		List<String> listPathFile = new ArrayList<>();
@@ -497,10 +514,13 @@ public class SftpFileServiceImpl implements ISftpFileService {
 				} else if (pathFile.contains("/packages")) {
 					fileName = PACKAGE_NAME_PREFIX + fileName;
 				}
+				else if (pathFile.contains("/evidenceBefore")) {
+					fileName = IMAGE_BEFORE_NAME_PREFIX + fileName;
+				}
 				byte[] buffer = new byte[1024];
 				if(isExistFolder(channel, pathFile)) {
 				BufferedInputStream bis = new BufferedInputStream(channel.get(pathFile));
-				Path path = Files.createDirectories(Paths.get(temporaryFolder + SEPARATOR + airWayBillCode));
+				Path path = Files.createDirectories(Paths.get(temporaryFolder + SEPARATOR + awbId));
 				String pathFileSever = path + SEPARATOR + fileName;
 				File newFile = new File(pathFileSever);
 				// Check if already exist this file

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.nineplus.bestwork.dto.CustomClearanceImageFileResDto;
 import com.nineplus.bestwork.dto.EvidenceBeforeReqDto;
 import com.nineplus.bestwork.dto.EvidenceBeforeResDto;
 import com.nineplus.bestwork.dto.FileStorageResDto;
@@ -20,6 +21,7 @@ import com.nineplus.bestwork.entity.FileStorageEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.model.UserAuthDetected;
 import com.nineplus.bestwork.repository.EvidenceBeforePostRepository;
+import com.nineplus.bestwork.repository.ImageBeforeFileProjection;
 import com.nineplus.bestwork.services.IEvidenBeforePostService;
 import com.nineplus.bestwork.services.ISftpFileService;
 import com.nineplus.bestwork.services.IStorageService;
@@ -61,13 +63,13 @@ public class EvidenBeforePostServiceImpl implements IEvidenBeforePostService {
 		}
 		try {
 			if (ObjectUtils.isNotEmpty(evidenceBeforeReqDto)) {
-				String airWayCode = evidenceBeforeReqDto.getAirWayBillCode();
+				long awbId = evidenceBeforeReqDto.getAwbId();
 				// Save information for post invoice
 				evidenceBefore = this.saveEvidenceBefore(evidenceBeforeReqDto);
 				long evidenceBeforePostId = evidenceBefore.getId();
 				// Upload file of post invoice into sever
 				for (MultipartFile mFile : mFiles) {
-					String pathServer = sftpFileService.uploadEvidenceBefore(mFile, airWayCode, evidenceBeforePostId);
+					String pathServer = sftpFileService.uploadEvidenceBefore(mFile, awbId, evidenceBeforePostId);
 					// Save path file of post invoice
 					iStorageService.storeFile(evidenceBeforePostId, FolderType.EVIDENCE_BEFORE, pathServer);
 				}
@@ -83,7 +85,7 @@ public class EvidenBeforePostServiceImpl implements IEvidenBeforePostService {
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
 		EvidenceBeforePost evidenceBefore = new EvidenceBeforePost();
 		try {
-			evidenceBefore.setAirWayBill(evidenceBeforeReqDto.getAirWayBillCode());
+			evidenceBefore.setAirWayBill(evidenceBeforeReqDto.getAwbId());
 			evidenceBefore.setDescription(evidenceBeforeReqDto.getDescription());
 			evidenceBefore.setCreateBy(userAuthRoleReq.getUsername());
 			evidenceBefore.setUpdateBy(userAuthRoleReq.getUsername());
@@ -96,8 +98,8 @@ public class EvidenBeforePostServiceImpl implements IEvidenBeforePostService {
 	}
 
 	@Override
-	public List<EvidenceBeforeResDto> getAllEvidenceBefore(String airWayBillId) throws BestWorkBussinessException {
-		List<EvidenceBeforePost> listEvidence = evidenceBeforePostRepository.findByAirWayBill(airWayBillId);
+	public List<EvidenceBeforeResDto> getAllEvidenceBefore(long awbId) throws BestWorkBussinessException {
+		List<EvidenceBeforePost> listEvidence = evidenceBeforePostRepository.findByAirWayBill(awbId);
 		List<EvidenceBeforeResDto> listEvidenceResDto = new ArrayList<>();
 		EvidenceBeforeResDto res = null;
 		for (EvidenceBeforePost evidence : listEvidence) {
@@ -109,6 +111,7 @@ public class EvidenBeforePostServiceImpl implements IEvidenBeforePostService {
 			res.setUpdateBy(evidence.getUpdateBy());
 			res.setCreateDate(evidence.getCreateDate().toString());
 			res.setUpdateDate(evidence.getUpdateDate().toString());
+			res.setPostType(CommonConstants.Character.TYPE_POST_IMAGE_BEFORE);
 			List<FileStorageResDto> fileStorageResponseDtos = new ArrayList<>();
 			for (FileStorageEntity file : evidence.getFileStorages()) {
 				FileStorageResDto fileStorageResponseDto = new FileStorageResDto();
@@ -116,6 +119,7 @@ public class EvidenBeforePostServiceImpl implements IEvidenBeforePostService {
 				fileStorageResponseDto.setName(file.getName());
 				fileStorageResponseDto.setCreateDate(file.getCreateDate().toString());
 				fileStorageResponseDto.setType(file.getType());
+				fileStorageResponseDto.setChoosen(file.isChoosen());
 				// return content file if file is image
 				if (Arrays.asList(CommonConstants.Image.IMAGE_EXTENSION).contains(file.getType())) {
 					String pathServer = file.getPathFileServer();
@@ -144,7 +148,7 @@ public class EvidenBeforePostServiceImpl implements IEvidenBeforePostService {
 			if (ObjectUtils.isNotEmpty(evidenceBeforePostId) && ObjectUtils.isNotEmpty(postCommentRequestDto)) {
 				// Check exist post invoice with air way bill in DB
 				evidenceBefore = this.evidenceBeforePostRepository.findByIdAndAirWayBill(evidenceBeforePostId,
-						postCommentRequestDto.getAirWayBillCode());
+						postCommentRequestDto.getAwbId());
 				if (ObjectUtils.isEmpty(evidenceBefore)) {
 					throw new BestWorkBussinessException(CommonConstants.MessageCode.eEB0002, null);
 				}
@@ -156,5 +160,28 @@ public class EvidenBeforePostServiceImpl implements IEvidenBeforePostService {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.eEB0003, null);
 		}
 		return evidenceBefore;
+	}
+
+	@Override
+	public List<CustomClearanceImageFileResDto> getImageClearance(long awbId) throws BestWorkBussinessException {
+		List<CustomClearanceImageFileResDto> lst = new ArrayList<>();
+		CustomClearanceImageFileResDto customClearanceImageFileResDto = null;
+		List<ImageBeforeFileProjection> res = evidenceBeforePostRepository.getClearanceImageInfo(awbId);
+		for (ImageBeforeFileProjection projection : res) {
+			customClearanceImageFileResDto = new CustomClearanceImageFileResDto();
+			customClearanceImageFileResDto.setFileId(projection.getFileId());
+			customClearanceImageFileResDto.setPostImageBeforeId(projection.getPostImageBeforeId());
+			customClearanceImageFileResDto.setName(projection.getName());
+			customClearanceImageFileResDto.setType(projection.getType());
+			customClearanceImageFileResDto.setPostType(CommonConstants.Character.TYPE_POST_IMAGE_BEFORE);
+			// return content file if file is image
+			if (Arrays.asList(CommonConstants.Image.IMAGE_EXTENSION).contains(projection.getType())) {
+				String pathServer = projection.getPathFileServer();
+				byte[] imageContent = sftpFileService.getFile(pathServer);
+				customClearanceImageFileResDto.setContent(imageContent);
+			}
+			lst.add(customClearanceImageFileResDto);
+		}
+		return lst;
 	}
 }

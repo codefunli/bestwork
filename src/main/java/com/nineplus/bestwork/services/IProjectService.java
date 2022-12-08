@@ -61,4 +61,6 @@ public interface IProjectService {
 
 	public List<ProjectEntity> getPrjLstByAnyUsername(UserAuthDetected userAuthRoleReq);
 
+	public void updateStsProject(String projectCode) throws BestWorkBussinessException;
+
 }

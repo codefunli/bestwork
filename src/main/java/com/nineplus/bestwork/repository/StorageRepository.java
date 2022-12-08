@@ -23,6 +23,11 @@ public interface StorageRepository extends JpaRepository<FileStorageEntity, Long
 	@Modifying
 	@Query(value = "UPDATE FILE_STORAGE SET is_choosen = :destinationStatus WHERE post_package_id =:postId AND id in :fileId", nativeQuery = true)
 	void changeStatusPackage(Long postId, List<Long> fileId, boolean destinationStatus);
+	
+	@Transactional
+	@Modifying
+	@Query(value = "UPDATE FILE_STORAGE SET is_choosen = :destinationStatus WHERE evidence_before_post_id =:postId AND id in :fileId", nativeQuery = true)
+	void changeStatusImageBefore(Long postId, List<Long> fileId, boolean destinationStatus);
 
 	@Modifying
 	void deleteByProgressId(long progressId);
