@@ -171,12 +171,10 @@ public class AirWayBillController extends BaseController {
 				throw new BestWorkBussinessException(CommonConstants.MessageCode.eF0003, null);
 			}
 
-			String airWayBillCode = iAirWayBillService.findCodeById(awbId);
-
 			return ResponseEntity.ok()
 					.header(HttpHeaders.CONTENT_DISPOSITION,
 							CommonConstants.MediaType.CONTENT_DISPOSITION
-									+ (ObjectUtils.isNotEmpty(airWayBillCode) ? airWayBillCode : awbId) + ZIP_EXTENSION)
+									+ awbId + ZIP_EXTENSION)
 					.body(Arrays.toString(new ByteArrayInputStream(bos.toByteArray()).readAllBytes()));
 		}
 	}

@@ -61,7 +61,7 @@ public class EvidenAfterPostServiceImpl implements IEvidenAfterPostService {
 		}
 		try {
 			if (ObjectUtils.isNotEmpty(evidenceAfterReqDto)) {
-				long awbId = evidenceAfterReqDto.getAirWayBillId();
+				long awbId = evidenceAfterReqDto.getAwbId();
 				// Save information for post invoice
 				evidenceAfter = this.saveEvidenceAfter(evidenceAfterReqDto);
 				long evidenceBeforePostId = evidenceAfter.getId();
@@ -83,7 +83,7 @@ public class EvidenAfterPostServiceImpl implements IEvidenAfterPostService {
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
 		EvidenceAfterPost evidenceAfter = new EvidenceAfterPost();
 		try {
-			evidenceAfter.setAirWayBill(evidenceAfterReqDto.getAirWayBillId());
+			evidenceAfter.setAirWayBill(evidenceAfterReqDto.getAwbId());
 			evidenceAfter.setDescription(evidenceAfterReqDto.getDescription());
 			evidenceAfter.setCreateBy(userAuthRoleReq.getUsername());
 			evidenceAfter.setUpdateBy(userAuthRoleReq.getUsername());

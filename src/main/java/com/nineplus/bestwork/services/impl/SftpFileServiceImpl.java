@@ -55,6 +55,8 @@ public class SftpFileServiceImpl implements ISftpFileService {
 
 	public static final String PACKAGE_NAME_PREFIX = "(pac)";
 
+	public static final String IMAGE_BEFORE_NAME_PREFIX = "(evi)";
+
 	/**
 	 * The Constant ROOT_PATH.
 	 */
@@ -449,6 +451,9 @@ public class SftpFileServiceImpl implements ISftpFileService {
 					fileName = INVOICE_NAME_PREFIX + fileName;
 				} else if (pathFile.contains("/packages")) {
 					fileName = PACKAGE_NAME_PREFIX + fileName;
+				}
+				else if (pathFile.contains("/evidenceBefore")) {
+					fileName = IMAGE_BEFORE_NAME_PREFIX + fileName;
 				}
 				byte[] buffer = new byte[1024];
 				if(isExistFolder(channel, pathFile)) {

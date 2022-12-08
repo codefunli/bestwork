@@ -29,6 +29,8 @@ import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.model.UserAuthDetected;
 import com.nineplus.bestwork.repository.AirWayBillRepository;
 import com.nineplus.bestwork.repository.AssignTaskRepository;
+import com.nineplus.bestwork.repository.EvidenceBeforePostRepository;
+import com.nineplus.bestwork.repository.ImageBeforeFileProjection;
 import com.nineplus.bestwork.repository.InvoiceFileProjection;
 import com.nineplus.bestwork.repository.PackageFileProjection;
 import com.nineplus.bestwork.repository.PackagePostRepository;
@@ -77,6 +79,9 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 
 	@Autowired
 	PackagePostRepository packagePostRepository;
+	
+	@Autowired
+	EvidenceBeforePostRepository evidenceBeforePostRepository;
 
 	@Autowired
 	ModelMapper modelMapper;
@@ -240,6 +245,7 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 		List<String> listPathToDownLoad = new ArrayList<>();
 		List<InvoiceFileProjection> invoiceInfo = postInvoiceRepository.getClearanceInfo(awbId);
 		List<PackageFileProjection> packageInfo = packagePostRepository.getClearancePackageInfo(awbId);
+		List<ImageBeforeFileProjection> imageInfo = evidenceBeforePostRepository.getClearanceImageInfo(awbId);
 
 		if (ObjectUtils.isNotEmpty(invoiceInfo)) {
 			for (InvoiceFileProjection invoice : invoiceInfo) {
@@ -251,6 +257,13 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 				listPathToDownLoad.add(pack.getPathFileServer());
 			}
 		}
+		
+		if (ObjectUtils.isNotEmpty(imageInfo)) {
+			for (ImageBeforeFileProjection image : imageInfo) {
+				listPathToDownLoad.add(image.getPathFileServer());
+			}
+		}
+		
 		return this.iSftpFileService.downloadFileTemp(awbId, listPathToDownLoad);
 	}
 
@@ -261,11 +274,6 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 		if (destinationStatus == AirWayBillStatus.DONE.ordinal()) {
 			this.sendNotify(airWayBillRepository.findById(id).get(), false, true);
 		}
-	}
-
-	@Override
-	public String findCodeById(long id) throws BestWorkBussinessException {
-		return this.airWayBillRepository.findCodeById(id);
 	}
 
 }
