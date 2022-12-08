@@ -233,7 +233,6 @@ public class ProgressServiceImpl implements IProgressService {
 				fileDto.setId(file.getId());
 				fileDto.setName(file.getName());
 				fileDto.setType(file.getType());
-				fileDto.setData(new String(file.getData()));
 				fileDto.setCreateDate(file.getCreateDate().toString());
 				lstfileDto.add(fileDto);
 			}
@@ -272,7 +271,6 @@ public class ProgressServiceImpl implements IProgressService {
 					fileDto.setId(file.getId());
 					fileDto.setName(file.getName());
 					fileDto.setType(file.getType());
-					fileDto.setData(file.getData() != null ? new String(file.getData()) : null);
 					fileDto.setCreateDate(file.getCreateDate().toString());
 					// return content file if file is image
 					if (Arrays.asList(CommonConstants.Image.IMAGE_EXTENSION).contains(file.getType())) {

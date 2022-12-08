@@ -61,7 +61,7 @@ public class EvidenAfterPostServiceImpl implements IEvidenAfterPostService {
 		}
 		try {
 			if (ObjectUtils.isNotEmpty(evidenceAfterReqDto)) {
-				long awbId = evidenceAfterReqDto.getAirWayBillId();
+				long awbId = evidenceAfterReqDto.getAwbId();
 				// Save information for post invoice
 				evidenceAfter = this.saveEvidenceAfter(evidenceAfterReqDto);
 				long evidenceBeforePostId = evidenceAfter.getId();
@@ -83,7 +83,7 @@ public class EvidenAfterPostServiceImpl implements IEvidenAfterPostService {
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
 		EvidenceAfterPost evidenceAfter = new EvidenceAfterPost();
 		try {
-			evidenceAfter.setAirWayBill(evidenceAfterReqDto.getAirWayBillId());
+			evidenceAfter.setAirWayBill(evidenceAfterReqDto.getAwbId());
 			evidenceAfter.setDescription(evidenceAfterReqDto.getDescription());
 			evidenceAfter.setCreateBy(userAuthRoleReq.getUsername());
 			evidenceAfter.setUpdateBy(userAuthRoleReq.getUsername());
@@ -143,7 +143,7 @@ public class EvidenAfterPostServiceImpl implements IEvidenAfterPostService {
 		if (ObjectUtils.isNotEmpty(evidenceAfterPostId) && ObjectUtils.isNotEmpty(postCommentRequestDto)) {
 			// Check exist post invoice with air way bill in DB
 			evidenceAfter = this.evidenceAfterPostRepository.findByIdAndAirWayBill(evidenceAfterPostId,
-					postCommentRequestDto.getAirWayBillCode());
+					postCommentRequestDto.getAwbId());
 			if (ObjectUtils.isEmpty(evidenceAfter)) {
 				throw new BestWorkBussinessException(CommonConstants.MessageCode.eEA0002, null);
 			}

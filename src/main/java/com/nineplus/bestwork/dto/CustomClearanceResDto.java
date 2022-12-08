@@ -24,5 +24,8 @@ public class CustomClearanceResDto extends BaseDto {
 
 	@JsonProperty("packagesDoc")
 	private List<CustomClearancePackageFileResDto> packagesDoc;
+	
+	@JsonProperty("imageBeforeDoc")
+	private List<CustomClearanceImageFileResDto> imageBeforeDoc;
 
 }

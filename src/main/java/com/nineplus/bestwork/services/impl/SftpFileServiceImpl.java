@@ -17,7 +17,6 @@ import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -32,7 +31,6 @@ import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpException;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.exception.FileHandleException;
-import com.nineplus.bestwork.services.IAirWayBillService;
 import com.nineplus.bestwork.services.ISftpFileService;
 import com.nineplus.bestwork.utils.CommonConstants;
 import com.nineplus.bestwork.utils.DateUtils;
@@ -56,6 +54,8 @@ public class SftpFileServiceImpl implements ISftpFileService {
 	public static final String INVOICE_NAME_PREFIX = "(inv)";
 
 	public static final String PACKAGE_NAME_PREFIX = "(pac)";
+
+	public static final String IMAGE_BEFORE_NAME_PREFIX = "(evi)";
 
 	/**
 	 * The Constant ROOT_PATH.
@@ -451,6 +451,9 @@ public class SftpFileServiceImpl implements ISftpFileService {
 					fileName = INVOICE_NAME_PREFIX + fileName;
 				} else if (pathFile.contains("/packages")) {
 					fileName = PACKAGE_NAME_PREFIX + fileName;
+				}
+				else if (pathFile.contains("/evidenceBefore")) {
+					fileName = IMAGE_BEFORE_NAME_PREFIX + fileName;
 				}
 				byte[] buffer = new byte[1024];
 				if(isExistFolder(channel, pathFile)) {

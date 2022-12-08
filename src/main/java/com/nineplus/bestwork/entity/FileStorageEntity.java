@@ -31,10 +31,6 @@ public class FileStorageEntity {
 	@Column(name = "name", nullable = false)
 	private String name;
 
-	@Lob
-	@Column(name = "data", nullable = false)
-	private byte[] data;
-
 	@Column(name = "type", nullable = true, columnDefinition = "varchar(50)")
 	private String type;
 

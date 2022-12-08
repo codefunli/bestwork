@@ -17,5 +17,5 @@ public interface EvidenceAfterPostRepository extends JpaRepository<EvidenceAfter
 
 	List<EvidenceAfterPost> findByAirWayBill(long awbId);
 
-	EvidenceAfterPost findByIdAndAirWayBill(Long evidenceBeforePostId, String airWayBillCode);
+	EvidenceAfterPost findByIdAndAirWayBill(Long evidenceBeforePostId, long awbId);
 }
