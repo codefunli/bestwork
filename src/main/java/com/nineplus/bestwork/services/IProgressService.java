@@ -14,14 +14,14 @@ import com.nineplus.bestwork.exception.BestWorkBussinessException;
  *
  */
 public interface IProgressService {
-	void registProgress(ProgressReqDto progressReqDto, List<MultipartFile> files) throws BestWorkBussinessException;
+	void registProgress(ProgressReqDto progressReqDto, List<MultipartFile> fileBefore, List<MultipartFile> fileAfter) throws BestWorkBussinessException;
 
-	void updateProgress(ProgressReqDto progressReqDto, List<MultipartFile> files, Long progressId)
+	void updateProgress(ProgressReqDto progressReqDto, List<MultipartFile> fileBefore, List<MultipartFile> fileAfter, Long progressId)
 			throws BestWorkBussinessException;
 
 	void deleteProgressList(List<Long> ids) throws BestWorkBussinessException;
 
-	ProgressResDto getProgressById(Long progressId) throws BestWorkBussinessException;
+	//ProgressResDto getProgressById(Long progressId) throws BestWorkBussinessException;
 
 	List<ProgressResDto> getProgressByConstruction(String constructionId) throws BestWorkBussinessException;
 

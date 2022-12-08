@@ -32,7 +32,7 @@ public interface ISftpFileService {
 
 	List<String> downloadFileTemp(long awbId, List<String> listPathFileDownload);
 
-	String uploadProgressImage(MultipartFile file, long progressId);
+	String uploadProgressImage(MultipartFile file, long progressId, int type);
 	
 	boolean removeFile(String pathFileServer);
 

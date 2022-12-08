@@ -108,6 +108,10 @@ public class SftpFileServiceImpl implements ISftpFileService {
 	public static final String CONSTRUCTION_PATH = "constructions";
 
 	public static final String PROGRESS_PATH = "progress";
+	
+	public static final String PROGRESS_PATH_BEFORE = "fileBefore";
+
+	public static final String PROGRESS_PATH_AFTER = "fileAfter";
 
 	@Override
 	public boolean isExistFolder(ChannelSftp channel, String path) {
@@ -200,12 +204,16 @@ public class SftpFileServiceImpl implements ISftpFileService {
 
 	@Override
 	public String uploadConstructionDrawing(MultipartFile file, long constructionId) {
-		return uploadImage(file, FolderType.CONSTRUCTION, constructionId);
+		return uploadImage(file, FolderType.CONSTRUCTION, constructionId, 3);
 	}
 
 	@Override
-	public String uploadProgressImage(MultipartFile file, long progressId) {
-		return uploadImage(file, FolderType.PROGRESS, progressId);
+	public String uploadProgressImage(MultipartFile file, long progressId, int subType) {
+		if(subType == 1) {
+		return uploadImage(file, FolderType.PROGRESS, progressId, subType);
+		} else {
+			return uploadImage(file, FolderType.PROGRESS, progressId, subType);
+		}
 	}
 
 	/**
@@ -302,7 +310,61 @@ public class SftpFileServiceImpl implements ISftpFileService {
 		return finalPath;
 	}
 
-	private String uploadImage(MultipartFile mfile, FolderType folderType, Long objId) {
+	private String uploadImage(MultipartFile mfile, FolderType folderType, Long objId, int subType) {
+		Session session = null;
+		ChannelSftp channel = null;
+		String pathTemp = null;
+		String finalPath = null;
+
+		// Create folder in sftp server.
+		try {
+
+			Pair<Session, ChannelSftp> sftpConnection = this.getConnection();
+
+			session = sftpConnection.getFirst();
+			channel = sftpConnection.getSecond();
+
+			String absolutePathInSftpServer = getPathSeverUpload(folderType);
+			if (!isExistFolder(channel, absolutePathInSftpServer)) {
+				pathTemp = this.createFolder(channel, absolutePathInSftpServer);
+			} else {
+				absolutePathInSftpServer = absolutePathInSftpServer + SEPARATOR + buildSubFolderName(folderType);
+				if (!isExistFolder(channel, absolutePathInSftpServer)) {
+					pathTemp = this.createFolder(channel, absolutePathInSftpServer);
+				} else {
+					pathTemp = absolutePathInSftpServer;
+				}
+			}
+
+			pathTemp = pathTemp + SEPARATOR + objId;
+			if (!isExistFolder(channel, pathTemp)) {
+				pathTemp = this.createFolder(channel, pathTemp);
+			}
+			if(subType ==1) {
+				pathTemp = pathTemp + SEPARATOR + PROGRESS_PATH_BEFORE ;
+			} else if (subType ==2) {
+				pathTemp = pathTemp + SEPARATOR + PROGRESS_PATH_AFTER ;
+			}
+			if (!isExistFolder(channel, pathTemp)) {
+				pathTemp = this.createFolder(channel, pathTemp);
+			}
+			String fileName = FilenameUtils.getName(mfile.getOriginalFilename());
+
+			// save file.
+			channel.cd(pathTemp);
+			channel.put(mfile.getInputStream(), fileName);
+			finalPath = pathTemp + SEPARATOR + fileName;
+			disconnect(session, channel);
+		} catch (IOException | SftpException e) {
+			disconnect(session, channel);
+			throw new FileHandleException(e.getMessage(), e);
+		} finally {
+			disconnect(session, channel);
+		}
+		return finalPath;
+	}
+	
+	private String uploadFileBefore(MultipartFile mfile, FolderType folderType, Long objId) {
 		Session session = null;
 		ChannelSftp channel = null;
 		String pathTemp = null;
