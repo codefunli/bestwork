@@ -35,16 +35,16 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
 			"from " +
 			"T_COMPANY tc2 " +
 			"where " +
-			"tc2.start_date <= now() " +
-			"and ( tc2.expired_date >= now() " +
-			"or tc2.expired_date is null ) and tc2.id = tc.id) > 0 " +
+			"STR_TO_DATE(tc2.start_date,'%Y-%m-%dT%H:%i:%s') <= STR_TO_DATE(:now,'%Y-%m-%dT%H:%i:%s') " +
+			"and  STR_TO_DATE(tc2.expired_date,'%Y-%m-%dT%H:%i:%s') >= STR_TO_DATE(:now,'%Y-%m-%dT%H:%i:%s') " +
+			" and tc2.id = tc.id) > 0 " +
 			"then 1 " +
 			"else 0 " +
 			"end " +
 			"end ) " +
 			"and u.user_name = :username and u.enable = 1 " +
 			"and u.count_login_failed <= 5 ", nativeQuery = true)
-	UserEntity findByUserNameLogIn(@Param("username") String username);
+	UserEntity findByUserNameLogIn(@Param("username") String username, @Param("now")String now);
 
 	UserEntity findByEmail(String email);
 

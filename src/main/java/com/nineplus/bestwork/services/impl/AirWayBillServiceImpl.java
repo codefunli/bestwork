@@ -321,7 +321,7 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 	public Integer countAwbUser(String username) {
 		UserEntity user = userService.getUserByUsername(username);
 		if (ObjectUtils.isNotEmpty(user)) {
-			airWayBillRepository.countAwbUser(user.getId(), null);
+			airWayBillRepository.countAwbUser(user.getId());
 		}
 		return 0;
 	}
@@ -332,7 +332,7 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 		Map<String, Integer> mapReturn = new HashMap<>();
 		if (ObjectUtils.isNotEmpty(user)) {
 			for (int i = 0; i < 3; i++) {
-				mapReturn.put(AirWayBillStatus.convertIntToStatus(i), airWayBillRepository.countAwbUser(user.getId(), i));
+				mapReturn.put(AirWayBillStatus.convertIntToStatus(i), airWayBillRepository.countAwbUserStatus(user.getId(), i));
 			}
 		}
 		return mapReturn;

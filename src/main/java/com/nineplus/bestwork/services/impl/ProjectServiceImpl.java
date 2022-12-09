@@ -620,7 +620,7 @@ public class ProjectServiceImpl implements IProjectService {
 	public Integer countProjectUser(String username) {
 		UserEntity user = userService.getUserByUsername(username);
 		if (ObjectUtils.isNotEmpty(user)) {
-			return assignTaskRepository.countAllByUserId(null, null, user.getId());
+			return assignTaskRepository.countAllByUserId(user.getId());
 		}
 		return 0;
 	}
@@ -632,7 +632,7 @@ public class ProjectServiceImpl implements IProjectService {
 		if (ObjectUtils.isNotEmpty(user)) {
 			for (int i = 0; i < 12; i++) {
 				List<Integer> lstCountByMonth = new ArrayList<>();
-				lstCountByMonth.add(assignTaskRepository.countAllByUserId(i + 1, year, user.getId()));
+				lstCountByMonth.add(assignTaskRepository.countAllByUserIdTime(i + 1, year, user.getId()));
 				lstCountByMonth.add(constructionRepository.countConstructionUser(i + 1, year, user.getId()));
 				listReturn.add(lstCountByMonth);
 			}

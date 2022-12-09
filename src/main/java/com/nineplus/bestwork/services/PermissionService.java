@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.nineplus.bestwork.model.enumtype.Status;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
@@ -172,7 +173,10 @@ public class PermissionService {
 
 	public List<SysPermissionEntity> getPermissionsByRole(List<String> roleName, List<Integer> lstStt, Long actionId)
 			throws BestWorkBussinessException {
-		return permissionRepository.findAllBySysRole_RoleName(roleName, lstStt, actionId);
+		if (ObjectUtils.isNotEmpty(actionId)){
+			return permissionRepository.findAllByRoleNameAndAction(roleName, lstStt, actionId);
+		}
+		return permissionRepository.findAllBySysRole_RoleName(roleName, lstStt);
 	}
 
 	public PageResDto<PermissionResDto> getPermissions(SearchDto dto) throws BestWorkBussinessException {
