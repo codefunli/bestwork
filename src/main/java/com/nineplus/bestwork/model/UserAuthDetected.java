@@ -14,6 +14,7 @@ public class UserAuthDetected {
 	private Boolean isInvestor;
 	private Boolean isSupplier;
 	private Boolean isContractor;
+	private Boolean isSysCompanyAdmin;
 
 	private String username;
 	private List<String> roles;
