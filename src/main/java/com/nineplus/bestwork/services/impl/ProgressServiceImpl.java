@@ -4,7 +4,6 @@ import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -69,7 +68,7 @@ public class ProgressServiceImpl implements IProgressService {
 	@Autowired
 	@Lazy
 	private IConstructionService iConstructionService;
-	
+
 	@Autowired
 	private ISftpFileService sftpService;
 
@@ -90,10 +89,10 @@ public class ProgressServiceImpl implements IProgressService {
 
 	@Override
 	@Transactional
-	public void updateProgress(ProgressReqDto progressReqDto, List<MultipartFile> fileBefore, List<MultipartFile> fileAfter, Long progressId)
-			throws BestWorkBussinessException {
+	public void updateProgress(ProgressReqDto progressReqDto, List<MultipartFile> fileBefore,
+			List<MultipartFile> fileAfter, Long progressId) throws BestWorkBussinessException {
 		ProgressEntity currentProgress = progressRepo.findById(progressId).orElse(null);
-		this.saveProgress(progressReqDto, fileBefore ,fileAfter, currentProgress, true);
+		this.saveProgress(progressReqDto, fileBefore, fileAfter, currentProgress, true);
 	}
 
 	public void saveProgress(ProgressReqDto progressReqDto, List<MultipartFile> fileBefore,
@@ -123,7 +122,7 @@ public class ProgressServiceImpl implements IProgressService {
 				progress.setUpdateBy(createUser);
 			}
 			progressRepo.save(progress);
-			//Update latest status for construction
+			// Update latest status for construction
 			this.iConstructionService.updateStsConstruction(progress.getId(), progress.getStatus());
 			saveImage(fileBefore, fileAfter, progress);
 
@@ -159,12 +158,16 @@ public class ProgressServiceImpl implements IProgressService {
 		this.storageService.deleteByProgressId(progress.getId());
 
 		for (MultipartFile fileBf : fileBefore) {
-			String pathFileBefore = this.sftpService.uploadProgressImage(fileBf, progress.getId(), 1);
-			storageService.storeFile(progress.getId(), FolderType.PROGRESS, pathFileBefore);
+			if (!fileBf.isEmpty()) {
+				String pathFileBefore = this.sftpService.uploadProgressImage(fileBf, progress.getId(), 1);
+				storageService.storeFile(progress.getId(), FolderType.PROGRESS, pathFileBefore);
+			}
 		}
 		for (MultipartFile fileAt : fileAfter) {
-			String pathFileAfter = this.sftpService.uploadProgressImage(fileAt, progress.getId(), 2);
-			storageService.storeFile(progress.getId(), FolderType.PROGRESS, pathFileAfter);
+			if (!fileAt.isEmpty()) {
+				String pathFileAfter = this.sftpService.uploadProgressImage(fileAt, progress.getId(), 2);
+				storageService.storeFile(progress.getId(), FolderType.PROGRESS, pathFileAfter);
+			}
 		}
 	}
 
@@ -228,7 +231,7 @@ public class ProgressServiceImpl implements IProgressService {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.ECS0007, null);
 		}
 		List<ProgressResDto> progressDtoList = new ArrayList<ProgressResDto>();
-		List<ProgressEntity> progressLst = progressRepo.findByConstructionId(Long.valueOf(constructionId));
+		List<ProgressEntity> progressLst = progressRepo.findByConstructionIdOrderByIdDesc(Long.valueOf(constructionId));
 		if (ObjectUtils.isNotEmpty(progressLst)) {
 			for (ProgressEntity prog : progressLst) {
 				ProgressResDto progressDto = new ProgressResDto();
@@ -252,8 +255,8 @@ public class ProgressServiceImpl implements IProgressService {
 					fileDto.setType(file.getType());
 					fileDto.setCreateDate(file.getCreateDate().toString());
 					String pathServer = file.getPathFileServer();
-						byte[] imageContent = sftpService.getFile(pathServer);
-						fileDto.setContent(imageContent);
+					byte[] imageContent = sftpService.getFile(pathServer);
+					fileDto.setContent(imageContent);
 					if (pathServer.contains(PROGRESS_PATH_BEFORE)) {
 						lstFileBefore.add(fileDto);
 					} else if (pathServer.contains(PROGRESS_PATH_AFTER)) {

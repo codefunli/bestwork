@@ -45,6 +45,9 @@ public class ConstructionEntity {
 	@Column(name = "end_date", nullable = true)
 	private String endDate;
 
+	@Column(name = "nation_id", nullable = true)
+	private long nationId;
+
 	@Column(name = "location", nullable = true)
 	private String location;
 
@@ -56,6 +59,9 @@ public class ConstructionEntity {
 
 	@Column(name = "project_code", nullable = false)
 	private String projectCode;
+
+	@Column(name = "company_id", nullable = false)
+	private long companyId;
 
 	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "AWB_CONSTRUCTION", joinColumns = @JoinColumn(name = "construction_id"), inverseJoinColumns = @JoinColumn(name = "awb_id"))

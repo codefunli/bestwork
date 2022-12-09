@@ -67,9 +67,11 @@ public class EvidenAfterPostServiceImpl implements IEvidenAfterPostService {
 				long evidenceBeforePostId = evidenceAfter.getId();
 				// Upload file of post invoice into sever
 				for (MultipartFile mFile : mFiles) {
-					String pathServer = sftpFileService.uploadEvidenceAfter(mFile, awbId, evidenceBeforePostId);
-					// Save path file of post invoice
-					iStorageService.storeFile(evidenceBeforePostId, FolderType.EVIDENCE_AFTER, pathServer);
+					if (!mFile.isEmpty()) {
+						String pathServer = sftpFileService.uploadEvidenceAfter(mFile, awbId, evidenceBeforePostId);
+						// Save path file of post invoice
+						iStorageService.storeFile(evidenceBeforePostId, FolderType.EVIDENCE_AFTER, pathServer);
+					}
 				}
 			}
 		} catch (Exception ex) {

@@ -1,10 +1,14 @@
 package com.nineplus.bestwork.services.impl;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.nineplus.bestwork.repository.ConstructionRepository;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -16,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import com.nineplus.bestwork.dto.AssignTaskReqDto;
 import com.nineplus.bestwork.dto.NotificationReqDto;
@@ -35,6 +40,7 @@ import com.nineplus.bestwork.entity.UserEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.model.UserAuthDetected;
 import com.nineplus.bestwork.repository.AssignTaskRepository;
+import com.nineplus.bestwork.repository.ConstructionRepository;
 import com.nineplus.bestwork.repository.ProjectAssignRepository;
 import com.nineplus.bestwork.repository.ProjectRepository;
 import com.nineplus.bestwork.services.IConstructionService;
@@ -48,7 +54,6 @@ import com.nineplus.bestwork.utils.Enums.ProjectStatus;
 import com.nineplus.bestwork.utils.MessageUtils;
 import com.nineplus.bestwork.utils.PageUtils;
 import com.nineplus.bestwork.utils.UserAuthUtils;
-import org.springframework.util.CollectionUtils;
 
 @Service
 @Transactional
@@ -143,7 +148,7 @@ public class ProjectServiceImpl implements IProjectService {
 
 		List<ProjectEntity> creatingProjectList = getPrjCreatedByCurUser(curUsername);
 		// Get projects that assigned to current user
-		List<ProjectEntity> assignedProjectList = getPrAssignedToCurUser(curUsername);
+		List<ProjectEntity> assignedProjectList = getPrjAssignedToCurUser(curUsername);
 
 		Set<ProjectEntity> projectSet = new HashSet<>();
 		if (creatingProjectList != null)
@@ -408,8 +413,8 @@ public class ProjectServiceImpl implements IProjectService {
 		UserAuthDetected userAuthRoleReq = getAuthRoleReq();
 		String curUsername = userAuthRoleReq.getUsername();
 		Optional<ProjectEntity> optionalProject = projectRepository.findById(prjId);
-		if (optionalProject.isEmpty()){
-			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003,null);
+		if (optionalProject.isEmpty()) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
 		}
 		String projectName = optionalProject.get().getProjectName();
 
@@ -500,12 +505,12 @@ public class ProjectServiceImpl implements IProjectService {
 			listRole = projectRepository.getCompAndRoleUserByPrj(assignTaskReqDto.getProjectId());
 //			listRole.removeIf(x -> x.getUserName().equals(curUsername));
 		}
-		if (CollectionUtils.isEmpty(listRole)){
+		if (CollectionUtils.isEmpty(listRole)) {
 			return null;
 		}
 		return listRole.stream()
-				.map(listR -> new ProjectRoleUserResDto(listR.getCompanyId(), listR.getUserId(), listR.getUserName(),listR.getRoleName(),
-						listR.getCanView(), listR.getCanEdit()))
+				.map(listR -> new ProjectRoleUserResDto(listR.getCompanyId(), listR.getUserId(), listR.getUserName(),
+						listR.getRoleName(), listR.getCanView(), listR.getCanEdit()))
 				.collect(Collectors.groupingBy(ProjectRoleUserResDto::getCompanyId, Collectors.toList()));
 	}
 
@@ -571,7 +576,7 @@ public class ProjectServiceImpl implements IProjectService {
 	 * @return List<ProjectEntity>
 	 */
 	@Override
-	public List<ProjectEntity> getPrAssignedToCurUser(String curUsername) {
+	public List<ProjectEntity> getPrjAssignedToCurUser(String curUsername) {
 		return this.projectRepository.findPrjAssignedToCurUser(curUsername);
 	}
 
@@ -608,6 +613,7 @@ public class ProjectServiceImpl implements IProjectService {
 			canViewPrjList = this.getPrj4SysAdmin(curUsername);
 		}
 		return canViewPrjList;
+
 	}
 
 	@Override
@@ -643,7 +649,7 @@ public class ProjectServiceImpl implements IProjectService {
 	 */
 	private List<ProjectEntity> getPrjInvolvedByCompUser(String curUsername) {
 		List<ProjectEntity> creatingPrjList = this.getPrjCreatedByCurUser(curUsername);
-		List<ProjectEntity> assignedPrjList = this.getPrAssignedToCurUser(curUsername);
+		List<ProjectEntity> assignedPrjList = this.getPrjAssignedToCurUser(curUsername);
 		Set<ProjectEntity> projectSet = new HashSet<>();
 		if (creatingPrjList != null)
 			projectSet.addAll(creatingPrjList);

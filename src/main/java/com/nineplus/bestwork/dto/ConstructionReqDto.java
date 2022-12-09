@@ -28,6 +28,9 @@ public class ConstructionReqDto extends BaseDto {
 	@JsonProperty("endDate")
 	private String endDate;
 
+	@JsonProperty("nationId")
+	private long nationId;
+
 	@JsonProperty("location")
 	private String location;
 

@@ -377,6 +377,18 @@ public class CompanyService {
 		return "*" + text + "*";
 	}
 
+	public List<CompanyEntity> findByCrtedPrjIds(List<String> prjIds) {
+		return this.companyRepository.findByCrtedPrjIds(prjIds);
+	}
+
+	public CompanyEntity findByCrtedPrjId(String prjId) {
+		return this.companyRepository.findByCrtedPrjId(prjId);
+	}
+
+	public Optional<CompanyEntity> findById(long companyId) {
+		return this.companyRepository.findById(companyId);
+	}
+
 	public Integer countCompanyUser(String username) {
 		UserEntity user = userService.findUserByUsername(username);
 		if (ObjectUtils.isNotEmpty(user)) {
