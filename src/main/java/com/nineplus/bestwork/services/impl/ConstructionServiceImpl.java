@@ -137,7 +137,6 @@ public class ConstructionServiceImpl implements IConstructionService {
 				pageCstrt = cstrtRepo.findCstrtByPrjIds(prjIds, pageSearchDto, pageable);
 			} else {
 				pageCstrt = cstrtRepo.findCstrtByCondition(prjIds, pageSearchDto, pageable);
-
 			}
 			PageResDto<ConstructionResDto> pageResDto = new PageResDto<>();
 			RPageDto metaData = new RPageDto();
@@ -209,13 +208,13 @@ public class ConstructionServiceImpl implements IConstructionService {
 		}
 
 		// location
-		if ("".equals(pageSearchDto.getLocation())) {
+		if ("".equals(pageSearchDto.getLocation()) || ObjectUtils.isEmpty(pageSearchDto.getLocation())) {
 			pageSearchDto.setLocation("%%");
 		} else {
 			pageSearchDto.setLocation("%" + pageSearchDto.getLocation() + "%");
 		}
 		// projectId
-		if ("".equals(pageSearchDto.getProjectId())) {
+		if ("".equals(pageSearchDto.getProjectId()) || ObjectUtils.isEmpty(pageSearchDto.getProjectId())) {
 			pageSearchDto.setProjectId("%%");
 		}
 
@@ -347,8 +346,8 @@ public class ConstructionServiceImpl implements IConstructionService {
 
 		// Check existence of AWB codes
 		Set<ProjectEntity> prjContainAWBs = new HashSet<>();
-		for (AirWayBillReqDto awbResdto : awbCodes) {
-			String code = awbResdto.getCode();
+		for (AirWayBillReqDto awbReqDto : awbCodes) {
+			String code = awbReqDto.getCode();
 			AirWayBill airWayBill = this.awbService.findByCode(code);
 			if (ObjectUtils.isEmpty(airWayBill)) {
 				throw new BestWorkBussinessException(CommonConstants.MessageCode.EXS0004,
@@ -581,6 +580,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 
 		try {
 			curConstruction = this.cstrtRepo.save(curConstruction);
+			// send notify to Investor and relative Supplier when construction is done
 			if (Integer.parseInt(curConstruction.getStatus()) == ConstructionStatus.DONE.ordinal() && Integer
 					.parseInt(curConstruction.getStatus()) != Integer.parseInt(originConstruction.getStatus())) {
 				this.sendNotify(curConstruction, curUsername, false, true);
