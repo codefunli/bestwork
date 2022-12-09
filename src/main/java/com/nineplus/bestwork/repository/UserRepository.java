@@ -15,7 +15,36 @@ import com.nineplus.bestwork.entity.UserEntity;
 
 @Repository
 public interface UserRepository extends JpaRepository<UserEntity, Long> {
-	UserEntity findByUserName(String userNm);
+
+	UserEntity findByUserName(String username);
+
+	@Query(value = "select u.*" +
+			"from " +
+			"T_SYS_APP_USER u " +
+			"join T_SYS_APP_ROLE tsar on " +
+			"tsar.id = u.role_id " +
+			"left join T_COMPANY_USER tcu on " +
+			"u.id = tcu.user_id " +
+			"left join T_COMPANY tc on " +
+			"tcu.company_id = tc.id " +
+			"where " +
+			"1 = (case when tsar.name in ('sysadmin') then 1 " +
+			"else case when ( " +
+			"select " +
+			"count(tc2.id) " +
+			"from " +
+			"T_COMPANY tc2 " +
+			"where " +
+			"tc2.start_date <= now() " +
+			"and ( tc2.expired_date >= now() " +
+			"or tc2.expired_date is null ) and tc2.id = tc.id) > 0 " +
+			"then 1 " +
+			"else 0 " +
+			"end " +
+			"end ) " +
+			"and u.user_name = :username and u.enable = 1 " +
+			"and u.count_login_failed <= 5 ", nativeQuery = true)
+	UserEntity findByUserNameLogIn(@Param("username") String username);
 
 	UserEntity findByEmail(String email);
 
