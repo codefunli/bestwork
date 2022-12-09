@@ -79,12 +79,14 @@ public class InvoicePostServiceImpl implements IInvoicePostService {
 			// Save information for post invoice
 			createPostInvoice = this.savePostInvoice(postInvoiceReqDto, awbId);
 			long postInvoiceId = createPostInvoice.getId();
-				// Upload file of post invoice into sever
-				for (MultipartFile mFile : mFiles) {
+			// Upload file of post invoice into sever
+			for (MultipartFile mFile : mFiles) {
+				if (!mFile.isEmpty()) {
 					String pathServer = sftpFileService.uploadInvoice(mFile, awbId, postInvoiceId);
 					// Save path file of post invoice
 					iStorageService.storeFile(postInvoiceId, FolderType.INVOICE, pathServer);
 				}
+			}
 		} catch (Exception ex) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.eA0002, null);
 		}
