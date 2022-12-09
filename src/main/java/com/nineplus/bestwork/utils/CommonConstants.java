@@ -12,7 +12,8 @@ public class CommonConstants {
 
 	public class RoleName {
 		public static final String SYS_ADMIN = "sysadmin";
-		public static final String ORG_ADMIN = "companyadmin";
+		public static final String SYS_COMPANY_ADMIN = "sys-companyadmin";
+		public static final String CMPNY_ADMIN = "companyadmin";
 		public static final String CPMY_USER = "companyuser";
 	}
 
@@ -218,7 +219,7 @@ public class CommonConstants {
 		public static final String SNU0007 = "snu0007";
 		public static final String ENU0007 = "enu0007";
 		public static final String SNU0008 = "snu0008";
-		
+
 		public static final String TNU0004 = "tnu0004";
 		public static final String CNU0004 = "cnu0004";
 		public static final String CNU0005 = "cnu0005";
@@ -247,6 +248,7 @@ public class CommonConstants {
 		public static final String sA0004 = "sA0004";
 		public static final String sA0005 = "sA0005";
 		public static final String sA0006 = "sA0006";
+		public static final String sA0007 = "sA0007";
 		public static final String eA0001 = "eA0001";
 		public static final String eA0002 = "eA0002";
 		public static final String eA0003 = "eA0003";
@@ -278,7 +280,8 @@ public class CommonConstants {
 		public static final String ECS0006 = "ecs0006";
 		public static final String ECS0007 = "ecs0007";
 		public static final String SCS0008 = "scs0008";
-
+		public static final String ECS0008 = "ecs0008";
+		public static final String SCS0009 = "scs0009";
 
 		// For package AWB message
 		public static final String sP0001 = "sP0001";
@@ -307,6 +310,10 @@ public class CommonConstants {
 		public static final String sEA0002 = "sEA0002";
 		public static final String sEA0003 = "sEA0003";
 
+		// For nation
+		public static final String ENA0001 = "ena0001";
+		public static final String SNA0002 = "sna0002";
+		public static final String ENA0002 = "ena0002";
 	}
 
 	public class Url {

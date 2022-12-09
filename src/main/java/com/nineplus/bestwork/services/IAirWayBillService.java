@@ -26,7 +26,10 @@ public interface IAirWayBillService {
 
 	boolean checkExistAwbDone(List<String> codeLst);
 
+	void updateAirWayBill(long awbId, AirWayBillReqDto airWayBillReqDto) throws BestWorkBussinessException;
+
 	Integer countAwbUser(String username);
 
 	Map<String, Integer> countAwbByStatus(String username);
+
 }

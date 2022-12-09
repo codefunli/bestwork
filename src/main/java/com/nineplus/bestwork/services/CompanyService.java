@@ -88,7 +88,7 @@ public class CompanyService {
 		// Check role of user
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
 		String createUser = userAuthRoleReq.getUsername();
-		if (!userAuthRoleReq.getIsSysAdmin()) {
+		if (!userAuthRoleReq.getIsSysAdmin() && !userAuthRoleReq.getIsSysCompanyAdmin()) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
 		}
 
@@ -102,7 +102,13 @@ public class CompanyService {
 			// Register company information in DB
 			companyReqDto.getCompany().setCreateBy(createUser);
 			CompanyEntity newCompanySaved = regist(companyReqDto);
-			RoleEntity role = roleRepository.findRole(CommonConstants.RoleName.ORG_ADMIN);
+			RoleEntity role = null;
+			if(userAuthRoleReq.getIsSysAdmin()) {
+				 role = roleRepository.findRole(CommonConstants.RoleName.SYS_COMPANY_ADMIN);
+				}
+			if(userAuthRoleReq.getIsSysCompanyAdmin()) {
+			 role = roleRepository.findRole(CommonConstants.RoleName.CMPNY_ADMIN);
+			}
 
 			// Register user for this company
 			userService.registNewUser(companyReqDto, newCompanySaved, role);
@@ -301,7 +307,7 @@ public class CompanyService {
 	public CompanyUserResDto getCompanyAndUser(long companyId) throws BestWorkBussinessException {
 		CompanyUserResDto userCompanyRes = new CompanyUserResDto();
 		CompanyEntity company = companyRepository.findByCompanyId(companyId);
-		RoleEntity role = roleRepository.findRole(CommonConstants.RoleName.ORG_ADMIN);
+		RoleEntity role = roleRepository.findRole(CommonConstants.RoleName.CMPNY_ADMIN);
 		UserEntity user = userService.getUserByCompanyId(companyId, role.getId());
 		if (company != null && user != null) {
 			CompanyResDto resCompany = modelMapper.map(company, CompanyResDto.class);
@@ -369,6 +375,18 @@ public class CompanyService {
 
 	private String convertWildCard(String text) {
 		return "*" + text + "*";
+	}
+
+	public List<CompanyEntity> findByCrtedPrjIds(List<String> prjIds) {
+		return this.companyRepository.findByCrtedPrjIds(prjIds);
+	}
+
+	public CompanyEntity findByCrtedPrjId(String prjId) {
+		return this.companyRepository.findByCrtedPrjId(prjId);
+	}
+
+	public Optional<CompanyEntity> findById(long companyId) {
+		return this.companyRepository.findById(companyId);
 	}
 
 	public Integer countCompanyUser(String username) {

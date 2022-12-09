@@ -60,7 +60,7 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 
 	@Autowired
 	IPackagePostService iPackagePostService;
-	
+
 	@Autowired
 	IEvidenBeforePostService iEvidenBeforePostService;
 
@@ -75,7 +75,7 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 
 	@Autowired
 	PackagePostRepository packagePostRepository;
-	
+
 	@Autowired
 	EvidenceBeforePostRepository evidenceBeforePostRepository;
 
@@ -103,7 +103,7 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 	public void saveAirWayBill(AirWayBillReqDto airWayBillReqDto) throws BestWorkBussinessException {
 		AirWayBill airway = new AirWayBill();
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
-		this.validateAirWayBill(airWayBillReqDto);
+		this.validateAirWayBillCreate(airWayBillReqDto);
 		try {
 			airway.setCode(airWayBillReqDto.getCode());
 			airway.setProjectCode(airWayBillReqDto.getProjectId());
@@ -120,7 +120,7 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 
 	}
 
-	private void validateAirWayBill(AirWayBillReqDto airWayBillReqDto) throws BestWorkBussinessException {
+	private void validateAirWayBillCreate(AirWayBillReqDto airWayBillReqDto) throws BestWorkBussinessException {
 		String projectId = airWayBillReqDto.getProjectId();
 		if (StringUtils.isEmpty(projectId)) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.eA0006, null);
@@ -228,7 +228,7 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 		if (ObjectUtils.isNotEmpty(packageInfo)) {
 			res.setPackagesDoc(packageInfo);
 		}
-		
+
 		List<CustomClearanceImageFileResDto> imageBeforeInfo = iEvidenBeforePostService.getImageClearance(awbId);
 		if (ObjectUtils.isNotEmpty(imageBeforeInfo)) {
 			res.setImageBeforeDoc(imageBeforeInfo);
@@ -253,13 +253,13 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 				listPathToDownLoad.add(pack.getPathFileServer());
 			}
 		}
-		
+
 		if (ObjectUtils.isNotEmpty(imageInfo)) {
 			for (ImageBeforeFileProjection image : imageInfo) {
 				listPathToDownLoad.add(image.getPathFileServer());
 			}
 		}
-		
+
 		return this.iSftpFileService.downloadFileTemp(awbId, listPathToDownLoad);
 	}
 
@@ -284,6 +284,40 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 	}
 
 	@Override
+	@Transactional
+	public void updateAirWayBill(long awbId, AirWayBillReqDto airWayBillReqDto) throws BestWorkBussinessException {
+		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
+		// Only investor can edit air way bill
+		if (!userAuthRoleReq.getIsInvestor() && !userAuthRoleReq.getIsContractor()) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
+		}
+		this.validateAwbEdit(awbId,airWayBillReqDto);
+		try {
+			AirWayBill currentAwb = this.airWayBillRepository.findById(awbId).get();
+			if (ObjectUtils.isNotEmpty(currentAwb) && ObjectUtils.isNotEmpty(airWayBillReqDto)) {
+				currentAwb.setCode(airWayBillReqDto.getCode());
+				currentAwb.setNote(airWayBillReqDto.getNote());
+				currentAwb.setStatus(airWayBillReqDto.getStatus());
+				currentAwb.setUpdateBy(userAuthRoleReq.getUsername());
+				currentAwb.setUpdateDate(LocalDateTime.now());
+				this.airWayBillRepository.save(currentAwb);
+			}
+		} catch (Exception ex) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.eA0002, null);
+		}
+	}
+	
+	private void validateAwbEdit(long awbId, AirWayBillReqDto airWayBillReqDto) throws BestWorkBussinessException {
+		if(ObjectUtils.isEmpty(airWayBillReqDto.getCode())) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.eA0003, null);
+		}
+		AirWayBill currentAwb = this.airWayBillRepository.findById(awbId).get();
+		AirWayBill awb = this.airWayBillRepository.findByCode(airWayBillReqDto.getCode());
+		if(ObjectUtils.isNotEmpty(awb) && !currentAwb.getCode().equals(awb.getCode())) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.eA0004, null);
+		}
+	}
+
 	public Integer countAwbUser(String username) {
 		UserEntity user = userService.getUserByUsername(username);
 		if (ObjectUtils.isNotEmpty(user)) {

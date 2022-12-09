@@ -51,7 +51,7 @@ public interface IProjectService {
 
 	public List<ProjectEntity> getPrjCreatedByCurUser(String curUsername);
 
-	public List<ProjectEntity> getPrAssignedToCurUser(String curUsername);
+	public List<ProjectEntity> getPrjAssignedToCurUser(String curUsername);
 
 	public ProjectEntity getPrjByCstrtId(long constructionId);
 
