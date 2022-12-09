@@ -268,8 +268,14 @@ public class ConstructionServiceImpl implements IConstructionService {
 		this.chkExistCstrtNameWhenCreating(constructionReqDto);
 		this.validateCstrtInfo(constructionReqDto);
 
+		CompanyEntity company = this.companyService.findByCrtedPrjId(constructionReqDto.getProjectCode());
+		if (ObjectUtils.isEmpty(company)) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.CPN0007, null);
+		}
+
 		ConstructionEntity construction = new ConstructionEntity();
 		construction.setCreateBy(curUsername);
+		construction.setCompanyId(company.getId());
 		this.trsferDtoToCstrt(constructionReqDto, construction);
 		try {
 			construction = this.cstrtRepo.save(construction);
@@ -485,16 +491,17 @@ public class ConstructionServiceImpl implements IConstructionService {
 		if (projectOpt.isEmpty()) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.S1X0002, null);
 		}
-		CompanyEntity company = this.companyService.findByCrtedPrjId(projectOpt.get().getId());
-		if (ObjectUtils.isEmpty(company)) {
+//		CompanyEntity company = this.companyService.findByCrtedPrjId(projectOpt.get().getId());
+		Optional<CompanyEntity> companyOpt = this.companyService.findById(cstrt.getCompanyId());
+		if (ObjectUtils.isEmpty(companyOpt)) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.CPN0007, null);
 		}
+		NationEntity nation = this.nationService.findById(cstrt.getId());
 		ConstructionResDto cstrtResDto = new ConstructionResDto();
 		cstrtResDto.setId(cstrt.getId());
 		cstrtResDto.setConstructionName(cstrt.getConstructionName());
 		cstrtResDto.setDescription(cstrt.getDescription());
 		cstrtResDto.setNationId(cstrt.getNationId());
-		NationEntity nation = this.nationService.findById(cstrt.getId());
 		cstrtResDto.setNationName(nation.getName());
 		cstrtResDto.setLocation(cstrt.getLocation());
 		cstrtResDto.setStartDate(cstrt.getStartDate());
@@ -503,8 +510,8 @@ public class ConstructionServiceImpl implements IConstructionService {
 		cstrtResDto.setStatus(cstrt.getStatus());
 		cstrtResDto.setProjectCode(cstrt.getProjectCode());
 		cstrtResDto.setProjectName(projectOpt.get().getProjectName());
-		cstrtResDto.setCompanyId(company.getId());
-		cstrtResDto.setCompanyName(company.getCompanyName());
+		cstrtResDto.setCompanyId(cstrt.getCompanyId());
+		cstrtResDto.setCompanyName(companyOpt.get().getCompanyName());
 		List<AirWayBillResDto> awbCodes = new ArrayList<>();
 		if (!ObjectUtils.isEmpty(cstrt.getAirWayBills())) {
 			for (AirWayBill airWayBill : cstrt.getAirWayBills()) {
@@ -602,6 +609,13 @@ public class ConstructionServiceImpl implements IConstructionService {
 		}
 		this.chkExistCstrtNameWhenEditing(constructionReqDto, curConstruction);
 		this.validateCstrtInfo(constructionReqDto);
+
+		CompanyEntity company = this.companyService.findByCrtedPrjId(constructionReqDto.getProjectCode());
+		if (ObjectUtils.isEmpty(company)) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.CPN0007, null);
+		}
+		curConstruction.setCompanyId(company.getId());
+
 		this.trsferDtoToCstrt(constructionReqDto, curConstruction);
 
 		try {

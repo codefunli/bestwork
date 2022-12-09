@@ -379,4 +379,8 @@ public class CompanyService {
 		return this.companyRepository.findByCrtedPrjId(prjId);
 	}
 
+	public Optional<CompanyEntity> findById(long companyId) {
+		return this.companyRepository.findById(companyId);
+	}
+
 }
