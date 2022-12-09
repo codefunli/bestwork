@@ -2,6 +2,8 @@ package com.nineplus.bestwork.repository;
 
 import java.util.List;
 
+import javax.persistence.Tuple;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -86,4 +88,15 @@ public interface ConstructionRepository extends JpaRepository<ConstructionEntity
 			+ " where c.project_code in :canViewPrjIds", nativeQuery = true)
 	List<Long> findNationIdsByPrjIds(List<String> canViewPrjIds);
 
+	@Query(value = " SELECT count(c.id) FROM CONSTRUCTION c JOIN ASSIGN_TASK at ON c.project_code = at.project_id "
+			+ "  WHERE at.user_id = :userId AND (at.can_view = 1 OR at.can_edit = 1) "
+			+ " AND ( MONTH(c.start_date) = :month OR :month IS NULL ) AND ( YEAR(c.start_date) = :year OR :year IS NULL ) ", nativeQuery = true)
+	Integer countConstructionUser(@Param("month") Integer month, @Param("year") Integer year,
+			@Param("userId") Long userId);
+
+	@Query(value = " select c2.* from ( " + " select cs.location, count(cs.location) count from CONSTRUCTION cs join ( "
+			+ " SELECT distinct c.id  FROM CONSTRUCTION c JOIN ASSIGN_TASK at ON c.project_code = at.project_id "
+			+ " WHERE at.user_id = :userId AND (at.can_view = 1 OR at.can_edit = 1)  " + " ) c1 on cs.id = c1.id "
+			+ " group by cs.location " + " ) c2 " + " order by c2.count desc " + " limit 5 ", nativeQuery = true)
+	List<Tuple> getTopLocation(@Param("userId") Long userId);
 }

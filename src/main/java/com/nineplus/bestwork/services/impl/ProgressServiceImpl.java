@@ -1,10 +1,15 @@
 package com.nineplus.bestwork.services.impl;
 
+import java.math.BigInteger;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import com.nineplus.bestwork.dto.ProgressConsDto;
+import com.nineplus.bestwork.entity.*;
+import com.nineplus.bestwork.services.*;
 import org.apache.commons.lang3.ObjectUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,23 +21,16 @@ import org.springframework.web.multipart.MultipartFile;
 import com.nineplus.bestwork.dto.FileStorageResDto;
 import com.nineplus.bestwork.dto.ProgressReqDto;
 import com.nineplus.bestwork.dto.ProgressResDto;
-import com.nineplus.bestwork.entity.ConstructionEntity;
-import com.nineplus.bestwork.entity.FileStorageEntity;
-import com.nineplus.bestwork.entity.ProgressEntity;
-import com.nineplus.bestwork.entity.ProjectEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.model.UserAuthDetected;
 import com.nineplus.bestwork.repository.ProgressRepository;
 import com.nineplus.bestwork.repository.ProjectRepository;
-import com.nineplus.bestwork.services.IConstructionService;
-import com.nineplus.bestwork.services.IProgressService;
-import com.nineplus.bestwork.services.IProjectService;
-import com.nineplus.bestwork.services.ISftpFileService;
-import com.nineplus.bestwork.services.IStorageService;
 import com.nineplus.bestwork.utils.CommonConstants;
 import com.nineplus.bestwork.utils.DateUtils;
 import com.nineplus.bestwork.utils.Enums.FolderType;
 import com.nineplus.bestwork.utils.UserAuthUtils;
+
+import javax.persistence.Tuple;
 
 /**
  * 
@@ -74,9 +72,13 @@ public class ProgressServiceImpl implements IProgressService {
 	@Autowired
 	private ISftpFileService sftpService;
 
+
 	public static final String PROGRESS_PATH_BEFORE = "fileBefore";
 
 	public static final String PROGRESS_PATH_AFTER = "fileAfter";
+
+	@Autowired
+	private UserService userService;
 
 	@Override
 	@Transactional
@@ -268,5 +270,24 @@ public class ProgressServiceImpl implements IProgressService {
 			}
 		}
 		return progressDtoList;
+	}
+
+	@Override
+	public List<ProgressConsDto> getProgressUser(String username) {
+		UserEntity user = userService.getUserByUsername(username);
+		List<ProgressConsDto> listReturn = new ArrayList<>();
+		if (ObjectUtils.isNotEmpty(user)){
+			List<Tuple> tuples = progressRepo.getProgressUser(user.getId());
+			if (!tuples.isEmpty()) {
+				listReturn = tuples.stream().map(tuple -> new ProgressConsDto(
+						tuple.get(0, String.class),
+						tuple.get(1, String.class),
+						tuple.get(2, Timestamp.class),
+						tuple.get(3, String.class),
+						tuple.get(4, BigInteger.class)
+				)).toList();
+			}
+		}
+		return listReturn;
 	}
 }

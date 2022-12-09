@@ -383,4 +383,11 @@ public class CompanyService {
 		return this.companyRepository.findById(companyId);
 	}
 
+	public Integer countCompanyUser(String username) {
+		UserEntity user = userService.findUserByUsername(username);
+		if (ObjectUtils.isNotEmpty(user)) {
+			return user.getCompanys().size();
+		}
+		return 0;
+	}
 }

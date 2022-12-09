@@ -8,6 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.nineplus.bestwork.dto.CompanyBriefResDto;
 import com.nineplus.bestwork.dto.ConstructionReqDto;
 import com.nineplus.bestwork.dto.ConstructionResDto;
+import com.nineplus.bestwork.dto.CountLocationDto;
 import com.nineplus.bestwork.dto.IdsToDelReqDto;
 import com.nineplus.bestwork.dto.NationResDto;
 import com.nineplus.bestwork.dto.PageResDto;
@@ -53,5 +54,9 @@ public interface IConstructionService {
 	void updateStsConstruction(long id, String status) throws BestWorkBussinessException;
 
 	void closeCstrt(long constructionId) throws BestWorkBussinessException;
+
+	Integer countConstructionUser(String username);
+
+	List<CountLocationDto> getLocationsUser(String username);
 
 }

@@ -208,4 +208,9 @@ public class ConstructionController extends BaseController {
 		}
 		return success(CommonConstants.MessageCode.SCS0009, null, null);
 	}
+
+	@GetMapping("/test-api")
+	public ResponseEntity<? extends Object> testApi() {
+		return success(CommonConstants.MessageCode.S1X0002, null, null);
+	}
 }

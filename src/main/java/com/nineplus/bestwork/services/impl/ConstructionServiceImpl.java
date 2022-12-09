@@ -1,12 +1,15 @@
 package com.nineplus.bestwork.services.impl;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+
+import javax.persistence.Tuple;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.modelmapper.ModelMapper;
@@ -25,6 +28,7 @@ import com.nineplus.bestwork.dto.AirWayBillResDto;
 import com.nineplus.bestwork.dto.CompanyBriefResDto;
 import com.nineplus.bestwork.dto.ConstructionReqDto;
 import com.nineplus.bestwork.dto.ConstructionResDto;
+import com.nineplus.bestwork.dto.CountLocationDto;
 import com.nineplus.bestwork.dto.FileStorageResDto;
 import com.nineplus.bestwork.dto.IdsToDelReqDto;
 import com.nineplus.bestwork.dto.NationResDto;
@@ -852,5 +856,27 @@ public class ConstructionServiceImpl implements IConstructionService {
 		;
 		curCstrt.setStatus(String.valueOf(ConstructionStatus.DONE.ordinal()));
 		this.cstrtRepo.save(curCstrt);
+	}
+
+	public Integer countConstructionUser(String username) {
+		UserEntity user = userService.getUserByUsername(username);
+		if (ObjectUtils.isNotEmpty(user)) {
+			return cstrtRepo.countConstructionUser(null, null, user.getId());
+		}
+		return 0;
+	}
+
+	@Override
+	public List<CountLocationDto> getLocationsUser(String username) {
+		UserEntity user = userService.getUserByUsername(username);
+		List<CountLocationDto> countLocationDtos = new ArrayList<>();
+		if (ObjectUtils.isNotEmpty(user)) {
+			List<Tuple> tuples = cstrtRepo.getTopLocation(user.getId());
+			if (!tuples.isEmpty()) {
+				countLocationDtos = tuples.stream()
+						.map(t -> new CountLocationDto(t.get(0, String.class), t.get(1, BigInteger.class))).toList();
+			}
+		}
+		return countLocationDtos;
 	}
 }

@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import com.nineplus.bestwork.entity.AssignTaskEntity;
+import org.springframework.data.repository.query.Param;
 
 public interface AssignTaskRepository extends JpaRepository<AssignTaskEntity, Long> {
 
@@ -19,4 +20,9 @@ public interface AssignTaskRepository extends JpaRepository<AssignTaskEntity, Lo
 	List<UserProjectRepository> findListProjectByUser(long userId, String userName);
 
 	List<AssignTaskEntity> findByProjectId(String id);
+
+	@Query(value = " SELECT COUNT(p.id) FROM PROJECT p JOIN ASSIGN_TASK at ON at.project_id = p.id WHERE " +
+			" ( MONTH(p.start_date) = :month OR :month IS NULL ) AND ( YEAR(p.start_date) = :year OR :year IS NULL ) AND"
+			+" ( at.can_view = 1 OR at.can_edit = 1 ) AND at.user_id = :userId ", nativeQuery = true)
+	Integer countAllByUserId(@Param("month") Integer month, @Param("year") Integer year, @Param("userId") Long userId);
 }
