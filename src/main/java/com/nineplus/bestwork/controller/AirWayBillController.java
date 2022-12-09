@@ -23,6 +23,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -100,7 +101,7 @@ public class AirWayBillController extends BaseController {
 		return success(CommonConstants.MessageCode.sF0003, null, null);
 	}
 
-	@GetMapping("{awbId}/get-custom-clearance-doc")
+	@GetMapping("/{awbId}/get-custom-clearance-doc")
 	public ResponseEntity<? extends Object> getCustomClearanceDoc(@PathVariable long awbId)
 			throws BestWorkBussinessException {
 		CustomClearanceResDto customClearanceResDto = null;
@@ -118,7 +119,7 @@ public class AirWayBillController extends BaseController {
 		return success(CommonConstants.MessageCode.sA0005, customClearanceResDto, null);
 	}
 
-	@PostMapping("{awbId}/change-status")
+	@PostMapping("/{awbId}/change-status")
 	public ResponseEntity<? extends Object> confirmDone(@PathVariable long awbId,
 			@RequestBody AirWayBillStatusReqDto statusDto) throws BestWorkBussinessException {
 		try {
@@ -130,8 +131,21 @@ public class AirWayBillController extends BaseController {
 		}
 		return success(CommonConstants.MessageCode.sA0006, null, null);
 	}
+	
+	@PutMapping("/{awbId}/edit")
+	public ResponseEntity<? extends Object> updateAirWayBill(@PathVariable long awbId,
+			@RequestBody AirWayBillReqDto airWayBillReqDto ) throws BestWorkBussinessException {
+		try {
+			if (ObjectUtils.isNotEmpty(airWayBillReqDto)) {
+				iAirWayBillService.updateAirWayBill(awbId,airWayBillReqDto);
+			}
+		} catch (BestWorkBussinessException ex) {
+			return failed(ex.getMsgCode(), ex.getParam());
+		}
+		return success(CommonConstants.MessageCode.sA0007, null, null);
+	}
 
-	@GetMapping(value = "{awbId}/download-clearance-doc")
+	@GetMapping(value = "/{awbId}/download-clearance-doc")
 	public ResponseEntity<? extends Object> downloadZip(HttpServletResponse response, @PathVariable long awbId)
 			throws BestWorkBussinessException {
 		List<String> listFile = iAirWayBillService.createZipFolder(awbId);

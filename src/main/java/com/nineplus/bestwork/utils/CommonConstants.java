@@ -247,6 +247,7 @@ public class CommonConstants {
 		public static final String sA0004 = "sA0004";
 		public static final String sA0005 = "sA0005";
 		public static final String sA0006 = "sA0006";
+		public static final String sA0007 = "sA0007";
 		public static final String eA0001 = "eA0001";
 		public static final String eA0002 = "eA0002";
 		public static final String eA0003 = "eA0003";
