@@ -27,6 +27,12 @@ public interface AirWayBillRepository extends JpaRepository<AirWayBill, Long> {
 	@Query(value = " SELECT COUNT(DISTINCT ac.awb_id) FROM AWB_CONSTRUCTION ac JOIN CONSTRUCTION c " +
 			" ON ac.construction_id = c.id JOIN ASSIGN_TASK at ON at.project_id = c.project_code " +
 			" JOIN AIRWAY_BILL ab ON ac.awb_id = ab.id " +
-			" WHERE at.user_id = :userId AND ( at.can_view = 1 OR at.can_edit = 1 ) AND ( ab.status = :status OR :status IS NULL ) ", nativeQuery = true)
-	Integer countAwbUser(@Param("userId") long id, @Param("status") Integer status);
+			" WHERE at.user_id = :userId AND ( at.can_view = 1 OR at.can_edit = 1 ) AND  ab.status = :status ", nativeQuery = true)
+	Integer countAwbUserStatus(@Param("userId") long id, @Param("status") Integer status);
+
+	@Query(value = " SELECT COUNT(DISTINCT ac.awb_id) FROM AWB_CONSTRUCTION ac JOIN CONSTRUCTION c " +
+			" ON ac.construction_id = c.id JOIN ASSIGN_TASK at ON at.project_id = c.project_code " +
+			" JOIN AIRWAY_BILL ab ON ac.awb_id = ab.id " +
+			" WHERE at.user_id = :userId AND ( at.can_view = 1 OR at.can_edit = 1 ) ", nativeQuery = true)
+	Integer countAwbUser(@Param("userId") long id);
 }

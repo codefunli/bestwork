@@ -22,7 +22,11 @@ public interface AssignTaskRepository extends JpaRepository<AssignTaskEntity, Lo
 	List<AssignTaskEntity> findByProjectId(String id);
 
 	@Query(value = " SELECT COUNT(p.id) FROM PROJECT p JOIN ASSIGN_TASK at ON at.project_id = p.id WHERE " +
-			" ( MONTH(p.start_date) = :month OR :month IS NULL ) AND ( YEAR(p.start_date) = :year OR :year IS NULL ) AND"
+			" ( at.can_view = 1 OR at.can_edit = 1 ) AND at.user_id = :userId ", nativeQuery = true)
+	Integer countAllByUserId(@Param("userId") Long userId);
+
+	@Query(value = " SELECT COUNT(p.id) FROM PROJECT p JOIN ASSIGN_TASK at ON at.project_id = p.id WHERE " +
+			"  MONTH(p.start_date) = :month AND  YEAR(p.start_date) = :year AND"
 			+" ( at.can_view = 1 OR at.can_edit = 1 ) AND at.user_id = :userId ", nativeQuery = true)
-	Integer countAllByUserId(@Param("month") Integer month, @Param("year") Integer year, @Param("userId") Long userId);
+	Integer countAllByUserIdTime(@Param("month") Integer month, @Param("year") Integer year, @Param("userId") Long userId);
 }

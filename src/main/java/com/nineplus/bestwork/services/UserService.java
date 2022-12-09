@@ -126,7 +126,7 @@ public class UserService implements UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
-		UserEntity user = userRepo.findByUserNameLogIn(userName);
+		UserEntity user = userRepo.findByUserNameLogIn(userName, LocalDateTime.now().toString());
 		if (ObjectUtils.isEmpty(user)) {
 			throw new UsernameNotFoundException("User not found");
 		}
