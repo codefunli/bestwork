@@ -36,8 +36,8 @@ public class ConstructionResDto extends BaseDto {
 	@JsonProperty("endDate")
 	private String endDate;
 
-	@JsonProperty("nation")
-	private String nation;
+	@JsonProperty("nationId")
+	private long nationId;
 
 	@JsonProperty("location")
 	private String location;

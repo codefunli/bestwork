@@ -276,6 +276,7 @@ public class CommonConstants {
 		public static final String ECS0006 = "ecs0006";
 		public static final String ECS0007 = "ecs0007";
 		public static final String SCS0008 = "scs0008";
+		public static final String ECS0008 = "ecs0008";
 
 		// For package AWB message
 		public static final String sP0001 = "sP0001";

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -57,6 +58,9 @@ public class ConstructionController extends BaseController {
 			pageConstructions = constructionService.getPageConstructions(pageCondition);
 		} catch (BestWorkBussinessException ex) {
 			return failed(CommonConstants.MessageCode.ECS0001, ex.getParam());
+		}
+		if (ObjectUtils.isEmpty(pageConstructions.getContent())) {
+			return success(CommonConstants.MessageCode.E1X0003, null, null);
 		}
 		return success(CommonConstants.MessageCode.SCS0001, pageConstructions, null);
 	}
@@ -192,5 +196,15 @@ public class ConstructionController extends BaseController {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}
 		return success(CommonConstants.MessageCode.SNA0002, nationResDtos, null);
+	}
+	
+	@GetMapping("/close")
+	public ResponseEntity<? extends Object> closeCstrt() throws BestWorkBussinessException {
+//		try {
+////			this.constructionService.closeCstrt();
+//		} catch (BestWorkBussinessException ex) {
+//			return failed(ex.getMsgCode(), ex.getParam());
+//		}
+		return success(CommonConstants.MessageCode.SNA0002, null, null);
 	}
 }

@@ -29,7 +29,7 @@ public class ConstructionReqDto extends BaseDto {
 	private String endDate;
 
 	@JsonProperty("nationId")
-	private int nationId;
+	private long nationId;
 
 	@JsonProperty("location")
 	private String location;

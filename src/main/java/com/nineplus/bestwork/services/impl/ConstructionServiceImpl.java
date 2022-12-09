@@ -338,6 +338,12 @@ public class ConstructionServiceImpl implements IConstructionService {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.EXS0009, null);
 		}
 
+		// Check status
+		if (Integer.parseInt(cstrtReqDto.getStatus()) < 0
+				|| Integer.parseInt(cstrtReqDto.getStatus()) >= ConstructionStatus.values().length) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.ECS0008, null);
+		}
+
 		// Check AWB codes: not blank
 		if (ObjectUtils.isEmpty(awbCodes)) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.EMP0001,
@@ -470,8 +476,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 		cstrtResDto.setId(cstrt.getId());
 		cstrtResDto.setConstructionName(cstrt.getConstructionName());
 		cstrtResDto.setDescription(cstrt.getDescription());
-		NationEntity nation = this.nationService.findById(cstrt.getNationId());
-		cstrtResDto.setNation(nation.getName());
+		cstrtResDto.setNationId(cstrt.getNationId());
 		cstrtResDto.setLocation(cstrt.getLocation());
 		cstrtResDto.setStartDate(cstrt.getStartDate());
 		cstrtResDto.setEndDate(cstrt.getEndDate());
