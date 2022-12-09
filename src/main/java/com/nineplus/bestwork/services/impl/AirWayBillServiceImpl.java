@@ -316,6 +316,7 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 		if(ObjectUtils.isNotEmpty(awb) && !currentAwb.getCode().equals(awb.getCode())) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.eA0004, null);
 		}
+	}
 
 	public Integer countAwbUser(String username) {
 		UserEntity user = userService.getUserByUsername(username);
