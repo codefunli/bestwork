@@ -39,6 +39,9 @@ public class ConstructionResDto extends BaseDto {
 	@JsonProperty("nationId")
 	private long nationId;
 
+	@JsonProperty("nationName")
+	private String nationName;
+
 	@JsonProperty("location")
 	private String location;
 
@@ -53,6 +56,12 @@ public class ConstructionResDto extends BaseDto {
 
 	@JsonProperty("projectName")
 	private String projectName;
+
+	@JsonProperty("companyId")
+	private long companyId;
+
+	@JsonProperty("companyName")
+	private String companyName;
 
 	@JsonProperty("awbCodes")
 	private List<AirWayBillResDto> awbCodes;

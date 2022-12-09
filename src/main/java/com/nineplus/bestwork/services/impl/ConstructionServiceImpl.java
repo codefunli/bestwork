@@ -131,6 +131,14 @@ public class ConstructionServiceImpl implements IConstructionService {
 			Pageable pageable = this.convertSearch(pageSearchDto);
 
 			List<String> prjIds = this.getCanViewPrjIds(userAuthRoleReq);
+//			Page<ConstructionResDto> pageCstrt = null;
+//			if (pageSearchDto.getCompanyId() == 0 && "%%".equals(pageSearchDto.getLocation())
+//					&& pageSearchDto.getNationId() == 0 && "%%".equals(pageSearchDto.getProjectId())) {
+//				pageCstrt = cstrtRepo.findCstrtByPrjIds(prjIds, pageSearchDto, pageable);
+//			} else {
+//				pageCstrt = cstrtRepo.findCstrtByCondition(prjIds, pageSearchDto, pageable);
+//			}
+
 			Page<ConstructionEntity> pageCstrt = null;
 			if (pageSearchDto.getCompanyId() == 0 && "%%".equals(pageSearchDto.getLocation())
 					&& pageSearchDto.getNationId() == 0 && "%%".equals(pageSearchDto.getProjectId())) {
@@ -152,6 +160,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 				constructionResDtos.add(dto);
 			}
 			pageResDto.setContent(constructionResDtos);
+//			pageResDto.setContent(pageCstrt.getContent());
 
 			return pageResDto;
 		} catch (Exception ex) {
@@ -472,18 +481,30 @@ public class ConstructionServiceImpl implements IConstructionService {
 	}
 
 	private ConstructionResDto trsferCstrtToResDto(ConstructionEntity cstrt) throws BestWorkBussinessException {
+		Optional<ProjectEntity> projectOpt = this.projectService.getProjectById(cstrt.getProjectCode());
+		if (projectOpt.isEmpty()) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.S1X0002, null);
+		}
+		CompanyEntity company = this.companyService.findByCrtedPrjId(projectOpt.get().getId());
+		if (ObjectUtils.isEmpty(company)) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.CPN0007, null);
+		}
 		ConstructionResDto cstrtResDto = new ConstructionResDto();
 		cstrtResDto.setId(cstrt.getId());
 		cstrtResDto.setConstructionName(cstrt.getConstructionName());
 		cstrtResDto.setDescription(cstrt.getDescription());
 		cstrtResDto.setNationId(cstrt.getNationId());
+		NationEntity nation = this.nationService.findById(cstrt.getId());
+		cstrtResDto.setNationName(nation.getName());
 		cstrtResDto.setLocation(cstrt.getLocation());
 		cstrtResDto.setStartDate(cstrt.getStartDate());
 		cstrtResDto.setEndDate(cstrt.getEndDate());
 		cstrtResDto.setCreateBy(cstrt.getCreateBy());
 		cstrtResDto.setStatus(cstrt.getStatus());
 		cstrtResDto.setProjectCode(cstrt.getProjectCode());
-		cstrtResDto.setProjectName(this.projectService.getProjectById(cstrt.getProjectCode()).get().getProjectName());
+		cstrtResDto.setProjectName(projectOpt.get().getProjectName());
+		cstrtResDto.setCompanyId(company.getId());
+		cstrtResDto.setCompanyName(company.getCompanyName());
 		List<AirWayBillResDto> awbCodes = new ArrayList<>();
 		if (!ObjectUtils.isEmpty(cstrt.getAirWayBills())) {
 			for (AirWayBill airWayBill : cstrt.getAirWayBills()) {
@@ -804,4 +825,18 @@ public class ConstructionServiceImpl implements IConstructionService {
 		this.cstrtRepo.save(constructionCur);
 	}
 
+	@Override
+	public void closeCstrt(long constructionId) throws BestWorkBussinessException {
+		Optional<ConstructionEntity> cstrtOpt = this.cstrtRepo.findById(constructionId);
+		if (cstrtOpt.isEmpty()) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.ECS0006, null);
+		}
+		ConstructionEntity curCstrt = cstrtOpt.get();
+		if (!chkCurUserCanEditDelCstrt(curCstrt, this.getUserAuthRoleReq().getUsername())) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
+		}
+		;
+		curCstrt.setStatus(String.valueOf(ConstructionStatus.DONE.ordinal()));
+		this.cstrtRepo.save(curCstrt);
+	}
 }

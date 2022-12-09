@@ -22,6 +22,31 @@ public interface ConstructionRepository extends JpaRepository<ConstructionEntity
 
 	ConstructionEntity findByConstructionName(String constructionName);
 
+//	@Query(value = " select c.id as id, c.construction_name as construction_name, c.description as description, "
+//			+ " c.start_date as start_date, c.end_date as end_date, c.nation_id as nation_id, "
+//			+ " c.location as location, c.create_by as create_by, c.status as status, c.project_code as project_code, "
+//			+ " p.name as project_name, cu.company_id as company_id"
+//			+ " from CONSTRUCTION c " + " join PROJECT p on p.id = c.project_code "
+//			+ " join T_SYS_APP_USER u on u.user_name = p.create_by " + " join T_COMPANY_USER cu on cu.user_id = u.id "
+//			+ " where c.project_code in :prjIds "
+//			+ " and cu.company_id like if (:#{#pageSearchDto.companyId} = 0, '%%', :#{#pageSearchDto.companyId}) "
+//			+ " and c.nation_id like if (:#{#pageSearchDto.nationId} = 0, '%%', :#{#pageSearchDto.nationId}) "
+//			+ " and c.location like :#{#pageSearchDto.location} "
+//			+ " and c.project_code like :#{#pageSearchDto.projectId} "
+//			+ " and (c.construction_name like :#{#pageSearchDto.keyword} or c.`description` like :#{#pageSearchDto.keyword})"
+//			+ " and c.`status` like if ( :#{#pageSearchDto.status} = -1, '%%', :#{#pageSearchDto.status})", nativeQuery = true, countQuery = " select c.* from CONSTRUCTION c "
+//					+ " join PROJECT p on p.id = c.project_code "
+//					+ " join T_SYS_APP_USER u on u.user_name = p.create_by "
+//					+ " join T_COMPANY_USER cu on cu.user_id = u.id " + " where c.project_code in :prjIds "
+//					+ " and cu.company_id like if (:#{#pageSearchDto.companyId} = 0, '%%', :#{#pageSearchDto.companyId}) "
+//					+ " and c.nation_id like if (:#{#pageSearchDto.nationId} = 0, '%%', :#{#pageSearchDto.nationId}) "
+//					+ " and c.location like :#{#pageSearchDto.location} "
+//					+ " and c.project_code like :#{#pageSearchDto.projectId} "
+//					+ " and (c.construction_name like :#{#pageSearchDto.keyword} or c.`description` like :#{#pageSearchDto.keyword})"
+//					+ " and c.`status` like if ( :#{#pageSearchDto.status} = -1, '%%', :#{#pageSearchDto.status})")
+//	Page<ConstructionResDto> findCstrtByCondition(List<String> prjIds, PageSearchConstrctDto pageSearchDto,
+//			Pageable pageable);
+
 	@Query(value = "select c.* from CONSTRUCTION c " + " where c.project_code in :projectIds" + " and ( "
 			+ "	c.`construction_name` like :#{#pageSearchDto.keyword} "
 			+ "	or c.`description` like :#{#pageSearchDto.keyword} "

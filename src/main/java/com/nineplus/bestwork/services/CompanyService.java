@@ -375,4 +375,8 @@ public class CompanyService {
 		return this.companyRepository.findByCrtedPrjIds(prjIds);
 	}
 
+	public CompanyEntity findByCrtedPrjId(String prjId) {
+		return this.companyRepository.findByCrtedPrjId(prjId);
+	}
+
 }

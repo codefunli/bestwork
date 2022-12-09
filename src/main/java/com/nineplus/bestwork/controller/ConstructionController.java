@@ -197,14 +197,15 @@ public class ConstructionController extends BaseController {
 		}
 		return success(CommonConstants.MessageCode.SNA0002, nationResDtos, null);
 	}
-	
-	@GetMapping("/close")
-	public ResponseEntity<? extends Object> closeCstrt() throws BestWorkBussinessException {
-//		try {
-////			this.constructionService.closeCstrt();
-//		} catch (BestWorkBussinessException ex) {
-//			return failed(ex.getMsgCode(), ex.getParam());
-//		}
-		return success(CommonConstants.MessageCode.SNA0002, null, null);
+
+	@PatchMapping("/close/{constructionId}")
+	public ResponseEntity<? extends Object> closeCstrt(@PathVariable long constructionId)
+			throws BestWorkBussinessException {
+		try {
+			this.constructionService.closeCstrt(constructionId);
+		} catch (BestWorkBussinessException ex) {
+			return failed(ex.getMsgCode(), ex.getParam());
+		}
+		return success(CommonConstants.MessageCode.SCS0009, null, null);
 	}
 }
