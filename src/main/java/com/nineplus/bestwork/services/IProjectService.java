@@ -63,4 +63,8 @@ public interface IProjectService {
 
 	public void updateStsProject(String projectCode) throws BestWorkBussinessException;
 
+    	Integer countProjectUser(String username);
+
+	List<List<Integer>> countPrjConsByMonth(String username, Integer year);
+
 }

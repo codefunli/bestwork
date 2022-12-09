@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.nineplus.bestwork.repository.ConstructionRepository;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -83,6 +84,10 @@ public class ProjectServiceImpl implements IProjectService {
 	@Autowired
 	@Lazy
 	IConstructionService cstrtService;
+
+	@Autowired
+	@Lazy
+	ConstructionRepository constructionRepository;
 
 	@Override
 	public PageResDto<ProjectResDto> getProjectPage(PageSearchDto pageSearchDto) throws BestWorkBussinessException {
@@ -603,6 +608,30 @@ public class ProjectServiceImpl implements IProjectService {
 			canViewPrjList = this.getPrj4SysAdmin(curUsername);
 		}
 		return canViewPrjList;
+	}
+
+	@Override
+	public Integer countProjectUser(String username) {
+		UserEntity user = userService.getUserByUsername(username);
+		if (ObjectUtils.isNotEmpty(user)) {
+			return assignTaskRepository.countAllByUserId(null, null, user.getId());
+		}
+		return 0;
+	}
+
+	@Override
+	public List<List<Integer>> countPrjConsByMonth(String username, Integer year) {
+		UserEntity user = userService.getUserByUsername(username);
+		List<List<Integer>> listReturn = new ArrayList<>();
+		if (ObjectUtils.isNotEmpty(user)) {
+			for (int i = 0; i < 12; i++) {
+				List<Integer> lstCountByMonth = new ArrayList<>();
+				lstCountByMonth.add(assignTaskRepository.countAllByUserId(i + 1, year, user.getId()));
+				lstCountByMonth.add(constructionRepository.countConstructionUser(i + 1, year, user.getId()));
+				listReturn.add(lstCountByMonth);
+			}
+		}
+		return listReturn;
 	}
 
 	/**
