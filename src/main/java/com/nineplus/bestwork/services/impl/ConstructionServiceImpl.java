@@ -1,6 +1,7 @@
 package com.nineplus.bestwork.services.impl;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -8,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import com.nineplus.bestwork.dto.*;
 import org.apache.commons.lang3.ObjectUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
@@ -20,16 +22,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.nineplus.bestwork.dto.AirWayBillReqDto;
-import com.nineplus.bestwork.dto.AirWayBillResDto;
-import com.nineplus.bestwork.dto.ConstructionReqDto;
-import com.nineplus.bestwork.dto.ConstructionResDto;
-import com.nineplus.bestwork.dto.FileStorageResDto;
-import com.nineplus.bestwork.dto.IdsToDelReqDto;
-import com.nineplus.bestwork.dto.NotificationReqDto;
-import com.nineplus.bestwork.dto.PageResDto;
-import com.nineplus.bestwork.dto.PageSearchDto;
-import com.nineplus.bestwork.dto.RPageDto;
 import com.nineplus.bestwork.entity.AirWayBill;
 import com.nineplus.bestwork.entity.AssignTaskEntity;
 import com.nineplus.bestwork.entity.ConstructionEntity;
@@ -56,6 +48,8 @@ import com.nineplus.bestwork.utils.Enums.ConstructionStatus;
 import com.nineplus.bestwork.utils.Enums.FolderType;
 import com.nineplus.bestwork.utils.MessageUtils;
 import com.nineplus.bestwork.utils.UserAuthUtils;
+
+import javax.persistence.Tuple;
 
 /**
  * 
@@ -673,5 +667,31 @@ public class ConstructionServiceImpl implements IConstructionService {
 		ConstructionEntity constructionCur = this.cstrtRepo.findByProgressId(progressId);
 		constructionCur.setStatus(status);
 		this.cstrtRepo.save(constructionCur);
+	}
+
+	@Override
+	public Integer countConstructionUser(String username) {
+		UserEntity user = userService.getUserByUsername(username);
+		if (ObjectUtils.isNotEmpty(user)) {
+			return cstrtRepo.countConstructionUser(null, null, user.getId());
+		}
+		return 0;
+	}
+
+	@Override
+	public List<CountLocationDto> getLocationsUser(String username) {
+		UserEntity user = userService.getUserByUsername(username);
+		List<CountLocationDto> countLocationDtos = new ArrayList<>();
+		if (ObjectUtils.isNotEmpty(user)) {
+			List<Tuple> tuples = cstrtRepo.getTopLocation(user.getId());
+			if (!tuples.isEmpty()) {
+				countLocationDtos = tuples.stream().map(t -> new CountLocationDto(
+						t.get(0, String.class),
+						t.get(1, BigInteger.class)
+				)).toList();
+			}
+
+		}
+		return countLocationDtos;
 	}
 }

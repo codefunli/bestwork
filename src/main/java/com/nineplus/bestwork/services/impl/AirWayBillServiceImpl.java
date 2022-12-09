@@ -1,11 +1,7 @@
 package com.nineplus.bestwork.services.impl;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -320,5 +316,24 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 		if(ObjectUtils.isNotEmpty(awb) && !currentAwb.getCode().equals(awb.getCode())) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.eA0004, null);
 		}
+
+	public Integer countAwbUser(String username) {
+		UserEntity user = userService.getUserByUsername(username);
+		if (ObjectUtils.isNotEmpty(user)) {
+			airWayBillRepository.countAwbUser(user.getId(), null);
+		}
+		return 0;
+	}
+
+	@Override
+	public Map<String, Integer> countAwbByStatus(String username) {
+		UserEntity user = userService.getUserByUsername(username);
+		Map<String, Integer> mapReturn = new HashMap<>();
+		if (ObjectUtils.isNotEmpty(user)) {
+			for (int i = 0; i < 3; i++) {
+				mapReturn.put(AirWayBillStatus.convertIntToStatus(i), airWayBillRepository.countAwbUser(user.getId(), i));
+			}
+		}
+		return mapReturn;
 	}
 }
