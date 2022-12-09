@@ -49,11 +49,11 @@ public interface CompanyRepository extends JpaRepository<CompanyEntity, Long> {
 			+ " where p.id in :prjIds ", nativeQuery = true)
 	List<CompanyEntity> findByCrtedPrjIds(List<String> prjIds);
 
-	@Query(value = " select DISTINCT c.* from T_COMPANY c " 
+	@Query(value = " select c.* from T_COMPANY c " 
 			+ " join T_COMPANY_USER cu on cu.company_id = c.id "
 			+ " join T_SYS_APP_USER u on u.id = cu.user_id " 
 			+ " join PROJECT p on p.create_by = u.user_name "
-			+ " where p.id = :prjId ", nativeQuery = true)
+			+ " where p.id like :prjId ", nativeQuery = true)
 	CompanyEntity findByCrtedPrjId(String prjId);
 
 }
