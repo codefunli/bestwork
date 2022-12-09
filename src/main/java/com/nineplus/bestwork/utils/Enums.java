@@ -2,7 +2,8 @@ package com.nineplus.bestwork.utils;
 
 public class Enums {
 	public enum TRole {
-		SYS_ADMIN("sysadmin"), COMPANY_ADMIN("companyadmin"), INVESTOR("investor"), SUPPLIER("supplier"), CONTRACTOR("contractor");
+		SYS_ADMIN("sysadmin"), SYS_COMPANY_ADMIN("sys-companyadmin"), COMPANY_ADMIN("companyadmin"),
+		INVESTOR("investor"), SUPPLIER("supplier"), CONTRACTOR("contractor");
 
 		private String value;
 
