@@ -500,7 +500,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 		if (ObjectUtils.isEmpty(companyOpt)) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.CPN0007, null);
 		}
-		NationEntity nation = this.nationService.findById(cstrt.getId());
+		NationEntity nation = this.nationService.findById(cstrt.getNationId());
 		ConstructionResDto cstrtResDto = new ConstructionResDto();
 		cstrtResDto.setId(cstrt.getId());
 		cstrtResDto.setConstructionName(cstrt.getConstructionName());
