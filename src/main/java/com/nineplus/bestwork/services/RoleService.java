@@ -25,6 +25,7 @@ import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.model.UserAuthDetected;
 import com.nineplus.bestwork.repository.RoleRepository;
 import com.nineplus.bestwork.utils.CommonConstants;
+import com.nineplus.bestwork.utils.CommonConstants.RoleName;
 import com.nineplus.bestwork.utils.MessageUtils;
 import com.nineplus.bestwork.utils.PageUtils;
 import com.nineplus.bestwork.utils.UserAuthUtils;
@@ -153,6 +154,11 @@ public class RoleService {
 	}
 
 	public List<RoleEntity> getAllRole() throws BestWorkBussinessException {
-		return roleRepository.findAll();
+		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
+		List<RoleEntity> result = roleRepository.findAll();
+		if (userAuthRoleReq.getIsSysCompanyAdmin()) {
+			result.removeIf(x -> RoleName.SYS_ADMIN.equals(x.getRoleName()));
+		}
+		return result;
 	}
 }

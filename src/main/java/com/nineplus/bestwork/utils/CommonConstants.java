@@ -12,7 +12,8 @@ public class CommonConstants {
 
 	public class RoleName {
 		public static final String SYS_ADMIN = "sysadmin";
-		public static final String ORG_ADMIN = "companyadmin";
+		public static final String SYS_COMPANY_ADMIN = "sys-companyadmin";
+		public static final String CMPNY_ADMIN = "companyadmin";
 		public static final String CPMY_USER = "companyuser";
 	}
 
