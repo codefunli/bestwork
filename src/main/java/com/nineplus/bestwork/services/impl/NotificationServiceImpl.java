@@ -1,7 +1,6 @@
 package com.nineplus.bestwork.services.impl;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -101,9 +100,9 @@ public class NotificationServiceImpl implements NotificationService {
 		}
 	}
 
-	private String convertDateToString(String createDate) throws ParseException {
+	private String convertDateToString(LocalDateTime createDate) throws ParseException {
 		PrettyTime p = new PrettyTime(new Locale(messageUtils.getMessage(CommonConstants.MessageCode.TL0001, null)));
-		return p.format(new SimpleDateFormat(CommonConstants.Character.DATE_TIME_FORMAT).parse(createDate));
+		return p.format(createDate);
 	}
 
 	/**
@@ -194,7 +193,7 @@ public class NotificationServiceImpl implements NotificationService {
 			}
 			notification.setTitle(title);
 			notification.setContent(content);
-			notification.setCreateDate(String.valueOf(LocalDateTime.now()));
+			notification.setCreateDate(LocalDateTime.now());
 			notification.setRead(false);
 			notification.setCreateBy(getLoggedInUsername());
 			notification.setUser(user);
