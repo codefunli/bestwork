@@ -29,4 +29,6 @@ public class NotificationResDto extends BaseDto {
 
 	private long userId;
 
+	private String timePassed;
+
 }
