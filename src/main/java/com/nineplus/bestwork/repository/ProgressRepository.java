@@ -27,7 +27,7 @@ public interface ProgressRepository extends JpaRepository<ProgressEntity, Long> 
 	@Transactional
 	void deleteByCstrtIdList(Long[] cstrtIds);
 
-	@Query(value = " SELECT c.construction_name, pt.title, pt.create_date , pt.status, c.id " +
+	@Query(value = " SELECT c.construction_name, pt.title, pt.create_date , pt.status, c.id, c.start_date, c.end_date " +
 			" FROM CONSTRUCTION c JOIN PROJECT p ON p.id = c.project_code JOIN ASSIGN_TASK at ON p.id = at.project_id " +
 			" JOIN PROGRESS_TRACKING pt ON c.id = pt.construction_id " +
 			" WHERE at.user_id = :userId AND (at.can_view = 1 OR at.can_edit = 1) " +
