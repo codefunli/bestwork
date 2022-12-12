@@ -20,4 +20,8 @@ public class ProgressConsDto {
     private String status;
     @JsonProperty("constructionId")
     private BigInteger constructionId;
+    @JsonProperty("startDate")
+    private String startDate;
+    @JsonProperty("endDate")
+    private String endDate;
 }
