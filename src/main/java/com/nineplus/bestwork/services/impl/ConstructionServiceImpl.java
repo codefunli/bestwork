@@ -874,7 +874,10 @@ public class ConstructionServiceImpl implements IConstructionService {
 			List<Tuple> tuples = cstrtRepo.getTopLocation(user.getId());
 			if (!tuples.isEmpty()) {
 				countLocationDtos = tuples.stream()
-						.map(t -> new CountLocationDto(t.get(0, String.class), t.get(1, BigInteger.class))).toList();
+						.map(t -> new CountLocationDto(
+										t.get(0, String.class),
+										t.get(1, BigInteger.class),
+										t.get(2, String.class))).toList();
 			}
 		}
 		return countLocationDtos;

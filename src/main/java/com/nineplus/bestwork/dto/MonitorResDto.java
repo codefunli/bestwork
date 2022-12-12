@@ -24,6 +24,7 @@ public class MonitorResDto extends BaseDto {
 	@JsonProperty("icon")
 	private String icon;
 
+	@JsonProperty("url")
 	private String url;
 
 	private String createdUser;
