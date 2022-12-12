@@ -73,10 +73,10 @@ public interface ConstructionRepository extends JpaRepository<ConstructionEntity
 	Integer countConstructionUser(@Param("month") Integer month, @Param("year") Integer year,
 			@Param("userId") Long userId);
 
-	@Query(value = " select c2.* from ( " + " select cs.location, nm.name , count(cs.location) count from CONSTRUCTION cs join ( "
+	@Query(value = " select c2.* from ( " + " select cs.location, count(cs.location) count, nm.name  from CONSTRUCTION cs join ( "
 			+ " SELECT distinct c.id  FROM CONSTRUCTION c JOIN ASSIGN_TASK at ON c.project_code = at.project_id "
-			+ " JOIN NATION_MASTER nm ON c.nation_id = nm.id "
 			+ " WHERE at.user_id = :userId AND (at.can_view = 1 OR at.can_edit = 1)  " + " ) c1 on cs.id = c1.id "
-			+ " group by cs.location " + " ) c2 " + " order by c2.count desc " + " limit 5 ", nativeQuery = true)
+			+ " JOIN NATION_MASTER nm ON cs.nation_id = nm.id "
+			+ " group by cs.location, nm.name " + " ) c2 " + " order by c2.count desc " + " limit 5 ", nativeQuery = true)
 	List<Tuple> getTopLocation(@Param("userId") Long userId);
 }

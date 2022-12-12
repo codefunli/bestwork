@@ -284,7 +284,9 @@ public class ProgressServiceImpl implements IProgressService {
 						tuple.get(1, String.class),
 						tuple.get(2, Timestamp.class),
 						tuple.get(3, String.class),
-						tuple.get(4, BigInteger.class)
+						tuple.get(4, BigInteger.class),
+						tuple.get(5, String.class),
+						tuple.get(6, String.class)
 				)).toList();
 			}
 		}
