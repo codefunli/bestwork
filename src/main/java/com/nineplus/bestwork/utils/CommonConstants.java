@@ -68,6 +68,8 @@ public class CommonConstants {
 		public static final String EDITOR = "editor";
 		public static final String VIEWER = "viewer";
 		public static final int STRING_LEN = 250;
+
+		public static final String DATE_TIME_FORMAT = "yyyy-MM-dd hh:mm:ss";
 	}
 
 	public class MessageCode {
@@ -267,7 +269,7 @@ public class CommonConstants {
 
 		public static final String SCS0001 = "scs0001";
 
-		public static final  String SCN001 = "SCN001";
+		public static final String SCN001 = "SCN001";
 		public static final String ECS0001 = "ecs0001";
 		public static final String SCS0002 = "scs0002";
 		public static final String ECS0002 = "ecs0002";
@@ -314,6 +316,8 @@ public class CommonConstants {
 		public static final String ENA0001 = "ena0001";
 		public static final String SNA0002 = "sna0002";
 		public static final String ENA0002 = "ena0002";
+
+		public static final String TL0001 = "tl0001";
 	}
 
 	public class Url {
