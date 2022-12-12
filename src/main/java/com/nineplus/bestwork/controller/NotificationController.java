@@ -98,4 +98,5 @@ public class NotificationController extends BaseController {
 		long countNotRead = this.notifyService.countNotReadNotifys();
 		return success(CommonConstants.MessageCode.SNU0008, countNotRead, null);
 	}
+	
 }
