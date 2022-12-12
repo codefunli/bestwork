@@ -26,6 +26,7 @@ import com.nineplus.bestwork.dto.NationResDto;
 import com.nineplus.bestwork.dto.PageResDto;
 import com.nineplus.bestwork.dto.PageSearchConstrctDto;
 import com.nineplus.bestwork.dto.ProjectResDto;
+import com.nineplus.bestwork.entity.ConstructionEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.services.IConstructionService;
 import com.nineplus.bestwork.utils.CommonConstants;
@@ -201,12 +202,13 @@ public class ConstructionController extends BaseController {
 	@PatchMapping("/close/{constructionId}")
 	public ResponseEntity<? extends Object> closeCstrt(@PathVariable long constructionId)
 			throws BestWorkBussinessException {
+		ConstructionEntity construction = new ConstructionEntity();
 		try {
-			this.constructionService.closeCstrt(constructionId);
+			construction = this.constructionService.closeCstrt(constructionId);
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}
-		return success(CommonConstants.MessageCode.SCS0009, null, null);
+		return success(CommonConstants.MessageCode.SCS0009, construction.getStatus(), null);
 	}
 
 	@GetMapping("/test-api")

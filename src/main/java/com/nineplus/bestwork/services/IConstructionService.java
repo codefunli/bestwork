@@ -53,7 +53,7 @@ public interface IConstructionService {
 
 	void updateStsConstruction(long id, String status) throws BestWorkBussinessException;
 
-	void closeCstrt(long constructionId) throws BestWorkBussinessException;
+	ConstructionEntity closeCstrt(long constructionId) throws BestWorkBussinessException;
 
 	Integer countConstructionUser(String username);
 

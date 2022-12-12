@@ -844,7 +844,7 @@ public class ConstructionServiceImpl implements IConstructionService {
 	}
 
 	@Override
-	public void closeCstrt(long constructionId) throws BestWorkBussinessException {
+	public ConstructionEntity closeCstrt(long constructionId) throws BestWorkBussinessException {
 		Optional<ConstructionEntity> cstrtOpt = this.cstrtRepo.findById(constructionId);
 		if (cstrtOpt.isEmpty()) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.ECS0006, null);
@@ -855,7 +855,8 @@ public class ConstructionServiceImpl implements IConstructionService {
 		}
 		;
 		curCstrt.setStatus(String.valueOf(ConstructionStatus.DONE.ordinal()));
-		this.cstrtRepo.save(curCstrt);
+		return this.cstrtRepo.save(curCstrt);
+
 	}
 
 	public Integer countConstructionUser(String username) {
