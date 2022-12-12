@@ -14,7 +14,7 @@ public class SysActionService {
 	@Autowired
 	SysActionRepository sysActionRepository;
 
-	public List<SysActionEntity> getSysActionBySysRole(List<String> nameList, String methodType) {
-		return sysActionRepository.findSysPermissionBySysRoleName(nameList, methodType);
+	public List<SysActionEntity> getSysActionBySysRole(List<String> nameList, String methodType, Long adminId) {
+		return sysActionRepository.findSysPermissionBySysRoleName(nameList, methodType, adminId);
 	}
 }

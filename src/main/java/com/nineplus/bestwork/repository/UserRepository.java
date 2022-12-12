@@ -28,7 +28,7 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
 			"left join T_COMPANY tc on " +
 			"tcu.company_id = tc.id " +
 			"where " +
-			"1 = (case when tsar.name in ('sysadmin') then 1 " +
+			"1 = (case when tsar.name in ('sysadmin','sys-companyadmin') then 1 " +
 			"else case when ( " +
 			"select " +
 			"count(tc2.id) " +

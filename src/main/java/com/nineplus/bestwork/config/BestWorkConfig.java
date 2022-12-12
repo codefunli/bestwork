@@ -37,7 +37,7 @@ public class BestWorkConfig {
 	@Bean
 	public AcceptHeaderLocaleResolver localeResolver() {
 		AcceptHeaderLocaleResolver localeResolver = new AcceptHeaderLocaleResolver();
-		localeResolver.setSupportedLocales(Arrays.asList(new Locale("en"), new Locale("vn")));
+		localeResolver.setSupportedLocales(Arrays.asList(new Locale("en"), new Locale("vi")));
 		localeResolver.setDefaultLocale(new Locale("en"));
 		return localeResolver;
 	}

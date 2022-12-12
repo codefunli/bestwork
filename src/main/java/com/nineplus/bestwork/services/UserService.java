@@ -499,14 +499,12 @@ public class UserService implements UserDetailsService {
 		if (companyRes != null) {
 			userResDto.setCompany(companyRes);
 		}
-		if (listAssignDto != null) {
-			userResDto.setRoleProject(listAssignDto);
-		}
+		userResDto.setRoleProject(listAssignDto);
 		List<String> roleList = new ArrayList<>();
 		roleList.add(user.getRole().getRoleName());
 		List<Integer> lstStt = new ArrayList<>();
 		lstStt.add(Status.ACTIVE.getValue());
-		Map<Long, List<PermissionResDto>> permissions = permissionService.getMapPermissions(roleList, lstStt);
+		Map<Long, List<PermissionResDto>> permissions = permissionService.getMapPermissions(roleList, lstStt, userAuthUtils.getUserInfoFromReq(false).getUsername());
 		userResDto.setPermissions(permissions);
 		return userResDto;
 	}
@@ -528,6 +526,19 @@ public class UserService implements UserDetailsService {
 	public List<UserEntity> findUserAllowUpdPrj(String prjId) {
 		List<UserEntity> userList = this.userRepo.findUserAllwUpdPrj(prjId);
 		return userList;
+	}
+
+	public UserEntity getAdminUser(String childUsername) {
+		UserEntity childUser = userRepo.findUserByUserName(childUsername);
+		UserEntity adminUser = null;
+		if (ObjectUtils.isNotEmpty(childUser)) {
+			if (childUser.getRole().getRoleName().equals(CommonConstants.RoleName.SYS_COMPANY_ADMIN) ||
+					childUser.getRole().getRoleName().equals(CommonConstants.RoleName.SYS_ADMIN)) {
+				return childUser;
+			}
+			adminUser = userRepo.findByUserName(childUser.getCreateBy());
+		}
+		return adminUser;
 	}
 
 }

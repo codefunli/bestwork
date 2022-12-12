@@ -139,7 +139,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 		List<String> roleList = user.getAuthorities().stream().map(GrantedAuthority::getAuthority)
 				.collect(Collectors.toList());
 		try {
-			mapPermission = permissionService.getMapPermissions(roleList, lstStt);
+			mapPermission = permissionService.getMapPermissions(roleList, lstStt,((User) authResult.getPrincipal()).getUsername());
 		} catch (BestWorkBussinessException e) {
 			throw new RuntimeException(e);
 		}
