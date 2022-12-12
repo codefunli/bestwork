@@ -331,7 +331,7 @@ public class AirWayBillServiceImpl implements IAirWayBillService {
 		UserEntity user = userService.getUserByUsername(username);
 		Map<String, Integer> mapReturn = new HashMap<>();
 		if (ObjectUtils.isNotEmpty(user)) {
-			for (int i = 0; i < 3; i++) {
+			for (int i = 0; i < 4; i++) {
 				mapReturn.put(AirWayBillStatus.convertIntToStatus(i), airWayBillRepository.countAwbUserStatus(user.getId(), i));
 			}
 		}
