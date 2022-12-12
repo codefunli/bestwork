@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.nineplus.bestwork.utils.UserAuthUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.ResponseEntity;
@@ -35,6 +36,9 @@ public class PermissionController extends BaseController {
 	@Autowired
 	RoleService roleService;
 
+	@Autowired
+	UserAuthUtils userAuthUtils;
+
 	@PostMapping
 	public ResponseEntity<? extends Object> updatePermission(@RequestBody List<RegPermissionDto> dto) {
 		List<PermissionResDto> resPermissionDto;
@@ -55,7 +59,7 @@ public class PermissionController extends BaseController {
 		List<Integer> lstStt = new ArrayList<>();
 		lstStt.add(Status.ACTIVE.getValue());
 		try {
-			mapResponse = permissionService.getMapPermissions(roleList, lstStt).values().stream().flatMap(List::stream)
+			mapResponse = permissionService.getMapPermissions(roleList, lstStt, userAuthUtils.getUserInfoFromReq(false).getUsername()).values().stream().flatMap(List::stream)
 					.collect(Collectors.toList());
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());

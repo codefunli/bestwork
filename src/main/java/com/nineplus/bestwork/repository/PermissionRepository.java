@@ -21,9 +21,9 @@ public interface PermissionRepository extends JpaRepository<SysPermissionEntity,
 
 	@Query(value = "SELECT distinct t.* FROM SYS_PERMISSION t JOIN T_SYS_APP_ROLE tr on t.role_id = tr.id"
 			+ " JOIN SYS_MONITOR sm ON t.monitor_id = sm.id LEFT JOIN SYS_ACTION sa ON sm.id = sa.monitor_id"
-			+ " WHERE tr.name in :lstName AND t.status in :lstStt AND  sa.id = :actionId ", nativeQuery = true)
+			+ " WHERE tr.name in :lstName AND t.status in :lstStt AND  sa.id = :actionId AND t.admin_id = :adminId ", nativeQuery = true)
 	List<SysPermissionEntity> findAllByRoleNameAndAction(@Param("lstName") List<String> lstName,
-			@Param("lstStt") List<Integer> lstStt, @Param("actionId") Long actionId);
+			@Param("lstStt") List<Integer> lstStt, @Param("actionId") Long actionId, @Param("adminId") Long adminId);
 
 	@Query(value = "SELECT distinct t.* FROM SYS_PERMISSION t JOIN T_SYS_APP_ROLE tr on t.role_id = tr.id"
 			+ " JOIN SYS_MONITOR sm ON t.monitor_id = sm.id LEFT JOIN SYS_ACTION sa ON sm.id = sa.monitor_id"

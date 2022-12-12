@@ -72,6 +72,11 @@ public class SysPermissionEntity implements Cloneable {
 	@JsonManagedReference
 	private RoleEntity sysRole;
 
+	@ManyToOne
+	@JoinColumn(name = "admin_id")
+	@JsonManagedReference
+	private UserEntity user;
+
 	public Integer getStatus() {
 		return status.getValue();
 	}
