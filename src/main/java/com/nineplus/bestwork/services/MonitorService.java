@@ -77,6 +77,7 @@ public class MonitorService {
 			monitor = new SysMonitorEntity();
 			monitor.setName(dto.getName());
 			monitor.setIcon(dto.getIcon());
+			monitor.setUrl(dto.getUrl());
 			monitor.setCreatedDate(new Timestamp(System.currentTimeMillis()));
 			monitor.setCreatedUser(userAuthUtils.getUserInfoFromReq(false).getUsername());
 			monitorRepository.save(monitor);
@@ -113,6 +114,7 @@ public class MonitorService {
 			SysMonitorEntity monitor = checkExist.get();
 			monitor.setName(dto.getName());
 			monitor.setIcon(dto.getIcon());
+			monitor.setUrl(dto.getUrl());
 			monitor.setUpdatedDate(new Timestamp(System.currentTimeMillis()));
 			monitor.setUpdatedUser(userAuthUtils.getUserInfoFromReq(false).getUsername());
 			monitorRepository.save(monitor);

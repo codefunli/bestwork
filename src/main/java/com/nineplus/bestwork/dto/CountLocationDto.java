@@ -14,4 +14,6 @@ public class CountLocationDto {
     private String location;
     @JsonProperty("count")
     private BigInteger count;
+    @JsonProperty("nationName")
+    private String nationName;
 }
