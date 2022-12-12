@@ -68,8 +68,6 @@ public class CommonConstants {
 		public static final String EDITOR = "editor";
 		public static final String VIEWER = "viewer";
 		public static final int STRING_LEN = 250;
-
-		public static final String DATE_TIME_FORMAT = "yyyy-MM-dd hh:mm:ss";
 	}
 
 	public class MessageCode {

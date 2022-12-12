@@ -1,5 +1,7 @@
 package com.nineplus.bestwork.entity;
 
+import java.time.LocalDateTime;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -35,7 +37,7 @@ public class NotificationEntity {
 	private String content;
 
 	@Column(name = "create_date", columnDefinition = "timestamp")
-	private String createDate;
+	private LocalDateTime createDate;
 
 	@Column(name = "is_read", nullable = false, columnDefinition = "tinyint(1) default 0")
 	private boolean isRead;
