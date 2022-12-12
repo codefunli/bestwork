@@ -13,6 +13,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.nineplus.bestwork.entity.MailStorageEntity;
@@ -30,6 +31,24 @@ import com.nineplus.bestwork.utils.MessageUtils;
 @Service
 public class MailSenderServiceImpl implements MailSenderService {
 	private static final String CONTENT_TYPE_TEXT_HTML = "text/html;charset=\"utf-8\"";
+	@Value("${spring.mail.host}")
+	private String host;
+
+	@Value("${spring.mail.port}")
+	private String port;
+
+	@Value("${spring.mail.username}")
+	private String email;
+
+	@Value("${spring.mail.password}")
+	private String password;
+
+	@Value("${spring.mail.properties.mail.smtp.auth}")
+	private boolean propAuth;
+
+	@Value("${spring.mail.properties.mail.smtp.starttls.enable}")
+	private boolean propTlsEnale;
+
 	@Autowired
 	private ThymleafService thymleafService;
 
@@ -41,7 +60,6 @@ public class MailSenderServiceImpl implements MailSenderService {
 
 	public void sendMailResetPassword(String toEmail, String username, String link) {
 
-		String email = messageUtils.getMessage(CommonConstants.SpringMail.M1U0006, null);
 		String subject = messageUtils.getMessage(CommonConstants.SpringMail.M1X0003, null);
 		Message message = new MimeMessage(mailCommon());
 		try {
@@ -58,7 +76,6 @@ public class MailSenderServiceImpl implements MailSenderService {
 	}
 
 	public void sendMailRegisterUserCompany() {
-		String email = messageUtils.getMessage(CommonConstants.SpringMail.M1U0006, null);
 		Message message = new MimeMessage(mailCommon());
 
 		List<MailStorageEntity> mailList = mailStorageService.getTenFirstMails();
@@ -90,14 +107,11 @@ public class MailSenderServiceImpl implements MailSenderService {
 	}
 
 	private Session mailCommon() {
-		String host = messageUtils.getMessage(CommonConstants.SpringMail.M1H0004, null);
-		String port = messageUtils.getMessage(CommonConstants.SpringMail.M1P0005, null);
-		String email = messageUtils.getMessage(CommonConstants.SpringMail.M1U0006, null);
-		String password = messageUtils.getMessage(CommonConstants.SpringMail.M1W0007, null);
+
 		Properties props = new Properties();
 		props.put("mail.smtp.host", host);
-		props.put("mail.smtp.starttls.enable", "true");
-		props.put("mail.smtp.auth", "true");
+		props.put("mail.smtp.starttls.enable", propTlsEnale);
+		props.put("mail.smtp.auth", propAuth);
 		props.put("mail.smtp.port", port);
 
 		Session session = Session.getInstance(props, new Authenticator() {

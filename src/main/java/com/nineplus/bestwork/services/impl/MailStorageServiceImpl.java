@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.nineplus.bestwork.entity.MailStorageEntity;
@@ -22,6 +23,8 @@ import com.nineplus.bestwork.utils.MessageUtils;
 
 @Service
 public class MailStorageServiceImpl implements MailStorageService {
+	@Value("${url.origin}")
+	private String url;
 
 	@Autowired
 	MailStorageRepository mailStorageRepository;
@@ -37,7 +40,7 @@ public class MailStorageServiceImpl implements MailStorageService {
 			String password) {
 		MailStorageEntity mailStorage = new MailStorageEntity();
 		String subject = messageUtils.getMessage(CommonConstants.SpringMail.M1X0002, null);
-		String linkLogin = messageUtils.getMessage(CommonConstants.Url.URL0001, null) + "/login";
+		String linkLogin = url + "/login";
 		Map<String, String> paramsMap = new HashMap<>();
 		paramsMap.put("company", companyName);
 		paramsMap.put("username", username);
