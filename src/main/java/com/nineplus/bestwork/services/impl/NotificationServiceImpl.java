@@ -1,10 +1,13 @@
 package com.nineplus.bestwork.services.impl;
 
+import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
+import org.ocpsoft.prettytime.PrettyTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -29,12 +32,11 @@ import com.nineplus.bestwork.services.UserService;
 import com.nineplus.bestwork.utils.CommonConstants;
 import com.nineplus.bestwork.utils.ConvertResponseUtils;
 import com.nineplus.bestwork.utils.Enums.NotifyStatus;
+import com.nineplus.bestwork.utils.MessageUtils;
 import com.nineplus.bestwork.utils.UserAuthUtils;
 
 /**
- * 
  * @author DiepTT
- *
  */
 @Service
 public class NotificationServiceImpl implements NotificationService {
@@ -51,11 +53,14 @@ public class NotificationServiceImpl implements NotificationService {
 	@Autowired
 	private ConvertResponseUtils convertResponseUtils;
 
+	@Autowired
+	private MessageUtils messageUtils;
+
 	/**
-	 * @author DiepTT
 	 * @param none
 	 * @return list of notifications (response dto) per logged-in user
 	 * @throws BestWorkBussinessException
+	 * @author DiepTT
 	 */
 	@Override
 	public PageResDto<NotificationResDto> getAllNotifyByUser(PageSearchDto pageSearchDto)
@@ -83,6 +88,7 @@ public class NotificationServiceImpl implements NotificationService {
 				dto.setTitle(noti.getTitle());
 				dto.setContent(noti.getContent());
 				dto.setCreateDate(String.valueOf(noti.getCreateDate()));
+				dto.setTimePassed(convertDateToString(noti.getCreateDate()));
 				dto.setRead(noti.isRead());
 				dto.setUserId(noti.getUser().getId());
 				dtos.add(dto);
@@ -94,9 +100,14 @@ public class NotificationServiceImpl implements NotificationService {
 		}
 	}
 
+	private String convertDateToString(LocalDateTime createDate) throws ParseException {
+		PrettyTime p = new PrettyTime(new Locale(messageUtils.getMessage(CommonConstants.MessageCode.TL0001, null)));
+		return p.format(createDate);
+	}
+
 	/**
 	 * Private function: convert from PageSearchDto to Pageable and search condition
-	 * 
+	 *
 	 * @param pageSearchDto
 	 * @return Pageable
 	 */
@@ -115,10 +126,10 @@ public class NotificationServiceImpl implements NotificationService {
 	}
 
 	/**
-	 * @author DiepTT
 	 * @param none
 	 * @return username of logged-in user
 	 * @throws BestWorkBussinessException
+	 * @author DiepTT
 	 */
 	private String getLoggedInUsername() throws BestWorkBussinessException {
 		UserAuthDetected userAuthDetected = userAuthUtils.getUserInfoFromReq(false);
@@ -127,10 +138,10 @@ public class NotificationServiceImpl implements NotificationService {
 	}
 
 	/**
-	 * @author DiepTT
 	 * @param notifyId (notification id)
 	 * @return Optional<NotificationEntity>
 	 * @throws none
+	 * @author DiepTT
 	 */
 	@Override
 	public Optional<NotificationEntity> findById(long notifyId) {
@@ -139,11 +150,11 @@ public class NotificationServiceImpl implements NotificationService {
 
 	/**
 	 * This method is used to change reading-status of the notification.
-	 * 
-	 * @author DiepTT
+	 *
 	 * @param NotificationEntity
 	 * @return notification that is already read
 	 * @throws BestWorkBussinessException
+	 * @author DiepTT
 	 */
 	@Override
 	public NotificationEntity chgReadStatus(NotificationEntity notification) throws BestWorkBussinessException {
@@ -151,12 +162,20 @@ public class NotificationServiceImpl implements NotificationService {
 		return this.notifyRepository.save(notification);
 	}
 
+	@Override
+	public long countNotReadNotifys() throws BestWorkBussinessException {
+		UserAuthDetected userAuthDetected = userAuthUtils.getUserInfoFromReq(false);
+		UserEntity curUser = userService.findUserByUsername(userAuthDetected.getUsername());
+		long count = this.notifyRepository.countUnreadNotify(curUser.getId());
+		return count;
+	}
+
 	/**
 	 * This method is used to save notification into database.
-	 * 
-	 * @author DiepTT
+	 *
 	 * @param notification (request dto)
 	 * @throws BestWorkBussinessException
+	 * @author DiepTT
 	 */
 	@Override
 	@Transactional
@@ -214,13 +233,5 @@ public class NotificationServiceImpl implements NotificationService {
 			return true;
 		}
 		return false;
-	}
-
-	@Override
-	public long countNotReadNotifys() throws BestWorkBussinessException {
-		UserAuthDetected userAuthDetected = userAuthUtils.getUserInfoFromReq(false);
-		UserEntity curUser = userService.findUserByUsername(userAuthDetected.getUsername());
-		long count = this.notifyRepository.countUnreadNotify(curUser.getId());
-		return count;
 	}
 }
