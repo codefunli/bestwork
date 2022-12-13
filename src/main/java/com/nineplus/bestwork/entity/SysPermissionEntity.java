@@ -88,9 +88,8 @@ public class SysPermissionEntity implements Cloneable {
 	@Override
 	public SysPermissionEntity clone() {
 		try {
-			SysPermissionEntity clone = (SysPermissionEntity) super.clone();
 			// TODO: copy mutable state here, so the clone can't change the internals of the original
-			return clone;
+			return (SysPermissionEntity) super.clone();
 		} catch (CloneNotSupportedException e) {
 			throw new AssertionError();
 		}

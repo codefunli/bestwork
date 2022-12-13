@@ -112,6 +112,9 @@ public class UserService implements UserDetailsService {
 	@Autowired
 	ModelMapper modelMapper;
 
+	@Autowired
+	RoleService roleService;
+
 	public void saveUser(UserEntity user) {
 		userRepo.save(user);
 	}
@@ -243,6 +246,10 @@ public class UserService implements UserDetailsService {
 			user.setUserAvatar(userReqDto.getAvatar().getBytes());
 		}
 		UserEntity createdUser = this.userRepo.save(user);
+		if (user.getRole().getRoleName().equals(CommonConstants.RoleName.SYS_COMPANY_ADMIN)){
+			roleService.createDefaultRoleForAdmin(createdUser);
+			permissionService.createPermissionsForNewSysCompanyAdmin(createdUser);
+		}
 		mailStorageService.saveMailRegisterUserCompToSendLater(userReqDto.getEmail(), companyCurrent.getCompanyName(),
 				userReqDto.getUserName(), userReqDto.getPassword());
 		ScheduleServiceImpl.isCompleted = true;

@@ -31,7 +31,7 @@ import lombok.ToString;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class RoleEntity implements Serializable {
+public class RoleEntity implements Serializable,Cloneable {
 
 	/**
 	* 
@@ -77,4 +77,14 @@ public class RoleEntity implements Serializable {
 	@ToString.Exclude
 	@JsonBackReference
 	private Collection<SysPermissionEntity> sysPermissions;
+
+	@Override
+	public RoleEntity clone() {
+		try {
+			// TODO: copy mutable state here, so the clone can't change the internals of the original
+			return (RoleEntity) super.clone();
+		} catch (CloneNotSupportedException e) {
+			throw new AssertionError();
+		}
+	}
 }

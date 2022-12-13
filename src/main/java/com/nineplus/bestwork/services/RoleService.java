@@ -1,15 +1,18 @@
 package com.nineplus.bestwork.services;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import com.nineplus.bestwork.entity.UserEntity;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -52,6 +55,7 @@ public class RoleService {
 	private PageUtils responseUtils;
 
 	@Autowired
+	@Lazy
 	private PermissionService permissionService;
 
 	public ResRoleDto getRole(Long id) throws BestWorkBussinessException {
@@ -160,5 +164,30 @@ public class RoleService {
 			result.removeIf(x -> RoleName.SYS_ADMIN.equals(x.getRoleName()));
 		}
 		return result;
+	}
+
+	public List<RoleEntity> getAllRoleAdmin(String adminUsername) {
+		List<String> exceptList = new ArrayList<>();
+		exceptList.add(RoleName.SYS_ADMIN);
+		exceptList.add(RoleName.SYS_COMPANY_ADMIN);
+		return roleRepository.getRoleCreateByExcept(adminUsername, exceptList);
+	}
+
+	public void createDefaultRoleForAdmin(UserEntity admin) {
+		List<String> exceptList = new ArrayList<>();
+		exceptList.add(RoleName.SYS_ADMIN);
+		exceptList.add(RoleName.SYS_COMPANY_ADMIN);
+		List<RoleEntity> roleEntities = roleRepository.getRoleCreateByExcept(admin.getCreateBy(), exceptList);
+		roleEntities.stream().map(roleEntity -> {
+			RoleEntity newRole = roleEntity.clone();
+			newRole.setCreateBy(admin.getUserName());
+			newRole.setCreateDate(LocalDateTime.now());
+			newRole.setUpdateBy(null);
+			newRole.setUpdateDate(null);
+			newRole.setId(null);
+			newRole.setSysPermissions(null);
+			newRole.setUsers(null);
+			return roleRepository.save(newRole);
+		}).toList();
 	}
 }
