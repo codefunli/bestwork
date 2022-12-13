@@ -56,6 +56,7 @@ import com.nineplus.bestwork.repository.UserProjectRepository;
 import com.nineplus.bestwork.repository.UserRepository;
 import com.nineplus.bestwork.services.impl.ScheduleServiceImpl;
 import com.nineplus.bestwork.utils.CommonConstants;
+import com.nineplus.bestwork.utils.CommonConstants.RoleName;
 import com.nineplus.bestwork.utils.ConvertResponseUtils;
 import com.nineplus.bestwork.utils.Enums.TRole;
 import com.nineplus.bestwork.utils.MessageUtils;
@@ -66,6 +67,8 @@ import com.nineplus.bestwork.utils.UserAuthUtils;
 @Transactional
 public class UserService implements UserDetailsService {
 	int countUserLoginFailedBlocked = 5;
+
+	private final int MAX_LOGIN_FAILED_NUM = 5;
 
 	@SuppressWarnings("unused")
 	private final Logger logger = LoggerFactory.getLogger(UserService.class);
@@ -204,7 +207,8 @@ public class UserService implements UserDetailsService {
 	public UserEntity createUser(UserReqDto userReqDto) throws BestWorkBussinessException {
 
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
-		if (!(userAuthRoleReq.getIsOrgAdmin() || userAuthRoleReq.getIsSysAdmin())) {
+		if (!(userAuthRoleReq.getIsSysAdmin() || userAuthRoleReq.getIsSysCompanyAdmin()
+				|| userAuthRoleReq.getIsOrgAdmin())) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
 		}
 		String createUser = userAuthRoleReq.getUsername();
@@ -257,7 +261,7 @@ public class UserService implements UserDetailsService {
 		return createdUser;
 	}
 
-	public UserEntity getUserById(long userId) throws BestWorkBussinessException {
+	public UserResDto getUserById(long userId) throws BestWorkBussinessException {
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
 		CompanyEntity company = companyRepository.findById(findCompanyIdByUsername(userAuthRoleReq))
 				.orElse(new CompanyEntity());
@@ -265,9 +269,36 @@ public class UserService implements UserDetailsService {
 		if (null != company.getId()) {
 			userOptional = this.userRepo.findUserById(userId, String.valueOf(company.getId()));
 		} else {
-			userOptional = this.userRepo.findUserById(userId, "%%");
+			userOptional = this.userRepo.findById(userId);
 		}
-		return userOptional.orElse(null);
+
+		if (userOptional.isEmpty()) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.ECU0002, null);
+		}
+		UserEntity user = userOptional.get();
+		UserResDto userResDto = new UserResDto();
+		userResDto.setId(userId);
+		userResDto.setUserName(user.getUserName());
+		userResDto.setFirstName(user.getFirstName());
+		userResDto.setLastName(user.getLastName());
+		userResDto.setEmail(user.getEmail());
+		userResDto.setTelNo(user.getTelNo());
+		userResDto.setEnable(user.isEnable());
+		if (user.getLoginFailedNum() > MAX_LOGIN_FAILED_NUM) {
+			userResDto.setEnable(false);
+		} else {
+			userResDto.setEnable(true);
+		}
+		userResDto.setRole(user.getRole());
+		for (CompanyEntity tCompany : user.getCompanys()) {
+			userResDto.setCompany(tCompany);
+		}
+		if (null != user.getUserAvatar()) {
+			userResDto.setAvatar(new String(user.getUserAvatar(), StandardCharsets.UTF_8));
+		}
+		userResDto.setCreateDate(String.valueOf(user.getCreateDate()));
+		userResDto.setUpdateDate(String.valueOf(user.getUpdateDate()));
+		return userResDto;
 	}
 
 	@Transactional(rollbackFor = { Exception.class })
@@ -442,7 +473,7 @@ public class UserService implements UserDetailsService {
 		if (null != userReqDto.getAvatar()) {
 			userEntity.setUserAvatar(userReqDto.getAvatar().getBytes());
 		} else {
-			userEntity.setUserAvatar("".getBytes());
+			userEntity.setUserAvatar(null);
 		}
 		userEntity.setCreateBy(user.getCreateBy());
 		userEntity.setCreateDate(user.getCreateDate());
@@ -452,9 +483,16 @@ public class UserService implements UserDetailsService {
 		return userEntity;
 	}
 
-	public List<RoleEntity> getAllRoles() {
+	public List<RoleEntity> getAllRoles() throws BestWorkBussinessException {
 		List<RoleEntity> roleList = this.roleRepository.findAll();
-		roleList.removeIf(tRole -> tRole.getId() == 1);
+		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
+		if (userAuthRoleReq.getIsSysAdmin()) {
+			roleList.removeIf(x -> RoleName.SYS_ADMIN.equals(x.getRoleName()));
+		}
+		if (userAuthRoleReq.getIsSysCompanyAdmin()) {
+			roleList.removeIf(x -> RoleName.SYS_ADMIN.equals(x.getRoleName()));
+			roleList.removeIf(x -> RoleName.SYS_COMPANY_ADMIN.equals(x.getRoleName()));
+		}
 		return roleList;
 	}
 
@@ -511,7 +549,8 @@ public class UserService implements UserDetailsService {
 		roleList.add(user.getRole().getRoleName());
 		List<Integer> lstStt = new ArrayList<>();
 		lstStt.add(Status.ACTIVE.getValue());
-		Map<Long, List<PermissionResDto>> permissions = permissionService.getMapPermissions(roleList, lstStt, userAuthUtils.getUserInfoFromReq(false).getUsername());
+		Map<Long, List<PermissionResDto>> permissions = permissionService.getMapPermissions(roleList, lstStt,
+				userAuthUtils.getUserInfoFromReq(false).getUsername());
 		userResDto.setPermissions(permissions);
 		return userResDto;
 	}
@@ -539,8 +578,8 @@ public class UserService implements UserDetailsService {
 		UserEntity childUser = userRepo.findUserByUserName(childUsername);
 		UserEntity adminUser = null;
 		if (ObjectUtils.isNotEmpty(childUser)) {
-			if (childUser.getRole().getRoleName().equals(CommonConstants.RoleName.SYS_COMPANY_ADMIN) ||
-					childUser.getRole().getRoleName().equals(CommonConstants.RoleName.SYS_ADMIN)) {
+			if (childUser.getRole().getRoleName().equals(CommonConstants.RoleName.SYS_COMPANY_ADMIN)
+					|| childUser.getRole().getRoleName().equals(CommonConstants.RoleName.SYS_ADMIN)) {
 				return childUser;
 			}
 			adminUser = userRepo.findByUserName(childUser.getCreateBy());

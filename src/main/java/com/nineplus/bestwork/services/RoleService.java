@@ -163,6 +163,10 @@ public class RoleService {
 		if (userAuthRoleReq.getIsSysCompanyAdmin()) {
 			result.removeIf(x -> RoleName.SYS_ADMIN.equals(x.getRoleName()));
 		}
+		if(userAuthRoleReq.getIsSysCompanyAdmin()) {
+			result.removeIf(x -> RoleName.SYS_ADMIN.equals(x.getRoleName()));
+			result.removeIf(x -> RoleName.SYS_COMPANY_ADMIN.equals(x.getRoleName()));
+		}
 		return result;
 	}
 

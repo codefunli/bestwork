@@ -1,6 +1,5 @@
 package com.nineplus.bestwork.controller;
 
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -26,7 +25,6 @@ import com.nineplus.bestwork.dto.UserDetectResDto;
 import com.nineplus.bestwork.dto.UserListIdDto;
 import com.nineplus.bestwork.dto.UserReqDto;
 import com.nineplus.bestwork.dto.UserResDto;
-import com.nineplus.bestwork.entity.CompanyEntity;
 import com.nineplus.bestwork.entity.UserEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.services.UserService;
@@ -50,8 +48,6 @@ public class UserController extends BaseController {
 
 	@Value("${app.login.jwtPrefix}")
 	private String PRE_STRING;
-
-	private final int MAX_LOGIN_FAILED_NUM = 5;
 
 	@GetMapping("/isCheckLogin")
 	public ResponseEntity<? extends Object> isCheckLogin(HttpServletRequest request, HttpServletResponse response) {
@@ -106,30 +102,12 @@ public class UserController extends BaseController {
 
 	@GetMapping("/{userId}")
 	public ResponseEntity<?> getUserById(@PathVariable long userId) throws BestWorkBussinessException {
-		UserEntity user = userService.getUserById(userId);
-		if (user == null) {
-			return failed(CommonConstants.MessageCode.ECU0002, null);
-		}
 		UserResDto userResDto = new UserResDto();
-		userResDto.setId(userId);
-		userResDto.setUserName(user.getUserName());
-		userResDto.setFirstName(user.getFirstName());
-		userResDto.setLastName(user.getLastName());
-		userResDto.setEmail(user.getEmail());
-		userResDto.setTelNo(user.getTelNo());
-		userResDto.setEnable(user.isEnable());
-		int countLoginfailed = user.getLoginFailedNum();
-		if (countLoginfailed > MAX_LOGIN_FAILED_NUM) {
-			userResDto.setEnable(false);
+		try {
+			userResDto = userService.getUserById(userId);
+		} catch (BestWorkBussinessException e) {
+			return failed(e.getMsgCode(), e.getParam());
 		}
-		userResDto.setRole(user.getRole());
-		for (CompanyEntity tCompany : user.getCompanys()) {
-			userResDto.setCompany(tCompany);
-		}
-		if (null != user.getUserAvatar()) {
-			userResDto.setAvatar(new String(user.getUserAvatar(), StandardCharsets.UTF_8));
-		}
-		userResDto.setUpdateDate(user.getUpdateDate().toString());
 		return success(CommonConstants.MessageCode.SCU0002, userResDto, null);
 	}
 
@@ -161,7 +139,7 @@ public class UserController extends BaseController {
 	}
 
 	@GetMapping("/roles")
-	public ResponseEntity<?> getRoles() {
+	public ResponseEntity<?> getRoles() throws BestWorkBussinessException {
 		return ResponseEntity.ok(this.userService.getAllRoles());
 	}
 
