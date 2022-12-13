@@ -43,7 +43,7 @@ import net.bytebuddy.utility.RandomString;
 @CrossOrigin
 public class PasswordController extends BaseController {
 	@Value("${url.origin}")
-	private String URL;
+	private String url;
 
 	@Autowired
 	private SysUserService sysUserService;
@@ -79,7 +79,7 @@ public class PasswordController extends BaseController {
 
 		try {
 			sysUserService.updateResetPasswordToken(token, emailReq);
-			String resetPasswordLink = URL + "/auth/reset-password/" + token;
+			String resetPasswordLink = url + "/auth/reset-password/" + token;
 			String username = sysUserReq.getUserName();
 			mailService.sendMailResetPassword(emailReq, username, resetPasswordLink);
 
