@@ -318,19 +318,11 @@ public class CommonConstants {
 		public static final String TL0001 = "tl0001";
 	}
 
-	public class Url {
-		public static final String URL0001 = "url0001";
-		public static final String URL0002 = "url0002";
-	}
-
 	public class SpringMail {
 
 		public static final String M1X0002 = "m1x0002";
 		public static final String M1X0003 = "m1x0003";
-		public static final String M1H0004 = "m1h0004";
-		public static final String M1P0005 = "m1p0005";
-		public static final String M1U0006 = "m1u0006";
-		public static final String M1W0007 = "m1w0007";
+
 	}
 
 	public class ApiPath {

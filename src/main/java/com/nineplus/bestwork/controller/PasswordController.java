@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.validation.BindingResult;
@@ -28,7 +29,6 @@ import com.nineplus.bestwork.services.MailSenderService;
 import com.nineplus.bestwork.services.SysUserService;
 import com.nineplus.bestwork.services.UserService;
 import com.nineplus.bestwork.utils.CommonConstants;
-import com.nineplus.bestwork.utils.MessageUtils;
 import com.nineplus.bestwork.utils.UserAuthUtils;
 
 import net.bytebuddy.utility.RandomString;
@@ -42,16 +42,15 @@ import net.bytebuddy.utility.RandomString;
 @RequestMapping("/api/v1")
 @CrossOrigin
 public class PasswordController extends BaseController {
+	@Value("${url.origin}")
+	private String url;
 
 	@Autowired
 	private SysUserService sysUserService;
 
 	@Autowired
-	private MessageUtils messageUtils;
-
-	@Autowired
 	private MailSenderService mailService;
-	
+
 	@Autowired
 	UserAuthUtils userAuthUtils;
 
@@ -60,7 +59,6 @@ public class PasswordController extends BaseController {
 
 	@Autowired
 	BCryptPasswordEncoder bCryptPasswordEncoder;
-
 
 	@PostMapping("/auth/forgot-password")
 	public ResponseEntity<? extends Object> processForgotPassword(
@@ -81,8 +79,7 @@ public class PasswordController extends BaseController {
 
 		try {
 			sysUserService.updateResetPasswordToken(token, emailReq);
-			String resetPasswordLink = messageUtils.getMessage(CommonConstants.Url.URL0001, null)
-					+ "/auth/reset-password/" + token;
+			String resetPasswordLink = url + "/auth/reset-password/" + token;
 			String username = sysUserReq.getUserName();
 			mailService.sendMailResetPassword(emailReq, username, resetPasswordLink);
 
@@ -125,7 +122,7 @@ public class PasswordController extends BaseController {
 			return failedWithError(CommonConstants.MessageCode.SU0005, resetPasswordReqDto, null);
 		}
 	}
-	
+
 	@PostMapping("/change-password")
 	public ResponseEntity<?> changePassword(@Valid @RequestBody ChangePasswordReqDto changePasswordReqDto,
 			BindingResult bindingResult) throws BestWorkBussinessException {
