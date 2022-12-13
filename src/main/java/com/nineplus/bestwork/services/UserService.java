@@ -258,7 +258,7 @@ public class UserService implements UserDetailsService {
 		if (null != company.getId()) {
 			userOptional = this.userRepo.findUserById(userId, String.valueOf(company.getId()));
 		} else {
-			userOptional = this.userRepo.findUserById(userId, "%%");
+			userOptional = this.userRepo.findById(userId);
 		}
 		return userOptional.orElse(null);
 	}

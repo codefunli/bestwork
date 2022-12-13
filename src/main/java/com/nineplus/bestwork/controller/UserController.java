@@ -129,7 +129,7 @@ public class UserController extends BaseController {
 		if (null != user.getUserAvatar()) {
 			userResDto.setAvatar(new String(user.getUserAvatar(), StandardCharsets.UTF_8));
 		}
-		userResDto.setUpdateDate(user.getUpdateDate().toString());
+		userResDto.setUpdateDate(String.valueOf(user.getUpdateDate()));
 		return success(CommonConstants.MessageCode.SCU0002, userResDto, null);
 	}
 
