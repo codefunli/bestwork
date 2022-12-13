@@ -52,7 +52,12 @@ public class CommonConstants {
 		public static final String TYPE_POST_INVOICE = "invoice";
 		public static final String TYPE_POST_PACKAGE = "package";
 		public static final String TYPE_POST_IMAGE_BEFORE = "imageBefore";
-
+		public static final String ROLE_FIELD = "role field";
+		public static final String COMPANY_FIELD = "company field";
+		public static final String FIRSTNAME_FIELD = "firstname field";
+		public static final String LASTNAME_FIELD = "lastname field";
+		public static final String EMAIL_FIELD = "email field";
+		
 		public static final String COMPANY = "COMPANY";
 		public static final String USERNAME_OR_EMAIL = "USER or EMAIL";
 		public static final String PASSWORD = "Password";
