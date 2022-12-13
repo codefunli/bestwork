@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import com.nineplus.bestwork.entity.RoleEntity;
 import com.nineplus.bestwork.entity.SysPermissionEntity;
+import com.nineplus.bestwork.entity.UserEntity;
 import com.nineplus.bestwork.model.enumtype.Status;
 import com.nineplus.bestwork.repository.PermissionRepository;
 import com.nineplus.bestwork.repository.RoleRepository;
@@ -58,6 +59,9 @@ public class MonitorService {
 	ModelMapper modelMapper;
 
 	@Autowired
+	UserService userService;
+
+	@Autowired
 	private PageUtils responseUtils;
 
 	public List<MonitorResDto> getMonitors() {
@@ -81,6 +85,7 @@ public class MonitorService {
 			monitor.setCreatedDate(new Timestamp(System.currentTimeMillis()));
 			monitor.setCreatedUser(userAuthUtils.getUserInfoFromReq(false).getUsername());
 			monitorRepository.save(monitor);
+			UserEntity admin = userService.getAdminUser(userAuthUtils.getUserInfoFromReq(false).getUsername());
 			List<RoleEntity> roleEntities = roleRepository.findAll();
 			for (RoleEntity role : roleEntities) {
 				SysPermissionEntity sysPermission = new SysPermissionEntity();
@@ -93,6 +98,7 @@ public class MonitorService {
 				sysPermission.setCreatedUser(userAuthUtils.getUserInfoFromReq(false).getUsername());
 				sysPermission.setCreatedDate(new Timestamp(System.currentTimeMillis()));
 				sysPermission.setStatus(Status.ACTIVE.getValue());
+				sysPermission.setUser(admin);
 				permissionRepository.save(sysPermission);
 			}
 			return modelMapper.map(monitor, MonitorResDto.class);

@@ -75,6 +75,9 @@ public class PermissionService {
 	@Lazy
 	private UserService userService;
 
+	@Autowired
+	private RoleService roleService;
+
 	public void deletePermission(Long id) throws BestWorkBussinessException {
 		try {
 			UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
@@ -106,6 +109,7 @@ public class PermissionService {
 	public List<PermissionResDto> updatePermissionsByRole(RegPermissionDto dto) throws BestWorkBussinessException {
 		try {
 			Optional<RoleEntity> role = sysRoleRepository.findById(dto.getRoleId());
+			UserEntity admin = userService.getAdminUser(userAuthUtils.getUserInfoFromReq(false).getUsername());
 			if (role.isEmpty()) {
 				logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0014, null));
 				throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
@@ -140,6 +144,7 @@ public class PermissionService {
 				sysPermission.setCanAdd(permissionDto.getCanAdd());
 				sysPermission.setCanAccess(permissionDto.getCanAccess());
 				sysPermission.setStatus(permissionDto.getStatus());
+				sysPermission.setUser(admin);
 				return modelMapper.map(permissionRepository.save(sysPermission), PermissionResDto.class);
 			}).collect(Collectors.toList());
 			return sysPermissions;
@@ -220,6 +225,29 @@ public class PermissionService {
 			newPermission.setSysMonitor(monitor);
 			newPermission.setUser(adminUser);
 			permissionRepository.save(newPermission);
+		}
+	}
+
+	public void createPermissionsForNewSysCompanyAdmin(UserEntity user) throws BestWorkBussinessException {
+		SysPermissionEntity sysPermission = new SysPermissionEntity();
+		sysPermission.setStatus(Status.ACTIVE.getValue());
+		sysPermission.setCreatedDate(new Timestamp(System.currentTimeMillis()));
+		sysPermission.setCreatedUser(userAuthUtils.getUserInfoFromReq(false).getUsername());
+		sysPermission.setCanEdit(false);
+		sysPermission.setCanAdd(false);
+		sysPermission.setCanDelete(false);
+		sysPermission.setCanAccess(false);
+		List<SysMonitorEntity> sysMonitorEntities = monitorRepository.findAll();
+		UserEntity adminUser = userService.getAdminUser(user.getUserName());
+		List<RoleEntity> roleEntities = roleService.getAllRoleAdmin(adminUser.getUserName());
+		for (SysMonitorEntity monitor : sysMonitorEntities) {
+			for (RoleEntity role : roleEntities) {
+				SysPermissionEntity newPermission = sysPermission.clone();
+				newPermission.setSysMonitor(monitor);
+				newPermission.setUser(adminUser);
+				sysPermission.setSysRole(role);
+				permissionRepository.save(newPermission);
+			}
 		}
 	}
 }
