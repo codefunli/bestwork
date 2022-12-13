@@ -46,6 +46,9 @@ public class SysMonitorEntity {
 	@Column(name = "updated_date")
 	private Timestamp updatedDate;
 
+	@Column(name = "isMenu")
+	private Boolean isMenu;
+
 	@OneToMany(mappedBy = "sysMonitor", cascade = CascadeType.ALL, orphanRemoval = true)
 	@JsonBackReference
 	private List<SysPermissionEntity> sysPermissions;

@@ -27,6 +27,9 @@ public class MonitorResDto extends BaseDto {
 	@JsonProperty("url")
 	private String url;
 
+	@JsonProperty("isMenu")
+	private Boolean isMenu;
+
 	private String createdUser;
 
 	private Timestamp createdDate;
