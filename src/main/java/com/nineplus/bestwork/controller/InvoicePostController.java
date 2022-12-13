@@ -39,17 +39,17 @@ public class InvoicePostController extends BaseController {
 
 	@Autowired
 	IInvoicePostService iPostInvoiceService;
-
-	@PatchMapping("/update-invoice/{airWayBillCode}")
+	
+	@PatchMapping("/update-invoice/{awbId}")
 	public ResponseEntity<? extends Object> update(@RequestParam("file") List<MultipartFile> mFiles,
-			@RequestParam("invoiceDescription") String invoiceDes, @PathVariable String airWayBillCode)
+			@RequestParam("invoiceDescription") String invoiceDes, @PathVariable long awbId)
 			throws BestWorkBussinessException {
 		try {
 			PostInvoiceReqDto postInvoiceReqDto = new PostInvoiceReqDto();
 			if (StringUtils.isNotBlank(invoiceDes)) {
 				postInvoiceReqDto.setDescription(invoiceDes);
 			}
-			iPostInvoiceService.updatePostInvoice(mFiles, postInvoiceReqDto, airWayBillCode);
+			iPostInvoiceService.updatePostInvoice(mFiles, postInvoiceReqDto, awbId);
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}
@@ -71,12 +71,12 @@ public class InvoicePostController extends BaseController {
 		return success(CommonConstants.MessageCode.sI0002, postInvoiceResDto, null);
 	}
 
-	@GetMapping("/list/by/{airWayBillId}")
-	public ResponseEntity<? extends Object> getAllPackagePost(@PathVariable String airWayBillId)
+	@GetMapping("/list/by/{awbId}")
+	public ResponseEntity<? extends Object> getAllPackagePost(@PathVariable long awbId)
 			throws BestWorkBussinessException {
 		List<PostInvoiceResDto> listPostInvoiceResDto = null;
 		try {
-			listPostInvoiceResDto = iPostInvoiceService.getAllInvoicePost(airWayBillId);
+			listPostInvoiceResDto = iPostInvoiceService.getAllInvoicePost(awbId);
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}

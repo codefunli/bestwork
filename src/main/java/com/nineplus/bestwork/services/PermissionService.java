@@ -8,11 +8,15 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.nineplus.bestwork.entity.UserEntity;
+import com.nineplus.bestwork.model.enumtype.Status;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -66,6 +70,10 @@ public class PermissionService {
 
 	@Autowired
 	private ObjectMapper objectMapper;
+
+	@Autowired
+	@Lazy
+	private UserService userService;
 
 	public void deletePermission(Long id) throws BestWorkBussinessException {
 		try {
@@ -149,10 +157,10 @@ public class PermissionService {
 		throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0003, null);
 	}
 
-	public Map<Long, List<PermissionResDto>> getMapPermissions(List<String> roleList, List<Integer> lstStt)
+	public Map<Long, List<PermissionResDto>> getMapPermissions(List<String> roleList, List<Integer> lstStt, String principal)
 			throws BestWorkBussinessException {
 		Map<Long, List<PermissionResDto>> mapPermission = new HashMap<>();
-		List<SysPermissionEntity> sysPermissionEntities = this.getPermissionsByRole(roleList, lstStt, null);
+		List<SysPermissionEntity> sysPermissionEntities = this.getPermissionsByRole(roleList, lstStt, null, principal);
 		sysPermissionEntities.forEach(sysPermissionEntity -> {
 			PermissionResDto permissionResDto = objectMapper.convertValue(sysPermissionEntity, PermissionResDto.class);
 			permissionResDto.setMonitorName(sysPermissionEntity.getSysMonitor().getName());
@@ -169,9 +177,13 @@ public class PermissionService {
 		return mapPermission;
 	}
 
-	public List<SysPermissionEntity> getPermissionsByRole(List<String> roleName, List<Integer> lstStt, Long actionId)
+	public List<SysPermissionEntity> getPermissionsByRole(List<String> roleName, List<Integer> lstStt, Long actionId, String principal)
 			throws BestWorkBussinessException {
-		return permissionRepository.findAllBySysRole_RoleName(roleName, lstStt, actionId);
+		UserEntity adminUser = userService.getAdminUser(principal);
+		if (ObjectUtils.isNotEmpty(actionId)){
+			return permissionRepository.findAllByRoleNameAndAction(roleName, lstStt, actionId, adminUser.getId());
+		}
+		return permissionRepository.findAllBySysRole_RoleName(roleName, lstStt);
 	}
 
 	public PageResDto<PermissionResDto> getPermissions(SearchDto dto) throws BestWorkBussinessException {
@@ -188,6 +200,26 @@ public class PermissionService {
 		} catch (Exception ex) {
 			logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0001, null), ex);
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0001, null);
+		}
+	}
+
+	public void createPermissionsForNewRole(RoleEntity newRole) throws BestWorkBussinessException {
+		SysPermissionEntity sysPermission = new SysPermissionEntity();
+		sysPermission.setSysRole(newRole);
+		sysPermission.setStatus(Status.ACTIVE.getValue());
+		sysPermission.setCreatedDate(new Timestamp(System.currentTimeMillis()));
+		sysPermission.setCreatedUser(userAuthUtils.getUserInfoFromReq(false).getUsername());
+		sysPermission.setCanEdit(false);
+		sysPermission.setCanAdd(false);
+		sysPermission.setCanDelete(false);
+		sysPermission.setCanAccess(false);
+		List<SysMonitorEntity> sysMonitorEntities = monitorRepository.findAll();
+		UserEntity adminUser = userService.getAdminUser(userAuthUtils.getUserInfoFromReq(false).getUsername());
+		for (SysMonitorEntity monitor : sysMonitorEntities){
+			SysPermissionEntity newPermission = sysPermission.clone();
+			newPermission.setSysMonitor(monitor);
+			newPermission.setUser(adminUser);
+			permissionRepository.save(newPermission);
 		}
 	}
 }

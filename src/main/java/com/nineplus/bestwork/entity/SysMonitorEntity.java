@@ -3,13 +3,7 @@ package com.nineplus.bestwork.entity;
 import java.sql.Timestamp;
 import java.util.List;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
@@ -46,17 +40,17 @@ public class SysMonitorEntity {
 	@Column(name = "created_date", nullable = false)
 	private Timestamp createdDate;
 
-	@Column(name = "updated_user", nullable = false, columnDefinition = "varchar(20)")
+	@Column(name = "updated_user", columnDefinition = "varchar(20)")
 	private String updatedUser;
 
-	@Column(name = "updated_date", nullable = false)
+	@Column(name = "updated_date")
 	private Timestamp updatedDate;
 
-	@OneToMany(mappedBy = "sysMonitor")
+	@OneToMany(mappedBy = "sysMonitor", cascade = CascadeType.ALL, orphanRemoval = true)
 	@JsonBackReference
 	private List<SysPermissionEntity> sysPermissions;
 
-	@OneToMany(mappedBy = "sysMonitor")
+	@OneToMany(mappedBy = "sysMonitor", cascade = CascadeType.ALL, orphanRemoval = true)
 	@JsonBackReference
 	private List<SysActionEntity> sysActions;
 

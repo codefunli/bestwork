@@ -15,7 +15,36 @@ import com.nineplus.bestwork.entity.UserEntity;
 
 @Repository
 public interface UserRepository extends JpaRepository<UserEntity, Long> {
-	UserEntity findByUserName(String userNm);
+
+	UserEntity findByUserName(String username);
+
+	@Query(value = "select u.*" +
+			"from " +
+			"T_SYS_APP_USER u " +
+			"join T_SYS_APP_ROLE tsar on " +
+			"tsar.id = u.role_id " +
+			"left join T_COMPANY_USER tcu on " +
+			"u.id = tcu.user_id " +
+			"left join T_COMPANY tc on " +
+			"tcu.company_id = tc.id " +
+			"where " +
+			"1 = (case when tsar.name in ('sysadmin','sys-companyadmin') then 1 " +
+			"else case when ( " +
+			"select " +
+			"count(tc2.id) " +
+			"from " +
+			"T_COMPANY tc2 " +
+			"where " +
+			"STR_TO_DATE(tc2.start_date,'%Y-%m-%dT%H:%i:%s') <= STR_TO_DATE(:now,'%Y-%m-%dT%H:%i:%s') " +
+			"and  STR_TO_DATE(tc2.expired_date,'%Y-%m-%dT%H:%i:%s') >= STR_TO_DATE(:now,'%Y-%m-%dT%H:%i:%s') " +
+			" and tc2.id = tc.id) > 0 " +
+			"then 1 " +
+			"else 0 " +
+			"end " +
+			"end ) " +
+			"and u.user_name = :username and u.enable = 1 " +
+			"and u.count_login_failed <= 5 ", nativeQuery = true)
+	UserEntity findByUserNameLogIn(@Param("username") String username, @Param("now")String now);
 
 	UserEntity findByEmail(String email);
 
@@ -24,9 +53,6 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
 
 	@Query(value = "select t.* from T_SYS_APP_USER t JOIN T_COMPANY_USER tcu ON (t.id = tcu.user_id) where tcu.company_id = :companyId and t.role_id = :role ", nativeQuery = true)
 	UserEntity findUserByOrgId(Long companyId, Long role);
-
-	@Query(value = "select * from T_SYS_APP_USER", countQuery = "select count(*) from T_SYS_APP_USER ", nativeQuery = true)
-	Page<UserEntity> getPageUser(Pageable pageable);
 
 	@Query(value = " select company_id from T_COMPANY_USER uc" + " join T_SYS_APP_USER u on u.id = uc.user_id "
 			+ " where u.user_name = :username", nativeQuery = true)
@@ -41,10 +67,6 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
 	@Query(value = " select u.* from T_SYS_APP_USER u " + " where user_name like %?1% " + " or first_name like %?1% "
 			+ " or last_name like %?1% " + " or email like %?1% " + " or tel_no like %?1%", nativeQuery = true)
 	List<UserEntity> getUsersByKeyword(String keyword);
-
-	@Query(value = " select u.* from T_SYS_APP_USER u" + " join T_COMPANY_USER uc on uc.user_id = u.id "
-			+ " where uc.company_id = ?1 ", nativeQuery = true)
-	List<UserEntity> findAllUsersByCompanyId(long companyId);
 
 	@Query(value = " select tsau.* " + " from T_SYS_APP_USER tsau "
 			+ " join T_COMPANY_USER tcu on tsau.id = tcu.user_id "

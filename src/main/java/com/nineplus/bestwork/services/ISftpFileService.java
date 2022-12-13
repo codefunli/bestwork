@@ -1,11 +1,11 @@
 package com.nineplus.bestwork.services;
 
-import java.io.File;
 import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
 import com.jcraft.jsch.ChannelSftp;
+import com.nineplus.bestwork.exception.BestWorkBussinessException;
 
 public interface ISftpFileService {
 	boolean isExistFolder(ChannelSftp channel, String path);
@@ -14,17 +14,15 @@ public interface ISftpFileService {
 
 	void createFolderCommonRoot(List<String> folderStrings);
 
-	byte[] getFile(String pathFileDownload);
+	byte[] getFile(String pathFileDownload) throws BestWorkBussinessException;
 
-	byte[] viewFilePdf(String pathFileView);
+	String uploadInvoice(MultipartFile file, long awbId, long invoiceId) throws BestWorkBussinessException;
 
-	String uploadInvoice(MultipartFile file, String airWayBill, long invoiceId);
+	String uploadPackage(MultipartFile file, long awbId, long packageId) throws BestWorkBussinessException;
 
-	String uploadPackage(MultipartFile file, String airWayBill, long packageId);
+	String uploadEvidenceBefore(MultipartFile file, long awbId, long evidenceBeforeId) throws BestWorkBussinessException;
 
-	String uploadEvidenceBefore(MultipartFile file, String airWayBill, long evidenceBeforeId);
-
-	String uploadEvidenceAfter(MultipartFile file, String airWayBill, long evidenceAfterId);
+	String uploadEvidenceAfter(MultipartFile file, long awbId, long evidenceAfterId) throws BestWorkBussinessException;
 
 	boolean isValidFile(List<MultipartFile> file);
 
@@ -32,13 +30,9 @@ public interface ISftpFileService {
 
 	String uploadConstructionDrawing(MultipartFile file, long constructionId);
 
-	File downLoadFile(String pathFileDownload);
+	List<String> downloadFileTemp(long awbId, List<String> listPathFileDownload);
 
-	void createZipFolder(String airWayBillCode, String[] listPathFileDownload);
-
-	List<String> downloadFileTemp(String airWayBillCode, List<String> listPathFileDownload);
-
-	String uploadProgressImage(MultipartFile file, long progressId);
+	String uploadProgressImage(MultipartFile file, long progressId, int type);
 	
 	boolean removeFile(String pathFileServer);
 

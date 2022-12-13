@@ -45,12 +45,12 @@ public class EvidenceAfterPostController extends BaseController {
 		return success(CommonConstants.MessageCode.sEA0001, null, null);
 	}
 
-	@GetMapping("/list/by/{airWayBillId}")
-	public ResponseEntity<? extends Object> getAllEvidenceAfter(@PathVariable String airWayBillId)
+	@GetMapping("/list/by/{awbId}")
+	public ResponseEntity<? extends Object> getAllEvidenceAfter(@PathVariable long awbId)
 			throws BestWorkBussinessException {
 		List<EvidenceAfterResDto> listEvidenceAfter = null;
 		try {
-			listEvidenceAfter = iEvidenAfterPostService.getAllEvidenceAfter(airWayBillId);
+			listEvidenceAfter = iEvidenAfterPostService.getAllEvidenceAfter(awbId);
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}

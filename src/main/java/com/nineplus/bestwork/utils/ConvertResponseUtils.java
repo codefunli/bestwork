@@ -72,15 +72,33 @@ public class ConvertResponseUtils {
 		HashMap<String, String> itemConstruction = new HashMap<>();
 		String columnMapped = "";
 		itemConstruction.put("id", "id");
-		itemConstruction.put("name", "name");
+		itemConstruction.put("constructionName", "construction_name");
 		itemConstruction.put("description", "description");
 		itemConstruction.put("startDate", "start_date");
+		itemConstruction.put("endDate", "end_date");
+		itemConstruction.put("nationId", "nation_id");
 		itemConstruction.put("location", "location");
 		itemConstruction.put("createBy", "create_by");
 		itemConstruction.put("status", "status");
 		itemConstruction.put("projectCode", "project_code");
+		itemConstruction.put("companyId", "company_id");
 		if (itemConstruction.containsKey(item)) {
 			columnMapped = itemConstruction.get(item);
+		}
+		return columnMapped;
+	}
+
+	public String convertResponseNotify(String item) {
+		HashMap<String, String> itemNotify = new HashMap<>();
+		String columnMapped = "";
+		itemNotify.put("id", "id");
+		itemNotify.put("title", "title");
+		itemNotify.put("content", "content");
+		itemNotify.put("createDate", "create_date");
+		itemNotify.put("isRead", "is_read");
+		itemNotify.put("createBy", "create_by");
+		if (itemNotify.containsKey(item)) {
+			columnMapped = itemNotify.get(item);
 		}
 		return columnMapped;
 	}

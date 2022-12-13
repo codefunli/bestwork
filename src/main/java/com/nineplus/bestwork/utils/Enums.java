@@ -2,8 +2,8 @@ package com.nineplus.bestwork.utils;
 
 public class Enums {
 	public enum TRole {
-		SYS_ADMIN("sysadmin"), COMPANY_ADMIN("companyadmin"), SUB_COMPANY_ADMIN("sub-companyadmin"),
-		COMPANY_USER("companyuser"), INVESTOR("investor"), SUPPLIER("supplier"), CONTRACTOR("contractor");
+		SYS_ADMIN("sysadmin"), SYS_COMPANY_ADMIN("sys-companyadmin"), COMPANY_ADMIN("companyadmin"),
+		INVESTOR("investor"), SUPPLIER("supplier"), CONTRACTOR("contractor");
 
 		private String value;
 
@@ -82,7 +82,7 @@ public class Enums {
 
 	public enum AirWayBillStatus {
 		NOT_YET_CUSTOMS_CLEARANCES(0, "Not yet customs clearance"),
-		IN_CUSTOMS_CLEARANCES_PROGRESS(1, "In Customs Clearance Progress"), DONE(2, "Done");
+		IN_CUSTOMS_CLEARANCES_PROGRESS(1, "In Customs Clearance Progress"), DONE(2, "Done"), CANCEL(3, "Cancel");
 
 		private String value;
 
@@ -95,6 +95,10 @@ public class Enums {
 
 		public String getValue() {
 			return this.value;
+		}
+
+		public int getStatus() {
+			return this.status;
 		}
 
 		public int getStatusAsInt(String value) {
@@ -121,6 +125,20 @@ public class Enums {
 		private String value;
 
 		private Nation(String value) {
+			this.value = value;
+		}
+
+		public String getValue() {
+			return this.value;
+		}
+	}
+
+	public enum NotifyStatus {
+		UNREAD("Unread"), READ("Read");
+
+		private String value;
+
+		private NotifyStatus(String value) {
 			this.value = value;
 		}
 

@@ -1,6 +1,8 @@
 package com.nineplus.bestwork.repository;
 
 public interface PackageFileProjection {
+	Long getAwbId();
+
 	String getCode();
 
 	Long getPostPackageId();

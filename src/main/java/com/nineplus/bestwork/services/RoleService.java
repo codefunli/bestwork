@@ -1,6 +1,7 @@
 package com.nineplus.bestwork.services;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.lang3.ObjectUtils;
@@ -24,6 +25,7 @@ import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.model.UserAuthDetected;
 import com.nineplus.bestwork.repository.RoleRepository;
 import com.nineplus.bestwork.utils.CommonConstants;
+import com.nineplus.bestwork.utils.CommonConstants.RoleName;
 import com.nineplus.bestwork.utils.MessageUtils;
 import com.nineplus.bestwork.utils.PageUtils;
 import com.nineplus.bestwork.utils.UserAuthUtils;
@@ -48,6 +50,9 @@ public class RoleService {
 
 	@Autowired
 	private PageUtils responseUtils;
+
+	@Autowired
+	private PermissionService permissionService;
 
 	public ResRoleDto getRole(Long id) throws BestWorkBussinessException {
 		Optional<RoleEntity> role = roleRepository.findById(id);
@@ -77,7 +82,9 @@ public class RoleService {
 			role.setDescription(dto.getDescription());
 			role.setCreateDate(LocalDateTime.now());
 			role.setCreateBy(userAuthUtils.getUserInfoFromReq(false).getUsername());
-			roleRepository.save(role);
+			role.setDeleteFlag(0);
+			role = roleRepository.save(role);
+			permissionService.createPermissionsForNewRole(role);
 			return modelMapper.map(role, ResRoleDto.class);
 		} catch (Exception e) {
 			logger.error(messageUtils.getMessage(CommonConstants.MessageCode.E1X0001, null), e);
@@ -144,5 +151,14 @@ public class RoleService {
 			logger.error(messageUtils.getMessage(CommonConstants.MessageCode.RLF0002, null), ex);
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.RLF0002, null);
 		}
+	}
+
+	public List<RoleEntity> getAllRole() throws BestWorkBussinessException {
+		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
+		List<RoleEntity> result = roleRepository.findAll();
+		if (userAuthRoleReq.getIsSysCompanyAdmin()) {
+			result.removeIf(x -> RoleName.SYS_ADMIN.equals(x.getRoleName()));
+		}
+		return result;
 	}
 }

@@ -34,20 +34,6 @@ public class StorageServiceImpl implements IStorageService {
 	@Autowired
 	private StorageRepository storageRepository;
 
-	public List<FileStorageEntity> findFilesByPostId(String postId) {
-		return this.storageRepository.findAllByPostId(postId);
-	}
-
-	@Override
-	public List<FileStorageEntity> findFilesByProgressId(Long progressId) {
-		return this.storageRepository.findAllByProgressId(progressId);
-	}
-
-	@Override
-	public void deleteFilesByPostId(String postId) {
-		this.storageRepository.deleteByPostId(postId);
-	}
-
 	@Override
 	@Transactional
 	public void storeFile(Long id, FolderType type, String pathOnServer) {
@@ -87,8 +73,8 @@ public class StorageServiceImpl implements IStorageService {
 
 	private String getFileNameFromPath(String path) {
 		String name = FilenameUtils.getName(path);
-		if (name.length() >= CommonConstants.Image.IMG_NAME_LEN) {
-			name = name.substring(0, CommonConstants.Image.IMG_NAME_LEN - 1);
+		if (name.length() >= CommonConstants.Character.STRING_LEN) {
+			name = name.substring(0, CommonConstants.Character.STRING_LEN - 1);
 		}
 		return name;
 	}
@@ -109,6 +95,8 @@ public class StorageServiceImpl implements IStorageService {
 				storageRepository.changeStatusInvoice(postId, listFile, toStatus);
 			} else if (CommonConstants.Character.TYPE_POST_PACKAGE.equals(postType)) {
 				storageRepository.changeStatusPackage(postId, listFile, toStatus);
+			} else if (CommonConstants.Character.TYPE_POST_IMAGE_BEFORE.equals(postType)) {
+				storageRepository.changeStatusImageBefore(postId, listFile, toStatus);
 			}
 		}
 	}
@@ -144,7 +132,18 @@ public class StorageServiceImpl implements IStorageService {
 	}
 
 	@Override
+	public void deleteByCstrtIds(List<Long> constructionIds) {
+		this.storageRepository.deleteByConstructionIds(constructionIds);
+	}
+
+	@Override
 	public void deleteByProgressId(long progressId) {
 		this.storageRepository.deleteByProgressId(progressId);
+	}
+
+	@Override
+	public void deleteByProgressIds(List<Long> progressids) {
+		this.storageRepository.deleteByProgressIds(progressids);
+
 	}
 }

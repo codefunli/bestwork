@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.nineplus.bestwork.dto.CustomClearanceImageFileResDto;
 import com.nineplus.bestwork.dto.EvidenceBeforeReqDto;
 import com.nineplus.bestwork.dto.EvidenceBeforeResDto;
 import com.nineplus.bestwork.dto.PostCommentReqDto;
@@ -20,7 +21,9 @@ public interface IEvidenBeforePostService {
 	void updateEvidenceBefore(EvidenceBeforeReqDto evidenceBeforeReqDto, List<MultipartFile> mFiles)
 			throws BestWorkBussinessException;
 
-	List<EvidenceBeforeResDto> getAllEvidenceBefore(String airWayBillId) throws BestWorkBussinessException;
+	List<EvidenceBeforeResDto> getAllEvidenceBefore(long awbId) throws BestWorkBussinessException;
+	
+	List<CustomClearanceImageFileResDto> getImageClearance(long awbId) throws BestWorkBussinessException;
 
 	EvidenceBeforePost pushComment(Long evidenceBeforePostId, PostCommentReqDto postCommentRequestDto)
 			throws BestWorkBussinessException;

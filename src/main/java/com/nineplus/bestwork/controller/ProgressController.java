@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.nineplus.bestwork.dto.ProgressListReqDto;
+import com.nineplus.bestwork.dto.IdsToDelReqDto;
 import com.nineplus.bestwork.dto.ProgressReqDto;
 import com.nineplus.bestwork.dto.ProgressResDto;
 import com.nineplus.bestwork.dto.ProgressStatusResDto;
@@ -34,9 +34,9 @@ public class ProgressController extends BaseController {
 
 	@PostMapping("/create")
 	public ResponseEntity<? extends Object> createProgress(@RequestPart ProgressReqDto progressReqDto,
-			@RequestPart List<MultipartFile> files) throws BestWorkBussinessException {
+			@RequestPart List<MultipartFile> fileBefore, @RequestPart List<MultipartFile> fileAfter) throws BestWorkBussinessException {
 		try {
-			progressService.registProgress(progressReqDto, files);
+			progressService.registProgress(progressReqDto, fileBefore,fileAfter);
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}
@@ -45,9 +45,9 @@ public class ProgressController extends BaseController {
 
 	@PostMapping("/update/{progressId}")
 	public ResponseEntity<? extends Object> updateProgress(@RequestPart ProgressReqDto progressReqDto,
-			@RequestPart List<MultipartFile> files, @PathVariable long progressId) throws BestWorkBussinessException {
+			@RequestPart List<MultipartFile> fileBefore, @RequestPart List<MultipartFile> fileAfter, @PathVariable long progressId) throws BestWorkBussinessException {
 		try {
-			progressService.updateProgress(progressReqDto, files, progressId);
+			progressService.updateProgress(progressReqDto, fileBefore, fileAfter, progressId);
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}
@@ -69,26 +69,14 @@ public class ProgressController extends BaseController {
 	}
 
 	@PostMapping("/delete")
-	public ResponseEntity<? extends Object> deleteProgress(@RequestBody ProgressListReqDto listId)
+	public ResponseEntity<? extends Object> deleteProgress(@RequestBody IdsToDelReqDto listId)
 			throws BestWorkBussinessException {
 		try {
-			progressService.deleteProgressList(Arrays.asList(listId.getLstProgressId()));
+			progressService.deleteProgressList(Arrays.asList(listId.getListId()));
 		} catch (BestWorkBussinessException ex) {
 			return failed(ex.getMsgCode(), ex.getParam());
 		}
 		return success(CommonConstants.MessageCode.sPu0004, null, null);
-	}
-
-	@GetMapping("/{progressId}")
-	public ResponseEntity<? extends Object> getProgressId(@PathVariable Long progressId)
-			throws BestWorkBussinessException {
-		ProgressResDto progress = null;
-		try {
-			progress = progressService.getProgressById(progressId);
-		} catch (BestWorkBussinessException ex) {
-			return failed(ex.getMsgCode(), ex.getParam());
-		}
-		return success(CommonConstants.MessageCode.sPu0005, progress, null);
 	}
 
 	@GetMapping("/status")

@@ -49,12 +49,12 @@ public class PackagePostServiceImpl implements IPackagePostService {
 
 	@Override
 	@Transactional
-	public PackagePost savePackagePost(PackagePostReqDto packagePostReqDto, String airWayBillCode)
+	public PackagePost savePackagePost(PackagePostReqDto packagePostReqDto, long awbId)
 			throws BestWorkBussinessException {
 		PackagePost packagePost = new PackagePost();
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
 		try {
-			packagePost.setAirWayBill(airWayBillCode);
+			packagePost.setAirWayBill(awbId);
 			packagePost.setDescription(packagePostReqDto.getDescription());
 			packagePost.setComment(packagePostReqDto.getComment());
 			packagePost.setCreateBy(userAuthRoleReq.getUsername());
@@ -68,7 +68,7 @@ public class PackagePostServiceImpl implements IPackagePostService {
 	}
 
 	@Override
-	public void updatePackagePost(List<MultipartFile> mFiles, PackagePostReqDto packagePostReqDto, String airWayCode)
+	public void updatePackagePost(List<MultipartFile> mFiles, PackagePostReqDto packagePostReqDto, long awbId)
 			throws BestWorkBussinessException {
 		PackagePost createPackagePost = null;
 		if (!sftpFileService.isValidFile(mFiles)) {
@@ -76,11 +76,11 @@ public class PackagePostServiceImpl implements IPackagePostService {
 		}
 		try {
 			// Save information for post invoice
-			createPackagePost = this.savePackagePost(packagePostReqDto, airWayCode);
+			createPackagePost = this.savePackagePost(packagePostReqDto, awbId);
 			long postPackageId = createPackagePost.getId();
 			// Upload file of post invoice into sever
 			for (MultipartFile mFile : mFiles) {
-				String pathServer = sftpFileService.uploadPackage(mFile, airWayCode, postPackageId);
+				String pathServer = sftpFileService.uploadPackage(mFile, awbId, postPackageId);
 				// Save path file of post invoice
 				iStorageService.storeFile(postPackageId, FolderType.PACKAGE, pathServer);
 			}
@@ -123,8 +123,8 @@ public class PackagePostServiceImpl implements IPackagePostService {
 	}
 
 	@Override
-	public List<PackagePostResDto> getAllPackagePost(String airWayBillCode) throws BestWorkBussinessException {
-		List<PackagePost> listPackagePost = packagePostRepository.findByAirWayBill(airWayBillCode);
+	public List<PackagePostResDto> getAllPackagePost(long awbId) throws BestWorkBussinessException {
+		List<PackagePost> listPackagePost = packagePostRepository.findByAirWayBill(awbId);
 		List<PackagePostResDto> listPackagePostResDto = null;
 		PackagePostResDto res = null;
 		if (ObjectUtils.isNotEmpty(listPackagePost)) {
@@ -183,10 +183,10 @@ public class PackagePostServiceImpl implements IPackagePostService {
 	}
 
 	@Override
-	public List<CustomClearancePackageFileResDto> getPackageClearance(String code) throws BestWorkBussinessException {
+	public List<CustomClearancePackageFileResDto> getPackageClearance(long awbId) throws BestWorkBussinessException {
 		List<CustomClearancePackageFileResDto> lst = new ArrayList<>();
 		CustomClearancePackageFileResDto customClearancePackageFileResDto = null;
-		List<PackageFileProjection> res = packagePostRepository.getClearancePackageInfo(code);
+		List<PackageFileProjection> res = packagePostRepository.getClearancePackageInfo(awbId);
 		for (PackageFileProjection projection : res) {
 			customClearancePackageFileResDto = new CustomClearancePackageFileResDto();
 			customClearancePackageFileResDto.setFileId(projection.getFileId());
@@ -214,7 +214,7 @@ public class PackagePostServiceImpl implements IPackagePostService {
 			if (ObjectUtils.isNotEmpty(postPackageId) && ObjectUtils.isNotEmpty(postCommentRequestDto)) {
 				// Check exist post invoice with air way bill in DB
 				currentPost = this.packagePostRepository.findByIdAndAirWayBill(postPackageId,
-						postCommentRequestDto.getAirWayBillCode());
+						postCommentRequestDto.getAwbId());
 				if (ObjectUtils.isEmpty(currentPost)) {
 					throw new BestWorkBussinessException(CommonConstants.MessageCode.eP0003, null);
 				}

@@ -6,14 +6,14 @@ import java.util.List;
 
 import javax.servlet.ServletContext;
 
-import com.nineplus.bestwork.utils.CommonConstants;
+import com.nineplus.bestwork.entity.UserEntity;
+import com.nineplus.bestwork.services.UserService;
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.ConfigAttribute;
-import org.springframework.security.config.annotation.web.AbstractRequestMatcherRegistry;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.FilterInvocation;
-import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.util.UriTemplate;
@@ -24,11 +24,14 @@ import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.model.enumtype.Status;
 import com.nineplus.bestwork.services.PermissionService;
 import com.nineplus.bestwork.services.SysActionService;
+import com.nineplus.bestwork.utils.CommonConstants;
 
 public class CustomRoleBasedVoter implements AccessDecisionVoter<FilterInvocation> {
 	private SysActionService sysActionService;
 
 	private PermissionService permissionService;
+
+	private UserService userService;
 	public static String[] PUBLIC_URL;
 
 	public CustomRoleBasedVoter(String[] PUBLIC_URL_LIST) {
@@ -50,23 +53,26 @@ public class CustomRoleBasedVoter implements AccessDecisionVoter<FilterInvocatio
 	@Override
 	public int vote(Authentication authentication, FilterInvocation fi, Collection<ConfigAttribute> attributes) {
 		String url = fi.getRequestUrl().split("\\?")[0];
-		if(url.contains(CommonConstants.ApiPath.BASE_PATH)){
+		if (url.contains(CommonConstants.ApiPath.BASE_PATH)) {
 			url = url.split(CommonConstants.ApiPath.BASE_PATH)[1];
 		}
 		String methodType = fi.getRequest().getMethod();
-		if (isWhiteList(url)){
+		if (isWhiteList(url)) {
 			return ACCESS_GRANTED;
 		}
-		if (sysActionService == null) {
+		if (sysActionService == null || permissionService == null || userService == null) {
 			ServletContext servletContext = fi.getRequest().getServletContext();
 			WebApplicationContext webApplicationContext = WebApplicationContextUtils
 					.getWebApplicationContext(servletContext);
+			assert webApplicationContext != null;
 			sysActionService = webApplicationContext.getBean(SysActionService.class);
 			permissionService = webApplicationContext.getBean(PermissionService.class);
+			userService = webApplicationContext.getBean(UserService.class);
 		}
 		fi.getHttpRequest().getMethod();
 		List<String> roleNames = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
-		List<SysActionEntity> actionList = sysActionService.getSysActionBySysRole(roleNames, methodType);
+		UserEntity adminUser = userService.getAdminUser(((User) authentication.getPrincipal()).getUsername());
+		List<SysActionEntity> actionList = sysActionService.getSysActionBySysRole(roleNames, methodType, adminUser.getId());
 		SysActionEntity actionCheck = null;
 		UriTemplate uriTemplate;
 		List<Integer> lstStt = new ArrayList<>();
@@ -83,7 +89,7 @@ public class CustomRoleBasedVoter implements AccessDecisionVoter<FilterInvocatio
 		if (actionCheck != null) {
 			try {
 				List<SysPermissionEntity> permissionEntities = permissionService.getPermissionsByRole(roleNames, lstStt,
-						actionCheck.getId());
+						actionCheck.getId(), ((User) authentication.getPrincipal()).getUsername());
 				if (!permissionEntities.isEmpty()) {
 					SysPermissionEntity sysPermission = permissionEntities.get(0);
 					switch (actionCheck.getActionType()) {

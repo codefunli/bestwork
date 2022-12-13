@@ -44,6 +44,9 @@ public class EvidenceBeforeResDto extends BaseDto {
 	@JsonProperty("updateBy")
 	private String updateBy;
 
+	@JsonProperty("postType")
+	private String postType;
+
 	@JsonProperty("fileStorages")
 	private List<FileStorageResDto> fileStorages;
 

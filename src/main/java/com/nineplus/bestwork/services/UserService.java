@@ -126,7 +126,7 @@ public class UserService implements UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
-		UserEntity user = userRepo.findByUserName(userName);
+		UserEntity user = userRepo.findByUserNameLogIn(userName, LocalDateTime.now().toString());
 		if (ObjectUtils.isEmpty(user)) {
 			throw new UsernameNotFoundException("User not found");
 		}
@@ -248,10 +248,6 @@ public class UserService implements UserDetailsService {
 		ScheduleServiceImpl.isCompleted = true;
 
 		return createdUser;
-	}
-
-	public List<UserEntity> findAllUsersByCompanyId(long companyId) {
-		return this.userRepo.findAllUsersByCompanyId(companyId);
 	}
 
 	public UserEntity getUserById(long userId) throws BestWorkBussinessException {
@@ -503,14 +499,12 @@ public class UserService implements UserDetailsService {
 		if (companyRes != null) {
 			userResDto.setCompany(companyRes);
 		}
-		if (listAssignDto != null) {
-			userResDto.setRoleProject(listAssignDto);
-		}
+		userResDto.setRoleProject(listAssignDto);
 		List<String> roleList = new ArrayList<>();
 		roleList.add(user.getRole().getRoleName());
 		List<Integer> lstStt = new ArrayList<>();
 		lstStt.add(Status.ACTIVE.getValue());
-		Map<Long, List<PermissionResDto>> permissions = permissionService.getMapPermissions(roleList, lstStt);
+		Map<Long, List<PermissionResDto>> permissions = permissionService.getMapPermissions(roleList, lstStt, userAuthUtils.getUserInfoFromReq(false).getUsername());
 		userResDto.setPermissions(permissions);
 		return userResDto;
 	}
@@ -532,6 +526,19 @@ public class UserService implements UserDetailsService {
 	public List<UserEntity> findUserAllowUpdPrj(String prjId) {
 		List<UserEntity> userList = this.userRepo.findUserAllwUpdPrj(prjId);
 		return userList;
+	}
+
+	public UserEntity getAdminUser(String childUsername) {
+		UserEntity childUser = userRepo.findUserByUserName(childUsername);
+		UserEntity adminUser = null;
+		if (ObjectUtils.isNotEmpty(childUser)) {
+			if (childUser.getRole().getRoleName().equals(CommonConstants.RoleName.SYS_COMPANY_ADMIN) ||
+					childUser.getRole().getRoleName().equals(CommonConstants.RoleName.SYS_ADMIN)) {
+				return childUser;
+			}
+			adminUser = userRepo.findByUserName(childUser.getCreateBy());
+		}
+		return adminUser;
 	}
 
 }

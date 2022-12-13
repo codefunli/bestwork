@@ -28,7 +28,7 @@ public class AirWayBillResDto extends BaseDto {
 	private String note;
 
 	@JsonProperty("status")
-	private String status;
+	private int status;
 
 	@JsonProperty("createDate")
 	private String createDate;

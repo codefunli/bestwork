@@ -64,10 +64,10 @@ public class SysActionEntity {
 	@Column(name = "created_date", nullable = false)
 	private Timestamp createdDate;
 
-	@Column(name = "updated_user", nullable = false, columnDefinition = "varchar(20)")
+	@Column(name = "updated_user", columnDefinition = "varchar(20)")
 	private String updatedUser;
 
-	@Column(name = "updated_date", nullable = false)
+	@Column(name = "updated_date")
 	private Timestamp updatedDate;
 
 	@ManyToOne

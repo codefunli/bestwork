@@ -61,15 +61,17 @@ public class EvidenAfterPostServiceImpl implements IEvidenAfterPostService {
 		}
 		try {
 			if (ObjectUtils.isNotEmpty(evidenceAfterReqDto)) {
-				String airWayCode = evidenceAfterReqDto.getAirWayBillCode();
+				long awbId = evidenceAfterReqDto.getAwbId();
 				// Save information for post invoice
 				evidenceAfter = this.saveEvidenceAfter(evidenceAfterReqDto);
 				long evidenceBeforePostId = evidenceAfter.getId();
 				// Upload file of post invoice into sever
 				for (MultipartFile mFile : mFiles) {
-					String pathServer = sftpFileService.uploadEvidenceAfter(mFile, airWayCode, evidenceBeforePostId);
-					// Save path file of post invoice
-					iStorageService.storeFile(evidenceBeforePostId, FolderType.EVIDENCE_AFTER, pathServer);
+					if (!mFile.isEmpty()) {
+						String pathServer = sftpFileService.uploadEvidenceAfter(mFile, awbId, evidenceBeforePostId);
+						// Save path file of post invoice
+						iStorageService.storeFile(evidenceBeforePostId, FolderType.EVIDENCE_AFTER, pathServer);
+					}
 				}
 			}
 		} catch (Exception ex) {
@@ -83,7 +85,7 @@ public class EvidenAfterPostServiceImpl implements IEvidenAfterPostService {
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
 		EvidenceAfterPost evidenceAfter = new EvidenceAfterPost();
 		try {
-			evidenceAfter.setAirWayBill(evidenceAfterReqDto.getAirWayBillCode());
+			evidenceAfter.setAirWayBill(evidenceAfterReqDto.getAwbId());
 			evidenceAfter.setDescription(evidenceAfterReqDto.getDescription());
 			evidenceAfter.setCreateBy(userAuthRoleReq.getUsername());
 			evidenceAfter.setUpdateBy(userAuthRoleReq.getUsername());
@@ -96,8 +98,8 @@ public class EvidenAfterPostServiceImpl implements IEvidenAfterPostService {
 	}
 
 	@Override
-	public List<EvidenceAfterResDto> getAllEvidenceAfter(String airWayBillId) throws BestWorkBussinessException {
-		List<EvidenceAfterPost> listEvidence = evidenceAfterPostRepository.findByAirWayBill(airWayBillId);
+	public List<EvidenceAfterResDto> getAllEvidenceAfter(long awbId) throws BestWorkBussinessException {
+		List<EvidenceAfterPost> listEvidence = evidenceAfterPostRepository.findByAirWayBill(awbId);
 		List<EvidenceAfterResDto> listEvidenceResDto = new ArrayList<>();
 		EvidenceAfterResDto res = null;
 		for (EvidenceAfterPost evidence : listEvidence) {
@@ -143,7 +145,7 @@ public class EvidenAfterPostServiceImpl implements IEvidenAfterPostService {
 		if (ObjectUtils.isNotEmpty(evidenceAfterPostId) && ObjectUtils.isNotEmpty(postCommentRequestDto)) {
 			// Check exist post invoice with air way bill in DB
 			evidenceAfter = this.evidenceAfterPostRepository.findByIdAndAirWayBill(evidenceAfterPostId,
-					postCommentRequestDto.getAirWayBillCode());
+					postCommentRequestDto.getAwbId());
 			if (ObjectUtils.isEmpty(evidenceAfter)) {
 				throw new BestWorkBussinessException(CommonConstants.MessageCode.eEA0002, null);
 			}

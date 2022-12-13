@@ -44,7 +44,7 @@ public class EvidenceAfterPost {
 	private String comment;
 
 	@Column(name = "airway_bill")
-	private String airWayBill;
+	private long airWayBill;
 
 	@CreationTimestamp
 	@Column(name = "create_date")

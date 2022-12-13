@@ -13,21 +13,21 @@ import com.nineplus.bestwork.entity.PackagePost;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 
 public interface IPackagePostService {
-	PackagePost savePackagePost(PackagePostReqDto packagePostReqDto, String airWayBillCode)
+	PackagePost savePackagePost(PackagePostReqDto packagePostReqDto, long awbId)
 			throws BestWorkBussinessException;
 
 	Optional<PackagePost> getPackagePost(Long packagePostId) throws BestWorkBussinessException;
 
-	void updatePackagePost(List<MultipartFile> mFiles, PackagePostReqDto packagePostReqDto, String airWayCode)
+	void updatePackagePost(List<MultipartFile> mFiles, PackagePostReqDto packagePostReqDto, long awbId)
 			throws BestWorkBussinessException;
 
 	public PackagePostResDto getDetailPackage(Long packagePostId) throws BestWorkBussinessException;
 
-	List<PackagePostResDto> getAllPackagePost(String airWayBillCode) throws BestWorkBussinessException;
+	List<PackagePostResDto> getAllPackagePost(long awbId) throws BestWorkBussinessException;
 
 	byte[] getFile(Long packagePostId, Long fileId) throws BestWorkBussinessException;
 
-	List<CustomClearancePackageFileResDto> getPackageClearance(String code) throws BestWorkBussinessException;
+	List<CustomClearancePackageFileResDto> getPackageClearance(long awbId) throws BestWorkBussinessException;
 
 	String getPathFileToDownload(long packagePostId, long fileId);
 

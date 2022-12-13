@@ -27,7 +27,7 @@ public interface IProjectService {
 
 	public Optional<ProjectEntity> getProjectById(String id) throws BestWorkBussinessException;
 
-	public void deleteProjectById(List<String> list) throws BestWorkBussinessException;
+	public void deleteProjectByIds(List<String> list) throws BestWorkBussinessException;
 
 	public void saveProject(ProjectTaskReqDto projectTaskDto, ProjectTypeEntity type) throws BestWorkBussinessException;
 
@@ -51,7 +51,7 @@ public interface IProjectService {
 
 	public List<ProjectEntity> getPrjCreatedByCurUser(String curUsername);
 
-	public List<ProjectEntity> getPrAssignedToCurUser(String curUsername);
+	public List<ProjectEntity> getPrjAssignedToCurUser(String curUsername);
 
 	public ProjectEntity getPrjByCstrtId(long constructionId);
 
@@ -60,5 +60,11 @@ public interface IProjectService {
 	public List<ProjectEntity> getPrj4SysAdmin(String curUsername);
 
 	public List<ProjectEntity> getPrjLstByAnyUsername(UserAuthDetected userAuthRoleReq);
+
+	public void updateStsProject(String projectCode) throws BestWorkBussinessException;
+
+    	Integer countProjectUser(String username);
+
+	List<List<Integer>> countPrjConsByMonth(String username, Integer year);
 
 }
