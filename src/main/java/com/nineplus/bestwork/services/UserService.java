@@ -68,8 +68,6 @@ import com.nineplus.bestwork.utils.UserAuthUtils;
 public class UserService implements UserDetailsService {
 	int countUserLoginFailedBlocked = 5;
 
-	private final int MAX_LOGIN_FAILED_NUM = 5;
-
 	@SuppressWarnings("unused")
 	private final Logger logger = LoggerFactory.getLogger(UserService.class);
 
@@ -250,7 +248,7 @@ public class UserService implements UserDetailsService {
 			user.setUserAvatar(userReqDto.getAvatar().getBytes());
 		}
 		UserEntity createdUser = this.userRepo.save(user);
-		if (user.getRole().getRoleName().equals(CommonConstants.RoleName.SYS_COMPANY_ADMIN)){
+		if (user.getRole().getRoleName().equals(CommonConstants.RoleName.SYS_COMPANY_ADMIN)) {
 			roleService.createDefaultRoleForAdmin(createdUser);
 			permissionService.createPermissionsForNewSysCompanyAdmin(createdUser);
 		}
@@ -284,7 +282,7 @@ public class UserService implements UserDetailsService {
 		userResDto.setEmail(user.getEmail());
 		userResDto.setTelNo(user.getTelNo());
 		userResDto.setEnable(user.isEnable());
-		if (user.getLoginFailedNum() > MAX_LOGIN_FAILED_NUM) {
+		if (user.getLoginFailedNum() > countUserLoginFailedBlocked) {
 			userResDto.setEnable(false);
 		} else {
 			userResDto.setEnable(true);
