@@ -71,7 +71,7 @@ public class CustomRoleBasedVoter implements AccessDecisionVoter<FilterInvocatio
 		}
 		fi.getHttpRequest().getMethod();
 		List<String> roleNames = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
-		UserEntity adminUser = userService.getAdminUser(((User) authentication.getPrincipal()).getUsername());
+		UserEntity adminUser = userService.getAdminUser((String) authentication.getPrincipal());
 		List<SysActionEntity> actionList = sysActionService.getSysActionBySysRole(roleNames, methodType, adminUser.getId());
 		SysActionEntity actionCheck = null;
 		UriTemplate uriTemplate;
@@ -89,7 +89,7 @@ public class CustomRoleBasedVoter implements AccessDecisionVoter<FilterInvocatio
 		if (actionCheck != null) {
 			try {
 				List<SysPermissionEntity> permissionEntities = permissionService.getPermissionsByRole(roleNames, lstStt,
-						actionCheck.getId(), ((User) authentication.getPrincipal()).getUsername());
+						actionCheck.getId(), (String) authentication.getPrincipal());
 				if (!permissionEntities.isEmpty()) {
 					SysPermissionEntity sysPermission = permissionEntities.get(0);
 					switch (actionCheck.getActionType()) {
