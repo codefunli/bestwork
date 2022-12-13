@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import com.nineplus.bestwork.entity.UserEntity;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.modelmapper.ModelMapper;
@@ -24,6 +23,7 @@ import com.nineplus.bestwork.dto.PageResDto;
 import com.nineplus.bestwork.dto.ResRoleDto;
 import com.nineplus.bestwork.dto.SearchDto;
 import com.nineplus.bestwork.entity.RoleEntity;
+import com.nineplus.bestwork.entity.UserEntity;
 import com.nineplus.bestwork.exception.BestWorkBussinessException;
 import com.nineplus.bestwork.model.UserAuthDetected;
 import com.nineplus.bestwork.repository.RoleRepository;
@@ -162,6 +162,10 @@ public class RoleService {
 		List<RoleEntity> result = roleRepository.findAll();
 		if (userAuthRoleReq.getIsSysCompanyAdmin()) {
 			result.removeIf(x -> RoleName.SYS_ADMIN.equals(x.getRoleName()));
+		}
+		if (userAuthRoleReq.getIsSysCompanyAdmin() || userAuthRoleReq.getIsOrgAdmin()) {
+			result.removeIf(x -> RoleName.SYS_ADMIN.equals(x.getRoleName()));
+			result.removeIf(x -> RoleName.SYS_COMPANY_ADMIN.equals(x.getRoleName()));
 		}
 		return result;
 	}

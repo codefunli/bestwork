@@ -56,6 +56,7 @@ import com.nineplus.bestwork.repository.UserProjectRepository;
 import com.nineplus.bestwork.repository.UserRepository;
 import com.nineplus.bestwork.services.impl.ScheduleServiceImpl;
 import com.nineplus.bestwork.utils.CommonConstants;
+import com.nineplus.bestwork.utils.CommonConstants.RoleName;
 import com.nineplus.bestwork.utils.ConvertResponseUtils;
 import com.nineplus.bestwork.utils.Enums.TRole;
 import com.nineplus.bestwork.utils.MessageUtils;
@@ -204,29 +205,16 @@ public class UserService implements UserDetailsService {
 	public UserEntity createUser(UserReqDto userReqDto) throws BestWorkBussinessException {
 
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
-		if (!(userAuthRoleReq.getIsOrgAdmin() || userAuthRoleReq.getIsSysAdmin())) {
+		if (!(userAuthRoleReq.getIsSysAdmin() || userAuthRoleReq.getIsSysCompanyAdmin()
+				|| userAuthRoleReq.getIsOrgAdmin())) {
 			throw new BestWorkBussinessException(CommonConstants.MessageCode.E1X0014, null);
 		}
 		String createUser = userAuthRoleReq.getUsername();
-		RoleEntity role = new RoleEntity();
-		if (ObjectUtils.isNotEmpty(userReqDto.getRole())) {
-			Optional<RoleEntity> roleOptional = roleRepository.findById(userReqDto.getRole());
-			if (roleOptional.isPresent()) {
-				role = roleOptional.get();
-			} else {
-				throw new BestWorkBussinessException(CommonConstants.MessageCode.eR0002, null);
-			}
-		}
+
+		this.validateUserInfo(userReqDto);
 		Set<CompanyEntity> companies = new HashSet<>();
-		CompanyEntity companyCurrent = new CompanyEntity();
-		if (ObjectUtils.isNotEmpty(userReqDto.getCompany())) {
-			companyCurrent = companyRepository.findByCompanyId(userReqDto.getCompany());
-			if (companyCurrent != null) {
-				companies.add(companyCurrent);
-			} else {
-				throw new BestWorkBussinessException(CommonConstants.MessageCode.CPN0003, null);
-			}
-		}
+		Optional<CompanyEntity> companyOpt = companyRepository.findById(userReqDto.getCompany());
+		companies.add(companyOpt.get());
 
 		UserEntity user = new UserEntity();
 		user.setCompanys(companies);
@@ -238,26 +226,73 @@ public class UserService implements UserDetailsService {
 		user.setTelNo(userReqDto.getTelNo());
 		user.setEnable(userReqDto.isEnabled());
 		user.setLoginFailedNum(0);
-		user.setRole(role);
+		user.setRole(this.roleRepository.findById(userReqDto.getRole()).get());
 		user.setCreateBy(createUser);
 		user.setCreateDate(LocalDateTime.now());
 		user.setDeleteFlag(0);
-		if (null != userReqDto.getAvatar()) {
+		if (ObjectUtils.isNotEmpty(userReqDto.getAvatar())) {
 			user.setUserAvatar(userReqDto.getAvatar().getBytes());
 		}
 		UserEntity createdUser = this.userRepo.save(user);
-		if (user.getRole().getRoleName().equals(CommonConstants.RoleName.SYS_COMPANY_ADMIN)){
+		if (user.getRole().getRoleName().equals(CommonConstants.RoleName.SYS_COMPANY_ADMIN)) {
 			roleService.createDefaultRoleForAdmin(createdUser);
 			permissionService.createPermissionsForNewSysCompanyAdmin(createdUser);
 		}
-		mailStorageService.saveMailRegisterUserCompToSendLater(userReqDto.getEmail(), companyCurrent.getCompanyName(),
+		mailStorageService.saveMailRegisterUserCompToSendLater(userReqDto.getEmail(), companyOpt.get().getCompanyName(),
 				userReqDto.getUserName(), userReqDto.getPassword());
 		ScheduleServiceImpl.isCompleted = true;
 
 		return createdUser;
 	}
 
-	public UserEntity getUserById(long userId) throws BestWorkBussinessException {
+	private void validateUserInfo(UserReqDto userReqDto) throws BestWorkBussinessException {
+		if (ObjectUtils.isEmpty(userReqDto.getRole())) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.EMP0001,
+					new Object[] { CommonConstants.Character.ROLE_FIELD });
+		}
+		Optional<RoleEntity> roleOpt = roleRepository.findById(userReqDto.getRole());
+		if (roleOpt.isEmpty()) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.eR0002, null);
+		}
+
+		if (ObjectUtils.isEmpty(userReqDto.getCompany())) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.EMP0001,
+					new Object[] { CommonConstants.Character.COMPANY_FIELD });
+		}
+		Optional<CompanyEntity> companyOpt = companyRepository.findById(userReqDto.getCompany());
+		if (companyOpt.isEmpty()) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.CPN0003, null);
+		}
+		if (ObjectUtils.isEmpty(userReqDto.getUserName())) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.EMP0001,
+					new Object[] { CommonConstants.Character.USER_NAME });
+		}
+		UserEntity user = this.userRepo.findByUserName(userReqDto.getUserName());
+		if (ObjectUtils.isNotEmpty(user)) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.EXS0003,
+					new Object[] { CommonConstants.Character.USER_NAME });
+		}
+		if (ObjectUtils.isEmpty(userReqDto.getFirstName())) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.EMP0001,
+					new Object[] { CommonConstants.Character.FIRSTNAME_FIELD });
+		}
+		if (ObjectUtils.isEmpty(userReqDto.getLastName())) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.EMP0001,
+					new Object[] { CommonConstants.Character.LASTNAME_FIELD });
+		}
+		if (ObjectUtils.isEmpty(userReqDto.getEmail())) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.EMP0001,
+					new Object[] { CommonConstants.Character.EMAIL_FIELD });
+		}
+		UserEntity userByEmail = this.userRepo.findByEmail(userReqDto.getEmail());
+		if (ObjectUtils.isNotEmpty(userByEmail)) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.EXS0003,
+					new Object[] { CommonConstants.Character.USER_MAIL });
+		}
+
+	}
+
+	public UserResDto getUserById(long userId) throws BestWorkBussinessException {
 		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
 		CompanyEntity company = companyRepository.findById(findCompanyIdByUsername(userAuthRoleReq))
 				.orElse(new CompanyEntity());
@@ -265,9 +300,36 @@ public class UserService implements UserDetailsService {
 		if (null != company.getId()) {
 			userOptional = this.userRepo.findUserById(userId, String.valueOf(company.getId()));
 		} else {
-			userOptional = this.userRepo.findUserById(userId, "%%");
+			userOptional = this.userRepo.findById(userId);
 		}
-		return userOptional.orElse(null);
+
+		if (userOptional.isEmpty()) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.ECU0002, null);
+		}
+		UserEntity user = userOptional.get();
+		UserResDto userResDto = new UserResDto();
+		userResDto.setId(userId);
+		userResDto.setUserName(user.getUserName());
+		userResDto.setFirstName(user.getFirstName());
+		userResDto.setLastName(user.getLastName());
+		userResDto.setEmail(user.getEmail());
+		userResDto.setTelNo(user.getTelNo());
+		userResDto.setEnable(user.isEnable());
+		if (user.getLoginFailedNum() > countUserLoginFailedBlocked) {
+			userResDto.setEnable(false);
+		} else {
+			userResDto.setEnable(true);
+		}
+		userResDto.setRole(user.getRole());
+		for (CompanyEntity tCompany : user.getCompanys()) {
+			userResDto.setCompany(tCompany);
+		}
+		if (null != user.getUserAvatar()) {
+			userResDto.setAvatar(new String(user.getUserAvatar(), StandardCharsets.UTF_8));
+		}
+		userResDto.setCreateDate(String.valueOf(user.getCreateDate()));
+		userResDto.setUpdateDate(String.valueOf(user.getUpdateDate()));
+		return userResDto;
 	}
 
 	@Transactional(rollbackFor = { Exception.class })
@@ -439,10 +501,10 @@ public class UserService implements UserDetailsService {
 			}
 		}
 
-		if (null != userReqDto.getAvatar()) {
+		if (ObjectUtils.isNotEmpty(userReqDto.getAvatar())) {
 			userEntity.setUserAvatar(userReqDto.getAvatar().getBytes());
 		} else {
-			userEntity.setUserAvatar("".getBytes());
+			userEntity.setUserAvatar(null);
 		}
 		userEntity.setCreateBy(user.getCreateBy());
 		userEntity.setCreateDate(user.getCreateDate());
@@ -452,9 +514,16 @@ public class UserService implements UserDetailsService {
 		return userEntity;
 	}
 
-	public List<RoleEntity> getAllRoles() {
+	public List<RoleEntity> getAllRoles() throws BestWorkBussinessException {
 		List<RoleEntity> roleList = this.roleRepository.findAll();
-		roleList.removeIf(tRole -> tRole.getId() == 1);
+		UserAuthDetected userAuthRoleReq = userAuthUtils.getUserInfoFromReq(false);
+		if (userAuthRoleReq.getIsSysAdmin()) {
+			roleList.removeIf(x -> RoleName.SYS_ADMIN.equals(x.getRoleName()));
+		}
+		if (userAuthRoleReq.getIsSysCompanyAdmin() || userAuthRoleReq.getIsOrgAdmin()) {
+			roleList.removeIf(x -> RoleName.SYS_ADMIN.equals(x.getRoleName()));
+			roleList.removeIf(x -> RoleName.SYS_COMPANY_ADMIN.equals(x.getRoleName()));
+		}
 		return roleList;
 	}
 
@@ -511,7 +580,8 @@ public class UserService implements UserDetailsService {
 		roleList.add(user.getRole().getRoleName());
 		List<Integer> lstStt = new ArrayList<>();
 		lstStt.add(Status.ACTIVE.getValue());
-		Map<Long, List<PermissionResDto>> permissions = permissionService.getMapPermissions(roleList, lstStt, userAuthUtils.getUserInfoFromReq(false).getUsername());
+		Map<Long, List<PermissionResDto>> permissions = permissionService.getMapPermissions(roleList, lstStt,
+				userAuthUtils.getUserInfoFromReq(false).getUsername());
 		userResDto.setPermissions(permissions);
 		return userResDto;
 	}
@@ -539,8 +609,8 @@ public class UserService implements UserDetailsService {
 		UserEntity childUser = userRepo.findUserByUserName(childUsername);
 		UserEntity adminUser = null;
 		if (ObjectUtils.isNotEmpty(childUser)) {
-			if (childUser.getRole().getRoleName().equals(CommonConstants.RoleName.SYS_COMPANY_ADMIN) ||
-					childUser.getRole().getRoleName().equals(CommonConstants.RoleName.SYS_ADMIN)) {
+			if (childUser.getRole().getRoleName().equals(CommonConstants.RoleName.SYS_COMPANY_ADMIN)
+					|| childUser.getRole().getRoleName().equals(CommonConstants.RoleName.SYS_ADMIN)) {
 				return childUser;
 			}
 			adminUser = userRepo.findByUserName(childUser.getCreateBy());

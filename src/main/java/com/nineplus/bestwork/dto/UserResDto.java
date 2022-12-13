@@ -43,6 +43,9 @@ public class UserResDto extends BaseDto {
 	@JsonProperty("avatar")
 	private String avatar;
 
+	@JsonProperty("createDate")
+	private String createDate;
+
 	@JsonProperty("updateDate")
 	private String updateDate;
 
