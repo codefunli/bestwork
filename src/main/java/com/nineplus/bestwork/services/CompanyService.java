@@ -1,6 +1,7 @@
 package com.nineplus.bestwork.services;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -93,7 +94,7 @@ public class CompanyService {
 		}
 
 		// validate company information
-		this.validateCpmnyInfor(companyReqDto.getCompany(), false);
+		this.validateCpmnyInfor(0, companyReqDto.getCompany(), false);
 
 		// validate user information
 		this.validateUserInfor(companyReqDto.getUser());
@@ -103,11 +104,11 @@ public class CompanyService {
 			companyReqDto.getCompany().setCreateBy(createUser);
 			CompanyEntity newCompanySaved = regist(companyReqDto);
 			RoleEntity role = null;
-			if(userAuthRoleReq.getIsSysAdmin()) {
-				 role = roleRepository.findRole(CommonConstants.RoleName.SYS_COMPANY_ADMIN);
-				}
-			if(userAuthRoleReq.getIsSysCompanyAdmin()) {
-			 role = roleRepository.findRole(CommonConstants.RoleName.CMPNY_ADMIN);
+			if (userAuthRoleReq.getIsSysAdmin()) {
+				role = roleRepository.findRole(CommonConstants.RoleName.SYS_COMPANY_ADMIN);
+			}
+			if (userAuthRoleReq.getIsSysCompanyAdmin()) {
+				role = roleRepository.findRole(CommonConstants.RoleName.CMPNY_ADMIN);
 			}
 
 			// Register user for this company
@@ -124,21 +125,42 @@ public class CompanyService {
 
 	/**
 	 */
-	public void validateCpmnyInfor(CompanyReqDto companyReqDto, boolean isEdit) throws BestWorkBussinessException {
+	public void validateCpmnyInfor(long companyId, CompanyReqDto companyReqDto, boolean isEdit)
+			throws BestWorkBussinessException {
 		// Validation register information
-		String companyName = companyReqDto.getCompanyName();
+		if (ObjectUtils.isNotEmpty(companyReqDto)) {
+			String companyName = companyReqDto.getCompanyName();
 
-		// Company name can not be empty
-		if (ObjectUtils.isEmpty(companyName)) {
-			throw new BestWorkBussinessException(CommonConstants.MessageCode.EMP0001,
-					new Object[] { CommonConstants.Character.CMPNY_NAME });
-		}
+			// Company name can not be empty
+			if (ObjectUtils.isEmpty(companyName)) {
+				throw new BestWorkBussinessException(CommonConstants.MessageCode.EMP0001,
+						new Object[] { CommonConstants.Character.CMPNY_NAME });
+			}
 
-		// Check exists company name in database
-		if (!isEdit) {
-			CompanyEntity company = companyRepository.findbyCompanyName(companyName);
-			if (!ObjectUtils.isEmpty(company)) {
-				throw new BestWorkBussinessException(CommonConstants.MessageCode.CPN0005, new Object[] { company });
+			// Check exists company name in database
+			if (!isEdit) {
+				CompanyEntity company = companyRepository.findbyCompanyName(companyName);
+				if (!ObjectUtils.isEmpty(company)) {
+					throw new BestWorkBussinessException(CommonConstants.MessageCode.CPN0005, new Object[] { company });
+				}
+			} else {
+				CompanyEntity currentComp = companyRepository.findById(companyId).get();
+				CompanyEntity company = companyRepository.findbyCompanyName(companyName);
+				if (ObjectUtils.isNotEmpty(company) && !currentComp.getCompanyName().equals(company.getCompanyName())) {
+					throw new BestWorkBussinessException(CommonConstants.MessageCode.CPN0008, null);
+				}
+			}
+			OffsetDateTime startDate = dateUtils.convertToOffSetDt(companyReqDto.getStartDate());
+			OffsetDateTime expiredDate = dateUtils.convertToOffSetDt(companyReqDto.getStartDate());
+
+			// Expired date can not be before start date
+			if(expiredDate.isBefore(startDate)) {
+				throw new BestWorkBussinessException(CommonConstants.MessageCode.eD0001, null);
+			} 
+
+			// Expired date can not be before start date
+			if(expiredDate.isBefore(OffsetDateTime.now())) {
+				throw new BestWorkBussinessException(CommonConstants.MessageCode.eD0002, null);
 			}
 		}
 
@@ -166,11 +188,18 @@ public class CompanyService {
 					new Object[] { CommonConstants.Character.PASSWORD });
 		}
 
+		// Check exists user name in DB
+		UserEntity curUser = userRepos.findByUserName(userName);
+		if (!ObjectUtils.isEmpty(curUser)) {
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.EXS0003, new Object[] { userName } );
+		}
+
 		// Check exists user email in DB
 		UserEntity user = userRepos.findByEmail(userEmail);
 		if (!ObjectUtils.isEmpty(user)) {
-			throw new BestWorkBussinessException(CommonConstants.MessageCode.US0002, new Object[] { user });
+			throw new BestWorkBussinessException(CommonConstants.MessageCode.EXS0003, new Object[] { userEmail });
 		}
+		
 	}
 
 	public CompanyEntity regist(CompanyUserReqDto companyReqDto) throws BestWorkBussinessException {
@@ -212,7 +241,7 @@ public class CompanyService {
 		}
 
 		// validate company information
-		this.validateCpmnyInfor(companyReqDto, true);
+		this.validateCpmnyInfor(companyId, companyReqDto, true);
 
 		CompanyEntity currentCompany = null;
 

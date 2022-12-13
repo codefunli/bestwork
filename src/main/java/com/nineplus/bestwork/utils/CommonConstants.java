@@ -156,8 +156,9 @@ public class CommonConstants {
 		public static final String CPN0005 = "CPN0005";
 		public static final String CPN0006 = "CPN0006";
 		public static final String CPN0007 = "CPN0007";
+		public static final String CPN0008 = "CPN0008";
 		public static final String EMP0001 = "EMP0001";
-		public static final String US0002 = "EMP0002";
+		public static final String EMP0002 = "EMP0002";
 		public static final String EXS0003 = "EXS0003";
 		public static final String EXS0004 = "EXS0004";
 		public static final String EXS0005 = "EXS0005";
@@ -321,6 +322,10 @@ public class CommonConstants {
 		public static final String ENA0002 = "ena0002";
 
 		public static final String TL0001 = "tl0001";
+		
+		public static final String eD0001 = "eD0001";
+		public static final String eD0002 = "eD0002";
+		
 	}
 
 	public class SpringMail {
