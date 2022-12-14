@@ -114,7 +114,9 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 			if (!isLocked) {
 				countLoginFailed += 1;
 				tUserAuth.setLoginFailedNum(countLoginFailed);
-				tUserAuth.setEnable(false);
+				if (tUserAuth.getLoginFailedNum() >= 5) {
+					tUserAuth.setEnable(false);
+				}
 				userService.saveUser(tUserAuth);
 			}
 			loginFailedDTO.setUsername(tUserAuth.getUserName());
